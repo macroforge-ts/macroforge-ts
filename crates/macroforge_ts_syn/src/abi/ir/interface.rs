@@ -27,6 +27,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::abi::ir::TypeParamIR;
 
+use crate::abi::ir::class::MemberKey;
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript interface declaration.
@@ -136,6 +137,10 @@ pub struct InterfaceFieldIR {
     /// The property name (identifier).
     pub name: String,
 
+    /// How the property's key is written.
+    #[serde(default)]
+    pub key: MemberKey,
+
     /// Source span of the property signature.
     pub span: SpanIR,
 
@@ -206,6 +211,20 @@ pub struct InterfaceMethodIR {
 }
 
 impl InterfaceMethodIR {
+    /// The method as the member a value of the type has for it: a field
+    /// that holds a function.
+    pub fn as_field(&self) -> InterfaceFieldIR {
+        InterfaceFieldIR {
+            name: self.name.clone(),
+            key: MemberKey::Named,
+            span: self.span,
+            ts_type: format!("({}) => {}", self.params_src, self.return_type_src),
+            optional: self.optional,
+            readonly: false,
+            decorators: self.decorators.clone(),
+        }
+    }
+
     /// Resets every source span, for comparing declarations by content.
     pub(crate) fn clear_spans(&mut self) {
         self.span = SpanIR::default();

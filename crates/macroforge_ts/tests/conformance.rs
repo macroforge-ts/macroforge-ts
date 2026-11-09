@@ -16,6 +16,7 @@ use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::host::scanner::{ProjectScanner, ScanConfig, ScanOutput};
 use macroforge_ts::host::{MacroExpander, MacroExpansion};
 use macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry;
+use macroforge_ts::ts_syn::source_path::{TYPESCRIPT_EXTENSIONS, has_extension};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
@@ -531,9 +532,8 @@ fn project_files(project: &TestgroundProject) -> Vec<CorpusFile> {
         if file_name.contains(".expanded.") {
             continue;
         }
-        let extension = path.extension().and_then(|extension| extension.to_str());
-        let is_typescript = matches!(extension, Some("ts" | "tsx"));
-        let is_svelte = extension == Some("svelte");
+        let is_typescript = has_extension(file_name, &TYPESCRIPT_EXTENSIONS);
+        let is_svelte = file_name.ends_with(".svelte");
         if !is_typescript && !is_svelte {
             continue;
         }

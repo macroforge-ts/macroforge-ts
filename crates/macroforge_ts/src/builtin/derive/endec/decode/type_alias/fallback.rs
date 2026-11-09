@@ -3,14 +3,15 @@
 
 use super::{AliasDecode, view};
 use crate::ast::Expr;
-use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::type_alias::TypeBody;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
-use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
-use crate::builtin::derive::endec::get_foreign_types;
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_guards, guarded_param_decoders,
+};
 use crate::builtin::return_types::{decode_return_type, wrap_error, wrap_success};
 
 pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream, MacroforgeError> {
@@ -23,22 +24,29 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         generic_decl,
         generic_args,
         full_type_name,
-        type_registry,
-        caller_file_path,
-        file_imports,
         ..
     } = alias;
     // Fallback for other type alias forms (simple alias, tuple, etc.)
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_args
     );
     let fn_decode_internal_expr: Expr = fn_decode_internal_ident.into();
-    let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
-    let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", type_name.to_case(Case::Camel)).into();
+    let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
+    let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", function_prefix(type_name)).into();
     let full_type_ident = ts_ident!(full_type_name);
+    // A value `is` says yes to decodes, its type parameters' values checked
+    // by the guards handed in for them.
+    let param_names: Vec<String> = type_alias
+        .type_params()
+        .iter()
+        .map(|param| param.name.clone())
+        .collect();
+    let guards = declared_param_guards(&param_names);
+    let guarded = guarded_param_decoders(&param_names);
+    let fn_decode_ident_expr: Expr = ts_ident!("{}Decode", function_prefix(type_name)).into();
 
     // Compute return type and wrappers
     let return_type = decode_return_type(full_type_name);
@@ -56,30 +64,12 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
     let error_from_ctx_expr =
         Expr::parse(&error_from_ctx).expect("decode ctx error wrapper should parse");
 
-    // Use the type registry and foreign types to determine if this type accepts strings.
-    let foreign_types_config = get_foreign_types();
-    let accepts_string = type_accepts_string(
-        type_name,
-        type_registry,
-        caller_file_path,
-        file_imports,
-        &foreign_types_config,
-    );
-    let data_init_expr = if accepts_string {
-        Expr::parse("input").expect("data init expr should parse")
-    } else {
-        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
-            .expect("data init expr should parse")
-    };
-
     let mut result = ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&alias.coders}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const result = @{fn_decode_internal_expr}(data, ctx);
+                const result = @{fn_decode_internal_expr}(input, ctx@{&alias.passed_coders});
                 ctx.applyPatches();
                 if (opts?.freeze) {
                     ctx.freezeAll();
@@ -100,46 +90,39 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
             }
         }
 
-        export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            return @{fn_has_shape_expr}(value);
+        export function @{fn_is_ident}(value: unknown@{&guards}): value is @{full_type_ident} {
+            return @{fn_has_shape_expr}(value) && @{fn_decode_ident_expr}(value@{&guarded}).success;
         }
     };
-    let view = if let Some(elements) = type_alias.body().as_tuple() {
-        view::tuple_view(alias, elements)?
-    } else if let Some(ts_type) = type_alias.body().as_alias() {
-        view::whole_view(alias, ts_type)?
-    } else {
-        passthrough(alias)
+    // The object, union and intersection bodies have decoders of their own.
+    let view = match type_alias.body().unbranded() {
+        TypeBody::Tuple(elements) => view::tuple_view(alias, elements)?,
+        TypeBody::Alias(ts_type) | TypeBody::Other(ts_type) => view::whole_view(alias, ts_type)?,
+        TypeBody::Object { .. }
+        | TypeBody::Union(_)
+        | TypeBody::Intersection(_)
+        | TypeBody::Newtype(_) => {
+            return Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): type '{type_name}' has a body no decoder takes apart"),
+            ));
+        }
     };
     result = result.merge(view);
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode{}", function_prefix(type_name), generic_args);
+    result = result.merge(super::super::from_string::from_string_function(
+        &super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: &alias.coders,
+            passed_coders: &alias.passed_coders,
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ));
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     Ok(result)
-}
-
-/// The view functions for a value with no fields to decode, such as a
-/// function: it is kept as it is.
-fn passthrough(alias: &AliasDecode) -> TsStream {
-    let fn_decode_internal_ident = ts_ident!(
-        "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
-        alias.generic_decl
-    );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
-    let decode_context_ident = &alias.decode_context_ident;
-    let full_type_ident = ts_ident!(alias.full_type_name.as_str());
-    let type_ident = &alias.type_ident;
-    let reference = decode_reference(alias.type_name, &alias.full_type_name);
-    ts_template! {
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
-            {$typescript reference}
-            return value as @{type_ident};
-        }
-
-        export function @{fn_has_shape_ident}(value: unknown): boolean {
-            return value != null;
-        }
-    }
 }

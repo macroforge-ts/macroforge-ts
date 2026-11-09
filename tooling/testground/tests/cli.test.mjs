@@ -562,6 +562,131 @@ Deno.test('CLI expand: exits with code 2 when no macros found', () => {
     }
 });
 
+Deno.test('CLI expand: a derive that expands nothing fails, where a file without macros exits 2', () => {
+    setupTmpDir();
+    try {
+        const cases = {
+            'unattached.ts': [
+                '/** @derive(Clone) */\nexport const one = 1;\n',
+                'attached to nothing a derive expands'
+            ],
+            'unnamed.ts': [
+                '/** @derive(Clone) */\nexport default class {\n    x = 0;\n}\n',
+                'class without a name'
+            ],
+            'ambient.d.ts': [
+                '/** @derive(Clone) */\nexport interface Shape {\n    x: number;\n}\n',
+                'is a declaration file'
+            ],
+            'script.js': [
+                '/** @derive(Clone) */\nexport class Point {\n    x = 0;\n}\n',
+                'is a JavaScript file'
+            ],
+            'module.mjs': [
+                '/** @derive(Clone) */\nexport class Point {\n    x = 0;\n}\n',
+                'is a JavaScript file'
+            ]
+        };
+        for (const [name, [source, message]] of Object.entries(cases)) {
+            const input = path.join(tmpDir, name);
+            const out = path.join(tmpDir, `${name}.out`);
+            fs.writeFileSync(input, source);
+            const result = runCli(['expand', input, '--out', out]);
+            assertEquals(result.status, 1, `${name}:\n${result.stderr}`);
+            assert(result.stderr.includes(message), `${name}:\n${result.stderr}`);
+            assert(!existsSync(out), `${name} wrote an expansion`);
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI expand: a default that would never end is refused', () => {
+    setupTmpDir();
+    try {
+        const input = path.join(tmpDir, 'endless.ts');
+        fs.writeFileSync(
+            input,
+            [
+                '/** @derive(Default) */',
+                'export interface Left {',
+                '    right: Right;',
+                '}',
+                '',
+                '/** @derive(Default) */',
+                'export interface Right {',
+                '    left: Left;',
+                '}',
+                '',
+                '/** @derive(Default) */',
+                'export interface Fine {',
+                '    next: Fine | null;',
+                '    all: Fine[];',
+                '}',
+                ''
+            ].join('\n')
+        );
+        const result = runCli(['expand', input, '--out', path.join(tmpDir, 'endless.out')], {
+            cwd: tmpDir
+        });
+        assertEquals(result.status, 1, result.stderr);
+        assert(
+            result.stderr.includes(
+                "field 'right' needs a default of 'Left' itself, through `Right.left`"
+            ),
+            result.stderr
+        );
+        assert(
+            result.stderr.includes(
+                "field 'left' needs a default of 'Right' itself, through `Left.right`"
+            ),
+            result.stderr
+        );
+        assert(!result.stderr.includes("'Fine'"), result.stderr);
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI expand: a relative path names the file an absolute one does', () => {
+    setupTmpDir();
+    try {
+        // Two files declare `Part`, so only its file tells one from the other.
+        fs.writeFileSync(
+            path.join(tmpDir, 'other.ts'),
+            `/** @derive(Encode, Decode) */
+export interface Part { other: string; }
+`
+        );
+        fs.writeFileSync(
+            path.join(tmpDir, 'whole.ts'),
+            `/** @derive(Encode, Decode) */
+export interface Part { id: string; }
+
+/** @derive(Encode, Decode) */
+export interface Whole {
+    id: number;
+    /** @endec(flatten) */
+    part: Part;
+}
+`
+        );
+
+        for (const input of ['whole.ts', path.join(tmpDir, 'whole.ts')]) {
+            const result = runCli(['expand', input], { cwd: tmpDir });
+            assertEquals(result.success, false, `${input} expanded:\n${result.stderr}`);
+            assert(
+                result.stderr.includes(
+                    "fields 'id' and 'part' are both written under the key `id`"
+                ),
+                `${input}:\n${result.stderr}`
+            );
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: prints to stdout with --print flag', () => {
     setupTmpDir();
     try {
@@ -604,6 +729,94 @@ interface Item { id: string; }`
         );
     } finally {
         cleanupTmpDir();
+    }
+});
+
+Deno.test({
+    name: 'CLI expand: --out takes a device and leaves it one',
+    ignore: Deno.build.os === 'windows',
+    fn: () => {
+        setupTmpDir();
+        try {
+            const inputFile = path.join(tmpDir, 'to-null.ts');
+            fs.writeFileSync(
+                inputFile,
+                `/** @derive(Debug) */
+interface Item { id: string; }`
+            );
+
+            const result = runCli(['expand', inputFile, '--out', '/dev/null']);
+
+            assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+            assert(fs.statSync('/dev/null').isCharacterDevice(), '/dev/null is still a device');
+        } finally {
+            cleanupTmpDir();
+        }
+    }
+});
+
+Deno.test('CLI expand: a source that ends its lines with CRLF gets generated code that does', () => {
+    setupTmpDir();
+    try {
+        const inputFile = path.join(tmpDir, 'crlf.ts');
+        const outputFile = path.join(tmpDir, 'crlf.out.ts');
+        const typesFile = path.join(tmpDir, 'crlf.out.d.ts');
+        fs.writeFileSync(
+            inputFile,
+            [
+                "'use client';",
+                '/** @derive(Debug, Clone, Default, Encode, Decode) */',
+                'export interface Item {',
+                '    id: string;',
+                '    tags: string[];',
+                '}',
+                ''
+            ].join('\r\n')
+        );
+
+        const result = runCli(['expand', inputFile, '--out', outputFile, '--types-out', typesFile]);
+
+        assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+        for (const file of [outputFile, typesFile]) {
+            const written = fs.readFileSync(file, 'utf8');
+            assert(written.includes('\r\n'), `${file} keeps the CRLF line endings`);
+            assert(
+                !written.replaceAll('\r\n', '').includes('\n'),
+                `${file} has no line ending on its own LF`
+            );
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test("CLI expand: a type a file the scan skips declares is not the project's type of its name", () => {
+    // `dist` is a directory the scan skips, in a project that declares one
+    // `EdgeItem`, which derives every value trait.
+    const vanillaRoot = path.join(repoRoot, 'tooling', 'testground', 'vanilla');
+    const skipped = path.join(vanillaRoot, 'dist', 'macroforge-cli-local-type');
+    fs.mkdirSync(skipped, { recursive: true });
+    try {
+        const inputFile = path.join(skipped, 'local.ts');
+        const outputFile = path.join(skipped, 'local.out.ts');
+        fs.writeFileSync(
+            inputFile,
+            `export interface EdgeItem { other: boolean; }
+
+/** @derive(Clone, PartialEq, Hash) */
+export interface LocalHolder { held: EdgeItem; all: EdgeItem[]; }`
+        );
+
+        const result = runCli(['expand', inputFile, '--out', outputFile], { cwd: vanillaRoot });
+
+        assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+        const written = fs.readFileSync(outputFile, 'utf8');
+        for (const called of ['edgeItemClone', 'edgeItemEquals', 'edgeItemHashCode']) {
+            assert(!written.includes(called), `the local type is not coded by ${called}`);
+        }
+        assert(written.includes('localHolderClone'), 'the holder is expanded');
+    } finally {
+        fs.rmSync(skipped, { recursive: true, force: true });
     }
 });
 

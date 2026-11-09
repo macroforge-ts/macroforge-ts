@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -26,49 +27,66 @@ export interface Point {
 }
 
 export function pointToString(value: Point): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("x: " + String(value.x));
     parts.push("y: " + String(value.y));
-    return "Point { " + parts.join(", ") + " }";
+        return "Point { " + parts.join(", ") + " }";
+    });
 }
 
 export function pointClone(value: Point): Point {
-    return ({
+    return __mf_clonedWith(value, (): Point => ({
 	x: value.x,
 	y: value.y
-});
+}));
 }
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return a.x === b.x && a.y === b.y;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
 }
 
 export function pointHashCode(value: Point): number {
-    let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
 }
 
 export function pointPartialCompare(a: Point, b: Point): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x || (a.x !== a.x && b.x !== b.x) ? 0 : null),
+        () => (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y || (a.y !== a.y && b.y !== b.y) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
     return 0;
+    });
 }
 
 export function pointCompare(a: Point, b: Point): number {
     if (a === b) return 0;
-    const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : a.x !== a.x ? b.x !== b.x ? 0 : 1 : -1,
+        () => a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : a.y !== a.y ? b.y !== b.y ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
     return 0;
+    });
 }
 
 export function pointDefaultValue(): Point {
@@ -87,51 +105,50 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pointEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Point",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("x")) {
-
-        if (value.x !== undefined) {
-            result.x = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-
-        if (value.y !== undefined) {
-            result.y = value.y;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Point" });
+    pointEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Point" };
+        pointEncodeFields(value as Point, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = pointDecodeWithContext(data, ctx);
+        const resultOrRef = pointDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -177,6 +194,10 @@ export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pointDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -189,47 +210,56 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Point") as Point | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
-        errors.push({ field: "y", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["y", "y"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "x"?: number | undefined; "y"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) || (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
-            errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("y")) || (__fields.keeps("y") && obj["y"] !== undefined)) {
-        const __raw_y = obj["y"] as number;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+                const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
-            errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
-        } else {
-            instance.y = __raw_y;
-        }
+                if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                } else {
+                    instance.y = __raw_y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -254,8 +284,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o && "y" in o;
+    return __mf_holdsAll(obj, ["x", "y"]);
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -274,6 +303,7 @@ export const Point: {
   readonly encodeWithContext: typeof pointEncodeWithContext;
   readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
   readonly decode: typeof pointDecode;
+  readonly fromString: typeof pointFromString;
   readonly decodeWithContext: typeof pointDecodeWithContext;
   readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
   readonly validateField: typeof pointValidateField;
@@ -292,6 +322,7 @@ export const Point: {
   encodeWithContext: pointEncodeWithContext,
   encodePartialWithContext: pointEncodePartialWithContext,
   decode: pointDecode,
+  fromString: pointFromString,
   decodeWithContext: pointDecodeWithContext,
   decodePartialWithContext: pointDecodePartialWithContext,
   validateField: pointValidateField,
@@ -317,10 +348,21 @@ export declare function pointDefaultValue(): Point;
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Point;
 } | {
@@ -358,6 +400,7 @@ export declare const Point: {
 	readonly encodeWithContext: typeof pointEncodeWithContext;
 	readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
 	readonly decode: typeof pointDecode;
+	readonly fromString: typeof pointFromString;
 	readonly decodeWithContext: typeof pointDecodeWithContext;
 	readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
 	readonly validateField: typeof pointValidateField;
@@ -372,23 +415,23 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 483..540
-original 148..149 -> expanded 11194..11195
-generated 0..483 <- imports
-generated 540..760 <- Debug
-generated 760..856 <- Clone
-generated 856..987 <- PartialEq
-generated 987..1386 <- Hash
-generated 1386..1793 <- PartialOrd
-generated 1793..2068 <- Ord
-generated 2068..2164 <- Default
-generated 2164..4066 <- Encode
-generated 4066..9753 <- Decode
-generated 9753..11194 <- __convenience_const
+original 91..148 -> expanded 910..967
+original 148..149 -> expanded 13610..13611
+generated 0..910 <- imports
+generated 967..1249 <- Debug
+generated 1249..1382 <- Clone
+generated 1382..1698 <- PartialEq
+generated 1698..2173 <- Hash
+generated 2173..2677 <- PartialOrd
+generated 2677..3167 <- Ord
+generated 3167..3263 <- Default
+generated 3263..5674 <- Encode
+generated 5674..12091 <- Decode
+generated 12091..13610 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":149,"start":116},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":92,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":132,"start":122},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":147,"start":137},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":149,"start":100},"type_params":[]}
+interface Point: {"body_span":{"end":149,"start":116},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":92,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":132,"start":122},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":147,"start":137},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":149,"start":100},"type_params":[]}
 
 ## Registry reads
 

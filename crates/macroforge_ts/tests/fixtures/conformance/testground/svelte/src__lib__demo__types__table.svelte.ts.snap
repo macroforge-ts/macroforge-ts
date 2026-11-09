@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,26 +53,20 @@ export function tableEncode(value: Table, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function tableDecode(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Account':
@@ -157,6 +151,10 @@ export function tableHasShape(value: unknown): boolean {
 
 export function tableIs(value: unknown): value is Table {
     return tableHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function tableFromString(text: string): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tableDecode(value));
 }
 
 /** Per-variant error types  */
@@ -549,6 +547,7 @@ export const Table: {
   readonly decodeWithContext: typeof tableDecodeWithContext;
   readonly hasShape: typeof tableHasShape;
   readonly is: typeof tableIs;
+  readonly fromString: typeof tableFromString;
   readonly createForm: typeof tableCreateForm;
   readonly fromFormData: typeof tableFromFormData;
 } = {
@@ -559,6 +558,7 @@ export const Table: {
   decodeWithContext: tableDecodeWithContext,
   hasShape: tableHasShape,
   is: tableIs,
+  fromString: tableFromString,
   createForm: tableCreateForm,
   fromFormData: tableFromFormData
 };
@@ -572,7 +572,7 @@ export declare function tableDefaultValue(): Table;
 export declare function tableEncode(value: Table, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function tableDecode(input: unknown): {
 	success: true;
 	value: Table;
@@ -587,6 +587,17 @@ export declare function tableDecode(input: unknown): {
 export declare function tableDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Table | __mf_PendingRef;
 export declare function tableHasShape(value: unknown): boolean;
 export declare function tableIs(value: unknown): value is Table;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function tableFromString(text: string): {
+	success: true;
+	value: Table;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type TableAccountErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -842,6 +853,7 @@ export declare const Table: {
 	readonly decodeWithContext: typeof tableDecodeWithContext;
 	readonly hasShape: typeof tableHasShape;
 	readonly is: typeof tableIs;
+	readonly fromString: typeof tableFromString;
 	readonly createForm: typeof tableCreateForm;
 	readonly fromFormData: typeof tableFromFormData;
 };
@@ -852,15 +864,15 @@ export declare const Table: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..425 -> expanded 614..932
-original 425..426 -> expanded 20113..20114
-generated 0..556 <- imports
-generated 932..1002 <- Default
-generated 1002..2243 <- Encode
-generated 2243..5339 <- Decode
-generated 5339..19380 <- Gigaform
-generated 19380..20113 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..425 -> expanded 769..1087
+original 425..426 -> expanded 20785..20786
+generated 0..711 <- imports
+generated 1087..1157 <- Default
+generated 1157..2437 <- Encode
+generated 2437..5933 <- Decode
+generated 5933..19974 <- Gigaform
+generated 19974..20785 <- __convenience_const
 
 ## Metadata
 
@@ -868,7 +880,9 @@ type Table: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","sp
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Table")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

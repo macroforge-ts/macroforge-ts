@@ -1,9 +1,13 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{
-    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
+use crate::builtin::derive::common::{
+    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, first_order, generate_field_order,
     generate_value_order, rendered, structural_helper, tuple_compare_statements,
 };
 use crate::builtin::return_types::partial_ord_return_type;
@@ -25,13 +29,14 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "PartialOrd", ClassUse::Reads)?;
             let class_name = input.name();
-            let class_names = TypeNames::new(class_name, class.type_params());
+            let class_names = TypeNames::new(class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "PartialOrd"));
             let class_ident = class_names.full_type_ident();
 
             // Collect fields for comparison
-            let ord_fields: Vec<OrdField> = class
-                .fields()
+            let ord_fields: Vec<OrdField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "ord");
@@ -48,49 +53,33 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let has_fields = !ord_fields.is_empty();
 
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("PartialCompare");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("PartialCompare")).into();
-
-            // Get return type
-            let return_type = partial_ord_return_type();
-            let return_type_ident = ts_ident!(return_type);
-
-            // Generate standalone function with two parameters
-            let standalone = if has_fields {
+            let body = if has_fields {
                 let compare_body =
                     partial_compare_steps(&ord_fields, resolved_fields, type_registry);
-
                 ts_template! {
-                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
-                        if (a === b) return 0;
-                        {$typescript compare_body}
-                        return 0;
-                    }
+                    if (a === b) return 0;
+                    return @{structural_callee("comparedWithin")}(a, b, () => {
+                    {$typescript compare_body}
+                    });
                 }
             } else {
                 ts_template! {
-                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
-                        if (a === b) return 0;
-                        return 0;
-                    }
+                    return 0;
                 }
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("partialCompare")}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
-                    return @{fn_name_expr}(a, b);
-                }
-            });
-
-            // Combine standalone function with class body
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(standalone.merge(class_body))
+            let both = rendered(ts_template! { a: @{&class_ident}, b: @{&class_ident} });
+            Ok(class_names.class_function(
+                "partialCompare",
+                "PartialCompare",
+                &both,
+                "a, b",
+                partial_ord_return_type(),
+                body,
+            ))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}PartialCompare", function_prefix(enum_name));
             let value_kinds = EnumValueKinds::of(enum_data.variants());
 
             // Get return type
@@ -106,21 +95,26 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/if}
                     {#if value_kinds.strings}
                         if (typeof a === "string" && typeof b === "string") {
-                            return a.localeCompare(b);
+                            return a < b ? -1 : a > b ? 1 : 0;
                         }
                     {/if}
-                    return a === b ? 0 : null;
+                    {#if value_kinds.strings && value_kinds.numbers}
+                        // A number and a string: numbers order first, as `Ord` has them.
+                        return typeof a === "number" ? -1 : 1;
+                    {:else}
+                        return 0;
+                    {/if}
                 }
             };
 
             Ok(result)
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "PartialOrd")?;
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
 
-            let ord_fields: Vec<OrdField> = interface
-                .fields()
+            let ord_fields: Vec<OrdField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "ord");
@@ -150,8 +144,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 ts_template! {
                     export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): @{return_type_ident} {
                         if (a === b) return 0;
+                        return @{structural_callee("comparedWithin")}(a, b, () => {
                         {$typescript compare_body}
-                        return 0;
+                        });
                     }
                 }
             } else {
@@ -175,7 +170,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let return_type_ident = ts_ident!(return_type);
 
             let effective_fields =
-                crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
+                crate::builtin::derive::common::derive_alias_fields(&input, type_alias);
             if let Some(ref effective_fields) = effective_fields {
                 let ord_fields: Vec<OrdField> = effective_fields
                     .iter()
@@ -203,8 +198,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     ts_template! {
                         export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
                             if (a === b) return 0;
+                            return @{structural_callee("comparedWithin")}(a, b, () => {
                             {$typescript compare_body}
-                            return 0;
+                            });
                         }
                     }
                 } else {
@@ -263,7 +259,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let order = Expr::parse(&order_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(PartialOrd): invalid comparison expression: {err:?}"),
+                        format!("@derive(PartialOrd): invalid comparison expression: {err}"),
                     )
                 })?;
                 Ok(ts_template! {
@@ -277,20 +273,26 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 }
 
 /// Statements returning the first field comparison of `a` and `b` that is not
-/// `0`, or `null` as soon as one is.
+/// `0`, `null` among them, or `0`.
 fn partial_compare_steps(
     ord_fields: &[OrdField],
     resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
     registry: &TypeRegistry,
 ) -> TsStream {
-    TsStream::merge_all(ord_fields.iter().enumerate().map(|(index, field)| {
-        let cmp = ts_ident!("cmp{}", index);
-        let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
-        let order = generate_field_order(Ordering::Partial, field, "a", "b", resolved, registry);
-        ts_template! {
-            const @{&cmp} = @{order};
-            if (@{&cmp} === null) return null;
-            if (@{&cmp} !== 0) return @{&cmp};
-        }
-    }))
+    first_order(
+        ord_fields
+            .iter()
+            .map(|field| {
+                let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
+                Expr::Source(generate_field_order(
+                    Ordering::Partial,
+                    field,
+                    "a",
+                    "b",
+                    resolved,
+                    registry,
+                ))
+            })
+            .collect(),
+    )
 }

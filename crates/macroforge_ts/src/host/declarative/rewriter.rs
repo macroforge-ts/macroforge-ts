@@ -232,14 +232,16 @@ pub fn rewrite(
     visitor.visit_program(program);
 
     // A call macro's imports go in with its replacement, as an import block
-    // at the top of the file, skipping names the file already imports.
+    // at the top of the file below its preamble, skipping names the file
+    // already imports.
     if !out.imports.is_empty() {
         let mut imports = crate::ts_syn::ImportRegistry::from_program(program, source);
         imports.merge_imports(std::mem::take(&mut out.imports));
         let block = imports.emit_generated_imports();
         if !block.is_empty() {
+            let top = crate::ts_syn::preamble_end(source) as u32 + 1;
             out.patches.push(Patch::Insert {
-                at: SpanIR::new(1, 1),
+                at: SpanIR::new(top, top),
                 code: block,
                 source_macro: None,
             });
@@ -790,8 +792,9 @@ pub(super) fn try_rewrite_call(
                     runtime_src.replace("$__cluster__", cluster_id_str)
                 }
             };
+            let top = crate::ts_syn::preamble_end(visitor.source) as u32 + 1;
             visitor.output.patches.push(Patch::Insert {
-                at: SpanIR::new(1, 1),
+                at: SpanIR::new(top, top),
                 code: format!("{}\n", runtime_emit.trim()),
                 // PR 14: attribution includes the cluster id when
                 // the emission is clustered, so error blame and

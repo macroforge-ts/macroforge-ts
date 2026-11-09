@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,57 +43,57 @@ export function colorEncode(value: Color, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function colorEncodeWithContext(value: Color, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return colorEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function colorEncodePartialWithContext(value: Partial<Color>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Color>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Color",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("red")) {
-
-        if (value.red !== undefined) {
-            result.red = value.red;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("green")) {
-
-        if (value.green !== undefined) {
-            result.green = value.green;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("blue")) {
-
-        if (value.blue !== undefined) {
-            result.blue = value.blue;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Color" });
+    colorEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function colorEncodePartialWithContext(value: Partial<Color>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Color>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Color" };
+        colorEncodeFields(value as Color, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function colorEncodeFields(value: Color, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("red")) {
+                if (value.red !== undefined) {
+                    result["red"] = value.red;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("green")) {
+                if (value.green !== undefined) {
+                    result["green"] = value.green;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("blue")) {
+                if (value.blue !== undefined) {
+                    result["blue"] = value.blue;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function colorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Color } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = colorDecodeWithContext(data, ctx);
+        const resultOrRef = colorDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -139,6 +139,10 @@ export function colorDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function colorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Color } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => colorDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Color | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -151,59 +155,67 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Color.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Color | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Color") as Color | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Color.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("red")) && !("red" in obj)) {
-        errors.push({ field: "red", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("green")) && !("green" in obj)) {
-        errors.push({ field: "green", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("blue")) && !("blue" in obj)) {
-        errors.push({ field: "blue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["red", "red"], ["green", "green"], ["blue", "blue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "red"?: number | undefined; "green"?: number | undefined; "blue"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Color");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("red")) || (__fields.keeps("red") && obj["red"] !== undefined)) {
-        const __raw_red = obj["red"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
+                const __raw_red = obj["red"] as number;
 
-        if (!(typeof __raw_red === "number")) {
-            errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
-        } else {
-            instance.red = __raw_red;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("green")) || (__fields.keeps("green") && obj["green"] !== undefined)) {
-        const __raw_green = obj["green"] as number;
+                if (!(typeof __raw_red === "number" && globalThis.Number.isFinite(__raw_red))) {
+                    errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
+                } else {
+                    instance.red = __raw_red;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
+                const __raw_green = obj["green"] as number;
 
-        if (!(typeof __raw_green === "number")) {
-            errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
-        } else {
-            instance.green = __raw_green;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("blue")) || (__fields.keeps("blue") && obj["blue"] !== undefined)) {
-        const __raw_blue = obj["blue"] as number;
+                if (!(typeof __raw_green === "number" && globalThis.Number.isFinite(__raw_green))) {
+                    errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
+                } else {
+                    instance.green = __raw_green;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
+                const __raw_blue = obj["blue"] as number;
 
-        if (!(typeof __raw_blue === "number")) {
-            errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
-        } else {
-            instance.blue = __raw_blue;
-        }
+                if (!(typeof __raw_blue === "number" && globalThis.Number.isFinite(__raw_blue))) {
+                    errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
+                } else {
+                    instance.blue = __raw_blue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -228,8 +240,7 @@ export function colorHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "red" in o && "green" in o && "blue" in o;
+    return __mf_holdsAll(obj, ["red", "green", "blue"]);
 }
 
 export function colorIs(obj: unknown): obj is Color {
@@ -408,6 +419,7 @@ export const Color: {
   readonly encodeWithContext: typeof colorEncodeWithContext;
   readonly encodePartialWithContext: typeof colorEncodePartialWithContext;
   readonly decode: typeof colorDecode;
+  readonly fromString: typeof colorFromString;
   readonly decodeWithContext: typeof colorDecodeWithContext;
   readonly decodePartialWithContext: typeof colorDecodePartialWithContext;
   readonly validateField: typeof colorValidateField;
@@ -422,6 +434,7 @@ export const Color: {
   encodeWithContext: colorEncodeWithContext,
   encodePartialWithContext: colorEncodePartialWithContext,
   decode: colorDecode,
+  fromString: colorFromString,
   decodeWithContext: colorDecodeWithContext,
   decodePartialWithContext: colorDecodePartialWithContext,
   validateField: colorValidateField,
@@ -445,10 +458,21 @@ export declare function colorDefaultValue(): Color;
 export declare function colorEncode(value: Color, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function colorEncodeWithContext(value: Color, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function colorEncodePartialWithContext(value: Partial<Color>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Color>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function colorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Color;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function colorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Color;
 } | {
@@ -518,6 +542,7 @@ export declare const Color: {
 	readonly encodeWithContext: typeof colorEncodeWithContext;
 	readonly encodePartialWithContext: typeof colorEncodePartialWithContext;
 	readonly decode: typeof colorDecode;
+	readonly fromString: typeof colorFromString;
 	readonly decodeWithContext: typeof colorDecodeWithContext;
 	readonly decodePartialWithContext: typeof colorDecodePartialWithContext;
 	readonly validateField: typeof colorValidateField;
@@ -534,23 +559,25 @@ export declare const Color: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..188 -> expanded 700..781
-original 188..189 -> expanded 16283..16284
-generated 0..642 <- imports
-generated 781..900 <- Default
-generated 900..2981 <- Encode
-generated 2981..9354 <- Decode
-generated 9354..15098 <- Gigaform
-generated 15098..16283 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..188 -> expanded 904..985
+original 188..189 -> expanded 17907..17908
+generated 0..846 <- imports
+generated 985..1104 <- Default
+generated 1104..3763 <- Encode
+generated 3763..10900 <- Decode
+generated 10900..16644 <- Gigaform
+generated 16644..17907 <- __convenience_const
 
 ## Metadata
 
-interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"red","optional":false,"readonly":false,"span":{"end":150,"start":138},"ts_type":"number"},{"decorators":[],"name":"green","optional":false,"readonly":false,"span":{"end":169,"start":155},"ts_type":"number"},{"decorators":[],"name":"blue","optional":false,"readonly":false,"span":{"end":187,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Color","span":{"end":189,"start":116},"type_params":[]}
+interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"red","optional":false,"readonly":false,"span":{"end":150,"start":138},"ts_type":"number"},{"decorators":[],"key":"Named","name":"green","optional":false,"readonly":false,"span":{"end":169,"start":155},"ts_type":"number"},{"decorators":[],"key":"Named","name":"blue","optional":false,"readonly":false,"span":{"end":187,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Color","span":{"end":189,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

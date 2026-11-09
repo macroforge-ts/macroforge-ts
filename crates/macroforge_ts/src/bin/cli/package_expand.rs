@@ -18,6 +18,7 @@
 
 use anyhow::{Context, Result, bail};
 use macroforge_ts::ts_syn::abi::ir::type_registry::RegistryRead;
+use macroforge_ts::ts_syn::source_path::is_typescript_source;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
@@ -38,15 +39,6 @@ pub(crate) struct ExpansionOutcome {
     pub(crate) entries: Vec<String>,
     /// The type registry lookups each file expanded on this run made.
     pub(crate) registry_reads: BTreeMap<String, BTreeSet<RegistryRead>>,
-}
-
-/// Whether a file is one the macro engine should see.
-///
-/// Matches what the packager's read hooks used to expand: TypeScript sources,
-/// excluding declaration files, which carry no macro annotations and whose
-/// expansion would be meaningless.
-pub(crate) fn is_expandable(rel: &str) -> bool {
-    (rel.ends_with(".ts") || rel.ends_with(".tsx")) && !rel.ends_with(".d.ts")
 }
 
 /// Expands `targets` into `expanded_dir` and reconciles the tree with `files`.
@@ -70,7 +62,7 @@ pub(crate) fn run_expansion_pass(
     // keeps the parallel section free of I/O error handling.
     let mut work: Vec<(String, PathBuf, String)> = Vec::new();
     for rel in targets {
-        if !is_expandable(rel) {
+        if !is_typescript_source(rel) {
             continue;
         }
         let path = input.join(rel);

@@ -6,6 +6,9 @@ mod union;
 mod view;
 
 use crate::ast::{Expr, Ident};
+use crate::builtin::derive::endec::coder::{TypeScope, unread_intersection};
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
@@ -13,7 +16,9 @@ use super::super::{EndecContainerOptions, decorator_validators};
 use super::field::prepare::to_decode_field;
 use super::object_decoder::object_decode_functions;
 use super::types::DecodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{Declared, TypeNames};
+use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF};
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 
@@ -21,7 +26,6 @@ use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 struct AliasDecode<'a> {
     type_alias: &'a crate::ts_syn::DataTypeAlias,
     type_name: &'a str,
-    type_ident: Ident,
     decode_context_ident: Ident,
     decode_context_expr: Expr,
     decode_error_expr: Expr,
@@ -30,6 +34,11 @@ struct AliasDecode<'a> {
     decode_options_ident: Ident,
     generic_decl: String,
     generic_args: String,
+    /// The coders of the alias's type parameters, as `decodeWithContext`
+    /// declares them after its context.
+    coders: String,
+    /// The same coders, as `decode` hands them on.
+    passed_coders: String,
     full_type_name: String,
     type_registry: &'a TypeRegistry,
     caller_file_path: &'a str,
@@ -49,6 +58,8 @@ pub(super) fn handle_type_alias(
     let names = TypeNames::new(type_name, type_alias.type_params());
     let full_type_name = names.full_type.clone();
 
+    let coders = declared_param_coders(Direction::Decode, &names.params);
+    let passed_coders = passed_param_coders(Direction::Decode, &names.params);
     let TypeNames {
         generic_decl,
         generic_args,
@@ -58,7 +69,6 @@ pub(super) fn handle_type_alias(
     let alias = AliasDecode {
         type_alias,
         type_name,
-        type_ident: ts_ident!(type_name),
         decode_context_expr: decode_context_ident.clone().into(),
         decode_context_ident,
         decode_error_expr: ts_ident!(DECODE_ERROR).into(),
@@ -67,6 +77,8 @@ pub(super) fn handle_type_alias(
         decode_options_ident: ts_ident!(DECODE_OPTIONS),
         generic_decl,
         generic_args,
+        coders,
+        passed_coders,
         full_type_name,
         type_registry: &input.context.type_registry,
         caller_file_path: input.context.file_name.as_str(),
@@ -95,17 +107,22 @@ pub(super) fn handle_type_alias(
         ));
     }
 
-    if let Some(fields) = type_alias.as_object() {
+    // A newtype's value is the value of the type it brands.
+    let body = type_alias.body().unbranded();
+    if let Some(fields) = body.as_object() {
         handle_object_type_alias(&alias, fields)
-    } else if let Some(members) = type_alias.as_intersection() {
+    } else if let Some(members) = body.as_intersection() {
         match crate::builtin::derive::common::flatten_intersection_fields(
             members,
-            alias.type_registry,
+            Declared::of(input, &file_imports),
         ) {
             Some(fields) => handle_object_type_alias(&alias, &fields),
-            None => fallback::handle_fallback_type_alias(&alias),
+            None => Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): {}", unread_intersection(type_name)),
+            )),
         }
-    } else if let Some(members) = type_alias.as_union() {
+    } else if let Some(members) = body.as_union() {
         union::handle_union_type_alias(&alias, members)
     } else {
         fallback::handle_fallback_type_alias(&alias)
@@ -119,6 +136,19 @@ fn handle_object_type_alias(
     let container_opts = EndecContainerOptions::from_decorators(&alias.type_alias.inner.decorators);
     let names = TypeNames::new(alias.type_name, alias.type_alias.type_params());
     let mut diagnostics = DiagnosticCollector::new();
+    let key_scope = TypeScope {
+        registry: alias.type_registry,
+        file_path: alias.caller_file_path,
+        file_imports: alias.file_imports,
+        type_params: &names.params,
+    };
+    check_field_keys(
+        Direction::Decode,
+        &container_opts,
+        ir_fields.iter().map(SourceField::from),
+        &key_scope,
+        &mut diagnostics,
+    );
     let fields: Vec<DecodeField> = ir_fields
         .iter()
         .filter_map(|field| {

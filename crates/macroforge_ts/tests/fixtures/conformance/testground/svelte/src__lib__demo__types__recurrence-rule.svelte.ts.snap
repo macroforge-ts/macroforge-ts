@@ -14,7 +14,7 @@ true
 
 import { intervalDecodeWithContext, intervalEncodeWithContext, intervalDefaultValue } from "./interval.svelte";
 import { recurrenceEndDecodeWithContext, recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -52,83 +52,71 @@ export function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boole
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return recurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "RecurrenceRule",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("interval")) {
-
-        if (value.interval !== undefined) {
-            result.interval = intervalEncodeWithContext(value.interval, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("recurrenceBegins")) {
-
-        if (value.recurrenceBegins !== undefined) {
-            result.recurrenceBegins = value.recurrenceBegins;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("recurrenceEnds")) {
-        if (value.recurrenceEnds !== undefined) {
-
-            if (value.recurrenceEnds !== null) {
-                result.recurrenceEnds = recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
-            } else {
-                result.recurrenceEnds = null;
-            }
-        }
-    }
-    if (__fields === undefined || __fields.keeps("cancelledInstances")) {
-        if (value.cancelledInstances !== undefined) {
-
-            if (value.cancelledInstances !== null) {
-
-                result.cancelledInstances = value.cancelledInstances;
-            } else {
-                result.cancelledInstances = null;
-            }
-        }
-    }
-    if (__fields === undefined || __fields.keeps("additionalInstances")) {
-        if (value.additionalInstances !== undefined) {
-
-            if (value.additionalInstances !== null) {
-
-                result.additionalInstances = value.additionalInstances;
-            } else {
-                result.additionalInstances = null;
-            }
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "RecurrenceRule" });
+    recurrenceRuleEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "RecurrenceRule" };
+        recurrenceRuleEncodeFields(value as RecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function recurrenceRuleEncodeFields(value: RecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("interval")) {
+                if (value.interval !== undefined) {
+                    result["interval"] = intervalEncodeWithContext(value.interval, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("recurrenceBegins")) {
+                if (value.recurrenceBegins !== undefined) {
+                    result["recurrenceBegins"] = value.recurrenceBegins;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("recurrenceEnds")) {
+                if (value.recurrenceEnds !== undefined) {
+                    result["recurrenceEnds"] = value.recurrenceEnds === null ? null : recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("cancelledInstances")) {
+                if (value.cancelledInstances !== undefined) {
+                    result["cancelledInstances"] = value.cancelledInstances;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("additionalInstances")) {
+                if (value.additionalInstances !== undefined) {
+                    result["additionalInstances"] = value.additionalInstances;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = recurrenceRuleDecodeWithContext(data, ctx);
+        const resultOrRef = recurrenceRuleDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -174,6 +162,10 @@ export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions):
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function recurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => recurrenceRuleDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RecurrenceRule | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -186,123 +178,161 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "RecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as RecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "RecurrenceRule") as RecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "RecurrenceRule.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("interval")) && !("interval" in obj)) {
-        errors.push({ field: "interval", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceBegins")) && !("recurrenceBegins" in obj)) {
-        errors.push({ field: "recurrenceBegins", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceEnds")) && !("recurrenceEnds" in obj)) {
-        errors.push({ field: "recurrenceEnds", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("cancelledInstances")) && !("cancelledInstances" in obj)) {
-        errors.push({ field: "cancelledInstances", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("additionalInstances")) && !("additionalInstances" in obj)) {
-        errors.push({ field: "additionalInstances", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["interval", "interval"], ["recurrenceBegins", "recurrenceBegins"], ["recurrenceEnds", "recurrenceEnds"], ["cancelledInstances", "cancelledInstances"], ["additionalInstances", "additionalInstances"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "interval"?: Interval | undefined; "recurrenceBegins"?: string | undefined; "recurrenceEnds"?: RecurrenceEnd | null | undefined; "cancelledInstances"?: Array<string> | null | undefined; "additionalInstances"?: Array<string> | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "RecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("interval")) || (__fields.keeps("interval") && obj["interval"] !== undefined)) {
-        const __raw_interval = obj["interval"] as Interval;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("interval")) ? "interval" in obj : (__fields.keeps("interval") && obj["interval"] !== undefined)) {
+                const __raw_interval = obj["interval"] as Interval;
 
-        ctx.pushScope("interval");
-        try {
-            const __result = intervalDecodeWithContext(__raw_interval, ctx);
-            ctx.assignOrDefer(instance, "interval", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "interval" : "interval." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceBegins")) || (__fields.keeps("recurrenceBegins") && obj["recurrenceBegins"] !== undefined)) {
-        const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;
+                ctx.pushScope("interval");
+                try {
+                    const __result = intervalDecodeWithContext(__raw_interval, ctx);
+                    ctx.assignOrDefer(instance, "interval", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "interval" : "interval." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        if (!(typeof __raw_recurrenceBegins === "string")) {
-            errors.push({ field: "recurrenceBegins", message: __raw_recurrenceBegins == null ? "RecurrenceRule.recurrenceBegins is required" : "expected string" });
-        } else {
-            instance.recurrenceBegins = __raw_recurrenceBegins;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceEnds")) || (__fields.keeps("recurrenceEnds") && obj["recurrenceEnds"] !== undefined)) {
-        const __raw_recurrenceEnds = obj["recurrenceEnds"] as RecurrenceEnd | null;
-
-        if (__raw_recurrenceEnds === null) {
-            instance.recurrenceEnds = null;
-        } else {
-            ctx.pushScope("recurrenceEnds");
-            try {
-                const __result = recurrenceEndDecodeWithContext(__raw_recurrenceEnds, ctx);
-                ctx.assignOrDefer(instance, "recurrenceEnds", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "recurrenceEnds" : "recurrenceEnds." + __err.field,
-                            message: __err.message
-                        });
+                        errors.push({ field: "interval", message: __e instanceof Error ? __e.message : String(__e) });
                     }
-                } else {
-                    throw __e;
+                } finally {
+                    ctx.popScope();
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cancelledInstances")) || (__fields.keeps("cancelledInstances") && obj["cancelledInstances"] !== undefined)) {
-        const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("recurrenceBegins")) ? "recurrenceBegins" in obj : (__fields.keeps("recurrenceBegins") && obj["recurrenceBegins"] !== undefined)) {
+                const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;
 
-        if (__raw_cancelledInstances === null) {
-            instance.cancelledInstances = null;
-        } else {
-
-            if (Array.isArray(__raw_cancelledInstances)) {
-                instance.cancelledInstances = __raw_cancelledInstances as string[];
-            } else {
-                errors.push({ field: "cancelledInstances", message: __raw_cancelledInstances == null ? "RecurrenceRule.cancelledInstances is required" : "expected Array<string>" });
+                if (!(typeof __raw_recurrenceBegins === "string")) {
+                    errors.push({ field: "recurrenceBegins", message: __raw_recurrenceBegins == null ? "RecurrenceRule.recurrenceBegins is required" : "expected string" });
+                } else {
+                    instance.recurrenceBegins = __raw_recurrenceBegins;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("additionalInstances")) || (__fields.keeps("additionalInstances") && obj["additionalInstances"] !== undefined)) {
-        const __raw_additionalInstances = obj["additionalInstances"] as Array<string> | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("recurrenceEnds")) ? "recurrenceEnds" in obj : (__fields.keeps("recurrenceEnds") && obj["recurrenceEnds"] !== undefined)) {
+                const __raw_recurrenceEnds = obj["recurrenceEnds"] as RecurrenceEnd | null;
 
-        if (__raw_additionalInstances === null) {
-            instance.additionalInstances = null;
-        } else {
+                if (__raw_recurrenceEnds === null) {
+                    instance.recurrenceEnds = null;
+                } else {
+                    ctx.pushScope("recurrenceEnds");
+                    try {
+                        const __result = recurrenceEndDecodeWithContext(__raw_recurrenceEnds, ctx);
+                        ctx.assignOrDefer(instance, "recurrenceEnds", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "recurrenceEnds" : "recurrenceEnds." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-            if (Array.isArray(__raw_additionalInstances)) {
-                instance.additionalInstances = __raw_additionalInstances as string[];
-            } else {
-                errors.push({ field: "additionalInstances", message: __raw_additionalInstances == null ? "RecurrenceRule.additionalInstances is required" : "expected Array<string>" });
+                            errors.push({ field: "recurrenceEnds", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cancelledInstances")) ? "cancelledInstances" in obj : (__fields.keeps("cancelledInstances") && obj["cancelledInstances"] !== undefined)) {
+                const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;
+
+                if (__raw_cancelledInstances === null) {
+                    instance.cancelledInstances = null;
+                } else {
+                    if (Array.isArray(__raw_cancelledInstances)) {
+                        ctx.pushScope("cancelledInstances");
+                        try {
+                            instance.cancelledInstances = __mf_decodeArray(__raw_cancelledInstances, ctx, __mf_decodeString);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "cancelledInstances" : "cancelledInstances." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    } else {
+                        errors.push({ field: "cancelledInstances", message: __raw_cancelledInstances == null ? "RecurrenceRule.cancelledInstances is required" : "expected Array<string>" });
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("additionalInstances")) ? "additionalInstances" in obj : (__fields.keeps("additionalInstances") && obj["additionalInstances"] !== undefined)) {
+                const __raw_additionalInstances = obj["additionalInstances"] as Array<string> | null;
+
+                if (__raw_additionalInstances === null) {
+                    instance.additionalInstances = null;
+                } else {
+                    if (Array.isArray(__raw_additionalInstances)) {
+                        ctx.pushScope("additionalInstances");
+                        try {
+                            instance.additionalInstances = __mf_decodeArray(__raw_additionalInstances, ctx, __mf_decodeString);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "additionalInstances" : "additionalInstances." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    } else {
+                        errors.push({ field: "additionalInstances", message: __raw_additionalInstances == null ? "RecurrenceRule.additionalInstances is required" : "expected Array<string>" });
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -327,8 +357,7 @@ export function recurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "interval" in o && "recurrenceBegins" in o && "recurrenceEnds" in o && "cancelledInstances" in o && "additionalInstances" in o;
+    return __mf_holdsAll(obj, ["interval", "recurrenceBegins", "recurrenceEnds", "cancelledInstances", "additionalInstances"]);
 }
 
 export function recurrenceRuleIs(obj: unknown): obj is RecurrenceRule {
@@ -573,6 +602,7 @@ export const RecurrenceRule: {
   readonly encodeWithContext: typeof recurrenceRuleEncodeWithContext;
   readonly encodePartialWithContext: typeof recurrenceRuleEncodePartialWithContext;
   readonly decode: typeof recurrenceRuleDecode;
+  readonly fromString: typeof recurrenceRuleFromString;
   readonly decodeWithContext: typeof recurrenceRuleDecodeWithContext;
   readonly decodePartialWithContext: typeof recurrenceRuleDecodePartialWithContext;
   readonly validateField: typeof recurrenceRuleValidateField;
@@ -587,6 +617,7 @@ export const RecurrenceRule: {
   encodeWithContext: recurrenceRuleEncodeWithContext,
   encodePartialWithContext: recurrenceRuleEncodePartialWithContext,
   decode: recurrenceRuleDecode,
+  fromString: recurrenceRuleFromString,
   decodeWithContext: recurrenceRuleDecodeWithContext,
   decodePartialWithContext: recurrenceRuleDecodePartialWithContext,
   validateField: recurrenceRuleValidateField,
@@ -614,10 +645,21 @@ export declare function recurrenceRuleDefaultValue(): RecurrenceRule;
 export declare function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: RecurrenceRule;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function recurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: RecurrenceRule;
 } | {
@@ -693,6 +735,7 @@ export declare const RecurrenceRule: {
 	readonly encodeWithContext: typeof recurrenceRuleEncodeWithContext;
 	readonly encodePartialWithContext: typeof recurrenceRuleEncodePartialWithContext;
 	readonly decode: typeof recurrenceRuleDecode;
+	readonly fromString: typeof recurrenceRuleFromString;
 	readonly decodeWithContext: typeof recurrenceRuleDecodeWithContext;
 	readonly decodePartialWithContext: typeof recurrenceRuleDecodePartialWithContext;
 	readonly validateField: typeof recurrenceRuleValidateField;
@@ -709,26 +752,28 @@ export declare const RecurrenceRule: {
 
 ## Mapping
 
-original 0..172 -> expanded 860..1032
-original 221..446 -> expanded 1032..1257
-original 446..447 -> expanded 25730..25731
-generated 0..860 <- imports
-generated 1257..1514 <- Default
-generated 1514..4706 <- Encode
-generated 4706..14726 <- Decode
-generated 14726..24302 <- Gigaform
-generated 24302..25730 <- __convenience_const
+original 0..172 -> expanded 1132..1304
+original 221..446 -> expanded 1304..1529
+original 446..447 -> expanded 29366..29367
+generated 0..1132 <- imports
+generated 1529..1786 <- Default
+generated 1786..5355 <- Encode
+generated 5355..18266 <- Decode
+generated 18266..27842 <- Gigaform
+generated 27842..29366 <- __convenience_const
 
 ## Metadata
 
-interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":222,"start":173}}],"fields":[{"decorators":[],"name":"interval","optional":false,"readonly":false,"span":{"end":280,"start":261},"ts_type":"Interval"},{"decorators":[],"name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":310,"start":285},"ts_type":"string"},{"decorators":[],"name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":352,"start":315},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":398,"start":357},"ts_type":"Array<string> | null"},{"decorators":[],"name":"additionalInstances","optional":false,"readonly":false,"span":{"end":445,"start":403},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":447,"start":230},"type_params":[]}
+interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":222,"start":173}}],"fields":[{"decorators":[],"key":"Named","name":"interval","optional":false,"readonly":false,"span":{"end":280,"start":261},"ts_type":"Interval"},{"decorators":[],"key":"Named","name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":310,"start":285},"ts_type":"string"},{"decorators":[],"key":"Named","name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":352,"start":315},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"key":"Named","name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":398,"start":357},"ts_type":"Array<string> | null"},{"decorators":[],"key":"Named","name":"additionalInstances","optional":false,"readonly":false,"span":{"end":445,"start":403},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":447,"start":230},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("Interval")
 Name("RecurrenceEnd")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

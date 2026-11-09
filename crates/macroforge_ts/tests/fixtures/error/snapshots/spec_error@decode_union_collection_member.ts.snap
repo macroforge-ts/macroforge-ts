@@ -1,0 +1,251 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/decode_union_collection_member.ts
+---
+## Input
+
+/** @derive(Decode) */
+interface Item {
+    id: string;
+}
+
+/** @derive(Decode) */
+type OneOrMany = Item | Item[];
+
+## Changed
+
+true
+
+## Output
+
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+interface Item {
+    id: string;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = itemDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Item.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function itemFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => itemDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Item | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Item> | __mf_PendingRef;
+export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Item> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Item.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Item.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Item") as Item | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Item.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "id"?: string | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Item");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Item.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Item;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function itemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Item>): Partial<Item> | __mf_PendingRef {
+    return itemDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function itemValidateField<K extends keyof Item>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function itemValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function itemValidateFields(partial: { readonly [K in keyof Item]?: unknown }): Array<{ field: string; message: string }>;
+export function itemValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function itemHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["id"]);
+}
+
+export function itemIs(obj: unknown): obj is Item {
+    return itemHasShape(obj) && itemDecode(obj).success;
+}
+
+const Item: {
+  readonly decode: typeof itemDecode;
+  readonly fromString: typeof itemFromString;
+  readonly decodeWithContext: typeof itemDecodeWithContext;
+  readonly decodePartialWithContext: typeof itemDecodePartialWithContext;
+  readonly validateField: typeof itemValidateField;
+  readonly validateFields: typeof itemValidateFields;
+  readonly hasShape: typeof itemHasShape;
+  readonly is: typeof itemIs;
+} = {
+  decode: itemDecode,
+  fromString: itemFromString,
+  decodeWithContext: itemDecodeWithContext,
+  decodePartialWithContext: itemDecodePartialWithContext,
+  validateField: itemValidateField,
+  validateFields: itemValidateFields,
+  hasShape: itemHasShape,
+  is: itemIs
+};
+
+
+type OneOrMany = Item | Item[];
+
+## DTS
+
+interface Item {
+	id: string;
+}
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function itemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Item;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function itemFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Item;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Item | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Item> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function itemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Item>): Partial<Item> | __mf_PendingRef;
+export declare function itemValidateField<K extends keyof Item>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function itemValidateFields(partial: { readonly [K in keyof Item]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function itemHasShape(obj: unknown): boolean;
+export declare function itemIs(obj: unknown): obj is Item;
+export {};
+
+## Diagnostics
+
+Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no decoder of its own; give it a name, as in `type Items = Item[]`, and derive Decode on that
+
+## Mapping
+
+original 22..57 -> expanded 441..476
+original 57..59 -> expanded 6803..6805
+original 81..114 -> expanded 6805..6838
+generated 0..441 <- imports
+generated 476..6116 <- Decode
+generated 6116..6803 <- __convenience_const
+
+## Metadata
+
+interface Item: {"body_span":{"end":58,"start":39},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":56,"start":45},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Item","span":{"end":58,"start":24},"type_params":[]}
+type OneOrMany: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Item"}},{"decorators":[],"kind":{"TypeRef":"Item[]"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":82,"start":60}}],"name":"OneOrMany","span":{"end":114,"start":83},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

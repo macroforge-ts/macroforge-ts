@@ -14,10 +14,10 @@ true
 
 import { emailDecodeWithContext, emailEncodeWithContext, emailDefaultValue } from "./email.svelte";
 import { jobTitleDecodeWithContext, jobTitleEncodeWithContext } from "./job-title.svelte";
-import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { routeDecodeWithContext, routeEncodeWithContext } from "./route.svelte";
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -90,151 +90,162 @@ export function employeeEncode(value: Employee, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function employeeEncodeWithContext(value: Employee, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return employeeEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Employee>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Employee",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("imageUrl")) {
-        if (value.imageUrl !== undefined) {
-
-            result.imageUrl = value.imageUrl;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("phones")) {
-
-        if (value.phones !== undefined) {
-            result.phones = value.phones.map(
-                (item) => phoneNumberEncodeWithContext(item, ctx)
-            );
-        }
-    }
-    if (__fields === undefined || __fields.keeps("role")) {
-
-        if (value.role !== undefined) {
-            result.role = value.role;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("title")) {
-
-        if (value.title !== undefined) {
-            result.title = jobTitleEncodeWithContext(value.title, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-
-        if (value.email !== undefined) {
-            result.email = emailEncodeWithContext(value.email, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("address")) {
-
-        if (value.address !== undefined) {
-            result.address = value.address;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("username")) {
-
-        if (value.username !== undefined) {
-            result.username = value.username;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("route")) {
-
-        if (value.route !== undefined) {
-            result.route = typeof value.route === "string"
-                ? value.route
-                : routeEncodeWithContext(value.route, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("ratePerHour")) {
-
-        if (value.ratePerHour !== undefined) {
-            result.ratePerHour = value.ratePerHour;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("active")) {
-
-        if (value.active !== undefined) {
-            result.active = value.active;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isTechnician")) {
-
-        if (value.isTechnician !== undefined) {
-            result.isTechnician = value.isTechnician;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isSalesRep")) {
-
-        if (value.isSalesRep !== undefined) {
-            result.isSalesRep = value.isSalesRep;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("description")) {
-        if (value.description !== undefined) {
-
-            result.description = value.description;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("linkedinUrl")) {
-        if (value.linkedinUrl !== undefined) {
-
-            result.linkedinUrl = value.linkedinUrl;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("attendance")) {
-
-        if (value.attendance !== undefined) {
-            result.attendance = value.attendance;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("settings")) {
-
-        if (value.settings !== undefined) {
-            result.settings = settingsEncodeWithContext(value.settings, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Employee" });
+    employeeEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Employee>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Employee" };
+        employeeEncodeFields(value as Employee, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("imageUrl")) {
+                if (value.imageUrl !== undefined) {
+                    result["imageUrl"] = value.imageUrl;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("phones")) {
+                if (value.phones !== undefined) {
+                    result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("role")) {
+                if (value.role !== undefined) {
+                    result["role"] = value.role;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = jobTitleEncodeWithContext(value.title, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = emailEncodeWithContext(value.email, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("address")) {
+                if (value.address !== undefined) {
+                    result["address"] = value.address;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("username")) {
+                if (value.username !== undefined) {
+                    result["username"] = value.username;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("route")) {
+                if (value.route !== undefined) {
+                    result["route"] = (typeof value.route === "string" ? value.route : routeEncodeWithContext(value.route, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("ratePerHour")) {
+                if (value.ratePerHour !== undefined) {
+                    result["ratePerHour"] = value.ratePerHour;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("active")) {
+                if (value.active !== undefined) {
+                    result["active"] = value.active;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isTechnician")) {
+                if (value.isTechnician !== undefined) {
+                    result["isTechnician"] = value.isTechnician;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isSalesRep")) {
+                if (value.isSalesRep !== undefined) {
+                    result["isSalesRep"] = value.isSalesRep;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("description")) {
+                if (value.description !== undefined) {
+                    result["description"] = value.description;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("linkedinUrl")) {
+                if (value.linkedinUrl !== undefined) {
+                    result["linkedinUrl"] = value.linkedinUrl;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("attendance")) {
+                if (value.attendance !== undefined) {
+                    result["attendance"] = value.attendance;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("settings")) {
+                if (value.settings !== undefined) {
+                    result["settings"] = settingsEncodeWithContext(value.settings, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = employeeDecodeWithContext(data, ctx);
+        const resultOrRef = employeeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -280,6 +291,10 @@ export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function employeeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => employeeDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Employee | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -292,333 +307,334 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Employee.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Employee | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Employee") as Employee | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Employee.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("imageUrl")) && !("imageUrl" in obj)) {
-        errors.push({ field: "imageUrl", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("phones")) && !("phones" in obj)) {
-        errors.push({ field: "phones", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("role")) && !("role" in obj)) {
-        errors.push({ field: "role", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("address")) && !("address" in obj)) {
-        errors.push({ field: "address", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
-        errors.push({ field: "username", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("route")) && !("route" in obj)) {
-        errors.push({ field: "route", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("ratePerHour")) && !("ratePerHour" in obj)) {
-        errors.push({ field: "ratePerHour", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isTechnician")) && !("isTechnician" in obj)) {
-        errors.push({ field: "isTechnician", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isSalesRep")) && !("isSalesRep" in obj)) {
-        errors.push({ field: "isSalesRep", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
-        errors.push({ field: "description", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("linkedinUrl")) && !("linkedinUrl" in obj)) {
-        errors.push({ field: "linkedinUrl", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("attendance")) && !("attendance" in obj)) {
-        errors.push({ field: "attendance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("settings")) && !("settings" in obj)) {
-        errors.push({ field: "settings", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["imageUrl", "imageUrl"], ["name", "name"], ["phones", "phones"], ["role", "role"], ["title", "title"], ["email", "email"], ["address", "address"], ["username", "username"], ["route", "route"], ["ratePerHour", "ratePerHour"], ["active", "active"], ["isTechnician", "isTechnician"], ["isSalesRep", "isSalesRep"], ["description", "description"], ["linkedinUrl", "linkedinUrl"], ["attendance", "attendance"], ["settings", "settings"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "imageUrl"?: string | null | undefined; "name"?: string | undefined; "phones"?: Array<PhoneNumber> | undefined; "role"?: string | undefined; "title"?: JobTitle | undefined; "email"?: Email | undefined; "address"?: string | undefined; "username"?: string | undefined; "route"?: string | Route | undefined; "ratePerHour"?: number | undefined; "active"?: boolean | undefined; "isTechnician"?: boolean | undefined; "isSalesRep"?: boolean | undefined; "description"?: string | null | undefined; "linkedinUrl"?: string | null | undefined; "attendance"?: Array<string> | undefined; "settings"?: Settings | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Employee");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("imageUrl")) || (__fields.keeps("imageUrl") && obj["imageUrl"] !== undefined)) {
-        const __raw_imageUrl = obj["imageUrl"] as string | null;
-
-        if (!(typeof __raw_imageUrl === "string" || __raw_imageUrl === null)) {
-            errors.push({ field: "imageUrl", message: "expected string | null" });
-        } else {
-            instance.imageUrl = __raw_imageUrl;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "Employee.name must not be empty" }); }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
-        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("imageUrl")) ? "imageUrl" in obj : (__fields.keeps("imageUrl") && obj["imageUrl"] !== undefined)) {
+                const __raw_imageUrl = obj["imageUrl"] as string | null;
 
-        if (Array.isArray(__raw_phones)) {
-            const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
+                if (!(typeof __raw_imageUrl === "string" || __raw_imageUrl === null)) {
+                    errors.push({ field: "imageUrl", message: "expected string | null" });
+                } else {
+                    instance.imageUrl = __raw_imageUrl;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "Employee.name must not be empty" }); }
                     }
-                    return result;
+                    instance.name = __raw_name;
                 }
-                const __elemResult = phoneNumberDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
-                        errors.push({
-                            field: __err.field === "_root"
-                                ? "phones[" + idx + "]"
-                                : "phones[" + idx + "]." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.phones = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.phones, idx, (item as any).__refId);
-                }
-            });
-        } else {
-            errors.push({ field: "phones", message: __raw_phones == null ? "Employee.phones is required" : "expected Array<PhoneNumber>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("role")) || (__fields.keeps("role") && obj["role"] !== undefined)) {
-        const __raw_role = obj["role"] as string;
-
-        if (!(typeof __raw_role === "string")) {
-            errors.push({ field: "role", message: __raw_role == null ? "Employee.role is required" : "expected string" });
-        } else {
-            if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
-                if (__raw_role.length === 0) { errors.push({ field: "role", message: "Employee.role must not be empty" }); }
             }
-            instance.role = __raw_role;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as JobTitle;
-
-        ctx.pushScope("title");
-        try {
-            const __result = jobTitleDecodeWithContext(__raw_title, ctx);
-            ctx.assignOrDefer(instance, "title", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "title" : "title." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as Email;
-
-        ctx.pushScope("email");
-        try {
-            const __result = emailDecodeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, "email", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "email" : "email." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("address")) || (__fields.keeps("address") && obj["address"] !== undefined)) {
-        const __raw_address = obj["address"] as string;
-
-        if (!(typeof __raw_address === "string")) {
-            errors.push({ field: "address", message: __raw_address == null ? "Employee.address is required" : "expected string" });
-        } else {
-            if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
-                if (__raw_address.length === 0) { errors.push({ field: "address", message: "Employee.address must not be empty" }); }
-            }
-            instance.address = __raw_address;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
-        const __raw_username = obj["username"] as string;
-
-        if (!(typeof __raw_username === "string")) {
-            errors.push({ field: "username", message: __raw_username == null ? "Employee.username is required" : "expected string" });
-        } else {
-            if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
-                if (__raw_username.length === 0) { errors.push({ field: "username", message: "Employee.username must not be empty" }); }
-            }
-            instance.username = __raw_username;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("route")) || (__fields.keeps("route") && obj["route"] !== undefined)) {
-        const __raw_route = obj["route"] as string | Route;
-
-        if (typeof __raw_route === "string") {
-            instance.route = __raw_route;
-        } else {
-            ctx.pushScope("route");
-            try {
-                const __result = routeDecodeWithContext(__raw_route, ctx);
-                ctx.assignOrDefer(instance, "route", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "route" : "route." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("phones")) ? "phones" in obj : (__fields.keeps("phones") && obj["phones"] !== undefined)) {
+                const __raw_phones = obj["phones"] as Array<PhoneNumber>;
+                if (Array.isArray(__raw_phones)) {
+                    ctx.pushScope("phones");
+                    try {
+                        instance.phones = __mf_decodeArray(__raw_phones, ctx, (__raw0) => phoneNumberDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "phones" : "phones." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "phones", message: __raw_phones == null ? "Employee.phones is required" : "expected Array<PhoneNumber>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("ratePerHour")) || (__fields.keeps("ratePerHour") && obj["ratePerHour"] !== undefined)) {
-        const __raw_ratePerHour = obj["ratePerHour"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("role")) ? "role" in obj : (__fields.keeps("role") && obj["role"] !== undefined)) {
+                const __raw_role = obj["role"] as string;
 
-        if (!(typeof __raw_ratePerHour === "number")) {
-            errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
-        } else {
-            instance.ratePerHour = __raw_ratePerHour;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Employee.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isTechnician")) || (__fields.keeps("isTechnician") && obj["isTechnician"] !== undefined)) {
-        const __raw_isTechnician = obj["isTechnician"] as boolean;
-
-        if (!(typeof __raw_isTechnician === "boolean")) {
-            errors.push({ field: "isTechnician", message: __raw_isTechnician == null ? "Employee.isTechnician is required" : "expected boolean" });
-        } else {
-            instance.isTechnician = __raw_isTechnician;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isSalesRep")) || (__fields.keeps("isSalesRep") && obj["isSalesRep"] !== undefined)) {
-        const __raw_isSalesRep = obj["isSalesRep"] as boolean;
-
-        if (!(typeof __raw_isSalesRep === "boolean")) {
-            errors.push({ field: "isSalesRep", message: __raw_isSalesRep == null ? "Employee.isSalesRep is required" : "expected boolean" });
-        } else {
-            instance.isSalesRep = __raw_isSalesRep;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
-        const __raw_description = obj["description"] as string | null;
-
-        if (!(typeof __raw_description === "string" || __raw_description === null)) {
-            errors.push({ field: "description", message: "expected string | null" });
-        } else {
-            instance.description = __raw_description;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("linkedinUrl")) || (__fields.keeps("linkedinUrl") && obj["linkedinUrl"] !== undefined)) {
-        const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
-
-        if (!(typeof __raw_linkedinUrl === "string" || __raw_linkedinUrl === null)) {
-            errors.push({ field: "linkedinUrl", message: "expected string | null" });
-        } else {
-            instance.linkedinUrl = __raw_linkedinUrl;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("attendance")) || (__fields.keeps("attendance") && obj["attendance"] !== undefined)) {
-        const __raw_attendance = obj["attendance"] as Array<string>;
-
-        if (Array.isArray(__raw_attendance)) {
-            instance.attendance = __raw_attendance as string[];
-        } else {
-            errors.push({ field: "attendance", message: __raw_attendance == null ? "Employee.attendance is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("settings")) || (__fields.keeps("settings") && obj["settings"] !== undefined)) {
-        const __raw_settings = obj["settings"] as Settings;
-
-        ctx.pushScope("settings");
-        try {
-            const __result = settingsDecodeWithContext(__raw_settings, ctx);
-            ctx.assignOrDefer(instance, "settings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "settings" : "settings." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_role === "string")) {
+                    errors.push({ field: "role", message: __raw_role == null ? "Employee.role is required" : "expected string" });
+                } else {
+                    if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
+                        if (__raw_role.length === 0) { errors.push({ field: "role", message: "Employee.role must not be empty" }); }
+                    }
+                    instance.role = __raw_role;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as JobTitle;
+
+                ctx.pushScope("title");
+                try {
+                    const __result = jobTitleDecodeWithContext(__raw_title, ctx);
+                    ctx.assignOrDefer(instance, "title", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "title" : "title." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "title", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as Email;
+
+                ctx.pushScope("email");
+                try {
+                    const __result = emailDecodeWithContext(__raw_email, ctx);
+                    ctx.assignOrDefer(instance, "email", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "email" : "email." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "email", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("address")) ? "address" in obj : (__fields.keeps("address") && obj["address"] !== undefined)) {
+                const __raw_address = obj["address"] as string;
+
+                if (!(typeof __raw_address === "string")) {
+                    errors.push({ field: "address", message: __raw_address == null ? "Employee.address is required" : "expected string" });
+                } else {
+                    if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
+                        if (__raw_address.length === 0) { errors.push({ field: "address", message: "Employee.address must not be empty" }); }
+                    }
+                    instance.address = __raw_address;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
+                const __raw_username = obj["username"] as string;
+
+                if (!(typeof __raw_username === "string")) {
+                    errors.push({ field: "username", message: __raw_username == null ? "Employee.username is required" : "expected string" });
+                } else {
+                    if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
+                        if (__raw_username.length === 0) { errors.push({ field: "username", message: "Employee.username must not be empty" }); }
+                    }
+                    instance.username = __raw_username;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("route")) ? "route" in obj : (__fields.keeps("route") && obj["route"] !== undefined)) {
+                const __raw_route = obj["route"] as string | Route;
+
+                if (typeof __raw_route === "string") {
+                    instance.route = __raw_route;
+                } else {
+                    ctx.pushScope("route");
+                    try {
+                        const __result = routeDecodeWithContext(__raw_route, ctx);
+                        ctx.assignOrDefer(instance, "route", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "route" : "route." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "route", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("ratePerHour")) ? "ratePerHour" in obj : (__fields.keeps("ratePerHour") && obj["ratePerHour"] !== undefined)) {
+                const __raw_ratePerHour = obj["ratePerHour"] as number;
+
+                if (!(typeof __raw_ratePerHour === "number" && globalThis.Number.isFinite(__raw_ratePerHour))) {
+                    errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
+                } else {
+                    instance.ratePerHour = __raw_ratePerHour;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
+
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Employee.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isTechnician")) ? "isTechnician" in obj : (__fields.keeps("isTechnician") && obj["isTechnician"] !== undefined)) {
+                const __raw_isTechnician = obj["isTechnician"] as boolean;
+
+                if (!(typeof __raw_isTechnician === "boolean")) {
+                    errors.push({ field: "isTechnician", message: __raw_isTechnician == null ? "Employee.isTechnician is required" : "expected boolean" });
+                } else {
+                    instance.isTechnician = __raw_isTechnician;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isSalesRep")) ? "isSalesRep" in obj : (__fields.keeps("isSalesRep") && obj["isSalesRep"] !== undefined)) {
+                const __raw_isSalesRep = obj["isSalesRep"] as boolean;
+
+                if (!(typeof __raw_isSalesRep === "boolean")) {
+                    errors.push({ field: "isSalesRep", message: __raw_isSalesRep == null ? "Employee.isSalesRep is required" : "expected boolean" });
+                } else {
+                    instance.isSalesRep = __raw_isSalesRep;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
+                const __raw_description = obj["description"] as string | null;
+
+                if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                    errors.push({ field: "description", message: "expected string | null" });
+                } else {
+                    instance.description = __raw_description;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("linkedinUrl")) ? "linkedinUrl" in obj : (__fields.keeps("linkedinUrl") && obj["linkedinUrl"] !== undefined)) {
+                const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
+
+                if (!(typeof __raw_linkedinUrl === "string" || __raw_linkedinUrl === null)) {
+                    errors.push({ field: "linkedinUrl", message: "expected string | null" });
+                } else {
+                    instance.linkedinUrl = __raw_linkedinUrl;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("attendance")) ? "attendance" in obj : (__fields.keeps("attendance") && obj["attendance"] !== undefined)) {
+                const __raw_attendance = obj["attendance"] as Array<string>;
+                if (Array.isArray(__raw_attendance)) {
+                    ctx.pushScope("attendance");
+                    try {
+                        instance.attendance = __mf_decodeArray(__raw_attendance, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "attendance" : "attendance." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "attendance", message: __raw_attendance == null ? "Employee.attendance is required" : "expected Array<string>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("settings")) ? "settings" in obj : (__fields.keeps("settings") && obj["settings"] !== undefined)) {
+                const __raw_settings = obj["settings"] as Settings;
+
+                ctx.pushScope("settings");
+                try {
+                    const __result = settingsDecodeWithContext(__raw_settings, ctx);
+                    ctx.assignOrDefer(instance, "settings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "settings" : "settings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "settings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -691,8 +707,7 @@ export function employeeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "imageUrl" in o && "name" in o && "phones" in o && "role" in o && "title" in o && "email" in o && "address" in o && "username" in o && "route" in o && "ratePerHour" in o && "active" in o && "isTechnician" in o && "isSalesRep" in o && "description" in o && "linkedinUrl" in o && "attendance" in o && "settings" in o;
+    return __mf_holdsAll(obj, ["id", "imageUrl", "name", "phones", "role", "title", "email", "address", "username", "route", "ratePerHour", "active", "isTechnician", "isSalesRep", "description", "linkedinUrl", "attendance", "settings"]);
 }
 
 export function employeeIs(obj: unknown): obj is Employee {
@@ -1413,6 +1428,7 @@ export const Employee: {
   readonly encodeWithContext: typeof employeeEncodeWithContext;
   readonly encodePartialWithContext: typeof employeeEncodePartialWithContext;
   readonly decode: typeof employeeDecode;
+  readonly fromString: typeof employeeFromString;
   readonly decodeWithContext: typeof employeeDecodeWithContext;
   readonly decodePartialWithContext: typeof employeeDecodePartialWithContext;
   readonly validateField: typeof employeeValidateField;
@@ -1427,6 +1443,7 @@ export const Employee: {
   encodeWithContext: employeeEncodeWithContext,
   encodePartialWithContext: employeeEncodePartialWithContext,
   decode: employeeDecode,
+  fromString: employeeFromString,
   decodeWithContext: employeeDecodeWithContext,
   decodePartialWithContext: employeeDecodePartialWithContext,
   validateField: employeeValidateField,
@@ -1470,10 +1487,21 @@ export declare function employeeDefaultValue(): Employee;
 export declare function employeeEncode(value: Employee, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function employeeEncodeWithContext(value: Employee, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Employee>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Employee;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function employeeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Employee;
 } | {
@@ -1588,6 +1616,7 @@ export declare const Employee: {
 	readonly encodeWithContext: typeof employeeEncodeWithContext;
 	readonly encodePartialWithContext: typeof employeeEncodePartialWithContext;
 	readonly decode: typeof employeeDecode;
+	readonly fromString: typeof employeeFromString;
 	readonly decodeWithContext: typeof employeeDecodeWithContext;
 	readonly decodePartialWithContext: typeof employeeDecodePartialWithContext;
 	readonly validateField: typeof employeeValidateField;
@@ -1604,37 +1633,42 @@ export declare const Employee: {
 
 ## Mapping
 
-original 0..310 -> expanded 1137..1447
-original 359..437 -> expanded 1447..1525
-original 478..533 -> expanded 1525..1580
-original 574..597 -> expanded 1580..1603
-original 626..670 -> expanded 1603..1647
-original 711..737 -> expanded 1647..1673
-original 778..805 -> expanded 1673..1700
-original 824..1070 -> expanded 1700..1946
-original 1070..1071 -> expanded 59143..59144
-generated 0..1137 <- imports
-generated 1946..2466 <- Default
-generated 2466..7433 <- Encode
-generated 7433..30560 <- Decode
-generated 30560..57877 <- Gigaform
-generated 57877..59143 <- __convenience_const
+original 0..310 -> expanded 1420..1730
+original 359..437 -> expanded 1730..1808
+original 478..533 -> expanded 1808..1863
+original 574..597 -> expanded 1863..1886
+original 626..670 -> expanded 1886..1930
+original 711..737 -> expanded 1930..1956
+original 778..805 -> expanded 1956..1983
+original 824..1070 -> expanded 1983..2229
+original 1070..1071 -> expanded 62724..62725
+generated 0..1420 <- imports
+generated 2229..2749 <- Default
+generated 2749..9289 <- Encode
+generated 9289..34057 <- Decode
+generated 34057..61374 <- Gigaform
+generated 61374..62724 <- __convenience_const
 
 ## Metadata
 
-interface Employee: {"body_span":{"end":1071,"start":387},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":360,"start":311}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":404,"start":393},"ts_type":"string"},{"decorators":[],"name":"imageUrl","optional":false,"readonly":false,"span":{"end":433,"start":409},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":479,"start":438}}],"name":"name","optional":false,"readonly":false,"span":{"end":497,"start":484},"ts_type":"string"},{"decorators":[],"name":"phones","optional":false,"readonly":false,"span":{"end":529,"start":502},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":575,"start":534}}],"name":"role","optional":false,"readonly":false,"span":{"end":593,"start":580},"ts_type":"string"},{"decorators":[{"args_src":"\"Technician\"","name":"default","span":{"end":627,"start":598}}],"name":"title","optional":false,"readonly":false,"span":{"end":648,"start":632},"ts_type":"JobTitle"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":666,"start":653},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":712,"start":671}}],"name":"address","optional":false,"readonly":false,"span":{"end":733,"start":717},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":779,"start":738}}],"name":"username","optional":false,"readonly":false,"span":{"end":801,"start":784},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":825,"start":806}}],"name":"route","optional":false,"readonly":false,"span":{"end":852,"start":830},"ts_type":"string | Route"},{"decorators":[],"name":"ratePerHour","optional":false,"readonly":false,"span":{"end":877,"start":857},"ts_type":"number"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":898,"start":882},"ts_type":"boolean"},{"decorators":[],"name":"isTechnician","optional":false,"readonly":false,"span":{"end":925,"start":903},"ts_type":"boolean"},{"decorators":[],"name":"isSalesRep","optional":false,"readonly":false,"span":{"end":950,"start":930},"ts_type":"boolean"},{"decorators":[],"name":"description","optional":false,"readonly":false,"span":{"end":982,"start":955},"ts_type":"string | null"},{"decorators":[],"name":"linkedinUrl","optional":false,"readonly":false,"span":{"end":1014,"start":987},"ts_type":"string | null"},{"decorators":[],"name":"attendance","optional":false,"readonly":false,"span":{"end":1045,"start":1019},"ts_type":"Array<string>"},{"decorators":[],"name":"settings","optional":false,"readonly":false,"span":{"end":1069,"start":1050},"ts_type":"Settings"}],"heritage":[],"methods":[],"name":"Employee","span":{"end":1071,"start":368},"type_params":[]}
+interface Employee: {"body_span":{"end":1071,"start":387},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":360,"start":311}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":404,"start":393},"ts_type":"string"},{"decorators":[],"key":"Named","name":"imageUrl","optional":false,"readonly":false,"span":{"end":433,"start":409},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":479,"start":438}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":497,"start":484},"ts_type":"string"},{"decorators":[],"key":"Named","name":"phones","optional":false,"readonly":false,"span":{"end":529,"start":502},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":575,"start":534}}],"key":"Named","name":"role","optional":false,"readonly":false,"span":{"end":593,"start":580},"ts_type":"string"},{"decorators":[{"args_src":"\"Technician\"","name":"default","span":{"end":627,"start":598}}],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":648,"start":632},"ts_type":"JobTitle"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":666,"start":653},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":712,"start":671}}],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":733,"start":717},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":779,"start":738}}],"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":801,"start":784},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":825,"start":806}}],"key":"Named","name":"route","optional":false,"readonly":false,"span":{"end":852,"start":830},"ts_type":"string | Route"},{"decorators":[],"key":"Named","name":"ratePerHour","optional":false,"readonly":false,"span":{"end":877,"start":857},"ts_type":"number"},{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":898,"start":882},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"isTechnician","optional":false,"readonly":false,"span":{"end":925,"start":903},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"isSalesRep","optional":false,"readonly":false,"span":{"end":950,"start":930},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":982,"start":955},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"linkedinUrl","optional":false,"readonly":false,"span":{"end":1014,"start":987},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"attendance","optional":false,"readonly":false,"span":{"end":1045,"start":1019},"ts_type":"Array<string>"},{"decorators":[],"key":"Named","name":"settings","optional":false,"readonly":false,"span":{"end":1069,"start":1050},"ts_type":"Settings"}],"heritage":[],"methods":[],"name":"Employee","span":{"end":1071,"start":368},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
 Name("Email")
+Name("Gigaform")
 Name("JobTitle")
+Name("OverviewSettings")
 Name("PhoneNumber")
+Name("Route")
+Name("ScheduleSettings")
 Name("Settings")
 Name("boolean")
 Name("number")
 Name("string")
 Name("string | Route")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

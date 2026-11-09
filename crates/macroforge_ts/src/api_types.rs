@@ -384,7 +384,7 @@ pub struct ProcessFileOptions {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScanOptions {
-    /// File extensions to scan (default: `[".ts", ".tsx"]`).
+    /// File extensions to scan (default: `[".ts", ".tsx", ".mts", ".cts"]`).
     pub extensions: Option<Vec<String>>,
     /// Whether to only collect exported types (default: `false`).
     pub exported_only: Option<bool>,

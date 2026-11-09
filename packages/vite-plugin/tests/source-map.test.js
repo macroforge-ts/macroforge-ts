@@ -1,19 +1,15 @@
 /**
- * Tests for Source Map v3 forwarding from the transform hook.
+ * The Source Map v3 the transform hook returns for an expanded file, which
+ * Vite composes with the maps of the plugins after it.
  *
- * The plugin's `transform` hook used to return `map: null`, which caused
- * downstream plugins (and browser dev-tools) to map expanded positions
- * back to the wrong source. Phase 16 wires `SourceMappingResult` from
- * the engine through a v3 VLQ encoder so Vite / the chain can compose
- * the map correctly.
- *
- * These tests verify two properties:
+ * These tests verify that:
  *   1. When a file contains a macro, `result.map` is a v3 object with
  *      valid `mappings`.
  *   2. Walking the map via `@jridgewell/trace-mapping` resolves a
  *      generated position inside an expanded region back to a position
- *      inside the original source (i.e. not `null` and not pointing
- *      outside the file).
+ *      inside the original source.
+ *   3. Every line of the source the expansion keeps maps back to its own
+ *      line.
  */
 
 import test from 'node:test';
@@ -50,10 +46,7 @@ export { User };
     const { result, error } = await invokeTransform(plugin, source, id);
 
     assert.equal(error, null, 'transform should not error');
-    if (!result || !result.code || result.code === source) {
-        // No expansion happened — nothing to verify. Skipping is fine.
-        return;
-    }
+    assert.ok(result?.code && result.code !== source, 'the file expands');
 
     assert.ok(result.map, 'result.map should be present when code expanded');
     assert.equal(result.map.version, 3, 'map.version must be 3');
@@ -124,5 +117,73 @@ test('transform returns map: null when file has no macros', async (t) => {
         // If the plugin did return a result, map should be null because
         // there's nothing to map.
         assert.equal(result.map, null);
+    }
+});
+
+test('every line of the source the expansion keeps maps back to its own line', async (t) => {
+    const tempDir = createTempDir();
+    t.after(() => cleanupTempDir(tempDir));
+
+    const source = `/** @derive(Debug) */
+class Account {
+  id: string;
+  name: string;
+  owner: string;
+}
+export { Account };
+`;
+    writeTestFile(tempDir, 'src/account.ts', source);
+
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
+
+    const id = path.join(tempDir, 'src/account.ts');
+    const { result, error } = await invokeTransform(plugin, source, id);
+    assert.equal(error, null);
+    assert.ok(result?.map, 'the expanded file has a map');
+
+    const tracer = new TraceMap(result.map);
+    const generated = result.code.split('\n');
+    const original = source.split('\n');
+    for (const field of ['  name: string;', '  owner: string;']) {
+        const line = generated.indexOf(field);
+        assert.ok(line >= 0, `${field} is kept`);
+        const position = originalPositionFor(tracer, { line: line + 1, column: 2 });
+        assert.equal(position.source, id);
+        assert.equal(position.line, original.indexOf(field) + 1, `${field} maps to its own line`);
+    }
+});
+
+test('a directive prologue stays first, and the lines after it map back', async (t) => {
+    const tempDir = createTempDir();
+    t.after(() => cleanupTempDir(tempDir));
+
+    const source = `'use client';
+// The license header.
+/** @derive(Debug) */
+class Panel {
+  id: string;
+  title: string;
+}
+export { Panel };
+`;
+    writeTestFile(tempDir, 'src/panel.ts', source);
+
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
+
+    const id = path.join(tempDir, 'src/panel.ts');
+    const { result, error } = await invokeTransform(plugin, source, id);
+    assert.equal(error, null);
+    assert.ok(result?.code.startsWith(`'use client';`), 'the directive stays first');
+
+    const tracer = new TraceMap(result.map);
+    const generated = result.code.split('\n');
+    const original = source.split('\n');
+    for (const line of ['  title: string;', 'export { Panel };']) {
+        const at = generated.indexOf(line);
+        assert.ok(at >= 0, `${line} is kept`);
+        const position = originalPositionFor(tracer, { line: at + 1, column: 0 });
+        assert.equal(position.line, original.indexOf(line) + 1, `${line} maps to its own line`);
     }
 });

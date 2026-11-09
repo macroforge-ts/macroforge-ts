@@ -12,8 +12,10 @@ true
 
 ## Output
 
-import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkDefaultValue } from "./record-link.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { productDecodeWithContext, productEncodeWithContext } from "./product.svelte";
+import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
+import { serviceDecodeWithContext, serviceEncodeWithContext } from "./service.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,32 +42,30 @@ export function itemEncode(value: Item, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Item): member is RecordLink<Product> => __mf_member(member, "__type") === "RecordLink", (member) => ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Service> => __mf_member(member, "__type") === "RecordLink", (member) => ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Product> => recordLinkHasShape(member), (member) => ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Service> => recordLinkHasShape(member), (member) => ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = itemDecodeWithContext(data, ctx);
+        const resultOrRef = itemDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -111,6 +111,10 @@ export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function itemFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => itemDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Item | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -123,13 +127,13 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "RecordLink<Product>") {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             }
             if (__typeName === "RecordLink<Service>") {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             }
 
             throw new __mf_DecodeError([{
@@ -145,22 +149,22 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     if (__shapeMatches.length === 1) {
         if (__shapeMatches[0] === "RecordLink<Product>") {
-            return recordLinkDecodeWithContext(value, ctx) as Item;
+            return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
         }
         if (__shapeMatches[0] === "RecordLink<Service>") {
-            return recordLinkDecodeWithContext(value, ctx) as Item;
+            return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
         }
     }
 
     if (__shapeMatches.length > 1) {
         if (__shapeMatches.includes("RecordLink<Product>")) {
             try {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             } catch {                        }
         }
         if (__shapeMatches.includes("RecordLink<Service>")) {
             try {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             } catch {                        }
         }
 
@@ -178,19 +182,17 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 export function itemHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>";
                     }
                 }
-
-                let __matchCount = 0;
-                if (recordLinkHasShape(value)) __matchCount++;
-                if (recordLinkHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (recordLinkHasShape(value)) return true;
+                if (recordLinkHasShape(value)) return true;
+                return false;
 }
 export function itemIs(value: unknown): value is Item {
-    return itemHasShape(value);
+    return itemHasShape(value) && itemDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -324,6 +326,7 @@ export const Item: {
   readonly encode: typeof itemEncode;
   readonly encodeWithContext: typeof itemEncodeWithContext;
   readonly decode: typeof itemDecode;
+  readonly fromString: typeof itemFromString;
   readonly decodeWithContext: typeof itemDecodeWithContext;
   readonly hasShape: typeof itemHasShape;
   readonly is: typeof itemIs;
@@ -334,6 +337,7 @@ export const Item: {
   encode: itemEncode,
   encodeWithContext: itemEncodeWithContext,
   decode: itemDecode,
+  fromString: itemFromString,
   decodeWithContext: itemDecodeWithContext,
   hasShape: itemHasShape,
   is: itemIs,
@@ -353,8 +357,19 @@ export declare function itemDefaultValue(): Item;
 export declare function itemEncode(value: Item, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function itemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Item;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function itemFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Item;
 } | {
@@ -428,6 +443,7 @@ export declare const Item: {
 	readonly encode: typeof itemEncode;
 	readonly encodeWithContext: typeof itemEncodeWithContext;
 	readonly decode: typeof itemDecode;
+	readonly fromString: typeof itemFromString;
 	readonly decodeWithContext: typeof itemDecodeWithContext;
 	readonly hasShape: typeof itemHasShape;
 	readonly is: typeof itemIs;
@@ -441,15 +457,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 668..881
-original 262..340 -> expanded 881..959
-original 340..341 -> expanded 12293..12294
-generated 0..668 <- imports
-generated 959..1020 <- Default
-generated 1020..2256 <- Encode
-generated 2256..7051 <- Decode
-generated 7051..11579 <- Gigaform
-generated 11579..12293 <- __convenience_const
+original 0..213 -> expanded 1026..1239
+original 262..340 -> expanded 1239..1317
+original 340..341 -> expanded 15161..15162
+generated 0..1026 <- imports
+generated 1317..1378 <- Default
+generated 1378..3899 <- Encode
+generated 3899..9843 <- Decode
+generated 9843..14371 <- Gigaform
+generated 14371..15161 <- __convenience_const
 
 ## Metadata
 
@@ -457,10 +473,14 @@ type Item: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"RecordLink<Prod
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Item")
+Name("Product")
 Name("RecordLink")
 Name("RecordLink<Product>")
 Name("RecordLink<Service>")
+Name("Service")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

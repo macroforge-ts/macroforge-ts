@@ -103,9 +103,9 @@ class User {
 After (Generated)
 
 ```
-import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 class User {
   
@@ -121,26 +121,71 @@ class User {
   metadata: Record<string, unknown>;
 
     static toString(value: User): string {
-        return userToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("userId: " + String(value.id));
+        parts.push("name: " + String(value.name));
+        parts.push("metadata: " + __mf_structuralDebug(value.metadata));
+            return "User { " + parts.join(", ") + " }";
+        });
     }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "User" });
+    User.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "User" };
+        User.#encodeFields(value as User, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: User, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["user_id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("metadata")) {
+                if (value.metadata !== undefined) {
+                    result["metadata"] = value.metadata;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: User, keepMetadata?: boolean): string {
         return userEncode(value, keepMetadata);
     }
-
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return userEncodeWithContext(value, ctx);
-    }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("userId: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    parts.push("metadata: " + __mf_structuralDebug(value.metadata));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -149,50 +194,14 @@ export function userEncode(value: User, keepMetadata?: boolean): string {
     const __raw = userEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return userEncodePartialWithContext(value, ctx);
+    return User.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "User",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.user_id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("metadata")) {
-
-        if (value.metadata !== undefined) {
-            result.metadata = value.metadata;
-        }
-    }
-
-    return result;
+    return User.encodePartialWithContext(value, ctx, fields);
 }
 ```
 

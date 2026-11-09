@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,45 +40,37 @@ export function lastNameEncode(value: LastName, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return lastNameEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function lastNameEncodePartialWithContext(value: Partial<LastName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof LastName>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "LastName",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "LastName" });
+    lastNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function lastNameEncodePartialWithContext(value: Partial<LastName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof LastName>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "LastName" };
+        lastNameEncodeFields(value as LastName, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function lastNameEncodeFields(value: LastName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LastName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = lastNameDecodeWithContext(data, ctx);
+        const resultOrRef = lastNameDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -124,6 +116,10 @@ export function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function lastNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LastName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => lastNameDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -136,28 +132,32 @@ export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LastName.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LastName | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LastName") as LastName | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "LastName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LastName");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -204,8 +204,7 @@ export function lastNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o;
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function lastNameIs(obj: unknown): obj is LastName {
@@ -314,6 +313,7 @@ export const LastName: {
   readonly encodeWithContext: typeof lastNameEncodeWithContext;
   readonly encodePartialWithContext: typeof lastNameEncodePartialWithContext;
   readonly decode: typeof lastNameDecode;
+  readonly fromString: typeof lastNameFromString;
   readonly decodeWithContext: typeof lastNameDecodeWithContext;
   readonly decodePartialWithContext: typeof lastNameDecodePartialWithContext;
   readonly validateField: typeof lastNameValidateField;
@@ -328,6 +328,7 @@ export const LastName: {
   encodeWithContext: lastNameEncodeWithContext,
   encodePartialWithContext: lastNameEncodePartialWithContext,
   decode: lastNameDecode,
+  fromString: lastNameFromString,
   decodeWithContext: lastNameDecodeWithContext,
   decodePartialWithContext: lastNameDecodePartialWithContext,
   validateField: lastNameValidateField,
@@ -349,10 +350,21 @@ export declare function lastNameDefaultValue(): LastName;
 export declare function lastNameEncode(value: LastName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function lastNameEncodePartialWithContext(value: Partial<LastName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof LastName>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LastName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function lastNameFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LastName;
 } | {
@@ -416,6 +428,7 @@ export declare const LastName: {
 	readonly encodeWithContext: typeof lastNameEncodeWithContext;
 	readonly encodePartialWithContext: typeof lastNameEncodePartialWithContext;
 	readonly decode: typeof lastNameDecode;
+	readonly fromString: typeof lastNameFromString;
 	readonly decodeWithContext: typeof lastNameDecodeWithContext;
 	readonly decodePartialWithContext: typeof lastNameDecodePartialWithContext;
 	readonly validateField: typeof lastNameValidateField;
@@ -432,24 +445,26 @@ export declare const LastName: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..140 -> expanded 700..733
-original 181..201 -> expanded 733..753
-original 201..202 -> expanded 13318..13319
-generated 0..642 <- imports
-generated 753..845 <- Default
-generated 845..2646 <- Encode
-generated 2646..8799 <- Decode
-generated 8799..12052 <- Gigaform
-generated 12052..13318 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..140 -> expanded 904..937
+original 181..201 -> expanded 937..957
+original 201..202 -> expanded 14476..14477
+generated 0..846 <- imports
+generated 957..1049 <- Default
+generated 1049..3178 <- Encode
+generated 3178..9873 <- Decode
+generated 9873..13126 <- Gigaform
+generated 13126..14476 <- __convenience_const
 
 ## Metadata
 
-interface LastName: {"body_span":{"end":202,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":182,"start":141}}],"name":"name","optional":false,"readonly":false,"span":{"end":200,"start":187},"ts_type":"string"}],"heritage":[],"methods":[],"name":"LastName","span":{"end":202,"start":116},"type_params":[]}
+interface LastName: {"body_span":{"end":202,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":182,"start":141}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":200,"start":187},"ts_type":"string"}],"heritage":[],"methods":[],"name":"LastName","span":{"end":202,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

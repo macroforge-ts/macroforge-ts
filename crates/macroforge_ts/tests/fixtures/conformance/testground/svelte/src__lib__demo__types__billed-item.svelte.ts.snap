@@ -13,7 +13,7 @@ true
 ## Output
 
 import { itemDecodeWithContext, itemEncodeWithContext } from "./item.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,63 +53,64 @@ export function billedItemEncode(value: BilledItem, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return billedItemEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "BilledItem",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("item")) {
-
-        if (value.item !== undefined) {
-            result.item = itemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("quantity")) {
-
-        if (value.quantity !== undefined) {
-            result.quantity = value.quantity;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxed")) {
-
-        if (value.taxed !== undefined) {
-            result.taxed = value.taxed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("upsale")) {
-
-        if (value.upsale !== undefined) {
-            result.upsale = value.upsale;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "BilledItem" });
+    billedItemEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "BilledItem" };
+        billedItemEncodeFields(value as BilledItem, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function billedItemEncodeFields(value: BilledItem, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = itemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("quantity")) {
+                if (value.quantity !== undefined) {
+                    result["quantity"] = value.quantity;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxed")) {
+                if (value.taxed !== undefined) {
+                    result["taxed"] = value.taxed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("upsale")) {
+                if (value.upsale !== undefined) {
+                    result["upsale"] = value.upsale;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = billedItemDecodeWithContext(data, ctx);
+        const resultOrRef = billedItemDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -155,6 +156,10 @@ export function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function billedItemFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => billedItemDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): BilledItem | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -167,84 +172,92 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "BilledItem.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as BilledItem | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "BilledItem") as BilledItem | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "BilledItem.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) && !("quantity" in obj)) {
-        errors.push({ field: "quantity", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxed")) && !("taxed" in obj)) {
-        errors.push({ field: "taxed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) && !("upsale" in obj)) {
-        errors.push({ field: "upsale", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["item", "item"], ["quantity", "quantity"], ["taxed", "taxed"], ["upsale", "upsale"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "item"?: Item | undefined; "quantity"?: number | undefined; "taxed"?: boolean | undefined; "upsale"?: boolean | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "BilledItem");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as Item;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as Item;
 
-        ctx.pushScope("item");
-        try {
-            const __result = itemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("item");
+                try {
+                    const __result = itemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) || (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
-        const __raw_quantity = obj["quantity"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+                const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number")) {
-            errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
-        } else {
-            instance.quantity = __raw_quantity;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxed")) || (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
-        const __raw_taxed = obj["taxed"] as boolean;
+                if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
+                    errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
+                } else {
+                    instance.quantity = __raw_quantity;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxed")) ? "taxed" in obj : (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
+                const __raw_taxed = obj["taxed"] as boolean;
 
-        if (!(typeof __raw_taxed === "boolean")) {
-            errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
-        } else {
-            instance.taxed = __raw_taxed;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) || (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
-        const __raw_upsale = obj["upsale"] as boolean;
+                if (!(typeof __raw_taxed === "boolean")) {
+                    errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
+                } else {
+                    instance.taxed = __raw_taxed;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
+                const __raw_upsale = obj["upsale"] as boolean;
 
-        if (!(typeof __raw_upsale === "boolean")) {
-            errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
-        } else {
-            instance.upsale = __raw_upsale;
-        }
+                if (!(typeof __raw_upsale === "boolean")) {
+                    errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
+                } else {
+                    instance.upsale = __raw_upsale;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -269,8 +282,7 @@ export function billedItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;
+    return __mf_holdsAll(obj, ["item", "quantity", "taxed", "upsale"]);
 }
 
 export function billedItemIs(obj: unknown): obj is BilledItem {
@@ -496,6 +508,7 @@ export const BilledItem: {
   readonly encodeWithContext: typeof billedItemEncodeWithContext;
   readonly encodePartialWithContext: typeof billedItemEncodePartialWithContext;
   readonly decode: typeof billedItemDecode;
+  readonly fromString: typeof billedItemFromString;
   readonly decodeWithContext: typeof billedItemDecodeWithContext;
   readonly decodePartialWithContext: typeof billedItemDecodePartialWithContext;
   readonly validateField: typeof billedItemValidateField;
@@ -510,6 +523,7 @@ export const BilledItem: {
   encodeWithContext: billedItemEncodeWithContext,
   encodePartialWithContext: billedItemEncodePartialWithContext,
   decode: billedItemDecode,
+  fromString: billedItemFromString,
   decodeWithContext: billedItemDecodeWithContext,
   decodePartialWithContext: billedItemDecodePartialWithContext,
   validateField: billedItemValidateField,
@@ -535,10 +549,21 @@ export declare function billedItemDefaultValue(): BilledItem;
 export declare function billedItemEncode(value: BilledItem, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: BilledItem;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function billedItemFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: BilledItem;
 } | {
@@ -611,6 +636,7 @@ export declare const BilledItem: {
 	readonly encodeWithContext: typeof billedItemEncodeWithContext;
 	readonly encodePartialWithContext: typeof billedItemEncodePartialWithContext;
 	readonly decode: typeof billedItemDecode;
+	readonly fromString: typeof billedItemFromString;
 	readonly decodeWithContext: typeof billedItemDecodeWithContext;
 	readonly decodePartialWithContext: typeof billedItemDecodePartialWithContext;
 	readonly validateField: typeof billedItemValidateField;
@@ -627,30 +653,32 @@ export declare const BilledItem: {
 
 ## Mapping
 
-original 0..102 -> expanded 720..822
-original 151..186 -> expanded 822..857
-original 297..302 -> expanded 857..862
-original 321..342 -> expanded 862..883
-original 406..433 -> expanded 883..910
-original 477..502 -> expanded 910..935
-original 547..570 -> expanded 935..958
-original 570..571 -> expanded 20109..20110
-generated 0..720 <- imports
-generated 958..1120 <- Default
-generated 1120..3462 <- Encode
-generated 3462..11099 <- Decode
-generated 11099..18789 <- Gigaform
-generated 18789..20109 <- __convenience_const
+original 0..102 -> expanded 924..1026
+original 151..186 -> expanded 1026..1061
+original 297..302 -> expanded 1061..1066
+original 321..342 -> expanded 1066..1087
+original 406..433 -> expanded 1087..1114
+original 477..502 -> expanded 1114..1139
+original 547..570 -> expanded 1139..1162
+original 570..571 -> expanded 21953..21954
+generated 0..924 <- imports
+generated 1162..1324 <- Default
+generated 1324..4337 <- Encode
+generated 4337..12855 <- Decode
+generated 12855..20545 <- Gigaform
+generated 20545..21953 <- __convenience_const
 
 ## Metadata
 
-interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":152,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":298,"start":187}}],"name":"item","optional":false,"readonly":false,"span":{"end":338,"start":327},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":407,"start":343}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":429,"start":412},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":478,"start":434}}],"name":"taxed","optional":false,"readonly":false,"span":{"end":498,"start":483},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":548,"start":503}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":569,"start":553},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":571,"start":160},"type_params":[]}
+interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":152,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":298,"start":187}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":338,"start":327},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":407,"start":343}}],"key":"Named","name":"quantity","optional":false,"readonly":false,"span":{"end":429,"start":412},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":478,"start":434}}],"key":"Named","name":"taxed","optional":false,"readonly":false,"span":{"end":498,"start":483},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":548,"start":503}}],"key":"Named","name":"upsale","optional":false,"readonly":false,"span":{"end":569,"start":553},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":571,"start":160},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Item")
 Name("boolean")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

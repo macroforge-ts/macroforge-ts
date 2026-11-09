@@ -75,7 +75,7 @@ generated 289..312 <- $Tuple
 
 ## Metadata
 
-interface User: {"body_span":{"end":186,"start":149},"decorators":[],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":166,"start":155},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":184,"start":171},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":186,"start":134},"type_params":[]}
+interface User: {"body_span":{"end":186,"start":149},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":166,"start":155},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":184,"start":171},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":186,"start":134},"type_params":[]}
 type StrictUser: {"body":{"Other":"{ readonly [K in keyof User]: User[K] }"},"decorators":[],"name":"StrictUser","span":{"end":246,"start":188},"type_params":[]}
 type Pair: {"body":{"Tuple":["string","number"]},"decorators":[],"name":"Pair","span":{"end":275,"start":247},"type_params":[]}
 type Triple: {"body":{"Tuple":["string","number","boolean"]},"decorators":[],"name":"Triple","span":{"end":314,"start":276},"type_params":[]}

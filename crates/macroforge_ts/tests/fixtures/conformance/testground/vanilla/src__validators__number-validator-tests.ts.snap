@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Number validator test classes for comprehensive decoder validation testing.
@@ -25,17 +25,15 @@ export class GreaterThanValidator {
     positive: number;
 
 constructor(props: { positive: number }) {
+
     this.positive = props.positive;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -82,6 +80,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -94,30 +97,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanValidator") as GreaterThanValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("positive")) && !("positive" in obj)) {
-        errors.push({ field: "positive", message: "missing required field" });
-    }
-    const instance = Object.create(GreaterThanValidator.prototype) as GreaterThanValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["positive", "positive"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(GreaterThanValidator.prototype);
+    const instance: { "positive"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("positive")) || (__fields.keeps("positive") && obj["positive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("positive")) ? "positive" in obj : (__fields.keeps("positive") && obj["positive"] !== undefined)) {
         const __raw_positive = obj["positive"] as number;
 
-        if (!(typeof __raw_positive === "number")) {
+        if (!(typeof __raw_positive === "number" && globalThis.Number.isFinite(__raw_positive))) {
             errors.push({ field: "positive", message: __raw_positive == null ? "GreaterThanValidator.positive is required" : "expected number" });
         } else {
             if (__raw_positive == null) { errors.push({ field: "positive", message: "GreaterThanValidator.positive is required" }); } else {
@@ -129,7 +138,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanValidator)) {
+        throw new TypeError("GreaterThanValidator.decodeWithContext: the value made is no GreaterThanValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -157,8 +169,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "positive" in o;
+    return __mf_holdsAll(obj, ["positive"]);
 }
 
 static is(obj: unknown): obj is GreaterThanValidator {
@@ -168,14 +179,20 @@ static is(obj: unknown): obj is GreaterThanValidator {
     if (!GreaterThanValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -205,17 +222,15 @@ export class GreaterThanOrEqualToValidator {
     nonNegative: number;
 
 constructor(props: { nonNegative: number }) {
+
     this.nonNegative = props.nonNegative;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanOrEqualToValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanOrEqualToValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -262,6 +277,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanOrEqualToValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -274,30 +294,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanOrEqualToValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanOrEqualToValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanOrEqualToValidator") as GreaterThanOrEqualToValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("nonNegative")) && !("nonNegative" in obj)) {
-        errors.push({ field: "nonNegative", message: "missing required field" });
-    }
-    const instance = Object.create(GreaterThanOrEqualToValidator.prototype) as GreaterThanOrEqualToValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["nonNegative", "nonNegative"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(GreaterThanOrEqualToValidator.prototype);
+    const instance: { "nonNegative"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonNegative")) || (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonNegative")) ? "nonNegative" in obj : (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
         const __raw_nonNegative = obj["nonNegative"] as number;
 
-        if (!(typeof __raw_nonNegative === "number")) {
+        if (!(typeof __raw_nonNegative === "number" && globalThis.Number.isFinite(__raw_nonNegative))) {
             errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "GreaterThanOrEqualToValidator.nonNegative is required" : "expected number" });
         } else {
             if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative is required" }); } else {
@@ -309,7 +335,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanOrEqualToValidator)) {
+        throw new TypeError("GreaterThanOrEqualToValidator.decodeWithContext: the value made is no GreaterThanOrEqualToValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanOrEqualToValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -337,8 +366,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "nonNegative" in o;
+    return __mf_holdsAll(obj, ["nonNegative"]);
 }
 
 static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
@@ -348,14 +376,20 @@ static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
     if (!GreaterThanOrEqualToValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanOrEqualToValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanOrEqualToValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanOrEqualToValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanOrEqualToValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanOrEqualToValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -385,17 +419,15 @@ export class LessThanValidator {
     capped: number;
 
 constructor(props: { capped: number }) {
+
     this.capped = props.capped;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -442,6 +474,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -454,30 +491,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanValidator") as LessThanValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("capped")) && !("capped" in obj)) {
-        errors.push({ field: "capped", message: "missing required field" });
-    }
-    const instance = Object.create(LessThanValidator.prototype) as LessThanValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["capped", "capped"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(LessThanValidator.prototype);
+    const instance: { "capped"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("capped")) || (__fields.keeps("capped") && obj["capped"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("capped")) ? "capped" in obj : (__fields.keeps("capped") && obj["capped"] !== undefined)) {
         const __raw_capped = obj["capped"] as number;
 
-        if (!(typeof __raw_capped === "number")) {
+        if (!(typeof __raw_capped === "number" && globalThis.Number.isFinite(__raw_capped))) {
             errors.push({ field: "capped", message: __raw_capped == null ? "LessThanValidator.capped is required" : "expected number" });
         } else {
             if (__raw_capped == null) { errors.push({ field: "capped", message: "LessThanValidator.capped is required" }); } else {
@@ -489,7 +532,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanValidator)) {
+        throw new TypeError("LessThanValidator.decodeWithContext: the value made is no LessThanValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -517,8 +563,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "capped" in o;
+    return __mf_holdsAll(obj, ["capped"]);
 }
 
 static is(obj: unknown): obj is LessThanValidator {
@@ -528,14 +573,20 @@ static is(obj: unknown): obj is LessThanValidator {
     if (!LessThanValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -565,17 +616,15 @@ export class LessThanOrEqualToValidator {
     maxed: number;
 
 constructor(props: { maxed: number }) {
+
     this.maxed = props.maxed;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanOrEqualToValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanOrEqualToValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -622,6 +671,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanOrEqualToValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -634,30 +688,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanOrEqualToValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanOrEqualToValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanOrEqualToValidator") as LessThanOrEqualToValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("maxed")) && !("maxed" in obj)) {
-        errors.push({ field: "maxed", message: "missing required field" });
-    }
-    const instance = Object.create(LessThanOrEqualToValidator.prototype) as LessThanOrEqualToValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["maxed", "maxed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(LessThanOrEqualToValidator.prototype);
+    const instance: { "maxed"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("maxed")) || (__fields.keeps("maxed") && obj["maxed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maxed")) ? "maxed" in obj : (__fields.keeps("maxed") && obj["maxed"] !== undefined)) {
         const __raw_maxed = obj["maxed"] as number;
 
-        if (!(typeof __raw_maxed === "number")) {
+        if (!(typeof __raw_maxed === "number" && globalThis.Number.isFinite(__raw_maxed))) {
             errors.push({ field: "maxed", message: __raw_maxed == null ? "LessThanOrEqualToValidator.maxed is required" : "expected number" });
         } else {
             if (__raw_maxed == null) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed is required" }); } else {
@@ -669,7 +729,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanOrEqualToValidator)) {
+        throw new TypeError("LessThanOrEqualToValidator.decodeWithContext: the value made is no LessThanOrEqualToValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanOrEqualToValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -697,8 +760,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "maxed" in o;
+    return __mf_holdsAll(obj, ["maxed"]);
 }
 
 static is(obj: unknown): obj is LessThanOrEqualToValidator {
@@ -708,14 +770,20 @@ static is(obj: unknown): obj is LessThanOrEqualToValidator {
     if (!LessThanOrEqualToValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanOrEqualToValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanOrEqualToValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanOrEqualToValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanOrEqualToValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanOrEqualToValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -745,17 +813,15 @@ export class BetweenValidator {
     ranged: number;
 
 constructor(props: { ranged: number }) {
+
     this.ranged = props.ranged;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = BetweenValidator.decodeWithContext(data, ctx);
+        const resultOrRef = BetweenValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -802,6 +868,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => BetweenValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -814,30 +885,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "BetweenValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as BetweenValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "BetweenValidator") as BetweenValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "BetweenValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("ranged")) && !("ranged" in obj)) {
-        errors.push({ field: "ranged", message: "missing required field" });
-    }
-    const instance = Object.create(BetweenValidator.prototype) as BetweenValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["ranged", "ranged"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(BetweenValidator.prototype);
+    const instance: { "ranged"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "BetweenValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("ranged")) || (__fields.keeps("ranged") && obj["ranged"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("ranged")) ? "ranged" in obj : (__fields.keeps("ranged") && obj["ranged"] !== undefined)) {
         const __raw_ranged = obj["ranged"] as number;
 
-        if (!(typeof __raw_ranged === "number")) {
+        if (!(typeof __raw_ranged === "number" && globalThis.Number.isFinite(__raw_ranged))) {
             errors.push({ field: "ranged", message: __raw_ranged == null ? "BetweenValidator.ranged is required" : "expected number" });
         } else {
             if (__raw_ranged == null) { errors.push({ field: "ranged", message: "BetweenValidator.ranged is required" }); } else {
@@ -849,7 +926,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof BetweenValidator)) {
+        throw new TypeError("BetweenValidator.decodeWithContext: the value made is no BetweenValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof BetweenValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -877,8 +957,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "ranged" in o;
+    return __mf_holdsAll(obj, ["ranged"]);
 }
 
 static is(obj: unknown): obj is BetweenValidator {
@@ -888,14 +967,20 @@ static is(obj: unknown): obj is BetweenValidator {
     if (!BetweenValidator.hasShape(obj)) {
         return false;
     }
+
     const result = BetweenValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function betweenValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return BetweenValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function betweenValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return BetweenValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -925,17 +1010,15 @@ export class IntValidator {
     integer: number;
 
 constructor(props: { integer: number }) {
+
     this.integer = props.integer;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = IntValidator.decodeWithContext(data, ctx);
+        const resultOrRef = IntValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -982,6 +1065,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => IntValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): IntValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -994,30 +1082,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "IntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as IntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "IntValidator") as IntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "IntValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("integer")) && !("integer" in obj)) {
-        errors.push({ field: "integer", message: "missing required field" });
-    }
-    const instance = Object.create(IntValidator.prototype) as IntValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["integer", "integer"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(IntValidator.prototype);
+    const instance: { "integer"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "IntValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("integer")) || (__fields.keeps("integer") && obj["integer"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("integer")) ? "integer" in obj : (__fields.keeps("integer") && obj["integer"] !== undefined)) {
         const __raw_integer = obj["integer"] as number;
 
-        if (!(typeof __raw_integer === "number")) {
+        if (!(typeof __raw_integer === "number" && globalThis.Number.isFinite(__raw_integer))) {
             errors.push({ field: "integer", message: __raw_integer == null ? "IntValidator.integer is required" : "expected number" });
         } else {
             if (__raw_integer == null) { errors.push({ field: "integer", message: "IntValidator.integer is required" }); } else {
@@ -1029,7 +1123,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof IntValidator)) {
+        throw new TypeError("IntValidator.decodeWithContext: the value made is no IntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof IntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1057,8 +1154,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "integer" in o;
+    return __mf_holdsAll(obj, ["integer"]);
 }
 
 static is(obj: unknown): obj is IntValidator {
@@ -1068,14 +1164,20 @@ static is(obj: unknown): obj is IntValidator {
     if (!IntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = IntValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function intValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return IntValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function intValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return IntValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1105,17 +1207,15 @@ export class NonNaNValidator {
     valid: number;
 
 constructor(props: { valid: number }) {
+
     this.valid = props.valid;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = NonNaNValidator.decodeWithContext(data, ctx);
+        const resultOrRef = NonNaNValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1162,6 +1262,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => NonNaNValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNaNValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -1174,30 +1279,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonNaNValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonNaNValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonNaNValidator") as NonNaNValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "NonNaNValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("valid")) && !("valid" in obj)) {
-        errors.push({ field: "valid", message: "missing required field" });
-    }
-    const instance = Object.create(NonNaNValidator.prototype) as NonNaNValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["valid", "valid"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(NonNaNValidator.prototype);
+    const instance: { "valid"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonNaNValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("valid")) || (__fields.keeps("valid") && obj["valid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("valid")) ? "valid" in obj : (__fields.keeps("valid") && obj["valid"] !== undefined)) {
         const __raw_valid = obj["valid"] as number;
 
-        if (!(typeof __raw_valid === "number")) {
+        if (!(typeof __raw_valid === "number" && (globalThis.Number.isFinite(__raw_valid) || globalThis.Number.isNaN(__raw_valid)))) {
             errors.push({ field: "valid", message: __raw_valid == null ? "NonNaNValidator.valid is required" : "expected number" });
         } else {
             if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
@@ -1209,7 +1320,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonNaNValidator)) {
+        throw new TypeError("NonNaNValidator.decodeWithContext: the value made is no NonNaNValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonNaNValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1237,8 +1351,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "valid" in o;
+    return __mf_holdsAll(obj, ["valid"]);
 }
 
 static is(obj: unknown): obj is NonNaNValidator {
@@ -1248,14 +1361,20 @@ static is(obj: unknown): obj is NonNaNValidator {
     if (!NonNaNValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NonNaNValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function nonNaNValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return NonNaNValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonNaNValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonNaNValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1285,17 +1404,15 @@ export class FiniteValidator {
     finite: number;
 
 constructor(props: { finite: number }) {
+
     this.finite = props.finite;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = FiniteValidator.decodeWithContext(data, ctx);
+        const resultOrRef = FiniteValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1342,6 +1459,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => FiniteValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): FiniteValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -1354,27 +1476,33 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "FiniteValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as FiniteValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "FiniteValidator") as FiniteValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "FiniteValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("finite")) && !("finite" in obj)) {
-        errors.push({ field: "finite", message: "missing required field" });
-    }
-    const instance = Object.create(FiniteValidator.prototype) as FiniteValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["finite", "finite"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(FiniteValidator.prototype);
+    const instance: { "finite"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "FiniteValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("finite")) || (__fields.keeps("finite") && obj["finite"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
         const __raw_finite = obj["finite"] as number;
 
         if (!(typeof __raw_finite === "number")) {
@@ -1389,7 +1517,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof FiniteValidator)) {
+        throw new TypeError("FiniteValidator.decodeWithContext: the value made is no FiniteValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof FiniteValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1417,8 +1548,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "finite" in o;
+    return __mf_holdsAll(obj, ["finite"]);
 }
 
 static is(obj: unknown): obj is FiniteValidator {
@@ -1428,14 +1558,20 @@ static is(obj: unknown): obj is FiniteValidator {
     if (!FiniteValidator.hasShape(obj)) {
         return false;
     }
+
     const result = FiniteValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function finiteValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return FiniteValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function finiteValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return FiniteValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1465,17 +1601,15 @@ export class PositiveValidator {
     positive: number;
 
 constructor(props: { positive: number }) {
+
     this.positive = props.positive;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = PositiveValidator.decodeWithContext(data, ctx);
+        const resultOrRef = PositiveValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1522,6 +1656,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => PositiveValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): PositiveValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -1534,30 +1673,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PositiveValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PositiveValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PositiveValidator") as PositiveValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "PositiveValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("positive")) && !("positive" in obj)) {
-        errors.push({ field: "positive", message: "missing required field" });
-    }
-    const instance = Object.create(PositiveValidator.prototype) as PositiveValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["positive", "positive"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(PositiveValidator.prototype);
+    const instance: { "positive"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "PositiveValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("positive")) || (__fields.keeps("positive") && obj["positive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("positive")) ? "positive" in obj : (__fields.keeps("positive") && obj["positive"] !== undefined)) {
         const __raw_positive = obj["positive"] as number;
 
-        if (!(typeof __raw_positive === "number")) {
+        if (!(typeof __raw_positive === "number" && globalThis.Number.isFinite(__raw_positive))) {
             errors.push({ field: "positive", message: __raw_positive == null ? "PositiveValidator.positive is required" : "expected number" });
         } else {
             if (__raw_positive == null) { errors.push({ field: "positive", message: "PositiveValidator.positive is required" }); } else {
@@ -1569,7 +1714,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof PositiveValidator)) {
+        throw new TypeError("PositiveValidator.decodeWithContext: the value made is no PositiveValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof PositiveValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1597,8 +1745,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "positive" in o;
+    return __mf_holdsAll(obj, ["positive"]);
 }
 
 static is(obj: unknown): obj is PositiveValidator {
@@ -1608,14 +1755,20 @@ static is(obj: unknown): obj is PositiveValidator {
     if (!PositiveValidator.hasShape(obj)) {
         return false;
     }
+
     const result = PositiveValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function positiveValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return PositiveValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function positiveValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return PositiveValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1645,17 +1798,15 @@ export class NonNegativeValidator {
     nonNegative: number;
 
 constructor(props: { nonNegative: number }) {
+
     this.nonNegative = props.nonNegative;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = NonNegativeValidator.decodeWithContext(data, ctx);
+        const resultOrRef = NonNegativeValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1702,6 +1853,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => NonNegativeValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNegativeValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -1714,30 +1870,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonNegativeValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonNegativeValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonNegativeValidator") as NonNegativeValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "NonNegativeValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("nonNegative")) && !("nonNegative" in obj)) {
-        errors.push({ field: "nonNegative", message: "missing required field" });
-    }
-    const instance = Object.create(NonNegativeValidator.prototype) as NonNegativeValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["nonNegative", "nonNegative"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(NonNegativeValidator.prototype);
+    const instance: { "nonNegative"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonNegativeValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonNegative")) || (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonNegative")) ? "nonNegative" in obj : (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
         const __raw_nonNegative = obj["nonNegative"] as number;
 
-        if (!(typeof __raw_nonNegative === "number")) {
+        if (!(typeof __raw_nonNegative === "number" && globalThis.Number.isFinite(__raw_nonNegative))) {
             errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "NonNegativeValidator.nonNegative is required" : "expected number" });
         } else {
             if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative is required" }); } else {
@@ -1749,7 +1911,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonNegativeValidator)) {
+        throw new TypeError("NonNegativeValidator.decodeWithContext: the value made is no NonNegativeValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonNegativeValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1777,8 +1942,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "nonNegative" in o;
+    return __mf_holdsAll(obj, ["nonNegative"]);
 }
 
 static is(obj: unknown): obj is NonNegativeValidator {
@@ -1788,14 +1952,20 @@ static is(obj: unknown): obj is NonNegativeValidator {
     if (!NonNegativeValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NonNegativeValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function nonNegativeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return NonNegativeValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonNegativeValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonNegativeValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1825,17 +1995,15 @@ export class NegativeValidator {
     negative: number;
 
 constructor(props: { negative: number }) {
+
     this.negative = props.negative;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = NegativeValidator.decodeWithContext(data, ctx);
+        const resultOrRef = NegativeValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1882,6 +2050,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => NegativeValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NegativeValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -1894,30 +2067,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NegativeValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NegativeValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NegativeValidator") as NegativeValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "NegativeValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("negative")) && !("negative" in obj)) {
-        errors.push({ field: "negative", message: "missing required field" });
-    }
-    const instance = Object.create(NegativeValidator.prototype) as NegativeValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["negative", "negative"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(NegativeValidator.prototype);
+    const instance: { "negative"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NegativeValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("negative")) || (__fields.keeps("negative") && obj["negative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("negative")) ? "negative" in obj : (__fields.keeps("negative") && obj["negative"] !== undefined)) {
         const __raw_negative = obj["negative"] as number;
 
-        if (!(typeof __raw_negative === "number")) {
+        if (!(typeof __raw_negative === "number" && globalThis.Number.isFinite(__raw_negative))) {
             errors.push({ field: "negative", message: __raw_negative == null ? "NegativeValidator.negative is required" : "expected number" });
         } else {
             if (__raw_negative == null) { errors.push({ field: "negative", message: "NegativeValidator.negative is required" }); } else {
@@ -1929,7 +2108,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NegativeValidator)) {
+        throw new TypeError("NegativeValidator.decodeWithContext: the value made is no NegativeValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NegativeValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1957,8 +2139,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "negative" in o;
+    return __mf_holdsAll(obj, ["negative"]);
 }
 
 static is(obj: unknown): obj is NegativeValidator {
@@ -1968,14 +2149,20 @@ static is(obj: unknown): obj is NegativeValidator {
     if (!NegativeValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NegativeValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function negativeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return NegativeValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function negativeValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NegativeValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2005,17 +2192,15 @@ export class NonPositiveValidator {
     nonPositive: number;
 
 constructor(props: { nonPositive: number }) {
+
     this.nonPositive = props.nonPositive;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = NonPositiveValidator.decodeWithContext(data, ctx);
+        const resultOrRef = NonPositiveValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2062,6 +2247,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => NonPositiveValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonPositiveValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -2074,30 +2264,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonPositiveValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonPositiveValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonPositiveValidator") as NonPositiveValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "NonPositiveValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("nonPositive")) && !("nonPositive" in obj)) {
-        errors.push({ field: "nonPositive", message: "missing required field" });
-    }
-    const instance = Object.create(NonPositiveValidator.prototype) as NonPositiveValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["nonPositive", "nonPositive"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(NonPositiveValidator.prototype);
+    const instance: { "nonPositive"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonPositiveValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonPositive")) || (__fields.keeps("nonPositive") && obj["nonPositive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonPositive")) ? "nonPositive" in obj : (__fields.keeps("nonPositive") && obj["nonPositive"] !== undefined)) {
         const __raw_nonPositive = obj["nonPositive"] as number;
 
-        if (!(typeof __raw_nonPositive === "number")) {
+        if (!(typeof __raw_nonPositive === "number" && globalThis.Number.isFinite(__raw_nonPositive))) {
             errors.push({ field: "nonPositive", message: __raw_nonPositive == null ? "NonPositiveValidator.nonPositive is required" : "expected number" });
         } else {
             if (__raw_nonPositive == null) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive is required" }); } else {
@@ -2109,7 +2305,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonPositiveValidator)) {
+        throw new TypeError("NonPositiveValidator.decodeWithContext: the value made is no NonPositiveValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonPositiveValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2137,8 +2336,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "nonPositive" in o;
+    return __mf_holdsAll(obj, ["nonPositive"]);
 }
 
 static is(obj: unknown): obj is NonPositiveValidator {
@@ -2148,14 +2346,20 @@ static is(obj: unknown): obj is NonPositiveValidator {
     if (!NonPositiveValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NonPositiveValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function nonPositiveValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return NonPositiveValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonPositiveValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonPositiveValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2185,17 +2389,15 @@ export class MultipleOfValidator {
     multiple: number;
 
 constructor(props: { multiple: number }) {
+
     this.multiple = props.multiple;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MultipleOfValidator.decodeWithContext(data, ctx);
+        const resultOrRef = MultipleOfValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2242,6 +2444,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MultipleOfValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MultipleOfValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -2254,30 +2461,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MultipleOfValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MultipleOfValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MultipleOfValidator") as MultipleOfValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "MultipleOfValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("multiple")) && !("multiple" in obj)) {
-        errors.push({ field: "multiple", message: "missing required field" });
-    }
-    const instance = Object.create(MultipleOfValidator.prototype) as MultipleOfValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["multiple", "multiple"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(MultipleOfValidator.prototype);
+    const instance: { "multiple"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MultipleOfValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("multiple")) || (__fields.keeps("multiple") && obj["multiple"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("multiple")) ? "multiple" in obj : (__fields.keeps("multiple") && obj["multiple"] !== undefined)) {
         const __raw_multiple = obj["multiple"] as number;
 
-        if (!(typeof __raw_multiple === "number")) {
+        if (!(typeof __raw_multiple === "number" && globalThis.Number.isFinite(__raw_multiple))) {
             errors.push({ field: "multiple", message: __raw_multiple == null ? "MultipleOfValidator.multiple is required" : "expected number" });
         } else {
             if (__raw_multiple == null) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple is required" }); } else {
@@ -2289,7 +2502,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MultipleOfValidator)) {
+        throw new TypeError("MultipleOfValidator.decodeWithContext: the value made is no MultipleOfValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MultipleOfValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2317,8 +2533,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "multiple" in o;
+    return __mf_holdsAll(obj, ["multiple"]);
 }
 
 static is(obj: unknown): obj is MultipleOfValidator {
@@ -2328,14 +2543,20 @@ static is(obj: unknown): obj is MultipleOfValidator {
     if (!MultipleOfValidator.hasShape(obj)) {
         return false;
     }
+
     const result = MultipleOfValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function multipleOfValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MultipleOfValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function multipleOfValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MultipleOfValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2365,17 +2586,15 @@ export class Uint8Validator {
     byte: number;
 
 constructor(props: { byte: number }) {
+
     this.byte = props.byte;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Uint8Validator.decodeWithContext(data, ctx);
+        const resultOrRef = Uint8Validator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2422,6 +2641,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Uint8Validator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Uint8Validator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -2434,30 +2658,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Uint8Validator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Uint8Validator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Uint8Validator") as Uint8Validator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Uint8Validator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("byte")) && !("byte" in obj)) {
-        errors.push({ field: "byte", message: "missing required field" });
-    }
-    const instance = Object.create(Uint8Validator.prototype) as Uint8Validator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["byte", "byte"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(Uint8Validator.prototype);
+    const instance: { "byte"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Uint8Validator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byte")) || (__fields.keeps("byte") && obj["byte"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byte")) ? "byte" in obj : (__fields.keeps("byte") && obj["byte"] !== undefined)) {
         const __raw_byte = obj["byte"] as number;
 
-        if (!(typeof __raw_byte === "number")) {
+        if (!(typeof __raw_byte === "number" && globalThis.Number.isFinite(__raw_byte))) {
             errors.push({ field: "byte", message: __raw_byte == null ? "Uint8Validator.byte is required" : "expected number" });
         } else {
             if (__raw_byte == null) { errors.push({ field: "byte", message: "Uint8Validator.byte is required" }); } else {
@@ -2469,7 +2699,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Uint8Validator)) {
+        throw new TypeError("Uint8Validator.decodeWithContext: the value made is no Uint8Validator");
+    }
+    return made;
 }
 static validateField<K extends keyof Uint8Validator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2497,8 +2730,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "byte" in o;
+    return __mf_holdsAll(obj, ["byte"]);
 }
 
 static is(obj: unknown): obj is Uint8Validator {
@@ -2508,14 +2740,20 @@ static is(obj: unknown): obj is Uint8Validator {
     if (!Uint8Validator.hasShape(obj)) {
         return false;
     }
+
     const result = Uint8Validator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function uint8ValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Uint8Validator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function uint8ValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Uint8Validator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2550,8 +2788,19 @@ export declare class GreaterThanValidator {
 	constructor(props: {
 		positive: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanValidator;
 	} | {
@@ -2576,8 +2825,19 @@ export declare class GreaterThanValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanValidator;
 } | {
@@ -2602,8 +2862,19 @@ export declare class GreaterThanOrEqualToValidator {
 	constructor(props: {
 		nonNegative: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanOrEqualToValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanOrEqualToValidator;
 	} | {
@@ -2628,8 +2899,19 @@ export declare class GreaterThanOrEqualToValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanOrEqualToValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanOrEqualToValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanOrEqualToValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanOrEqualToValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanOrEqualToValidator;
 } | {
@@ -2654,8 +2936,19 @@ export declare class LessThanValidator {
 	constructor(props: {
 		capped: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanValidator;
 	} | {
@@ -2680,8 +2973,19 @@ export declare class LessThanValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanValidator;
 } | {
@@ -2706,8 +3010,19 @@ export declare class LessThanOrEqualToValidator {
 	constructor(props: {
 		maxed: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanOrEqualToValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanOrEqualToValidator;
 	} | {
@@ -2732,8 +3047,19 @@ export declare class LessThanOrEqualToValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanOrEqualToValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanOrEqualToValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanOrEqualToValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanOrEqualToValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanOrEqualToValidator;
 } | {
@@ -2758,8 +3084,19 @@ export declare class BetweenValidator {
 	constructor(props: {
 		ranged: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: BetweenValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: BetweenValidator;
 	} | {
@@ -2784,8 +3121,19 @@ export declare class BetweenValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is BetweenValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function betweenValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: BetweenValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function betweenValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: BetweenValidator;
 } | {
@@ -2810,8 +3158,19 @@ export declare class IntValidator {
 	constructor(props: {
 		integer: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: IntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: IntValidator;
 	} | {
@@ -2836,8 +3195,19 @@ export declare class IntValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is IntValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function intValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: IntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function intValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: IntValidator;
 } | {
@@ -2862,8 +3232,19 @@ export declare class NonNaNValidator {
 	constructor(props: {
 		valid: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonNaNValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: NonNaNValidator;
 	} | {
@@ -2888,8 +3269,19 @@ export declare class NonNaNValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is NonNaNValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function nonNaNValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonNaNValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonNaNValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: NonNaNValidator;
 } | {
@@ -2914,8 +3306,19 @@ export declare class FiniteValidator {
 	constructor(props: {
 		finite: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: FiniteValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: FiniteValidator;
 	} | {
@@ -2940,8 +3343,19 @@ export declare class FiniteValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is FiniteValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function finiteValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: FiniteValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function finiteValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: FiniteValidator;
 } | {
@@ -2966,8 +3380,19 @@ export declare class PositiveValidator {
 	constructor(props: {
 		positive: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: PositiveValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: PositiveValidator;
 	} | {
@@ -2992,8 +3417,19 @@ export declare class PositiveValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is PositiveValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function positiveValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PositiveValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function positiveValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: PositiveValidator;
 } | {
@@ -3018,8 +3454,19 @@ export declare class NonNegativeValidator {
 	constructor(props: {
 		nonNegative: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonNegativeValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: NonNegativeValidator;
 	} | {
@@ -3044,8 +3491,19 @@ export declare class NonNegativeValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is NonNegativeValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function nonNegativeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonNegativeValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonNegativeValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: NonNegativeValidator;
 } | {
@@ -3070,8 +3528,19 @@ export declare class NegativeValidator {
 	constructor(props: {
 		negative: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NegativeValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: NegativeValidator;
 	} | {
@@ -3096,8 +3565,19 @@ export declare class NegativeValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is NegativeValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function negativeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NegativeValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function negativeValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: NegativeValidator;
 } | {
@@ -3122,8 +3602,19 @@ export declare class NonPositiveValidator {
 	constructor(props: {
 		nonPositive: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonPositiveValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: NonPositiveValidator;
 	} | {
@@ -3148,8 +3639,19 @@ export declare class NonPositiveValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is NonPositiveValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function nonPositiveValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonPositiveValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonPositiveValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: NonPositiveValidator;
 } | {
@@ -3174,8 +3676,19 @@ export declare class MultipleOfValidator {
 	constructor(props: {
 		multiple: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MultipleOfValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MultipleOfValidator;
 	} | {
@@ -3200,8 +3713,19 @@ export declare class MultipleOfValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MultipleOfValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function multipleOfValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MultipleOfValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function multipleOfValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MultipleOfValidator;
 } | {
@@ -3226,8 +3750,19 @@ export declare class Uint8Validator {
 	constructor(props: {
 		byte: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Uint8Validator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Uint8Validator;
 	} | {
@@ -3252,8 +3787,19 @@ export declare class Uint8Validator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is Uint8Validator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function uint8ValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Uint8Validator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function uint8ValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Uint8Validator;
 } | {
@@ -3278,81 +3824,81 @@ export declare function uint8ValidatorIs(value: unknown): value is Uint8Validato
 
 ## Mapping
 
-original 0..246 -> expanded 385..631
-original 246..247 -> expanded 6842..6843
-original 247..437 -> expanded 8805..8995
-original 437..438 -> expanded 15572..15573
-original 438..589 -> expanded 17670..17821
-original 589..590 -> expanded 23888..23889
-original 590..767 -> expanded 25806..25983
-original 767..768 -> expanded 32272..32273
-original 768..919 -> expanded 34325..34476
-original 919..920 -> expanded 40573..40574
-original 920..1052 -> expanded 42476..42608
-original 1052..1053 -> expanded 48613..48614
-original 1053..1192 -> expanded 50456..50595
-original 1192..1193 -> expanded 56579..56580
-original 1193..1333 -> expanded 58467..58607
-original 1333..1334 -> expanded 64636..64637
-original 1334..1482 -> expanded 66524..66672
-original 1482..1483 -> expanded 72790..72791
-original 1483..1643 -> expanded 74708..74868
-original 1643..1644 -> expanded 81178..81179
-original 1644..1792 -> expanded 83141..83289
-original 1792..1793 -> expanded 89407..89408
-original 1793..1953 -> expanded 91325..91485
-original 1953..1954 -> expanded 97795..97796
-original 1954..2111 -> expanded 99758..99915
-original 2111..2112 -> expanded 106158..106159
-original 2112..2247 -> expanded 108106..108241
-original 2247..2248 -> expanded 114273..114274
-original 2248..2249 -> expanded 116146..116147
-generated 0..385 <- imports
-generated 631..6842 <- Decode
-generated 6843..8805 <- Decode
-generated 8995..15572 <- Decode
-generated 15573..17670 <- Decode
-generated 17821..23888 <- Decode
-generated 23889..25806 <- Decode
-generated 25983..32272 <- Decode
-generated 32273..34325 <- Decode
-generated 34476..40573 <- Decode
-generated 40574..42476 <- Decode
-generated 42608..48613 <- Decode
-generated 48614..50456 <- Decode
-generated 50595..56579 <- Decode
-generated 56580..58467 <- Decode
-generated 58607..64636 <- Decode
-generated 64637..66524 <- Decode
-generated 66672..72790 <- Decode
-generated 72791..74708 <- Decode
-generated 74868..81178 <- Decode
-generated 81179..83141 <- Decode
-generated 83289..89407 <- Decode
-generated 89408..91325 <- Decode
-generated 91485..97795 <- Decode
-generated 97796..99758 <- Decode
-generated 99915..106158 <- Decode
-generated 106159..108106 <- Decode
-generated 108241..114273 <- Decode
-generated 114274..116146 <- Decode
+original 0..246 -> expanded 476..722
+original 246..247 -> expanded 7759..7760
+original 247..437 -> expanded 10160..10350
+original 437..438 -> expanded 17813..17814
+original 438..589 -> expanded 20376..20527
+original 589..590 -> expanded 27398..27399
+original 590..767 -> expanded 29745..29922
+original 767..768 -> expanded 37067..37068
+original 768..919 -> expanded 39576..39727
+original 919..920 -> expanded 46622..46623
+original 920..1052 -> expanded 48951..49083
+original 1052..1053 -> expanded 55864..55865
+original 1053..1192 -> expanded 58121..58260
+original 1192..1193 -> expanded 65076..65077
+original 1193..1333 -> expanded 67387..67527
+original 1333..1334 -> expanded 74304..74305
+original 1334..1482 -> expanded 76615..76763
+original 1482..1483 -> expanded 83689..83690
+original 1483..1643 -> expanded 86036..86196
+original 1643..1644 -> expanded 93338..93339
+original 1644..1792 -> expanded 95739..95887
+original 1792..1793 -> expanded 102813..102814
+original 1793..1953 -> expanded 105160..105320
+original 1953..1954 -> expanded 112462..112463
+original 1954..2111 -> expanded 114863..115020
+original 2111..2112 -> expanded 122083..122084
+original 2112..2247 -> expanded 124466..124601
+original 2247..2248 -> expanded 131415..131416
+original 2248..2249 -> expanded 133708..133709
+generated 0..476 <- imports
+generated 722..7759 <- Decode
+generated 7760..10160 <- Decode
+generated 10350..17813 <- Decode
+generated 17814..20376 <- Decode
+generated 20527..27398 <- Decode
+generated 27399..29745 <- Decode
+generated 29922..37067 <- Decode
+generated 37068..39576 <- Decode
+generated 39727..46622 <- Decode
+generated 46623..48951 <- Decode
+generated 49083..55864 <- Decode
+generated 55865..58121 <- Decode
+generated 58260..65076 <- Decode
+generated 65077..67387 <- Decode
+generated 67527..74304 <- Decode
+generated 74305..76615 <- Decode
+generated 76763..83689 <- Decode
+generated 83690..86036 <- Decode
+generated 86196..93338 <- Decode
+generated 93339..95739 <- Decode
+generated 95887..102813 <- Decode
+generated 102814..105160 <- Decode
+generated 105320..112462 <- Decode
+generated 112463..114863 <- Decode
+generated 115020..122083 <- Decode
+generated 122084..124466 <- Decode
+generated 124601..131415 <- Decode
+generated 131416..133708 <- Decode
 
 ## Metadata
 
-class GreaterThanValidator: {"body_span":{"end":248,"start":171},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":136,"start":114}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThan(0)\"] }","name":"endec","span":{"end":224,"start":177}}],"initializer":null,"name":"positive","optional":false,"readonly":false,"span":{"end":246,"start":229},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanValidator","span":{"end":248,"start":144},"type_params":[]}
-class GreaterThanOrEqualToValidator: {"body_span":{"end":439,"start":350},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":306,"start":284}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(0)\"] }","name":"endec","span":{"end":412,"start":356}}],"initializer":null,"name":"nonNegative","optional":false,"readonly":false,"span":{"end":437,"start":417},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToValidator","span":{"end":439,"start":314},"type_params":[]}
-class LessThanValidator: {"body_span":{"end":591,"start":517},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":485,"start":463}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThan(100)\"] }","name":"endec","span":{"end":569,"start":523}}],"initializer":null,"name":"capped","optional":false,"readonly":false,"span":{"end":589,"start":574},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanValidator","span":{"end":591,"start":493},"type_params":[]}
-class LessThanOrEqualToValidator: {"body_span":{"end":769,"start":687},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":646,"start":624}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(100)\"] }","name":"endec","span":{"end":748,"start":693}}],"initializer":null,"name":"maxed","optional":false,"readonly":false,"span":{"end":767,"start":753},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToValidator","span":{"end":769,"start":654},"type_params":[]}
-class BetweenValidator: {"body_span":{"end":921,"start":845},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":814,"start":792}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"between(1, 100)\"] }","name":"endec","span":{"end":899,"start":851}}],"initializer":null,"name":"ranged","optional":false,"readonly":false,"span":{"end":919,"start":904},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenValidator","span":{"end":921,"start":822},"type_params":[]}
-class IntValidator: {"body_span":{"end":1054,"start":989},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":962,"start":940}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":1031,"start":995}}],"initializer":null,"name":"integer","optional":false,"readonly":false,"span":{"end":1052,"start":1036},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IntValidator","span":{"end":1054,"start":970},"type_params":[]}
-class NonNaNValidator: {"body_span":{"end":1194,"start":1128},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1098,"start":1076}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":1173,"start":1134}}],"initializer":null,"name":"valid","optional":false,"readonly":false,"span":{"end":1192,"start":1178},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNaNValidator","span":{"end":1194,"start":1106},"type_params":[]}
-class FiniteValidator: {"body_span":{"end":1335,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1238,"start":1216}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":1313,"start":1274}}],"initializer":null,"name":"finite","optional":false,"readonly":false,"span":{"end":1333,"start":1318},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"FiniteValidator","span":{"end":1335,"start":1246},"type_params":[]}
-class PositiveValidator: {"body_span":{"end":1484,"start":1413},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1381,"start":1359}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":1460,"start":1419}}],"initializer":null,"name":"positive","optional":false,"readonly":false,"span":{"end":1482,"start":1465},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveValidator","span":{"end":1484,"start":1389},"type_params":[]}
-class NonNegativeValidator: {"body_span":{"end":1645,"start":1568},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1533,"start":1511}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":1618,"start":1574}}],"initializer":null,"name":"nonNegative","optional":false,"readonly":false,"span":{"end":1643,"start":1623},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeValidator","span":{"end":1645,"start":1541},"type_params":[]}
-class NegativeValidator: {"body_span":{"end":1794,"start":1723},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1691,"start":1669}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":1770,"start":1729}}],"initializer":null,"name":"negative","optional":false,"readonly":false,"span":{"end":1792,"start":1775},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeValidator","span":{"end":1794,"start":1699},"type_params":[]}
-class NonPositiveValidator: {"body_span":{"end":1955,"start":1878},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1843,"start":1821}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":1928,"start":1884}}],"initializer":null,"name":"nonPositive","optional":false,"readonly":false,"span":{"end":1953,"start":1933},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveValidator","span":{"end":1955,"start":1851},"type_params":[]}
-class MultipleOfValidator: {"body_span":{"end":2113,"start":2037},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2003,"start":1981}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":2089,"start":2043}}],"initializer":null,"name":"multiple","optional":false,"readonly":false,"span":{"end":2111,"start":2094},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleOfValidator","span":{"end":2113,"start":2011},"type_params":[]}
-class Uint8Validator: {"body_span":{"end":2249,"start":2185},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2156,"start":2134}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":2229,"start":2191}}],"initializer":null,"name":"byte","optional":false,"readonly":false,"span":{"end":2247,"start":2234},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Uint8Validator","span":{"end":2249,"start":2164},"type_params":[]}
+class GreaterThanValidator: {"body_span":{"end":248,"start":171},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":136,"start":114}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"greaterThan(0)\"] }","name":"endec","span":{"end":224,"start":177}}],"initializer":null,"key":"Named","name":"positive","optional":false,"readonly":false,"span":{"end":246,"start":229},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GreaterThanValidator","span":{"end":248,"start":144},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToValidator: {"body_span":{"end":439,"start":350},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":306,"start":284}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(0)\"] }","name":"endec","span":{"end":412,"start":356}}],"initializer":null,"key":"Named","name":"nonNegative","optional":false,"readonly":false,"span":{"end":437,"start":417},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GreaterThanOrEqualToValidator","span":{"end":439,"start":314},"superclass":null,"type_params":[]}
+class LessThanValidator: {"body_span":{"end":591,"start":517},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":485,"start":463}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"lessThan(100)\"] }","name":"endec","span":{"end":569,"start":523}}],"initializer":null,"key":"Named","name":"capped","optional":false,"readonly":false,"span":{"end":589,"start":574},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"LessThanValidator","span":{"end":591,"start":493},"superclass":null,"type_params":[]}
+class LessThanOrEqualToValidator: {"body_span":{"end":769,"start":687},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":646,"start":624}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(100)\"] }","name":"endec","span":{"end":748,"start":693}}],"initializer":null,"key":"Named","name":"maxed","optional":false,"readonly":false,"span":{"end":767,"start":753},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"LessThanOrEqualToValidator","span":{"end":769,"start":654},"superclass":null,"type_params":[]}
+class BetweenValidator: {"body_span":{"end":921,"start":845},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":814,"start":792}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"between(1, 100)\"] }","name":"endec","span":{"end":899,"start":851}}],"initializer":null,"key":"Named","name":"ranged","optional":false,"readonly":false,"span":{"end":919,"start":904},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"BetweenValidator","span":{"end":921,"start":822},"superclass":null,"type_params":[]}
+class IntValidator: {"body_span":{"end":1054,"start":989},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":962,"start":940}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":1031,"start":995}}],"initializer":null,"key":"Named","name":"integer","optional":false,"readonly":false,"span":{"end":1052,"start":1036},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"IntValidator","span":{"end":1054,"start":970},"superclass":null,"type_params":[]}
+class NonNaNValidator: {"body_span":{"end":1194,"start":1128},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1098,"start":1076}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":1173,"start":1134}}],"initializer":null,"key":"Named","name":"valid","optional":false,"readonly":false,"span":{"end":1192,"start":1178},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"NonNaNValidator","span":{"end":1194,"start":1106},"superclass":null,"type_params":[]}
+class FiniteValidator: {"body_span":{"end":1335,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1238,"start":1216}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":1313,"start":1274}}],"initializer":null,"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1333,"start":1318},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"FiniteValidator","span":{"end":1335,"start":1246},"superclass":null,"type_params":[]}
+class PositiveValidator: {"body_span":{"end":1484,"start":1413},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1381,"start":1359}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":1460,"start":1419}}],"initializer":null,"key":"Named","name":"positive","optional":false,"readonly":false,"span":{"end":1482,"start":1465},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"PositiveValidator","span":{"end":1484,"start":1389},"superclass":null,"type_params":[]}
+class NonNegativeValidator: {"body_span":{"end":1645,"start":1568},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1533,"start":1511}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":1618,"start":1574}}],"initializer":null,"key":"Named","name":"nonNegative","optional":false,"readonly":false,"span":{"end":1643,"start":1623},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"NonNegativeValidator","span":{"end":1645,"start":1541},"superclass":null,"type_params":[]}
+class NegativeValidator: {"body_span":{"end":1794,"start":1723},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1691,"start":1669}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":1770,"start":1729}}],"initializer":null,"key":"Named","name":"negative","optional":false,"readonly":false,"span":{"end":1792,"start":1775},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"NegativeValidator","span":{"end":1794,"start":1699},"superclass":null,"type_params":[]}
+class NonPositiveValidator: {"body_span":{"end":1955,"start":1878},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1843,"start":1821}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":1928,"start":1884}}],"initializer":null,"key":"Named","name":"nonPositive","optional":false,"readonly":false,"span":{"end":1953,"start":1933},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"NonPositiveValidator","span":{"end":1955,"start":1851},"superclass":null,"type_params":[]}
+class MultipleOfValidator: {"body_span":{"end":2113,"start":2037},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2003,"start":1981}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":2089,"start":2043}}],"initializer":null,"key":"Named","name":"multiple","optional":false,"readonly":false,"span":{"end":2111,"start":2094},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"MultipleOfValidator","span":{"end":2113,"start":2011},"superclass":null,"type_params":[]}
+class Uint8Validator: {"body_span":{"end":2249,"start":2185},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2156,"start":2134}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":2229,"start":2191}}],"initializer":null,"key":"Named","name":"byte","optional":false,"readonly":false,"span":{"end":2247,"start":2234},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Uint8Validator","span":{"end":2249,"start":2164},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -26,6 +26,8 @@ true
 
 ## Output
 
+import { comparedWithin as __mf_comparedWithin, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+
 export interface OnlyEq {
     id: number;
 }
@@ -37,10 +39,9 @@ export interface OnlyPartialOrd {
 
 export function onlyPartialOrdPartialCompare(a: OnlyPartialOrd, b: OnlyPartialOrd): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return __mf_comparedWithin(a, b, () => {
+    return (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
+    });
 }
 
 export const OnlyPartialOrd: {
@@ -56,22 +57,23 @@ export interface OrdWithoutEq {
 
 export function ordWithoutEqEquals(a: OrdWithoutEq, b: OrdWithoutEq): boolean {
     if (a === b) return true;
-    return a.id === b.id;
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id || a.id !== a.id && b.id !== b.id;
+    });
 }
 
 export function ordWithoutEqPartialCompare(a: OrdWithoutEq, b: OrdWithoutEq): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return __mf_comparedWithin(a, b, () => {
+    return (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
+    });
 }
 
 export function ordWithoutEqCompare(a: OrdWithoutEq, b: OrdWithoutEq): number {
     if (a === b) return 0;
-    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return __mf_comparedWithin(a, b, () => {
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : a.id !== a.id ? b.id !== b.id ? 0 : 1 : -1;
+    });
 }
 
 export const OrdWithoutEq: {
@@ -119,23 +121,24 @@ Error [180..183]: `Ord` requires `Eq`, which `OrdWithoutEq` does not derive
 
 ## Mapping
 
-original 18..64 -> expanded 0..46
-original 90..142 -> expanded 46..98
-original 142..144 -> expanded 545..547
-original 186..236 -> expanded 547..597
-original 236..237 -> expanded 1541..1542
-generated 98..393 <- PartialOrd
-generated 393..545 <- __convenience_const
-generated 597..736 <- PartialEq
-generated 736..1025 <- PartialOrd
-generated 1025..1239 <- Ord
-generated 1239..1541 <- __convenience_const
+original 18..64 -> expanded 118..164
+original 90..142 -> expanded 164..216
+original 142..144 -> expanded 663..665
+original 186..236 -> expanded 665..715
+original 236..237 -> expanded 1808..1809
+generated 0..118 <- imports
+generated 216..511 <- PartialOrd
+generated 511..663 <- __convenience_const
+generated 715..942 <- PartialEq
+generated 942..1231 <- PartialOrd
+generated 1231..1506 <- Ord
+generated 1506..1808 <- __convenience_const
 
 ## Metadata
 
-interface OnlyEq: {"body_span":{"end":63,"start":44},"decorators":[{"args_src":"Eq","name":"Derive","span":{"end":19,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":61,"start":50},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyEq","span":{"end":63,"start":27},"type_params":[]}
-interface OnlyPartialOrd: {"body_span":{"end":143,"start":124},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":91,"start":65}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":141,"start":130},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyPartialOrd","span":{"end":143,"start":99},"type_params":[]}
-interface OrdWithoutEq: {"body_span":{"end":237,"start":218},"decorators":[{"args_src":"PartialEq, PartialOrd, Ord","name":"Derive","span":{"end":187,"start":145}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":235,"start":224},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OrdWithoutEq","span":{"end":237,"start":195},"type_params":[]}
+interface OnlyEq: {"body_span":{"end":63,"start":44},"decorators":[{"args_src":"Eq","name":"Derive","span":{"end":19,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":61,"start":50},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyEq","span":{"end":63,"start":27},"type_params":[]}
+interface OnlyPartialOrd: {"body_span":{"end":143,"start":124},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":91,"start":65}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":141,"start":130},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyPartialOrd","span":{"end":143,"start":99},"type_params":[]}
+interface OrdWithoutEq: {"body_span":{"end":237,"start":218},"decorators":[{"args_src":"PartialEq, PartialOrd, Ord","name":"Derive","span":{"end":187,"start":145}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":235,"start":224},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OrdWithoutEq","span":{"end":237,"start":195},"type_params":[]}
 
 ## Registry reads
 

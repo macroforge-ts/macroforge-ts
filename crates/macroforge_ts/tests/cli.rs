@@ -237,6 +237,85 @@ fn scan_with_out_dir_mirrors_expanded_tree() {
 }
 
 #[test]
+fn every_kind_of_typescript_module_is_expanded_cached_and_declared() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::write(root.join("package.json"), "{ \"name\": \"kinds\" }").unwrap();
+    let src = root.join("src");
+    std::fs::create_dir_all(&src).unwrap();
+    for (name, type_name) in [("esm.mts", "Esm"), ("common.cts", "Common")] {
+        std::fs::write(
+            src.join(name),
+            format!(
+                "/** @derive(Default) */\nexport interface {type_name} {{\n  count: number;\n}}\n"
+            ),
+        )
+        .unwrap();
+    }
+    std::fs::write(
+        src.join("holder.ts"),
+        "import type { Esm } from './esm.mjs';\nimport type { Common } from './common.cjs';\n\n\
+         /** @derive(Default) */\nexport interface Holder {\n  esm: Esm;\n  common: Common;\n}\n",
+    )
+    .unwrap();
+
+    let output = macroforge_bin()
+        .current_dir(root)
+        .args([
+            "expand",
+            "--scan",
+            "src",
+            "--out",
+            "staging",
+            "--types-out",
+            "types",
+        ])
+        .output()
+        .expect("failed to run macroforge");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let staged = |name: &str| std::fs::read_to_string(root.join("staging").join(name)).unwrap();
+    assert!(staged("esm.mts").contains("esmDefaultValue"));
+    assert!(staged("common.cts").contains("commonDefaultValue"));
+    // Each type's functions are imported by the name its module compiles to.
+    let holder = staged("holder.ts");
+    let imports = |function: &str, module: &str| {
+        holder.lines().any(|line| {
+            line.starts_with("import") && line.contains(function) && line.contains(module)
+        })
+    };
+    assert!(imports("esmDefaultValue", "./esm.mjs"), "{holder}");
+    assert!(imports("commonDefaultValue", "./common.cjs"), "{holder}");
+    assert!(
+        root.join("types/esm.d.mts").is_file(),
+        "{:?}",
+        list_files(&root.join("types"))
+    );
+    assert!(root.join("types/common.d.cts").is_file());
+
+    let output = macroforge_bin()
+        .arg("cache")
+        .arg(root)
+        .output()
+        .expect("failed to run macroforge");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let cache = root.join(".macroforge/cache/src");
+    assert!(
+        cache.join("esm.mts.cache").is_file(),
+        "{:?}",
+        list_files(&cache)
+    );
+    assert!(cache.join("common.cts.cache").is_file());
+}
+
+#[test]
 fn scan_with_types_out_dir_writes_type_surfaces() {
     let temp = TempDir::new().unwrap();
     setup_scan_fixture(temp.path());
@@ -650,6 +729,95 @@ fn cache_with_explicit_root_keeps_state_in_that_project() {
         !elsewhere.join(".macroforge").exists(),
         "cache wrote state into the working directory"
     );
+}
+
+/// A file whose expansion fails fails `cache` on every run, and the cache
+/// keeps no expansion of it for a plugin to serve without the error.
+#[test]
+fn cache_fails_on_a_file_that_fails_to_expand_and_keeps_none_of_it() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::write(root.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    std::fs::write(
+        root.join("src").join("point.ts"),
+        "/** @derive(Debug) */\nexport class Point {\n  x: number;\n}\n",
+    )
+    .unwrap();
+    let shade = root.join("src").join("shade.ts");
+    std::fs::write(
+        &shade,
+        "/** @derive(Default) */\nexport enum Shade {\n  /** @default */\n  Light = 'light',\n}\n",
+    )
+    .unwrap();
+    let cache = |expect_success: bool| {
+        let output = macroforge_bin()
+            .arg("cache")
+            .arg(root)
+            .output()
+            .expect("failed to run macroforge");
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        assert_eq!(output.status.success(), expect_success, "{stderr}");
+        stderr
+    };
+    let cache_dir = root.join(".macroforge").join("cache");
+    let manifest = || std::fs::read_to_string(cache_dir.join("manifest.json")).unwrap();
+
+    cache(true);
+    assert!(cache_dir.join("src/shade.ts.cache").is_file());
+
+    std::fs::write(
+        &shade,
+        "/** @derive(Default) */\nexport enum Shade {\n  Light = 'light',\n}\n",
+    )
+    .unwrap();
+    for _run in 0..2 {
+        let stderr = cache(false);
+        assert!(
+            stderr.contains("src/shade.ts: @derive(Default) on enum requires"),
+            "{stderr}"
+        );
+        assert!(
+            stderr.contains("macro expansion failed for 1 file(s)"),
+            "{stderr}"
+        );
+        assert!(!cache_dir.join("src/shade.ts.cache").exists());
+        assert!(!manifest().contains("src/shade.ts"), "{}", manifest());
+        assert!(manifest().contains("src/point.ts"), "{}", manifest());
+    }
+}
+
+/// A file whose cached code is gone is expanded again, its source unchanged.
+#[test]
+fn cache_writes_again_the_code_of_a_file_it_lost() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::write(root.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    std::fs::write(
+        root.join("src").join("point.ts"),
+        "/** @derive(Debug) */\nexport class Point {\n  x: number;\n}\n",
+    )
+    .unwrap();
+    let cached = root
+        .join(".macroforge")
+        .join("cache")
+        .join("src")
+        .join("point.ts.cache");
+    for _run in 0..2 {
+        let output = macroforge_bin()
+            .arg("cache")
+            .arg(root)
+            .output()
+            .expect("failed to run macroforge");
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(cached.is_file());
+        std::fs::remove_file(&cached).unwrap();
+    }
 }
 
 #[test]

@@ -1,0 +1,361 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_validator_misuse.ts
+---
+## Input
+
+/** @derive(Decode) */
+export interface Misused {
+    /** @endec(email) */
+    count: number;
+    /** @endec(positive) */
+    name: string;
+    /** @endec(positive) */
+    scores: number[];
+    /** @endec(email) */
+    when: Date;
+    /** @endec(nonEmpty) */
+    flag: boolean;
+    /** @endec(minLength(1)) */
+    byName: Record<string, string>;
+    /** @endec(emial) */
+    address: string;
+    /** @endec({ renme: "n" }) */
+    renamed: string;
+    /** @endec(minLength(2)) */
+    maybe: string | null;
+    /** @endec(nonEmpty) */
+    tags: string[];
+    /** @endec(nonEmpty) */
+    code: `c-${number}`;
+    /** @endec(positive) */
+    later?: number;
+    /** @endec(email) */
+    named: Address;
+}
+
+/** @derive(Decode) */
+/** @endec(email) */
+export type Meters = number;
+
+/** @derive(Decode) */
+export interface Address {
+    street: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+export interface Misused {
+    
+    count: number;
+    
+    name: string;
+    
+    scores: number[];
+    
+    when: Date;
+    
+    flag: boolean;
+    
+    byName: Record<string, string>;
+    
+    address: string;
+    
+    renamed: string;
+    
+    maybe: string | null;
+    
+    tags: string[];
+    
+    code: `c-${number}`;
+    
+    later?: number;
+    
+    named: Address;
+}
+
+
+export type Meters = number;
+
+
+export interface Address {
+    street: string;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = addressDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Address.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function addressFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => addressDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef;
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Address.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Address") as Address | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["street", "street"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "street"?: string | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Address");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("street")) ? "street" in obj : (__fields.keeps("street") && obj["street"] !== undefined)) {
+        const __raw_street = obj["street"] as string;
+
+        if (!(typeof __raw_street === "string")) {
+            errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+        } else {
+            instance.street = __raw_street;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Address;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function addressDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Address>): Partial<Address> | __mf_PendingRef {
+    return addressDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function addressValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function addressValidateFields(partial: { readonly [K in keyof Address]?: unknown }): Array<{ field: string; message: string }>;
+export function addressValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function addressHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["street"]);
+}
+
+export function addressIs(obj: unknown): obj is Address {
+    return addressHasShape(obj) && addressDecode(obj).success;
+}
+
+export const Address: {
+  readonly decode: typeof addressDecode;
+  readonly fromString: typeof addressFromString;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
+  readonly validateField: typeof addressValidateField;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+} = {
+  decode: addressDecode,
+  fromString: addressFromString,
+  decodeWithContext: addressDecodeWithContext,
+  decodePartialWithContext: addressDecodePartialWithContext,
+  validateField: addressValidateField,
+  validateFields: addressValidateFields,
+  hasShape: addressHasShape,
+  is: addressIs
+};
+
+## DTS
+
+export interface Misused {
+	count: number;
+	name: string;
+	scores: number[];
+	when: Date;
+	flag: boolean;
+	byName: Record<string, string>;
+	address: string;
+	renamed: string;
+	maybe: string | null;
+	tags: string[];
+	code: `c-${number}`;
+	later?: number;
+	named: Address;
+}
+export type Meters = number;
+export interface Address {
+	street: string;
+}
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function addressDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Address;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function addressFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Address;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function addressDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Address>): Partial<Address> | __mf_PendingRef;
+export declare function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function addressValidateFields(partial: { readonly [K in keyof Address]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function addressHasShape(obj: unknown): boolean;
+export declare function addressIs(obj: unknown): obj is Address;
+export declare const Address: {
+	readonly decode: typeof addressDecode;
+	readonly fromString: typeof addressFromString;
+	readonly decodeWithContext: typeof addressDecodeWithContext;
+	readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
+	readonly validateField: typeof addressValidateField;
+	readonly validateFields: typeof addressValidateFields;
+	readonly hasShape: typeof addressHasShape;
+	readonly is: typeof addressIs;
+};
+
+## Diagnostics
+
+Error [80..94]: @derive(Decode): field 'count': validator `Email` checks text, and `number` is a number
+Error [127..140]: @derive(Decode): field 'name': validator `Positive` checks a number, and `string` is text
+Error [173..190]: @derive(Decode): field 'scores': validator `Positive` checks a number, and `number[]` is an array
+Error [220..231]: @derive(Decode): field 'when': validator `Email` checks text, and `Date` is a date
+Error [264..278]: @derive(Decode): field 'flag': validator `NonEmpty` checks the length of text or of an array, and `boolean` is a boolean
+Error [315..346]: @derive(Decode): field 'byName': validator `MinLength(1)` checks the length of text or of an array, and `Record<string, string>` is a collection
+Error [351..371]: field 'address': unknown option or validator 'emial'
+  help: did you mean 'email'?
+Error [397..426]: field 'renamed': unknown option or validator 'renme'
+Error [754..775]: @derive(Decode): type 'Meters': validator `Email` checks text, and `number` is a number
+
+## Mapping
+
+original 22..54 -> expanded 579..611
+original 74..98 -> expanded 611..635
+original 121..144 -> expanded 635..658
+original 167..194 -> expanded 658..685
+original 214..235 -> expanded 685..706
+original 258..282 -> expanded 706..730
+original 309..350 -> expanded 730..771
+original 370..396 -> expanded 771..797
+original 425..451 -> expanded 797..823
+original 478..509 -> expanded 823..854
+original 532..557 -> expanded 854..879
+original 580..610 -> expanded 879..909
+original 633..658 -> expanded 909..934
+original 678..702 -> expanded 934..958
+original 745..776 -> expanded 958..989
+original 798..847 -> expanded 989..1038
+original 847..848 -> expanded 7595..7596
+generated 0..579 <- imports
+generated 1038..6850 <- Decode
+generated 6850..7595 <- __convenience_const
+
+## Metadata
+
+interface Misused: {"body_span":{"end":701,"start":49},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":75,"start":55}}],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":94,"start":80},"ts_type":"number"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":122,"start":99}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":140,"start":127},"ts_type":"string"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":168,"start":145}}],"key":"Named","name":"scores","optional":false,"readonly":false,"span":{"end":190,"start":173},"ts_type":"number[]"},{"decorators":[{"args_src":"email","name":"endec","span":{"end":215,"start":195}}],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":231,"start":220},"ts_type":"Date"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":259,"start":236}}],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":278,"start":264},"ts_type":"boolean"},{"decorators":[{"args_src":"minLength(1)","name":"endec","span":{"end":310,"start":283}}],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":346,"start":315},"ts_type":"Record<string, string>"},{"decorators":[{"args_src":"emial","name":"endec","span":{"end":371,"start":351}}],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":392,"start":376},"ts_type":"string"},{"decorators":[{"args_src":"{ renme: \"n\" }","name":"endec","span":{"end":426,"start":397}}],"key":"Named","name":"renamed","optional":false,"readonly":false,"span":{"end":447,"start":431},"ts_type":"string"},{"decorators":[{"args_src":"minLength(2)","name":"endec","span":{"end":479,"start":452}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":505,"start":484},"ts_type":"string | null"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":533,"start":510}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":553,"start":538},"ts_type":"string[]"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":581,"start":558}}],"key":"Named","name":"code","optional":false,"readonly":false,"span":{"end":606,"start":586},"ts_type":"`c-${number}`"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":634,"start":611}}],"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":654,"start":639},"ts_type":"number"},{"decorators":[{"args_src":"email","name":"endec","span":{"end":679,"start":659}}],"key":"Named","name":"named","optional":false,"readonly":false,"span":{"end":699,"start":684},"ts_type":"Address"}],"heritage":[],"methods":[],"name":"Misused","span":{"end":701,"start":31},"type_params":[]}
+interface Address: {"body_span":{"end":848,"start":825},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":799,"start":777}}],"fields":[{"decorators":[],"key":"Named","name":"street","optional":false,"readonly":false,"span":{"end":846,"start":831},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":848,"start":807},"type_params":[]}
+type Meters: {"body":{"Alias":"number"},"decorators":[{"args_src":"email","name":"endec","span":{"end":746,"start":726}},{"args_src":"Decode","name":"Derive","span":{"end":725,"start":703}}],"name":"Meters","span":{"end":775,"start":754},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

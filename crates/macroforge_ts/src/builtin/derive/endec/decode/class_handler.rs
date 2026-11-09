@@ -1,15 +1,30 @@
 use crate::ast::Expr;
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::untyped_fields::check_untyped_fields;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
-use super::field::statements::{Required, decode_fields, requires};
+use super::field::statements::{
+    Required, assembly_type, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
-use crate::builtin::derive::common::{TypeNames, js_string, rendered};
+use crate::builtin::derive::common::{
+    ClassUse, Declared, TypeNames, declared_type_has_derive, derive_class_fields,
+    inherited_statics, js_string, property_key, rendered,
+};
+use crate::builtin::derive::endec::coder::endec_helper;
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_coders, declared_param_guards, guarded_param_decoders, passed_param_coders,
+    passed_param_guards, required_param_coders,
+};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
     FIELD_SELECTION, PENDING_REF, decode_return_type, is_ok_check, root_forward_reference_error,
@@ -21,13 +36,9 @@ pub(super) fn handle_class(
     class: &crate::ts_syn::DataClass,
 ) -> Result<TsStream, MacroforgeError> {
     let class_name = input.name();
-    let class_names = TypeNames::new(class_name, class.type_params());
+    let class_names = TypeNames::new(class_name, class.type_params())
+        .inheriting(inherited_statics(input, class, "Decode"));
     let class_ident = class_names.full_type_ident();
-    let writable_instance_ident = class
-        .fields()
-        .iter()
-        .any(|field| field.readonly)
-        .then(|| class_names.fillable_type_ident(true));
     let class_expr: Expr = ts_ident!(class_name).into();
     let generic_args = class_names.generic_args.as_str();
     let key_param = class_names.key_param();
@@ -42,27 +53,18 @@ pub(super) fn handle_class(
 
     // Generate function names (always prefix style)
     let fn_decode_ident = class_names.generic_function("Decode");
+    let fn_from_string_ident = class_names.generic_function("FromString");
     let fn_decode_internal_ident = class_names.generic_function("DecodeWithContext");
     let fn_is_ident = class_names.generic_function("Is");
+    // A value of a type parameter is checked by the guard handed in for it.
+    let guards = declared_param_guards(&class_names.params);
+    let passed_guards = passed_param_guards(&class_names.params);
+    let guarded = guarded_param_decoders(&class_names.params);
     let fn_has_shape_ident = ts_ident!(class_names.function("HasShape"));
     let fn_decode_partial_ident = class_names.generic_function("DecodePartialWithContext");
     let field_selection_ident = ts_ident!(FIELD_SELECTION);
     let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
     let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
-
-    // Check for user-defined constructor with parameters
-    if let Some(ctor) = class.method("constructor")
-        && !ctor.params_src.trim().is_empty()
-    {
-        return Err(MacroforgeError::new(
-            ctor.span,
-            format!(
-                "@Derive(Decode) cannot be used on class '{}' with a custom constructor. \
-                    Remove the constructor or use @Derive(Decode) on a class without a constructor.",
-                class_name
-            ),
-        ));
-    }
 
     // Collect decodable fields with diagnostic collection
     let type_registry = &input.context.type_registry;
@@ -70,9 +72,23 @@ pub(super) fn handle_class(
     let file_imports = input.context.import_registry.file_import_entries();
     let file_imports = file_imports.as_slice();
     let type_params = class_names.params.clone();
+    let class_fields = derive_class_fields(input, class, "Decode", ClassUse::Builds)?;
     let mut all_diagnostics = DiagnosticCollector::new();
-    let fields: Vec<DecodeField> = class
-        .fields()
+    let key_scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params: &type_params,
+    };
+    check_field_keys(
+        Direction::Decode,
+        &container_opts,
+        class_fields.iter().map(SourceField::from),
+        &key_scope,
+        &mut all_diagnostics,
+    );
+    check_untyped_fields(Direction::Decode, &class_fields, &mut all_diagnostics);
+    let fields: Vec<DecodeField> = class_fields
         .iter()
         .filter_map(|field| {
             to_decode_field(
@@ -92,19 +108,11 @@ pub(super) fn handle_class(
         return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
     }
 
-    // Separate required vs optional fields
-    let required_fields: Vec<_> = fields
-        .iter()
-        .filter(|field| field.key_required())
-        .cloned()
-        .collect();
+    let missing_keys = missing_keys_check(&fields);
+    let assembly = assembly_type(&fields);
 
     // Build known keys for deny_unknown_fields
-    let known_keys: Vec<String> = fields
-        .iter()
-        .filter(|f| !f.flatten)
-        .map(|f| f.json_key.clone())
-        .collect();
+    let known_keys: Vec<String> = read_keys(&fields).collect();
 
     // All non-flatten fields for assignments
     let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
@@ -116,19 +124,7 @@ pub(super) fn handle_class(
         .cloned()
         .collect();
 
-    // Generate shape check condition for hasShape method
-    let shape_check_condition: String = if required_fields.is_empty() {
-        "true".to_string()
-    } else {
-        required_fields
-            .iter()
-            .map(|f| {
-                let key = js_string(&f.json_key);
-                rendered(ts_template! { @{key} in o })
-            })
-            .collect::<Vec<_>>()
-            .join(" && ")
-    };
+    let shape_check_condition = holds_required_keys(&fields);
 
     // Compute return type and wrappers
     let return_type = decode_return_type(&class_names.full_type);
@@ -156,10 +152,11 @@ pub(super) fn handle_class(
     let props_type_parts: Vec<String> = all_fields
         .iter()
         .map(|f| {
+            let key = property_key(&f.field_name);
             if f.optional {
-                rendered(ts_template! { @{&f.field_name}?: @{&f.ts_type} })
+                rendered(ts_template! { @{key}?: @{&f.ts_type} })
             } else {
-                rendered(ts_template! { @{&f.field_name}: @{&f.ts_type} })
+                rendered(ts_template! { @{key}: @{&f.ts_type} })
             }
         })
         .collect();
@@ -167,27 +164,77 @@ pub(super) fn handle_class(
     let props_type = rendered(ts_template! { { @{props_type_parts} } });
     let props_type_ident = ts_ident!(props_type.as_str());
 
-    let field_statements = decode_fields(&fields, class_name, Required::Selected);
+    let field_statements = decode_fields(&fields, class_name, tag_field, Required::Selected);
     let reference = decode_selectable_reference(
         class_name,
         &rendered(ts_template! { @{&class_names.full_type} | @{PENDING_REF} }),
     );
 
+    // A class with a constructor of its own keeps it: decoding builds
+    // instances without one. Otherwise the class gets one taking its fields.
+    // A subclass hands them to its superclass's, when that derives `Decode`
+    // and so takes them, and else sets the inherited ones itself.
+    let has_constructor = class
+        .methods()
+        .iter()
+        .any(|method| method.name == "constructor");
+    let superclass_takes_fields = class.inner.superclass.as_deref().is_some_and(|superclass| {
+        let declared = Declared {
+            registry: type_registry,
+            file_path: caller_file_path,
+            file_imports,
+        };
+        declared_type_has_derive(declared, superclass, "Decode")
+    });
+    let is_own = |field: &DecodeField| {
+        class
+            .fields()
+            .iter()
+            .any(|own| own.name == field.field_name)
+    };
+    let constructed_fields: Vec<&DecodeField> = all_fields
+        .iter()
+        .filter(|field| !superclass_takes_fields || is_own(field))
+        .collect();
+    let super_call = match (&class.inner.superclass, superclass_takes_fields) {
+        (Some(_), true) => "super(props);",
+        (Some(_), false) => "super();",
+        (None, _) => "",
+    };
+
+    // A key is read only where the input itself has it.
+    let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
+    let decoded_text: Expr = ts_ident!(endec_helper("decodedText")).into();
+    let props_param = ts_ident!(if constructed_fields.is_empty() {
+        "_props"
+    } else {
+        "props"
+    });
+    let coders = declared_param_coders(Direction::Decode, &class_names.params);
+    let passed_coders = passed_param_coders(Direction::Decode, &class_names.params);
+    let required_coders = required_param_coders(&class_names.params);
+
     let mut result = ts_template!(Within {
-        constructor(props: @{props_type_ident}) {
-            {#for field in &all_fields}
-                this.@{field.field_ident} = props.@{field.field_ident};
-            {/for}
-        }
+        {#if !has_constructor}
+            constructor(@{props_param}: @{props_type_ident}) {
+                @{super_call}
+                {#for field in &constructed_fields}
+                    {#if field.optional}
+                        if (props@{field.member} !== undefined) {
+                            this@{field.member} = props@{field.member};
+                        }
+                    {:else}
+                        this@{field.member} = props@{field.member};
+                    {/if}
+                {/for}
+            }
+        {/if}
 
-        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
-        static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        /** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
             try {
-                // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(data, ctx);
+                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(input, ctx@{&passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -213,18 +260,23 @@ pub(super) fn handle_class(
             }
         }
 
+        /** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        static @{class_names.generic_method("fromString")}(text: string, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&decoded_text}(text, (value) => @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(value, opts@{&passed_coders}));
+        }
+
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}): @{&class_ident} | @{&pending_ref_ident};
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&coders}): @{&class_ident} | @{&pending_ref_ident};
         /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have */
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, fields: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident};
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, __fields?: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&required_coders}, fields: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident};
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&coders}, __fields?: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
             {$typescript reference}
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{class_name}.decodeWithContext: expected an object" }]);
             }
 
-            const obj = value as Record<string, unknown>;
+            const obj = @{own_members}(value);
             const errors: Array<{ field: string; message: string }> = [];
 
             {#if container_opts.deny_unknown_fields}
@@ -236,26 +288,18 @@ pub(super) fn handle_class(
                 }
             {/if}
 
-            {#if !required_fields.is_empty()}
-                {#for field in &required_fields}
-                    {$let is_required: Expr = requires(field)}
-                    if (@{is_required} && !("@{field.json_key}" in obj)) {
-                        errors.push({ field: "@{field.json_key}", message: "missing required field" });
-                    }
-                {/for}
-            {/if}
+            {$typescript missing_keys}
 
-            // Create instance using Object.create to avoid constructor
-            {#if let Some(writable_ident) = &writable_instance_ident}
-                const instance: @{writable_ident} = Object.create(@{&class_expr}.prototype);
-            {:else}
-                const instance = Object.create(@{&class_expr}.prototype) as @{class_ident};
-            {/if}
+            // The instance is made without its constructor and filled in
+            // field by field, `readonly` and `private` ones too, through a
+            // type of its fields alone.
+            const made: object = Object.create(@{&class_expr}.prototype);
+            const instance: @{&assembly} = made;
 
             // Register with context if __id is present. Only a whole value
             // can be referred to.
-            if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
+            if (__fields === undefined && obj["__id"] !== undefined) {
+                ctx.register(obj["__id"] as number, instance, "@{class_name}");
             }
 
             // Track for optional freezing
@@ -265,24 +309,28 @@ pub(super) fn handle_class(
 
             ctx.pushErrors(errors);
 
-            return instance;
+            // A value made from the class's prototype is an instance of it.
+            if (!(made instanceof @{&class_expr})) {
+                throw new TypeError("@{class_name}.decodeWithContext: the value made is no @{class_name}");
+            }
+            return made;
         }
 
         {#if fields_with_validators.is_empty()}
-            static @{ts_ident!(format!("validateField{}", key_param.decl))}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }>;
-            static validateField(): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateField", &key_param.decl)}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }>;
+            static @{class_names.static_method("validateField", "")}(): Array<{ field: string; message: string }> {
                 return [];
             }
 
             static @{class_names.generic_method("validateFields")}(partial: { readonly [@{key_param.name.clone()} in keyof @{class_ident.clone()}]?: unknown }): Array<{ field: string; message: string }>;
-            static validateFields(): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateFields", "")}(): Array<{ field: string; message: string }> {
                 return [];
             }
         {:else}
-            static @{ts_ident!(format!("validateField{}", key_param.decl))}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateField", &key_param.decl)}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &fields_with_validators}
-                    if (field === "@{field.field_name}") {
+                    if (field === "@{field.field_name_text()}") {
                         const __val = value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.missing())}
                         {$typescript validation_code}
@@ -294,8 +342,8 @@ pub(super) fn handle_class(
             static @{class_names.generic_method("validateFields")}(partial: { readonly [@{key_param.name.clone()} in keyof @{class_ident.clone()}]?: unknown }): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &fields_with_validators}
-                    if ("@{field.field_name}" in partial && partial.@{field.field_ident} !== undefined) {
-                        const __val = partial.@{field.field_ident} as @{field.ts_type};
+                    if ("@{field.field_name_text()}" in partial && partial@{field.member} !== undefined) {
+                        const __val = partial@{field.member} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.missing())}
                         {$typescript validation_code}
                     }
@@ -304,22 +352,25 @@ pub(super) fn handle_class(
             }
         {/if}
 
-        static hasShape(obj: unknown): boolean {
+        static @{class_names.static_method("hasShape", "")}(obj: unknown): boolean {
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                 return false;
             }
-            const o = obj as Record<string, unknown>;
             return @{shape_check_condition};
         }
 
-        static @{class_names.generic_method("is")}(obj: unknown): obj is @{class_ident} {
-            if (obj instanceof @{&class_expr}) {
-                return true;
-            }
+        static @{class_names.generic_method("is")}(obj: unknown@{&guards}): obj is @{class_ident} {
+            {#if class_names.params.is_empty()}
+                if (obj instanceof @{&class_expr}) {
+                    return true;
+                }
+            {/if}
             if (!@{&class_expr}.hasShape(obj)) {
                 return false;
             }
-            const result = @{&class_expr}.decode(obj);
+            // An instance says nothing of its type arguments: what it holds
+            // of them is checked by the guards handed in.
+            const result = @{&class_expr}.decode@{&class_names.generic_args}(obj@{&guarded});
             return @{Expr::parse(&is_ok_check("result")).expect("decode is_ok expression should parse")};
         }
     });
@@ -330,14 +381,19 @@ pub(super) fn handle_class(
 
     // Generate standalone functions that delegate to static methods
     let mut standalone = ts_template! {
-        /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(input, opts);
+        /** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(input, opts@{&passed_coders});
+        }
+
+        /** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        export function @{fn_from_string_ident}(text: string, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("fromString{generic_args}"))}(text, opts@{&passed_coders});
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{class_ident} | @{pending_ref_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx);
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&coders}): @{class_ident} | @{pending_ref_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx@{&passed_coders});
         }
 
         /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check */
@@ -346,13 +402,13 @@ pub(super) fn handle_class(
         }
 
         /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out */
-        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&class_ident}>): Partial<@{&class_ident}> | @{&pending_ref_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx, @{field_requirement_expr}(fields));
+        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&class_ident}>@{&coders}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx@{&passed_coders}, @{field_requirement_expr}(fields));
         }
 
         /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type */
-        export function @{fn_is_ident}(value: unknown): value is @{class_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("is{generic_args}"))}(value);
+        export function @{fn_is_ident}(value: unknown@{&guards}): value is @{class_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("is{generic_args}"))}(value@{&passed_guards});
         }
     };
     standalone.add_aliased_import("DecodeContext", crate::package::ENDEC);

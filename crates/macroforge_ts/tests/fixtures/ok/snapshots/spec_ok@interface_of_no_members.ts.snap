@@ -1,0 +1,337 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_of_no_members.ts
+---
+## Input
+
+/** An interface that declares nothing is derived on as an object with no fields. */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface Hollow {}
+
+## Changed
+
+true
+
+## Output
+
+import { clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** An interface that declares nothing is derived on as an object with no fields. */
+
+export interface Hollow {}
+
+export function hollowToString(_value: Hollow): string {
+    return "Hollow {}";
+}
+
+export function hollowClone(value: Hollow): Hollow {
+    return __mf_clonedWith(value, (): Hollow => ({}));
+}
+
+export function hollowEquals(a: Hollow, b: Hollow): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return true;
+    });
+}
+
+export function hollowHashCode(value: Hollow): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+        return hash;
+    });
+}
+
+export function hollowDefaultValue(): Hollow {
+    return {
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function hollowEncode(value: Hollow, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = hollowEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function hollowEncodeWithContext(value: Hollow, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Hollow" });
+    hollowEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function hollowEncodePartialWithContext(value: Partial<Hollow>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Hollow>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Hollow" };
+        hollowEncodeFields(value as Hollow, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function hollowEncodeFields(_value: Hollow, _ctx: __mf_EncodeContext, _result: Record<string, unknown>, ___fields: __mf_FieldRequirement | undefined): void {
+
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function hollowDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Hollow } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = hollowDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Hollow.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function hollowFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Hollow } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => hollowDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function hollowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Hollow | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function hollowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Hollow> | __mf_PendingRef;
+export function hollowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Hollow> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Hollow.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Hollow.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Hollow") as Hollow | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Hollow.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    
+
+    const instance: object = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Hollow");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    
+
+    ctx.pushErrors(errors);
+
+    return instance as Hollow;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function hollowDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Hollow>): Partial<Hollow> | __mf_PendingRef {
+    return hollowDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function hollowValidateField<K extends keyof Hollow>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function hollowValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function hollowValidateFields(partial: { readonly [K in keyof Hollow]?: unknown }): Array<{ field: string; message: string }>;
+export function hollowValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function hollowHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return true;
+}
+
+export function hollowIs(obj: unknown): obj is Hollow {
+    return hollowHasShape(obj) && hollowDecode(obj).success;
+}
+
+export const Hollow: {
+  readonly toString: typeof hollowToString;
+  readonly clone: typeof hollowClone;
+  readonly equals: typeof hollowEquals;
+  readonly hashCode: typeof hollowHashCode;
+  readonly defaultValue: typeof hollowDefaultValue;
+  readonly encode: typeof hollowEncode;
+  readonly encodeWithContext: typeof hollowEncodeWithContext;
+  readonly encodePartialWithContext: typeof hollowEncodePartialWithContext;
+  readonly decode: typeof hollowDecode;
+  readonly fromString: typeof hollowFromString;
+  readonly decodeWithContext: typeof hollowDecodeWithContext;
+  readonly decodePartialWithContext: typeof hollowDecodePartialWithContext;
+  readonly validateField: typeof hollowValidateField;
+  readonly validateFields: typeof hollowValidateFields;
+  readonly hasShape: typeof hollowHasShape;
+  readonly is: typeof hollowIs;
+} = {
+  toString: hollowToString,
+  clone: hollowClone,
+  equals: hollowEquals,
+  hashCode: hollowHashCode,
+  defaultValue: hollowDefaultValue,
+  encode: hollowEncode,
+  encodeWithContext: hollowEncodeWithContext,
+  encodePartialWithContext: hollowEncodePartialWithContext,
+  decode: hollowDecode,
+  fromString: hollowFromString,
+  decodeWithContext: hollowDecodeWithContext,
+  decodePartialWithContext: hollowDecodePartialWithContext,
+  validateField: hollowValidateField,
+  validateFields: hollowValidateFields,
+  hasShape: hollowHasShape,
+  is: hollowIs
+};
+
+## DTS
+
+/** An interface that declares nothing is derived on as an object with no fields. */
+export interface Hollow {}
+export declare function hollowToString(_value: Hollow): string;
+export declare function hollowClone(value: Hollow): Hollow;
+export declare function hollowEquals(a: Hollow, b: Hollow): boolean;
+export declare function hollowHashCode(value: Hollow): number;
+export declare function hollowDefaultValue(): Hollow;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function hollowEncode(value: Hollow, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function hollowEncodeWithContext(value: Hollow, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function hollowEncodePartialWithContext(value: Partial<Hollow>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Hollow>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function hollowDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Hollow;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function hollowFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Hollow;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function hollowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Hollow | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function hollowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Hollow> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function hollowDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Hollow>): Partial<Hollow> | __mf_PendingRef;
+export declare function hollowValidateField<K extends keyof Hollow>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hollowValidateFields(partial: { readonly [K in keyof Hollow]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hollowHasShape(obj: unknown): boolean;
+export declare function hollowIs(obj: unknown): obj is Hollow;
+export declare const Hollow: {
+	readonly toString: typeof hollowToString;
+	readonly clone: typeof hollowClone;
+	readonly equals: typeof hollowEquals;
+	readonly hashCode: typeof hollowHashCode;
+	readonly defaultValue: typeof hollowDefaultValue;
+	readonly encode: typeof hollowEncode;
+	readonly encodeWithContext: typeof hollowEncodeWithContext;
+	readonly encodePartialWithContext: typeof hollowEncodePartialWithContext;
+	readonly decode: typeof hollowDecode;
+	readonly fromString: typeof hollowFromString;
+	readonly decodeWithContext: typeof hollowDecodeWithContext;
+	readonly decodePartialWithContext: typeof hollowDecodePartialWithContext;
+	readonly validateField: typeof hollowValidateField;
+	readonly validateFields: typeof hollowValidateFields;
+	readonly hasShape: typeof hollowHasShape;
+	readonly is: typeof hollowIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..85 -> expanded 805..890
+original 155..182 -> expanded 890..917
+original 182..183 -> expanded 9792..9793
+generated 0..805 <- imports
+generated 917..1001 <- Debug
+generated 1001..1112 <- Clone
+generated 1112..1278 <- PartialEq
+generated 1278..1433 <- Hash
+generated 1433..1503 <- Default
+generated 1503..3449 <- Encode
+generated 3449..8400 <- Decode
+generated 8400..9792 <- __convenience_const
+
+## Metadata
+
+interface Hollow: {"body_span":{"end":183,"start":181},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":156,"start":86}}],"fields":[],"heritage":[],"methods":[],"name":"Hollow","span":{"end":183,"start":164},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -1,24 +1,49 @@
 use crate::ast::Expr;
-use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::common::{
+    Declared, Member, get_type_default_with_registry, rendered, tuple_body, undefaultable,
+};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
-use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
+use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::config::ForeignHandler;
-use crate::ts_syn::ts_ident;
 
-use crate::builtin::derive::endec::decode::helpers::{
-    alias_primitive_arm_validators, parse_default_expr, try_composite_foreign_decode,
+use crate::builtin::derive::endec::coder::{
+    TypeScope, decode_expr, dictionary_record, json_keys_of, nullable_foreign_decoder,
+    object_members, unflattenable,
 };
-use crate::builtin::derive::endec::decode::types::{DecodeField, raw_cast_type};
+use crate::builtin::derive::endec::decode::helpers::{
+    alias_primitive_arm_validators, parse_default_expr, primitive_accepts,
+};
+use crate::builtin::derive::endec::decode::types::{
+    CompositeDecode, DecodeField, RawShape, raw_cast_type, raw_var_name,
+};
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::{Direction, UnionGuard, union_guard};
 use crate::builtin::derive::endec::value_kind::{
     EndecValueKind, classify_endec_value_kind, get_encodable_type_name,
 };
 use crate::builtin::derive::endec::{
-    EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, WrapperFields,
-    get_foreign_types,
+    EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, get_foreign_types,
 };
+
+/// Reports a field that is to take its type's default when that type has
+/// none a derive can write.
+fn report_undefaultable(
+    field: &SourceField<'_>,
+    ts_type: &str,
+    declared: Declared<'_>,
+    diagnostics: &mut DiagnosticCollector,
+) {
+    if let Some(reason) = undefaultable(ts_type, declared) {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@derive(Decode): field '{}' {reason}; write its default, as in `@endec({{ default: value }})`",
+                field.name
+            ),
+        );
+    }
+}
 
 /// Converts a field into a `DecodeField`, or `None` when the field is
 /// skipped.
@@ -38,18 +63,109 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     let parse_result = EndecFieldOptions::from_decorators(field.decorators, field.name);
     diagnostics.extend(parse_result.diagnostics);
     let opts = parse_result.options;
-
-    if !opts.should_decode() {
-        return None;
-    }
+    let declared = Declared {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+    };
 
     let json_key = opts
         .rename
         .clone()
         .unwrap_or_else(|| container_opts.rename_all.apply(field.name));
 
+    // A field skipped on decode is never read, and the value built still has
+    // it: it takes its default, the one written or its type's own. Only an
+    // optional field can be left out.
+    if !opts.should_decode() {
+        if field.optional && !opts.default {
+            return None;
+        }
+        let default_parsed = match &opts.default_expr {
+            Some(expr_src) => parse_default_expr(expr_src),
+            None => {
+                report_undefaultable(&field, field.ts_type, declared, diagnostics);
+                Expr::parse(&get_type_default_with_registry(
+                    field.ts_type,
+                    type_registry,
+                    caller_file_path,
+                    file_imports,
+                ))
+            }
+        };
+        return match default_parsed {
+            Ok(default_expr) => Some(never_read_field(&field, &opts, json_key, default_expr)),
+            Err(err) => {
+                diagnostics.error(
+                    field.span,
+                    format!(
+                        "@endec({{default: ...}}): invalid expression for '{}': {err}",
+                        field.name
+                    ),
+                );
+                None
+            }
+        };
+    }
+
+    let scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params,
+    };
+    let resolved_ts_type = scope.resolved(field.ts_type, Direction::Decode);
+    let resolved_ts_type = match scope.operators_resolved(&resolved_ts_type) {
+        Ok(yielded) => yielded.unwrap_or(resolved_ts_type),
+        Err(message) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            return None;
+        }
+    };
+    // A wrapper over a type written in place is read as the type it comes to.
     let resolved_ts_type =
-        resolve_generic_aliases(field.ts_type, type_registry, caller_file_path, file_imports);
+        match crate::builtin::derive::endec::coder::wrapper_over_structure(&resolved_ts_type) {
+            Some(Ok(written)) => written,
+            Some(Err(message)) if opts.decode_with.is_none() => {
+                diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+                return None;
+            }
+            Some(Err(_)) | None => resolved_ts_type,
+        };
+    if opts.format == Some(EndecFormat::Decimal) && resolved_ts_type.trim() != "number" {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@derive(Decode): field '{}': `format: \"decimal\"` reads a number from its text, and `{resolved_ts_type}` is not `number`",
+                field.name
+            ),
+        );
+        return None;
+    }
+    if opts.flatten
+        && opts.decode_with.is_none()
+        && let Some(reason) = unflattenable(&resolved_ts_type, &scope)
+    {
+        diagnostics.error(
+            field.span,
+            format!("@derive(Decode): field '{}': {reason}", field.name),
+        );
+        return None;
+    }
+    for spec in &opts.validators {
+        if let Some(misapplied) = spec.validator.misapplied_to(&resolved_ts_type) {
+            diagnostics.error(
+                field.span,
+                format!("@derive(Decode): field '{}': {misapplied}", field.name),
+            );
+        }
+    }
+    if opts.decode_with.is_none()
+        && let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(&resolved_ts_type)
+    {
+        diagnostics.error(field.span, format!("@derive(Decode): {reason}"));
+        return None;
+    }
     // A type parameter has no decoder to call: its values pass through as
     // they are, wherever it appears.
     let is_param = |name: &str| type_params.iter().any(|param| param == name);
@@ -75,14 +191,6 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     } else {
         None
     };
-    let nullable_union = match &type_cat {
-        TypeCategory::Nullable(inner) => guard_of(inner),
-        _ => None,
-    };
-    let array_elem_union = match &type_cat {
-        TypeCategory::Array(inner) => guard_of(inner),
-        _ => None,
-    };
 
     // Pull the primitive arm's validators (e.g. `nonEmpty` on a record-link
     // alias's `string` arm) so the primitive form of the union is validated.
@@ -101,58 +209,20 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         TypeCategory::Nullable(inner) => Some(classify_endec_value_kind(inner)),
         _ => None,
     };
-    let array_elem_kind = match &type_cat {
-        TypeCategory::Array(inner) => Some(classify_endec_value_kind(inner)),
-        _ => None,
-    };
     let nullable_encodable_type = match &type_cat {
-        TypeCategory::Nullable(inner) => {
-            encodable(inner).or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
+        TypeCategory::Nullable(inner) => encodable(inner),
+        _ => None,
+    };
+    let nullable_nested = match nullable_encodable_type
+        .as_deref()
+        .map(|name| scope.nested(name, Direction::Decode, 0))
+    {
+        Some(Ok(nested)) => nested,
+        Some(Err(message)) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            None
         }
-        _ => None,
-    };
-    let nullable_union_guard = nullable_union.map(|(guard, _)| guard);
-    let array_elem_encodable_type = match &type_cat {
-        TypeCategory::Array(inner) => {
-            encodable(inner).or_else(|| array_elem_union.as_ref().map(|(_, name)| name.clone()))
-        }
-        _ => None,
-    };
-    let array_elem_union_guard = array_elem_union.map(|(guard, _)| guard);
-    let set_elem_kind = match &type_cat {
-        TypeCategory::Set(inner) => Some(classify_endec_value_kind(inner)),
-        _ => None,
-    };
-    let set_elem_encodable_type = match &type_cat {
-        TypeCategory::Set(inner) => encodable(inner),
-        _ => None,
-    };
-    let map_value_kind = match &type_cat {
-        TypeCategory::Map(_, value) => Some(classify_endec_value_kind(value)),
-        _ => None,
-    };
-    let map_value_encodable_type = match &type_cat {
-        TypeCategory::Map(_, value) => encodable(value),
-        _ => None,
-    };
-    let record_value_encodable_type = match &type_cat {
-        TypeCategory::Record(_, value) => encodable(value),
-        _ => None,
-    };
-    let wrapper_encodable_type = match &type_cat {
-        TypeCategory::Wrapper(inner) => encodable(inner),
-        _ => None,
-    };
-    let wrapper_fields = match &type_cat {
-        TypeCategory::Wrapper(_) => match WrapperFields::of(&resolved_ts_type) {
-            Some(Ok(fields)) => Some(fields),
-            Some(Err(message)) => {
-                diagnostics.error(field.span, format!("@derive(Decode): {message}"));
-                None
-            }
-            None => None,
-        },
-        _ => None,
+        None => None,
     };
 
     // Whatever decodes the field is called as written, so a user expression
@@ -165,13 +235,28 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         if let Some(warning) = ft_match.warning {
             diagnostics.warning(field.span, warning);
         }
+        // One handler decodes every instance of a foreign type, as its config
+        // says, so what it gives is the field's type.
         ft_match
             .config
             .and_then(|ft| ft.handler_callee(ForeignHandler::Decode))
-            .or_else(|| {
-                try_composite_foreign_decode(field.ts_type)
-                    .map(|arrow| rendered(ts_template! { (@{arrow}) }))
+            .map(|callee| {
+                format!(
+                    "((__raw: unknown) => ({callee}(__raw) as {}))",
+                    field.ts_type
+                )
             })
+            // A foreign type that may be `null` or `undefined` is decoded
+            // when it is there.
+            .or_else(
+                || match nullable_foreign_decoder(&resolved_ts_type, &scope) {
+                    Ok(arrow) => arrow,
+                    Err(message) => {
+                        diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+                        None
+                    }
+                },
+            )
     };
 
     let decode_with = decode_with_src
@@ -182,7 +267,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
                 diagnostics.error(
                     field.span,
                     format!(
-                        "@endec(decodeWith): invalid expression for '{}': {err:?}",
+                        "@endec(decodeWith): invalid expression for '{}': {err}",
                         field.name
                     ),
                 );
@@ -190,22 +275,126 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
             }
         });
 
-    let default_expr =
-        opts.default_expr
-            .as_ref()
-            .and_then(|expr_src| match parse_default_expr(expr_src) {
-                Ok(expr) => Some(expr),
-                Err(err) => {
-                    diagnostics.error(
-                        field.span,
-                        format!(
-                            "@endec({{default: ...}}): invalid expression for '{}': {err:?}",
-                            field.name
-                        ),
-                    );
+    // A collection or a tuple decodes through its members, and a utility
+    // type over a user type through that type. A `decodeWith` function or a
+    // foreign type's handler takes the raw value as it is instead.
+    let raw_shape = match &type_cat {
+        TypeCategory::Array(_) | TypeCategory::Set(_) => Some(RawShape::Array),
+        TypeCategory::Map(_, _) | TypeCategory::Record(_, _) => Some(RawShape::Object),
+        TypeCategory::Unknown if tuple_body(&resolved_ts_type).is_some() => Some(RawShape::Array),
+        // An object type that cannot be read is reported where it is decoded.
+        TypeCategory::Unknown
+            if !matches!(object_members(&resolved_ts_type), Ok(None))
+                || dictionary_record(&resolved_ts_type).is_some() =>
+        {
+            Some(RawShape::Object)
+        }
+        _ => None,
+    };
+    let raw_var_name = raw_var_name(field.name);
+    let composite = match raw_shape.filter(|_| decode_with.is_none()) {
+        Some(shape) => match decode_expr(&resolved_ts_type, &raw_var_name, &scope, 0) {
+            Ok(decoded) => Some(CompositeDecode { shape, decoded }),
+            Err(message) => {
+                diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+                None
+            }
+        },
+        None => None,
+    };
+    let nested = match &type_cat {
+        TypeCategory::Wrapper(_) => scope.nested(&resolved_ts_type, Direction::Decode, 0),
+        // The member a guard leaves is named by the guard; any other type
+        // is the field's own, type arguments included.
+        TypeCategory::Encodable(name) if union_guard.is_some() => {
+            scope.nested(name, Direction::Decode, 0)
+        }
+        TypeCategory::Encodable(_) => scope.nested(&resolved_ts_type, Direction::Decode, 0),
+        _ => Ok(None),
+    };
+    let wrapped = match nested {
+        Ok(wrapped) => wrapped,
+        Err(message) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            None
+        }
+    };
+    // A value of a type parameter is decoded by the coder handed in for it.
+    // A union nothing else decodes is carried as it is, which only a union
+    // of values that are their own coding can be, and is checked to be one.
+    // A union under a `null` or an `undefined` is as much one as a union alone.
+    let mut present = type_cat.clone();
+    while let TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) = &present {
+        present = TypeCategory::from_ts_type(inner);
+    }
+    let checked_union = matches!(present, TypeCategory::Unknown)
+        && raw_shape.is_none()
+        && primitive_accepts(&resolved_ts_type, &raw_var_name).is_none();
+    let by_parameter =
+        if decode_with.is_none() && (scope.is_param(resolved_ts_type.trim()) || checked_union) {
+            match decode_expr(&resolved_ts_type, &raw_var_name, &scope, 0) {
+                Ok(decoded) => decoded,
+                Err(message) => {
+                    diagnostics.error(field.span, format!("@derive(Decode): {message}"));
                     None
                 }
-            });
+            }
+        } else {
+            None
+        };
+
+    // A flattened type reads keys of the enclosing object, which have to be
+    // known to tell them from keys nothing reads.
+    let flattened_type = match TypeCategory::from_ts_type(&resolved_ts_type) {
+        TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) => {
+            TypeCategory::from_ts_type(&inner)
+        }
+        present => present,
+    };
+    let flattened_keys = match (&flattened_type, opts.flatten) {
+        (TypeCategory::Encodable(name), true) => json_keys_of(name, &scope),
+        _ => None,
+    };
+    if opts.flatten && container_opts.deny_unknown_fields && flattened_keys.is_none() {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@endec(flatten) on '{}' cannot be combined with denyUnknownFields: the keys its type reads are not known here, so none can be told unknown",
+                field.name
+            ),
+        );
+    }
+
+    // A written default goes through the shorthand that reads a bare word
+    // as text; the `default` flag stands for the type's own default, which is
+    // an expression as it is.
+    let default_parsed = match (&opts.default_expr, opts.default) {
+        (Some(expr_src), _) => Some(parse_default_expr(expr_src)),
+        (None, true) => {
+            report_undefaultable(&field, &resolved_ts_type, declared, diagnostics);
+            Some(Expr::parse(&get_type_default_with_registry(
+                &resolved_ts_type,
+                type_registry,
+                caller_file_path,
+                file_imports,
+            )))
+        }
+        (None, false) => None,
+    };
+    let default_expr = match default_parsed {
+        Some(Ok(expr)) => Some(expr),
+        Some(Err(err)) => {
+            diagnostics.error(
+                field.span,
+                format!(
+                    "@endec({{default: ...}}): invalid expression for '{}': {err}",
+                    field.name
+                ),
+            );
+            None
+        }
+        None => None,
+    };
 
     // A union with `null` or `undefined` is its other member once the value is
     // known to be present. A member the union's own cases do not decode is
@@ -213,7 +402,20 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     // decorators stay with this field: only the type differs. One a
     // `decodeWith` already covers is left to that function.
     let member_of_its_own = match &type_cat {
-        TypeCategory::Nullable(inner) if TypeCategory::from_ts_type(inner).is_composite() => {
+        // So is a type parameter, and a generic type written with its
+        // arguments, which are decoded by the coders made for them.
+        TypeCategory::Nullable(inner)
+            if TypeCategory::from_ts_type(inner).is_composite()
+                || tuple_body(inner).is_some()
+                || !matches!(object_members(inner), Ok(None))
+                || dictionary_record(inner).is_some()
+                || scope.is_param(inner.trim())
+                || (inner.contains('<')
+                    && matches!(
+                        TypeCategory::from_ts_type(inner),
+                        TypeCategory::Encodable(_)
+                    )) =>
+        {
             Some(inner)
         }
         TypeCategory::Optional(inner)
@@ -254,31 +456,62 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     Some(DecodeField {
         json_key,
         field_name: field.name.to_string(),
-        field_ident: ts_ident!(field.name),
+        member: Member::of(field.name),
         raw_cast_type: raw_cast_type(&resolved_ts_type, &type_cat),
         ts_type: resolved_ts_type,
         type_cat,
         optional: field.optional || opts.default || opts.default_expr.is_some(),
         default_expr,
+        never_read: false,
+        flattened_keys,
         flatten: opts.flatten,
         validators: opts.validators.clone(),
         nullable_inner_kind,
-        array_elem_kind,
         nullable_encodable_type,
+        nullable_nested,
         present_inner,
         decode_with,
         decimal_format: opts.format == Some(EndecFormat::Decimal),
-        array_elem_encodable_type,
-        set_elem_kind,
-        set_elem_encodable_type,
-        map_value_kind,
-        map_value_encodable_type,
-        record_value_encodable_type,
-        wrapper_encodable_type,
-        wrapper_fields,
+        composite,
+        wrapped,
+        by_parameter,
         union_guard,
-        nullable_union_guard,
-        array_elem_union_guard,
         union_string_validators,
     })
+}
+
+/// A field `Decode` never reads, which the value it builds still has: it is
+/// set to `default_expr`.
+fn never_read_field(
+    field: &SourceField<'_>,
+    opts: &EndecFieldOptions,
+    json_key: String,
+    default_expr: Expr,
+) -> DecodeField {
+    let type_cat = TypeCategory::from_ts_type(field.ts_type);
+    DecodeField {
+        json_key,
+        field_name: field.name.to_string(),
+        member: Member::of(field.name),
+        raw_cast_type: raw_cast_type(field.ts_type, &type_cat),
+        ts_type: field.ts_type.to_string(),
+        type_cat,
+        optional: true,
+        default_expr: Some(default_expr),
+        never_read: true,
+        flattened_keys: None,
+        flatten: false,
+        validators: opts.validators.clone(),
+        nullable_inner_kind: None,
+        nullable_encodable_type: None,
+        nullable_nested: None,
+        present_inner: None,
+        decode_with: None,
+        decimal_format: false,
+        composite: None,
+        wrapped: None,
+        by_parameter: None,
+        union_guard: None,
+        union_string_validators: Vec::new(),
+    }
 }

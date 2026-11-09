@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,26 +40,20 @@ export function weekOfMonthEncode(value: WeekOfMonth, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function weekOfMonthEncodeWithContext(value: WeekOfMonth, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function weekOfMonthDecode(input: unknown): { success: true; value: WeekOfMonth } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'First':
@@ -105,6 +99,10 @@ export function weekOfMonthHasShape(value: unknown): boolean {
 
 export function weekOfMonthIs(value: unknown): value is WeekOfMonth {
     return weekOfMonthHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function weekOfMonthFromString(text: string): { success: true; value: WeekOfMonth } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => weekOfMonthDecode(value));
 }
 
 /** Per-variant error types  */
@@ -289,6 +287,7 @@ export const WeekOfMonth: {
   readonly decodeWithContext: typeof weekOfMonthDecodeWithContext;
   readonly hasShape: typeof weekOfMonthHasShape;
   readonly is: typeof weekOfMonthIs;
+  readonly fromString: typeof weekOfMonthFromString;
   readonly createForm: typeof weekOfMonthCreateForm;
   readonly fromFormData: typeof weekOfMonthFromFormData;
 } = {
@@ -299,6 +298,7 @@ export const WeekOfMonth: {
   decodeWithContext: weekOfMonthDecodeWithContext,
   hasShape: weekOfMonthHasShape,
   is: weekOfMonthIs,
+  fromString: weekOfMonthFromString,
   createForm: weekOfMonthCreateForm,
   fromFormData: weekOfMonthFromFormData
 };
@@ -312,7 +312,7 @@ export declare function weekOfMonthDefaultValue(): WeekOfMonth;
 export declare function weekOfMonthEncode(value: WeekOfMonth, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function weekOfMonthEncodeWithContext(value: WeekOfMonth, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function weekOfMonthDecode(input: unknown): {
 	success: true;
 	value: WeekOfMonth;
@@ -327,6 +327,17 @@ export declare function weekOfMonthDecode(input: unknown): {
 export declare function weekOfMonthDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): WeekOfMonth | __mf_PendingRef;
 export declare function weekOfMonthHasShape(value: unknown): boolean;
 export declare function weekOfMonthIs(value: unknown): value is WeekOfMonth;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function weekOfMonthFromString(text: string): {
+	success: true;
+	value: WeekOfMonth;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type WeekOfMonthFirstErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -426,6 +437,7 @@ export declare const WeekOfMonth: {
 	readonly decodeWithContext: typeof weekOfMonthDecodeWithContext;
 	readonly hasShape: typeof weekOfMonthHasShape;
 	readonly is: typeof weekOfMonthIs;
+	readonly fromString: typeof weekOfMonthFromString;
 	readonly createForm: typeof weekOfMonthCreateForm;
 	readonly fromFormData: typeof weekOfMonthFromFormData;
 };
@@ -436,15 +448,15 @@ export declare const WeekOfMonth: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..221 -> expanded 614..728
-original 221..222 -> expanded 11117..11118
-generated 0..556 <- imports
-generated 728..808 <- Default
-generated 808..2079 <- Encode
-generated 2079..4015 <- Decode
-generated 4015..10270 <- Gigaform
-generated 10270..11117 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..221 -> expanded 769..883
+original 221..222 -> expanded 11819..11820
+generated 0..711 <- imports
+generated 883..963 <- Default
+generated 963..2273 <- Encode
+generated 2273..4627 <- Decode
+generated 4627..10882 <- Gigaform
+generated 10882..11819 <- __convenience_const
 
 ## Metadata
 
@@ -452,7 +464,9 @@ type WeekOfMonth: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defaul
 
 ## Registry reads
 
+Name("Gigaform")
 Name("WeekOfMonth")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

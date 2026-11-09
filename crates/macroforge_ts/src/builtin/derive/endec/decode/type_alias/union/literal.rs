@@ -5,11 +5,11 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::return_types::decode_return_type;
-use convert_case::{Case, Casing};
 
-/// `decode`, `decodeWithContext`, `hasShape` and `is` for a union of
-/// literals: no JSON parsing, no context and no references.
+/// `decode`, `fromString`, `decodeWithContext`, `hasShape` and `is` for a
+/// union of literals: no context and no references.
 pub(super) fn literal_union(u: &Union) -> TsStream {
     let Union {
         literals,
@@ -18,24 +18,25 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
         decode_error_expr,
         pending_ref_ident,
         generic_decl,
+        coders,
         full_type_name,
         full_type_ident,
         ..
     } = u;
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_decl
     );
-    let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
-    let fn_has_shape_ident = ts_ident!("{}HasShape", type_name.to_case(Case::Camel));
+    let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(type_name));
     let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
     let return_type = decode_return_type(full_type_name);
     let return_type_ident = ts_ident!(return_type.as_str());
 
     let mut result = ts_template! {
-        /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error */
+        /** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error */
         export function @{fn_decode_ident}(input: unknown): @{return_type_ident} {
             switch (input) {
                 {#for lit in literals}
@@ -48,7 +49,7 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
         }
 
         /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread. */
-        export function @{fn_decode_internal_ident}(value: unknown, _ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
+        export function @{fn_decode_internal_ident}(value: unknown, _ctx: @{decode_context_ident}@{coders}): @{full_type_ident} | @{pending_ref_ident} {
             switch (value) {
                 {#for lit in literals}
                 case @{lit}:
@@ -81,5 +82,16 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     result.add_aliased_import("PendingRef", crate::package::ENDEC);
-    result
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode", function_prefix(type_name));
+    result.merge(super::super::super::from_string::from_string_function(
+        &super::super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: "",
+            passed_coders: "",
+            return_type: &return_type,
+            takes_options: false,
+        },
+    ))
 }

@@ -1,5 +1,44 @@
 use crate::ts_syn::abi::Patch;
+use std::borrow::Cow;
 use std::collections::HashSet;
+
+/// `code` with its line breaks written as `source` writes its own: every
+/// `\n` on its own becomes `\r\n` where the first line of `source` ends in
+/// one. Generated code is written with `\n`, and a file keeps one convention.
+pub(crate) fn in_line_endings_of<'code>(source: &str, code: &'code str) -> Cow<'code, str> {
+    let breaks_with_return = source
+        .split_once('\n')
+        .is_some_and(|(first_line, _)| first_line.ends_with('\r'));
+    if !breaks_with_return || !code.contains('\n') {
+        return Cow::Borrowed(code);
+    }
+    let mut written = String::with_capacity(code.len());
+    let mut previous = None;
+    for letter in code.chars() {
+        if letter == '\n' && previous != Some('\r') {
+            written.push('\r');
+        }
+        written.push(letter);
+        previous = Some(letter);
+    }
+    Cow::Owned(written)
+}
+
+/// Writes the code of each of `patches` in the line endings of `source`.
+pub(crate) fn write_in_line_endings_of(source: &str, patches: &mut [Patch]) {
+    for patch in patches {
+        let code = match patch {
+            Patch::Insert { code, .. }
+            | Patch::Replace { code, .. }
+            | Patch::InsertRaw { code, .. }
+            | Patch::ReplaceRaw { code, .. } => code,
+            Patch::Delete { .. } => continue,
+        };
+        if let Cow::Owned(written) = in_line_endings_of(source, code) {
+            *code = written;
+        }
+    }
+}
 
 /// Fixed dedupe logic: Separate key generation from filtering.
 /// Also performs import-aware deduplication: when both `import type { X }` and

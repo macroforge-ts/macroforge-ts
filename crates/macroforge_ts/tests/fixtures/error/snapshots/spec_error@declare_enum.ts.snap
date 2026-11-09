@@ -1,0 +1,182 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/declare_enum.ts
+---
+## Input
+
+/** @derive(Debug, Encode, Decode) */
+export declare enum Elsewhere {
+    One = 1,
+    Two = 2
+}
+
+/** @derive(Debug) */
+enum Here {
+    One = 1
+}
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+
+export declare enum Elsewhere {
+    One = 1,
+    Two = 2
+}
+
+export function elsewhereToString(value: Elsewhere): string {
+
+    const held: unknown = value;
+    if (held === Elsewhere["One"]) {
+        return "Elsewhere.One";
+    }
+    if (held === Elsewhere["Two"]) {
+        return "Elsewhere.Two";
+    }
+    return "Elsewhere(" + String(value) + ")";
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function elsewhereEncode(value: Elsewhere): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function elsewhereEncodeWithContext(value: Elsewhere, ctx: __mf_EncodeContext): string | number;
+export function elsewhereEncodeWithContext(value: Elsewhere): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function elsewhereDecode(input: unknown): Elsewhere {
+    return elsewhereDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function elsewhereFromString(text: string): Elsewhere {
+    return elsewhereDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function elsewhereDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Elsewhere;
+export function elsewhereDecodeWithContext(data: unknown): Elsewhere {
+    if (Elsewhere["One"] === data) {
+        return Elsewhere["One"];
+    }
+    if (Elsewhere["Two"] === data) {
+        return Elsewhere["Two"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Elsewhere value: " + JSON.stringify(data) }]);
+}
+
+export function elsewhereIs(value: unknown): value is Elsewhere {
+    if (Elsewhere["One"] === value) {
+        return true;
+    }
+    if (Elsewhere["Two"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace Elsewhere {
+  export const toString: typeof elsewhereToString = elsewhereToString;
+  export const encode: typeof elsewhereEncode = elsewhereEncode;
+  export const encodeWithContext: typeof elsewhereEncodeWithContext = elsewhereEncodeWithContext;
+  export const decode: typeof elsewhereDecode = elsewhereDecode;
+  export const fromString: typeof elsewhereFromString = elsewhereFromString;
+  export const decodeWithContext: typeof elsewhereDecodeWithContext = elsewhereDecodeWithContext;
+  export const is: typeof elsewhereIs = elsewhereIs;
+}
+
+
+enum Here {
+    One = 1
+}
+
+export function hereToString(value: Here): string {
+
+    const held: unknown = value;
+    if (held === Here["One"]) {
+        return "Here.One";
+    }
+    return "Here(" + String(value) + ")";
+}
+
+namespace Here {
+  export const toString: typeof hereToString = hereToString;
+}
+
+## DTS
+
+export declare enum Elsewhere {
+	One = 1,
+	Two = 2
+}
+export declare function elsewhereToString(value: Elsewhere): string;
+/** Encodes this enum value to a JSON string.  */
+export declare function elsewhereEncode(value: Elsewhere): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function elsewhereEncodeWithContext(value: Elsewhere, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function elsewhereDecode(input: unknown): Elsewhere;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function elsewhereFromString(text: string): Elsewhere;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function elsewhereDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Elsewhere;
+export declare function elsewhereIs(value: unknown): value is Elsewhere;
+export declare namespace Elsewhere {
+	const toString: typeof elsewhereToString;
+	const encode: typeof elsewhereEncode;
+	const encodeWithContext: typeof elsewhereEncodeWithContext;
+	const decode: typeof elsewhereDecode;
+	const fromString: typeof elsewhereFromString;
+	const decodeWithContext: typeof elsewhereDecodeWithContext;
+	const is: typeof elsewhereIs;
+}
+declare enum Here {
+	One = 1
+}
+export declare function hereToString(value: Here): string;
+declare namespace Here {
+	const toString: typeof hereToString;
+}
+export {};
+
+## Diagnostics
+
+Error [5..35]: 'Elsewhere' is a `declare enum`: it describes an enum this module does not hold, so the functions a derive generates would have no members to read
+  help: declare it as an `enum`, or derive where it is defined
+
+## Mapping
+
+original 37..96 -> expanded 258..317
+original 96..98 -> expanded 2944..2946
+original 119..145 -> expanded 2946..2972
+original 145..146 -> expanded 3249..3250
+generated 0..258 <- imports
+generated 317..613 <- Debug
+generated 613..1041 <- Encode
+generated 1041..2385 <- Decode
+generated 2385..2944 <- __convenience_const
+generated 2972..3168 <- Debug
+generated 3168..3249 <- __convenience_const
+
+## Metadata
+
+enum Elsewhere: {"body_span":{"end":97,"start":69},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":38,"start":1}}],"is_const":false,"is_declare":true,"name":"Elsewhere","span":{"end":97,"start":46},"variants":[{"decorators":[],"name":"One","span":{"end":82,"start":75},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":95,"start":88},"value":{"Number":2.0}}]}
+enum Here: {"body_span":{"end":146,"start":131},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":120,"start":99}}],"is_const":false,"is_declare":false,"name":"Here","span":{"end":146,"start":121},"variants":[{"decorators":[],"name":"One","span":{"end":144,"start":137},"value":{"Number":1.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

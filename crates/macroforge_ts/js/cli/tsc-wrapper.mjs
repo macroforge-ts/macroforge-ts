@@ -99,8 +99,14 @@ function toSource(diagnostic) {
 
 const program = ts.createProgram(parsed.fileNames, options, host);
 const diagnostics = ts.getPreEmitDiagnostics(program).map(toSource);
+// Several places in generated code map to the one decorator that generated
+// them and say the same of it: what reads the same is printed once.
+const printed = new Set();
 for (const diagnostic of diagnostics) {
-  console.error(ts.formatDiagnostic(diagnostic, formatHost).trimEnd());
+  const line = ts.formatDiagnostic(diagnostic, formatHost).trimEnd();
+  if (printed.has(line)) continue;
+  printed.add(line);
+  console.error(line);
 }
 const hasError = diagnostics.some(
   (diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error,

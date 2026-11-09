@@ -199,7 +199,9 @@ macroforge watch [root] [options]
 ### macroforge cache
 
 Builds the `.macroforge/cache` directory once for all source files. Useful for CI or pre-build
-steps.
+steps. A file whose expansion fails is reported and left out of the cache, so a plugin reading the
+cache expands it and reports the same errors, and the command exits with an error.
+`macroforge refresh` does the same.
 
 Bash
 

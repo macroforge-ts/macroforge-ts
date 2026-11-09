@@ -19,6 +19,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::ts_syn::declarative::MacroDef;
+use crate::ts_syn::source_path::sources_compiled_to;
 
 /// Project-wide declarative macro registry keyed by absolute file path.
 ///
@@ -87,17 +88,27 @@ impl ProjectDeclarativeRegistry {
     }
 
     /// Resolve an import specifier (`"./foo"`, `"../bar/baz"`) relative to an
-    /// importer file path, trying `.ts`, `.tsx`, and `index.ts` forms in
-    /// order. Returns the first candidate that exists in the registry, or
+    /// importer file path, trying the path as written, the TypeScript source
+    /// a `.js`, `.mjs` or `.cjs` specifier compiles from, `.ts`, `.tsx`, and
+    /// `index.ts` forms in order. Returns the first candidate that exists in the registry, or
     /// `None` if no candidate matches.
     pub fn resolve_specifier(&self, importer: &Path, specifier: &str) -> Option<PathBuf> {
         let parent = importer.parent()?;
         let base = normalize_path(&parent.join(specifier));
 
         // Candidate list: the bare path (in case the specifier already had an
-        // extension), then `.ts` / `.tsx`, then the `index` forms.
+        // extension), its sources, then `.ts` / `.tsx`, then the `index` forms.
         let mut candidates: Vec<PathBuf> = Vec::with_capacity(5);
         candidates.push(base.clone());
+        let compiled_from = base
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .map_or(&[][..], sources_compiled_to);
+        candidates.extend(
+            compiled_from
+                .iter()
+                .map(|source| base.with_extension(source)),
+        );
         if base.extension().is_none() {
             let mut with_ts = base.clone();
             with_ts.set_extension("ts");

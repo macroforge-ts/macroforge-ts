@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -39,26 +39,20 @@ export function rowHeightEncode(value: RowHeight, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function rowHeightEncodeWithContext(value: RowHeight, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function rowHeightDecode(input: unknown): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'ExtraSmall':
@@ -101,6 +95,10 @@ export function rowHeightHasShape(value: unknown): boolean {
 
 export function rowHeightIs(value: unknown): value is RowHeight {
     return rowHeightHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function rowHeightFromString(text: string): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => rowHeightDecode(value));
 }
 
 /** Per-variant error types  */
@@ -269,6 +267,7 @@ export const RowHeight: {
   readonly decodeWithContext: typeof rowHeightDecodeWithContext;
   readonly hasShape: typeof rowHeightHasShape;
   readonly is: typeof rowHeightIs;
+  readonly fromString: typeof rowHeightFromString;
   readonly createForm: typeof rowHeightCreateForm;
   readonly fromFormData: typeof rowHeightFromFormData;
 } = {
@@ -279,6 +278,7 @@ export const RowHeight: {
   decodeWithContext: rowHeightDecodeWithContext,
   hasShape: rowHeightHasShape,
   is: rowHeightIs,
+  fromString: rowHeightFromString,
   createForm: rowHeightCreateForm,
   fromFormData: rowHeightFromFormData
 };
@@ -292,7 +292,7 @@ export declare function rowHeightDefaultValue(): RowHeight;
 export declare function rowHeightEncode(value: RowHeight, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function rowHeightEncodeWithContext(value: RowHeight, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function rowHeightDecode(input: unknown): {
 	success: true;
 	value: RowHeight;
@@ -307,6 +307,17 @@ export declare function rowHeightDecode(input: unknown): {
 export declare function rowHeightDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef;
 export declare function rowHeightHasShape(value: unknown): boolean;
 export declare function rowHeightIs(value: unknown): value is RowHeight;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function rowHeightFromString(text: string): {
+	success: true;
+	value: RowHeight;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type RowHeightExtraSmallErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -394,6 +405,7 @@ export declare const RowHeight: {
 	readonly decodeWithContext: typeof rowHeightDecodeWithContext;
 	readonly hasShape: typeof rowHeightHasShape;
 	readonly is: typeof rowHeightIs;
+	readonly fromString: typeof rowHeightFromString;
 	readonly createForm: typeof rowHeightCreateForm;
 	readonly fromFormData: typeof rowHeightFromFormData;
 };
@@ -404,15 +416,15 @@ export declare const RowHeight: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..210 -> expanded 614..717
-original 210..211 -> expanded 10317..10318
-generated 0..556 <- imports
-generated 717..794 <- Default
-generated 794..2055 <- Encode
-generated 2055..3908 <- Decode
-generated 3908..9508 <- Gigaform
-generated 9508..10317 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..210 -> expanded 769..872
+original 210..211 -> expanded 11009..11010
+generated 0..711 <- imports
+generated 872..949 <- Default
+generated 949..2249 <- Encode
+generated 2249..4514 <- Decode
+generated 4514..10114 <- Gigaform
+generated 10114..11009 <- __convenience_const
 
 ## Metadata
 
@@ -420,7 +432,9 @@ type RowHeight: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'ExtraSmal
 
 ## Registry reads
 
+Name("Gigaform")
 Name("RowHeight")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

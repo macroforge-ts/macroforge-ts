@@ -1,0 +1,435 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/name-intersections.ts
+sha256 2b4b801a41fc65c2b86e98c28a073fcb1480c856b62d477d44031367a1cb3744
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * An intersection with a type held from another module under another name:
+ * its fields are that type's, read through the import.
+ */
+
+import type { EdgeItem as Item } from './edge-types';
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type NameMixed = Item & { extra: string };
+
+export function nameMixedToString(value: NameMixed): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("score: " + String(value.score));
+    parts.push("extra: " + String(value.extra));
+        return "NameMixed { " + parts.join(", ") + " }";
+    });
+}
+
+export function nameMixedClone(value: NameMixed): NameMixed {
+    return __mf_clonedWith(value, (): NameMixed => ({
+	id: value.id,
+	score: value.score,
+	extra: value.extra
+}));
+}
+
+export function nameMixedEquals(a: NameMixed, b: NameMixed): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.id === b.id,
+        () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        () => a.extra === b.extra,
+    ].every((same) => same());
+});
+}
+
+export function nameMixedHashCode(value: NameMixed): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.extra ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function nameMixedDefaultValue(): NameMixed {
+    return {
+        id: "",
+        score: 0,
+        extra: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function nameMixedEncode(value: NameMixed, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = nameMixedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function nameMixedEncodeWithContext(value: NameMixed, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameMixed" });
+    nameMixedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function nameMixedEncodePartialWithContext(value: Partial<NameMixed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameMixed>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NameMixed" };
+        nameMixedEncodeFields(value as NameMixed, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function nameMixedEncodeFields(value: NameMixed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    result["extra"] = value.extra;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nameMixedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameMixed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = nameMixedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NameMixed.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nameMixedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NameMixed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => nameMixedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameMixed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameMixed> | __mf_PendingRef;
+export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameMixed> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameMixed.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NameMixed.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NameMixed") as NameMixed | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameMixed.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"], ["extra", "extra"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "id"?: string | undefined; "score"?: number | undefined; "extra"?: string | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NameMixed");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
+
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "NameMixed.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
+
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "NameMixed.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as string;
+
+                if (!(typeof __raw_extra === "string")) {
+                    errors.push({ field: "extra", message: __raw_extra == null ? "NameMixed.extra is required" : "expected string" });
+                } else {
+                    instance.extra = __raw_extra;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NameMixed;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function nameMixedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameMixed>): Partial<NameMixed> | __mf_PendingRef {
+    return nameMixedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function nameMixedValidateField<K extends keyof NameMixed>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function nameMixedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function nameMixedValidateFields(partial: { readonly [K in keyof NameMixed]?: unknown }): Array<{ field: string; message: string }>;
+export function nameMixedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function nameMixedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["id", "score", "extra"]);
+}
+
+export function nameMixedIs(obj: unknown): obj is NameMixed {
+    return nameMixedHasShape(obj) && nameMixedDecode(obj).success;
+}
+
+export const NameMixed: {
+  readonly toString: typeof nameMixedToString;
+  readonly clone: typeof nameMixedClone;
+  readonly equals: typeof nameMixedEquals;
+  readonly hashCode: typeof nameMixedHashCode;
+  readonly defaultValue: typeof nameMixedDefaultValue;
+  readonly encode: typeof nameMixedEncode;
+  readonly encodeWithContext: typeof nameMixedEncodeWithContext;
+  readonly encodePartialWithContext: typeof nameMixedEncodePartialWithContext;
+  readonly decode: typeof nameMixedDecode;
+  readonly fromString: typeof nameMixedFromString;
+  readonly decodeWithContext: typeof nameMixedDecodeWithContext;
+  readonly decodePartialWithContext: typeof nameMixedDecodePartialWithContext;
+  readonly validateField: typeof nameMixedValidateField;
+  readonly validateFields: typeof nameMixedValidateFields;
+  readonly hasShape: typeof nameMixedHasShape;
+  readonly is: typeof nameMixedIs;
+} = {
+  toString: nameMixedToString,
+  clone: nameMixedClone,
+  equals: nameMixedEquals,
+  hashCode: nameMixedHashCode,
+  defaultValue: nameMixedDefaultValue,
+  encode: nameMixedEncode,
+  encodeWithContext: nameMixedEncodeWithContext,
+  encodePartialWithContext: nameMixedEncodePartialWithContext,
+  decode: nameMixedDecode,
+  fromString: nameMixedFromString,
+  decodeWithContext: nameMixedDecodeWithContext,
+  decodePartialWithContext: nameMixedDecodePartialWithContext,
+  validateField: nameMixedValidateField,
+  validateFields: nameMixedValidateFields,
+  hasShape: nameMixedHasShape,
+  is: nameMixedIs
+};
+
+## DTS
+
+/**
+* An intersection with a type held from another module under another name:
+* its fields are that type's, read through the import.
+*/
+import type { EdgeItem as Item } from "./edge-types";
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type NameMixed = Item & {
+	extra: string;
+};
+export declare function nameMixedToString(value: NameMixed): string;
+export declare function nameMixedClone(value: NameMixed): NameMixed;
+export declare function nameMixedEquals(a: NameMixed, b: NameMixed): boolean;
+export declare function nameMixedHashCode(value: NameMixed): number;
+export declare function nameMixedDefaultValue(): NameMixed;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function nameMixedEncode(value: NameMixed, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function nameMixedEncodeWithContext(value: NameMixed, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function nameMixedEncodePartialWithContext(value: Partial<NameMixed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameMixed>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nameMixedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NameMixed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nameMixedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NameMixed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameMixed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameMixed> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function nameMixedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameMixed>): Partial<NameMixed> | __mf_PendingRef;
+export declare function nameMixedValidateField<K extends keyof NameMixed>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameMixedValidateFields(partial: { readonly [K in keyof NameMixed]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameMixedHasShape(obj: unknown): boolean;
+export declare function nameMixedIs(obj: unknown): obj is NameMixed;
+export declare const NameMixed: {
+	readonly toString: typeof nameMixedToString;
+	readonly clone: typeof nameMixedClone;
+	readonly equals: typeof nameMixedEquals;
+	readonly hashCode: typeof nameMixedHashCode;
+	readonly defaultValue: typeof nameMixedDefaultValue;
+	readonly encode: typeof nameMixedEncode;
+	readonly encodeWithContext: typeof nameMixedEncodeWithContext;
+	readonly encodePartialWithContext: typeof nameMixedEncodePartialWithContext;
+	readonly decode: typeof nameMixedDecode;
+	readonly fromString: typeof nameMixedFromString;
+	readonly decodeWithContext: typeof nameMixedDecodeWithContext;
+	readonly decodePartialWithContext: typeof nameMixedDecodePartialWithContext;
+	readonly validateField: typeof nameMixedValidateField;
+	readonly validateFields: typeof nameMixedValidateFields;
+	readonly hasShape: typeof nameMixedHasShape;
+	readonly is: typeof nameMixedIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..316 -> expanded 871..1187
+original 316..317 -> expanded 14175..14176
+generated 0..871 <- imports
+generated 1187..1540 <- Debug
+generated 1540..1720 <- Clone
+generated 1720..2059 <- PartialEq
+generated 2059..2630 <- Hash
+generated 2630..2759 <- Default
+generated 2759..5478 <- Encode
+generated 5478..12684 <- Decode
+generated 12684..14175 <- __convenience_const
+
+## Metadata
+
+type NameMixed: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"Item"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":314,"start":301},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":267,"start":197}}],"name":"NameMixed","span":{"end":317,"start":275},"type_params":[]}
+
+## Registry reads
+
+Name("EdgeItem")
+Name("Item")
+Name("NameMixed")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

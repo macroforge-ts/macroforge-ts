@@ -9,7 +9,6 @@ use crate::cache::{
 use crate::expand::{format_diagnostic, get_expanded_path, type_surface_rel_path};
 use crate::hash_cache::HashCache;
 use crate::lock::{ProjectLock, resolve_project_root};
-use crate::package_expand::is_expandable;
 use crate::package_state::{
     FileStamp, PackageInputs, PackageState, Resolutions, ResolvedPackageConfig, declarative_hash,
     diff_files, output_fingerprint, project_hash, scan_input, state_dir,
@@ -95,6 +94,18 @@ fn test_type_surface_rel_path_tsx() {
     assert_eq!(
         type_surface_rel_path(rel),
         PathBuf::from("components/Button.d.ts")
+    );
+}
+
+#[test]
+fn test_type_surface_rel_path_module_kinds() {
+    assert_eq!(
+        type_surface_rel_path(Path::new("models/user.mts")),
+        PathBuf::from("models/user.d.mts")
+    );
+    assert_eq!(
+        type_surface_rel_path(Path::new("models/user.cts")),
+        PathBuf::from("models/user.d.cts")
     );
 }
 
@@ -405,6 +416,45 @@ fn test_warm_cache_backfills_normalized_hash() {
     assert_eq!(entry.normalized_hash, normalized_content_hash(source));
 }
 
+/// The manifest of a project is written the same however its files came to
+/// be expanded: its entries in the order of their paths.
+#[test]
+fn test_manifest_entries_are_written_in_path_order() {
+    let mut manifest = CacheManifest::new(
+        env!("CARGO_PKG_VERSION").to_string(),
+        "none".to_string(),
+        "none".to_string(),
+        "none".to_string(),
+    );
+    for path in [
+        "src/zeta.ts",
+        "src/alpha.ts",
+        "src/models/user.ts",
+        "src/beta.ts",
+    ] {
+        manifest.entries.insert(
+            path.to_string(),
+            CacheEntry {
+                source_hash: path.to_string(),
+                has_macros: true,
+                normalized_hash: path.to_string(),
+            },
+        );
+    }
+
+    let written = serde_json::to_string(&manifest).unwrap();
+    let positions: Vec<usize> = [
+        "src/alpha.ts",
+        "src/beta.ts",
+        "src/models/user.ts",
+        "src/zeta.ts",
+    ]
+    .iter()
+    .map(|path| written.find(&format!("\"{path}\":")).unwrap())
+    .collect();
+    assert!(positions.is_sorted(), "{written}");
+}
+
 // =========================================================================
 // write_atomic tests
 // =========================================================================
@@ -428,6 +478,44 @@ fn test_write_atomic_replaces_existing_content() {
     write_atomic(&target, b"new").unwrap();
 
     assert_eq!(std::fs::read_to_string(&target).unwrap(), "new");
+}
+
+/// A device is written to, and stays the device it was.
+#[cfg(unix)]
+#[test]
+fn test_write_atomic_writes_through_to_a_device() {
+    use std::os::unix::fs::FileTypeExt;
+
+    let null = std::path::Path::new("/dev/null");
+    write_atomic(null, b"discarded").unwrap();
+
+    assert!(
+        std::fs::metadata(null)
+            .unwrap()
+            .file_type()
+            .is_char_device()
+    );
+}
+
+/// A link to a file is replaced by the file written, and what it pointed at
+/// is left as it was: only a stream is written through.
+#[cfg(unix)]
+#[test]
+fn test_write_atomic_does_not_write_through_a_link_to_a_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let pointed_at = dir.path().join("kept.txt");
+    std::fs::write(&pointed_at, "kept as it was").unwrap();
+    let link = dir.path().join("out.txt");
+    std::os::unix::fs::symlink(&pointed_at, &link).unwrap();
+
+    write_atomic(&link, b"new").unwrap();
+
+    assert_eq!(
+        std::fs::read_to_string(&pointed_at).unwrap(),
+        "kept as it was"
+    );
+    assert_eq!(std::fs::read_to_string(&link).unwrap(), "new");
+    assert!(std::fs::symlink_metadata(&link).unwrap().is_file());
 }
 
 #[test]
@@ -953,18 +1041,6 @@ fn test_external_macro_hash_ignores_packages_without_the_marker() {
     );
 }
 
-#[test]
-fn test_is_expandable_covers_sources_but_not_declarations() {
-    assert!(is_expandable("types/user.ts"));
-    assert!(is_expandable("types/order.svelte.ts"));
-    assert!(is_expandable("component.tsx"));
-
-    assert!(!is_expandable("types/user.d.ts"));
-    assert!(!is_expandable("index.js"));
-    assert!(!is_expandable("Card.svelte"));
-    assert!(!is_expandable("styles.css"));
-}
-
 // =========================================================================
 // expanded-tree reuse tests
 // =========================================================================
@@ -1098,6 +1174,8 @@ fn registry_of(types: &[(&str, bool)]) -> TypeRegistry {
                 name: (*name).to_string(),
                 file_path: format!("/project/src/{name}.ts"),
                 is_exported: *is_exported,
+                exported_as: Vec::new(),
+                re_exported: Vec::new(),
                 definition: TypeDefinitionIR::Interface(InterfaceIR {
                     name: (*name).to_string(),
                     span: SpanIR::new(0, 0),

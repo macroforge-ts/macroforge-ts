@@ -1,3 +1,4 @@
+use crate::builtin::derive::common::function_prefix;
 use convert_case::{Case, Casing};
 
 use crate::ts_syn::abi::{ClassIR, Patch, SpanIR};
@@ -11,7 +12,7 @@ pub(super) fn extract_function_names_from_patches(
     type_name: &str,
 ) -> Vec<(String, String)> {
     let mut functions: Vec<(String, String)> = Vec::new();
-    let camel_type_name = type_name.to_case(Case::Camel);
+    let camel_type_name = function_prefix(type_name);
 
     for patch in patches {
         let code = match patch {
@@ -25,7 +26,7 @@ pub(super) fn extract_function_names_from_patches(
             let start = search_start + pos + "export function ".len();
             let rest = &code[start..];
             let name_len = rest
-                .find(|character: char| !(character.is_ascii_alphanumeric() || character == '_'))
+                .find(|character: char| !is_ident_char(character))
                 .unwrap_or(rest.len());
             let fn_name = &rest[..name_len];
             let declares_function = rest[name_len..].trim_start().starts_with(['(', '<']);
@@ -137,11 +138,13 @@ pub(super) fn has_existing_namespace_or_const(source: &str, type_name: &str) -> 
 }
 
 /// Gets the type name from a DeriveTargetIR.
-/// Returns None for classes (they use instance methods).
+/// Returns None for classes (they use instance methods), and for a `const
+/// enum`, which TypeScript lets no namespace of values merge with.
 pub(super) fn get_derive_target_name(target: &DeriveTargetIR) -> Option<&str> {
     match target {
         DeriveTargetIR::Class(_) => None,
         DeriveTargetIR::Interface(i) => Some(&i.name),
+        DeriveTargetIR::Enum(e) if e.is_const => None,
         DeriveTargetIR::Enum(e) => Some(&e.name),
         DeriveTargetIR::TypeAlias(t) => Some(&t.name),
     }
@@ -193,7 +196,7 @@ pub(super) fn is_declaration_exported(source: &str, decl_start: u32) -> bool {
                 return true;
             }
             let prev_char = prefix[..pos].chars().last();
-            if !matches!(prev_char, Some(c) if c.is_ascii_alphanumeric() || c == '_') {
+            if !prev_char.is_some_and(is_ident_char) {
                 return true;
             }
         }
@@ -202,8 +205,9 @@ pub(super) fn is_declaration_exported(source: &str, decl_start: u32) -> bool {
     false
 }
 
-pub(super) fn is_ident_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '_' || c == '$'
+/// Whether `letter` can stand in an identifier, in any script.
+pub(super) fn is_ident_char(letter: char) -> bool {
+    letter.is_alphanumeric() || letter == '_' || letter == '$'
 }
 
 fn contains_identifier(haystack: &str, ident: &str) -> bool {

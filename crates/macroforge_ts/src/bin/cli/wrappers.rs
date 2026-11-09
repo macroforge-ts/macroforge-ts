@@ -221,7 +221,7 @@ fn materialize_scripts(name: &str, files: &[(&str, &str)]) -> Result<PathBuf> {
 /// Runs TypeScript type checking with macro expansion baked into file reads.
 ///
 /// This function creates a Node.js script that wraps `tsc --noEmit` behavior
-/// while transparently expanding macros when reading `.ts` and `.tsx` files.
+/// while transparently expanding macros when reading TypeScript modules.
 /// Files containing `@derive` are expanded before being passed to the TypeScript
 /// compiler.
 ///

@@ -9,9 +9,9 @@ use std::{
 };
 
 use crate::cache::{
-    CONFIG_FILE_NAMES, CacheEntry, collect_watch_files, compute_config_hash, content_hash,
-    expand_for_cache, expansion_pool, init_cache, is_watchable_ts_file, normalized_content_hash,
-    warm_cache, write_cache_file,
+    CONFIG_FILE_NAMES, CacheEntry, Cached, compute_config_hash, content_hash, expand_for_cache,
+    forget_cached_file, init_cache, is_watchable_ts_file, normalized_content_hash,
+    record_expansion, warm_cache,
 };
 use crate::lock::ProjectLock;
 use crate::wrappers::refresh_type_registry;
@@ -453,8 +453,6 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         }
                     }
                 } else if config_changed {
-                    use rayon::prelude::*;
-
                     let lock = ProjectLock::acquire(root, "watch", false)?;
                     if let Err(err) = refresh_type_registry(root) {
                         eprintln!("[macroforge watch] {err:#}");
@@ -466,94 +464,11 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         eprintln!("[macroforge watch] could not expand the config: {err}");
                     }
 
-                    let new_config_hash = compute_config_hash(root);
-                    manifest.config_hash = new_config_hash;
+                    manifest.config_hash = compute_config_hash(root);
                     manifest.entries.clear();
                     eprintln!("[macroforge watch] Config changed, re-expanding all files...");
-
-                    let all_files = collect_watch_files(root);
-
-                    // Read and hash all files (sequential)
-                    let files_with_source: Vec<_> = all_files
-                        .iter()
-                        .filter_map(|file_path| {
-                            let rel_path = file_path
-                                .strip_prefix(root)
-                                .unwrap_or(file_path)
-                                .to_string_lossy()
-                                .to_string();
-                            let source = match fs::read_to_string(file_path) {
-                                Ok(source) => source,
-                                Err(error) => {
-                                    eprintln!("  [!] {rel_path}: could not read it: {error}");
-                                    return None;
-                                }
-                            };
-                            let source_hash = content_hash(source.as_bytes());
-                            let norm_hash = normalized_content_hash(&source);
-                            Some((file_path.clone(), rel_path, source, source_hash, norm_hash))
-                        })
-                        .collect();
-
-                    // Expand in parallel
-                    let results: Vec<_> = expansion_pool()?.install(|| {
-                        files_with_source
-                            .par_iter()
-                            .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
-                                let result = expand_for_cache(root, file_path, source);
-                                (
-                                    rel_path.clone(),
-                                    source_hash.clone(),
-                                    norm_hash.clone(),
-                                    result,
-                                )
-                            })
-                            .collect()
-                    });
-
-                    // Apply results (sequential)
-                    let mut count = 0u32;
-                    for (rel_path, source_hash, norm_hash, result) in results {
-                        match result {
-                            Ok(Some(expansion)) => {
-                                for error in &expansion.errors {
-                                    eprintln!("  [!] {rel_path}: {error}");
-                                }
-                                // An entry is recorded only for an expansion
-                                // that reached the cache.
-                                if let Err(error) =
-                                    write_cache_file(&cache_dir, &rel_path, &expansion.code)
-                                {
-                                    eprintln!("  [!] {rel_path}: {error:#}");
-                                    continue;
-                                }
-                                manifest.entries.insert(
-                                    rel_path.clone(),
-                                    CacheEntry {
-                                        source_hash,
-                                        has_macros: true,
-                                        normalized_hash: norm_hash,
-                                    },
-                                );
-                                count += 1;
-                                eprintln!("  [~] {}", rel_path);
-                            }
-                            Ok(None) => {
-                                manifest.entries.insert(
-                                    rel_path,
-                                    CacheEntry {
-                                        source_hash,
-                                        has_macros: false,
-                                        normalized_hash: norm_hash,
-                                    },
-                                );
-                            }
-                            Err(e) => eprintln!("  [!] {}: {}", rel_path, e),
-                        }
-                    }
-                    manifest.save(&cache_dir)?;
+                    warm_cache("watch", root, &cache_dir, &mut manifest)?;
                     drop(lock);
-                    eprintln!("[macroforge watch] Re-expanded {} files", count);
                 } else if !changed_files.is_empty() {
                     let lock = ProjectLock::acquire(root, "watch", false)?;
                     // The edits can change types other files resolve against.
@@ -572,17 +487,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                             Ok(s) => s,
                             Err(_) => {
                                 // File was deleted
-                                manifest.entries.remove(&rel_path);
-                                // Remove cached file too
-                                let cache_path = cache_dir.join(format!("{rel_path}.cache"));
-                                match fs::remove_file(&cache_path) {
-                                    Ok(()) => {}
-                                    Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
-                                    Err(err) => eprintln!(
-                                        "[macroforge watch] failed to remove {}: {err}",
-                                        cache_path.display()
-                                    ),
-                                }
+                                forget_cached_file(&cache_dir, &mut manifest, &rel_path);
                                 eprintln!("  [-] {} (removed)", rel_path);
                                 continue;
                             }
@@ -618,47 +523,24 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
 
                         let file_start = std::time::Instant::now();
 
-                        match expand_for_cache(root, file_path, &source) {
-                            Ok(Some(expansion)) => {
-                                // Reported, not fatal: a watch loop that exits
-                                // on the first bad edit is worse than one that
-                                // says what is wrong and waits for the fix.
-                                for error in &expansion.errors {
-                                    eprintln!("  [!] {rel_path}: {error}");
-                                }
-                                // An entry is recorded only for an expansion
-                                // that reached the cache.
-                                if let Err(error) =
-                                    write_cache_file(&cache_dir, &rel_path, &expansion.code)
-                                {
-                                    eprintln!("  [!] {rel_path}: {error:#}");
-                                    continue;
-                                }
-                                manifest.entries.insert(
-                                    rel_path.clone(),
-                                    CacheEntry {
-                                        source_hash,
-                                        has_macros: true,
-                                        normalized_hash: norm_hash,
-                                    },
-                                );
+                        // A failure is reported, not fatal: a watch loop that
+                        // exits on the first bad edit is worse than one that
+                        // says what is wrong and waits for the fix.
+                        let expansion = expand_for_cache(root, file_path, &source);
+                        match record_expansion(
+                            &cache_dir,
+                            &mut manifest,
+                            &rel_path,
+                            source_hash,
+                            norm_hash,
+                            expansion,
+                        ) {
+                            Cached::Expanded => {
                                 let elapsed = file_start.elapsed();
                                 eprintln!("  [~] {} ({}ms)", rel_path, elapsed.as_millis());
                             }
-                            Ok(None) => {
-                                manifest.entries.insert(
-                                    rel_path.clone(),
-                                    CacheEntry {
-                                        source_hash,
-                                        has_macros: false,
-                                        normalized_hash: norm_hash,
-                                    },
-                                );
-                                eprintln!("  [.] {} (no macros)", rel_path);
-                            }
-                            Err(e) => {
-                                eprintln!("  [!] {}: {}", rel_path, e);
-                            }
+                            Cached::Untouched => eprintln!("  [.] {} (no macros)", rel_path),
+                            Cached::Failed => {}
                         }
                     }
                     manifest.save(&cache_dir)?;

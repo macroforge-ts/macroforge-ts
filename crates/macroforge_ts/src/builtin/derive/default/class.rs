@@ -1,8 +1,11 @@
 //! `Default` for a class: a static `defaultValue()` that builds an instance
 //! without running a constructor, and a standalone function calling it.
 
-use crate::ast::{Expr, Ident};
-use crate::builtin::derive::common::{DefaultFieldOptions, TypeNames, has_known_default};
+use crate::ast::Expr;
+use crate::builtin::derive::common::{
+    ClassUse, DefaultFieldOptions, TypeNames, derive_class_fields, has_known_default,
+    inherited_statics, property_key, rendered, structural_helper,
+};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
@@ -17,15 +20,15 @@ pub(super) fn class_default(
     sources: &DefaultSources,
 ) -> Result<TsStream, MacroforgeError> {
     let class_name = input.name();
-    let names = TypeNames::new(class_name, class.type_params());
+    let names = TypeNames::new(class_name, class.type_params())
+        .inheriting(inherited_statics(input, class, "Default"));
     let class_ident = ts_ident!(class_name);
-    let full_type_ident = names.full_type_ident();
     let class_expr: Expr = class_ident.into();
+    let class_fields = derive_class_fields(input, class, "Default", ClassUse::Builds)?;
 
     let mut diagnostics = DiagnosticCollector::new();
     missing_default_derives(
-        class
-            .fields()
+        class_fields
             .iter()
             .filter(|field| {
                 !field.optional
@@ -34,7 +37,7 @@ pub(super) fn class_default(
             })
             .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.span)),
         &names,
-        sources.registry,
+        sources,
         &mut diagnostics,
     );
     if diagnostics.has_errors() {
@@ -42,8 +45,7 @@ pub(super) fn class_default(
     }
 
     // Check for required non-primitive fields missing @default (like Rust's derive(Default))
-    let missing_defaults: Vec<&str> = class
-        .fields()
+    let missing_defaults: Vec<&str> = class_fields
         .iter()
         .filter(|field| {
             // Skip optional fields
@@ -78,19 +80,20 @@ pub(super) fn class_default(
 
     // Each field's default is its @default, else its initializer, else
     // its type's default. An optional field with neither is left out.
-    let mut field_data: Vec<(Ident, Expr)> = Vec::new();
-    for field in class.fields() {
+    let mut field_data: Vec<(String, String, Expr)> = Vec::new();
+    for field in &class_fields {
         let opts = DefaultFieldOptions::from_decorators(&field.decorators);
         let default_value = match (opts.value, &field.initializer) {
             (Some(value), _) => resolve_default_value(Some(value), &field.ts_type, sources),
             (None, Some(initializer)) if reads_this(initializer) => {
-                return Err(MacroforgeError::new(
+                diagnostics.error(
                     field.span,
                     format!(
                         "@derive(Default): the initializer of '{}' reads `this`, which a default has no instance for. Add @default(value) to '{}'",
                         field.name, field.name
                     ),
-                ));
+                );
+                continue;
             }
             (None, Some(initializer)) => initializer.clone(),
             (None, None) if field.optional => continue,
@@ -100,40 +103,48 @@ pub(super) fn class_default(
             MacroforgeError::new(
                 input.decorator_span(),
                 format!(
-                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                    "@derive(Default): invalid default expression for '{}': {err}",
                     field.name
                 ),
             )
         })?;
-        field_data.push((ts_ident!(field.name.as_str()), value_expr));
+        field_data.push((field.name.clone(), field.ts_type.clone(), value_expr));
+    }
+    if diagnostics.has_errors() {
+        return Err(MacroforgeErrors::new(diagnostics.into_vec()).into());
     }
 
-    // A static member cannot name the class's parameters, so the method
-    // declares its own of the same names.
-    let static_method = ts_ident!(format!("defaultValue{}", names.generic_decl));
-    let static_call: Expr = ts_ident!(format!("defaultValue{}", names.generic_args)).into();
-    let instance_type_ident =
-        names.fillable_type_ident(class.fields().iter().any(|field| field.readonly));
-    let class_body = ts_template!(Within {
-        static @{static_method}(): @{full_type_ident.clone()} {
-            // Like Rust's derive, a default runs no constructor: one that
-            // takes arguments (such as Decode's) has nothing to give it.
-            const instance: @{instance_type_ident} = Object.create(@{class_expr.clone()}.prototype);
-            {#for (name_ident, value_expr) in field_data}
-                instance.@{name_ident} = @{value_expr};
+    // The fields are written out under their declared types, so a default
+    // of the wrong type fails to type-check, and handed to a new instance
+    // whole: assignment would be refused for a `readonly` field, and no type
+    // over the instance names a private one.
+    let members: Vec<String> = field_data
+        .iter()
+        .map(|(name, ts_type, _)| {
+            let key = property_key(name);
+            // An unannotated field takes whatever its initializer gives.
+            let checked = if ts_type == "any" { "unknown" } else { ts_type };
+            rendered(ts_template! { @{key}: @{checked} })
+        })
+        .collect();
+    let members = members.join("; ");
+    let instance_of: Expr = ts_ident!(structural_helper("instanceOf")).into();
+    // Like Rust's derive, a default runs no constructor: one that takes
+    // arguments (such as Decode's) has nothing to give it.
+    let body = ts_template! {
+        const fields: { @{members} } = {
+            {#for (name, _, value_expr) in &field_data}
+                @{property_key(name)}: @{value_expr},
             {/for}
-            return instance;
-        }
-    });
-
-    // The standalone function goes below the class and the static method
-    // inside it; merging keeps each stream's placement, which composing
-    // one into the other would lose.
-    let fn_name_ident = names.generic_function("DefaultValue");
-    let standalone = ts_template! {
-        export function @{fn_name_ident}(): @{full_type_ident} {
-            return @{class_expr}.@{static_call}();
-        }
+        };
+        return @{instance_of}(@{class_expr}.prototype, fields);
     };
-    Ok(standalone.merge(class_body))
+    Ok(names.class_function(
+        "defaultValue",
+        "DefaultValue",
+        "",
+        "",
+        &names.full_type,
+        body,
+    ))
 }

@@ -391,6 +391,15 @@ const ys = $vec();
 
 /// Build a project registry containing a single "library" file defining `$vec`.
 fn library_registry() -> (ProjectDeclarativeRegistry, std::path::PathBuf) {
+    let lib_path = std::path::PathBuf::from("/project/src/macros.ts");
+    (
+        registry_declaring_vec_in(&["/project/src/macros.ts"]),
+        lib_path,
+    )
+}
+
+/// A registry in which each of `files` declares `$vec`.
+fn registry_declaring_vec_in(files: &[&str]) -> ProjectDeclarativeRegistry {
     use crate::ts_syn::declarative::parse_macro_def;
 
     let lib_src = "($($x:Expr),+) => [$($x),+]";
@@ -399,12 +408,13 @@ fn library_registry() -> (ProjectDeclarativeRegistry, std::path::PathBuf) {
     def.name = "vec".to_string();
 
     let mut registry = ProjectDeclarativeRegistry::new();
-    let lib_path = std::path::PathBuf::from("/project/src/macros.ts");
-    registry.insert_file(
-        lib_path.to_string_lossy().to_string(),
-        std::sync::Arc::new(by_name(vec![def])),
-    );
-    (registry, lib_path)
+    for file in files {
+        registry.insert_file(
+            file.to_string(),
+            std::sync::Arc::new(by_name(vec![def.clone()])),
+        );
+    }
+    registry
 }
 
 /// Resolve the `import macro` comments of `source`, parsed as the host parses it.
@@ -521,6 +531,26 @@ fn project_registry_resolves_ts_extension() {
     // `./macros` should resolve to `/project/src/macros.ts`.
     let resolved = registry.resolve_specifier(&importer, "./macros");
     assert!(resolved.is_some(), "expected ./macros to resolve");
+}
+
+#[test]
+fn project_registry_resolves_a_specifier_to_the_source_it_compiles_from() {
+    let (registry, lib_path) = library_registry();
+    let importer = std::path::PathBuf::from("/project/src/consumer.ts");
+    assert_eq!(
+        registry.resolve_specifier(&importer, "./macros.js"),
+        Some(lib_path)
+    );
+
+    let registry = registry_declaring_vec_in(&["/project/src/esm.mts", "/project/src/common.cts"]);
+    assert_eq!(
+        registry.resolve_specifier(&importer, "./esm.mjs"),
+        Some(std::path::PathBuf::from("/project/src/esm.mts"))
+    );
+    assert_eq!(
+        registry.resolve_specifier(&importer, "./common.cjs"),
+        Some(std::path::PathBuf::from("/project/src/common.cts"))
+    );
 }
 
 #[test]

@@ -3,12 +3,12 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@jridgewell/sourcemap-codec": "^1.6.0",
         "@macroforge/core": "0.6.0",
         "@macroforge/shared": "0.6.0"
     },
     "description": "Vite plugin that expands Macroforge macros in TypeScript and Svelte modules",
     "devDependencies": {
+        "@jridgewell/trace-mapping": "^0.3.31",
         "@types/node": "^26.6.2"
     },
     "exports": {

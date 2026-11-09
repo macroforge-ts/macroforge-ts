@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,26 +40,20 @@ export function userRoleEncode(value: UserRole, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function userRoleDecode(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Administrator':
@@ -105,6 +99,10 @@ export function userRoleHasShape(value: unknown): boolean {
 
 export function userRoleIs(value: unknown): value is UserRole {
     return userRoleHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function userRoleFromString(text: string): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userRoleDecode(value));
 }
 
 /** Per-variant error types  */
@@ -289,6 +287,7 @@ export const UserRole: {
   readonly decodeWithContext: typeof userRoleDecodeWithContext;
   readonly hasShape: typeof userRoleHasShape;
   readonly is: typeof userRoleIs;
+  readonly fromString: typeof userRoleFromString;
   readonly createForm: typeof userRoleCreateForm;
   readonly fromFormData: typeof userRoleFromFormData;
 } = {
@@ -299,6 +298,7 @@ export const UserRole: {
   decodeWithContext: userRoleDecodeWithContext,
   hasShape: userRoleHasShape,
   is: userRoleIs,
+  fromString: userRoleFromString,
   createForm: userRoleCreateForm,
   fromFormData: userRoleFromFormData
 };
@@ -312,7 +312,7 @@ export declare function userRoleDefaultValue(): UserRole;
 export declare function userRoleEncode(value: UserRole, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function userRoleDecode(input: unknown): {
 	success: true;
 	value: UserRole;
@@ -327,6 +327,17 @@ export declare function userRoleDecode(input: unknown): {
 export declare function userRoleDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): UserRole | __mf_PendingRef;
 export declare function userRoleHasShape(value: unknown): boolean;
 export declare function userRoleIs(value: unknown): value is UserRole;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function userRoleFromString(text: string): {
+	success: true;
+	value: UserRole;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type UserRoleAdministratorErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -426,6 +437,7 @@ export declare const UserRole: {
 	readonly decodeWithContext: typeof userRoleDecodeWithContext;
 	readonly hasShape: typeof userRoleHasShape;
 	readonly is: typeof userRoleIs;
+	readonly fromString: typeof userRoleFromString;
 	readonly createForm: typeof userRoleCreateForm;
 	readonly fromFormData: typeof userRoleFromFormData;
 };
@@ -436,15 +448,15 @@ export declare const UserRole: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..269 -> expanded 614..776
-original 269..270 -> expanded 12176..12177
-generated 0..556 <- imports
-generated 776..858 <- Default
-generated 858..2114 <- Encode
-generated 2114..4269 <- Decode
-generated 4269..11386 <- Gigaform
-generated 11386..12176 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..269 -> expanded 769..931
+original 269..270 -> expanded 12863..12864
+generated 0..711 <- imports
+generated 931..1013 <- Default
+generated 1013..2308 <- Encode
+generated 2308..4872 <- Decode
+generated 4872..11989 <- Gigaform
+generated 11989..12863 <- __convenience_const
 
 ## Metadata
 
@@ -452,7 +464,9 @@ type UserRole: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 ## Registry reads
 
+Name("Gigaform")
 Name("UserRole")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

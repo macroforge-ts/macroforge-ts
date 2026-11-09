@@ -17,8 +17,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 interface Point {
     x: number;
@@ -34,41 +34,43 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pointEncodePartialWithContext(value, ctx);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Point" });
+    pointEncodeFields(value, ctx, result, undefined);
+    return result;
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Point" };
+        pointEncodeFields(value as Point, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
 
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Point",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("x")) {
-
-        if (value.x !== undefined) {
-            result.x = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-
-        if (value.y !== undefined) {
-            result.y = value.y;
-        }
-    }
-
-    return result;
 }
 
 const Point: {
@@ -91,7 +93,7 @@ interface Point {
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 export {};
 
@@ -101,15 +103,15 @@ export {};
 
 ## Mapping
 
-original 22..72 -> expanded 302..352
-original 72..73 -> expanded 2580..2581
-generated 0..302 <- imports
-generated 352..2254 <- Encode
-generated 2254..2580 <- __convenience_const
+original 22..72 -> expanded 458..508
+original 72..73 -> expanded 3245..3246
+generated 0..458 <- imports
+generated 508..2919 <- Encode
+generated 2919..3245 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":73,"start":40},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":56,"start":46},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":71,"start":61},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":73,"start":24},"type_params":[]}
+interface Point: {"body_span":{"end":73,"start":40},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":56,"start":46},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":71,"start":61},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":73,"start":24},"type_params":[]}
 
 ## Registry reads
 

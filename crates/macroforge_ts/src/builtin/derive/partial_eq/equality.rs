@@ -1,10 +1,10 @@
 use crate::builtin::derive::common::{
-    Builtin, ValueType, classify_value_type, collection_element_type, derived_function,
+    Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
     field_value_type, rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
 use super::types::EqField;
 
@@ -60,8 +60,8 @@ pub fn generate_field_equality_for_interface(
 ) -> String {
     generate_value_equality(
         &field_value_type(&field.ts_type, field.optional),
-        &rendered(ts_template! { @{self_var}.@{&field.name} }),
-        &rendered(ts_template! { @{other_var}.@{&field.name} }),
+        &rendered(ts_template! { @{self_var}@{Member::of(&field.name)} }),
+        &rendered(ts_template! { @{other_var}@{Member::of(&field.name)} }),
         resolved,
         registry,
     )
@@ -81,23 +81,26 @@ pub(crate) fn generate_value_equality(
 }
 
 /// Statements returning whether the fixed-length tuples `a` and `b` are equal,
-/// element by element.
+/// a statement an element: one expression over them all nests as deep as the
+/// tuple is long.
 pub(crate) fn tuple_equality_statements(elements: &[String], registry: &TypeRegistry) -> String {
-    let comparisons: Vec<String> = elements
-        .iter()
-        .enumerate()
-        .map(|(index, source)| {
-            generate_value_equality(
-                tuple_element(source).ts_type,
-                &rendered(ts_template! { a[@{index}] }),
-                &rendered(ts_template! { b[@{index}] }),
-                None,
-                registry,
-            )
-        })
-        .collect();
-    let all = comparisons.join(" && ");
-    rendered(ts_template! { return @{all}; })
+    // Two tuples of no elements have nothing to differ in.
+    if elements.is_empty() {
+        return rendered(ts_template! { return true; });
+    }
+    let mut steps = vec![ts_template! { if (a === b) return true; }];
+    for (index, source) in elements.iter().enumerate() {
+        let comparison = generate_value_equality(
+            tuple_element(source).ts_type,
+            &rendered(ts_template! { a[@{index}] }),
+            &rendered(ts_template! { b[@{index}] }),
+            None,
+            registry,
+        );
+        steps.push(ts_template! { if (!(@{comparison})) return false; });
+    }
+    steps.push(ts_template! { return true; });
+    rendered(TsStream::merge_all(steps))
 }
 
 fn value_equality(
@@ -111,7 +114,28 @@ fn value_equality(
     let classified = classify_value_type(ts_type, resolved);
     let element = || resolved.and_then(collection_element_type);
     let item = ts_ident!("__item{}", depth);
+    // A collection is compared inside a callback, where the type checker no
+    // longer knows a nullable one was found present. Its two values are
+    // handed to a function of their own, whose parameters are the present
+    // ones.
+    let present = (classified.nullable
+        && matches!(
+            classified.kind,
+            ValueType::Array(_)
+                | ValueType::Map { .. }
+                | ValueType::Set(_)
+                | ValueType::Builtin(Builtin::TypedArray)
+        ))
+    .then(|| (format!("__left{depth}"), format!("__right{depth}")));
+    let (nullable_left, nullable_right) = (left, right);
+    let (left, right) = match &present {
+        Some((present_left, present_right)) => (present_left.as_str(), present_right.as_str()),
+        None => (left, right),
+    };
     let equality = match classified.kind {
+        // `NaN` is the one number `===` holds unequal to itself, which would
+        // leave a value unequal to its own copy.
+        ValueType::Primitive("number") => return same_number(left, right),
         // `===` and the structural helper already treat `null` and `undefined`.
         ValueType::Primitive(_) | ValueType::Opaque => {
             return rendered(ts_template! { @{left} === @{right} });
@@ -163,18 +187,36 @@ fn value_equality(
         }
         ValueType::Builtin(builtin) => builtin_equality(builtin, left, right),
     };
-    if classified.nullable {
+    if !classified.nullable {
+        return equality;
+    }
+    if present.is_some() {
+        rendered(ts_template! {
+            (@{nullable_left} == null || @{nullable_right} == null ? @{nullable_left} === @{nullable_right} : ((@{left}, @{right}) => @{equality})(@{nullable_left}, @{nullable_right}))
+        })
+    } else {
         rendered(ts_template! {
             (@{left} == null || @{right} == null ? @{left} === @{right} : @{equality})
         })
-    } else {
-        equality
     }
+}
+
+/// Whether two numbers are the same one, `NaN` being the same as `NaN`.
+fn same_number(left: &str, right: &str) -> String {
+    rendered(ts_template! {
+        (@{left} === @{right} || (@{left} !== @{left} && @{right} !== @{right}))
+    })
 }
 
 fn builtin_equality(builtin: Builtin, left: &str, right: &str) -> String {
     rendered(match builtin {
-        Builtin::Date => ts_template! { @{left}.getTime() === @{right}.getTime() },
+        // An invalid date's time is `NaN`.
+        Builtin::Date => {
+            return same_number(
+                &rendered(ts_template! { @{left}.getTime() }),
+                &rendered(ts_template! { @{right}.getTime() }),
+            );
+        }
         Builtin::RegExp => ts_template! {
             (@{left}.source === @{right}.source && @{left}.flags === @{right}.flags)
         },

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,51 +45,50 @@ export function personNameEncode(value: PersonName, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return personNameEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "PersonName",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("firstName")) {
-
-        if (value.firstName !== undefined) {
-            result.firstName = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastName")) {
-
-        if (value.lastName !== undefined) {
-            result.lastName = value.lastName;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "PersonName" });
+    personNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "PersonName" };
+        personNameEncodeFields(value as PersonName, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["firstName"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastName")) {
+                if (value.lastName !== undefined) {
+                    result["lastName"] = value.lastName;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = personNameDecodeWithContext(data, ctx);
+        const resultOrRef = personNameDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -135,6 +134,10 @@ export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function personNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => personNameDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PersonName | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -147,53 +150,62 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PersonName.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PersonName | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PersonName") as PersonName | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "PersonName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("firstName" in obj)) {
-        errors.push({ field: "firstName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) && !("lastName" in obj)) {
-        errors.push({ field: "lastName", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "firstName"], ["lastName", "lastName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "lastName"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "PersonName");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
-        const __raw_firstName = obj["firstName"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+                const __raw_firstName = obj["firstName"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
-        } else {
-            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
-                if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                } else {
+                    if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                        if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+                    }
+                    instance.firstName = __raw_firstName;
+                }
             }
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
-        const __raw_lastName = obj["lastName"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+                const __raw_lastName = obj["lastName"] as string;
 
-        if (!(typeof __raw_lastName === "string")) {
-            errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
-        } else {
-            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
-                if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+                if (!(typeof __raw_lastName === "string")) {
+                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                } else {
+                    if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                        if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+                    }
+                    instance.lastName = __raw_lastName;
+                }
             }
-            instance.lastName = __raw_lastName;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -242,8 +254,7 @@ export function personNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "firstName" in o && "lastName" in o;
+    return __mf_holdsAll(obj, ["firstName", "lastName"]);
 }
 
 export function personNameIs(obj: unknown): obj is PersonName {
@@ -381,6 +392,7 @@ export const PersonName: {
   readonly encodeWithContext: typeof personNameEncodeWithContext;
   readonly encodePartialWithContext: typeof personNameEncodePartialWithContext;
   readonly decode: typeof personNameDecode;
+  readonly fromString: typeof personNameFromString;
   readonly decodeWithContext: typeof personNameDecodeWithContext;
   readonly decodePartialWithContext: typeof personNameDecodePartialWithContext;
   readonly validateField: typeof personNameValidateField;
@@ -395,6 +407,7 @@ export const PersonName: {
   encodeWithContext: personNameEncodeWithContext,
   encodePartialWithContext: personNameEncodePartialWithContext,
   decode: personNameDecode,
+  fromString: personNameFromString,
   decodeWithContext: personNameDecodeWithContext,
   decodePartialWithContext: personNameDecodePartialWithContext,
   validateField: personNameValidateField,
@@ -417,10 +430,21 @@ export declare function personNameDefaultValue(): PersonName;
 export declare function personNameEncode(value: PersonName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PersonName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function personNameFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: PersonName;
 } | {
@@ -487,6 +511,7 @@ export declare const PersonName: {
 	readonly encodeWithContext: typeof personNameEncodeWithContext;
 	readonly encodePartialWithContext: typeof personNameEncodePartialWithContext;
 	readonly decode: typeof personNameDecode;
+	readonly fromString: typeof personNameFromString;
 	readonly decodeWithContext: typeof personNameDecodeWithContext;
 	readonly decodePartialWithContext: typeof personNameDecodePartialWithContext;
 	readonly validateField: typeof personNameValidateField;
@@ -503,27 +528,29 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..142 -> expanded 700..735
-original 189..194 -> expanded 735..740
-original 235..263 -> expanded 740..768
-original 309..314 -> expanded 768..773
-original 355..379 -> expanded 773..797
-original 379..380 -> expanded 16835..16836
-generated 0..642 <- imports
-generated 797..920 <- Default
-generated 920..2932 <- Encode
-generated 2932..10973 <- Decode
-generated 10973..15515 <- Gigaform
-generated 15515..16835 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..142 -> expanded 904..939
+original 189..194 -> expanded 939..944
+original 235..263 -> expanded 944..972
+original 309..314 -> expanded 972..977
+original 355..379 -> expanded 977..1001
+original 379..380 -> expanded 18401..18402
+generated 0..846 <- imports
+generated 1001..1124 <- Default
+generated 1124..3670 <- Encode
+generated 3670..12451 <- Decode
+generated 12451..16993 <- Gigaform
+generated 16993..18401 <- __convenience_const
 
 ## Metadata
 
-interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":236,"start":195}},{"args_src":"{ label: \"First Name\" }","name":"textController","span":{"end":190,"start":143}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":259,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":356,"start":315}},{"args_src":"{ label: \"Last Name\" }","name":"textController","span":{"end":310,"start":264}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":378,"start":361},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":380,"start":116},"type_params":[]}
+interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":236,"start":195}},{"args_src":"{ label: \"First Name\" }","name":"textController","span":{"end":190,"start":143}}],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":259,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":356,"start":315}},{"args_src":"{ label: \"Last Name\" }","name":"textController","span":{"end":310,"start":264}}],"key":"Named","name":"lastName","optional":false,"readonly":false,"span":{"end":378,"start":361},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":380,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

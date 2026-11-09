@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,57 +46,57 @@ export function emailPartsEncode(value: EmailParts, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function emailPartsEncodeWithContext(value: EmailParts, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return emailPartsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function emailPartsEncodePartialWithContext(value: Partial<EmailParts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EmailParts>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "EmailParts",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("local")) {
-
-        if (value.local !== undefined) {
-            result.local = value.local;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("domainName")) {
-
-        if (value.domainName !== undefined) {
-            result.domainName = value.domainName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("topLevelDomain")) {
-
-        if (value.topLevelDomain !== undefined) {
-            result.topLevelDomain = value.topLevelDomain;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EmailParts" });
+    emailPartsEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function emailPartsEncodePartialWithContext(value: Partial<EmailParts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EmailParts>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "EmailParts" };
+        emailPartsEncodeFields(value as EmailParts, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function emailPartsEncodeFields(value: EmailParts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("local")) {
+                if (value.local !== undefined) {
+                    result["local"] = value.local;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("domainName")) {
+                if (value.domainName !== undefined) {
+                    result["domainName"] = value.domainName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("topLevelDomain")) {
+                if (value.topLevelDomain !== undefined) {
+                    result["topLevelDomain"] = value.topLevelDomain;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = emailPartsDecodeWithContext(data, ctx);
+        const resultOrRef = emailPartsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -142,6 +142,10 @@ export function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function emailPartsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => emailPartsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EmailParts | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -154,68 +158,76 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "EmailParts.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as EmailParts | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "EmailParts") as EmailParts | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "EmailParts.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("local")) && !("local" in obj)) {
-        errors.push({ field: "local", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("domainName")) && !("domainName" in obj)) {
-        errors.push({ field: "domainName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("topLevelDomain")) && !("topLevelDomain" in obj)) {
-        errors.push({ field: "topLevelDomain", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["local", "local"], ["domainName", "domainName"], ["topLevelDomain", "topLevelDomain"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "local"?: string | undefined; "domainName"?: string | undefined; "topLevelDomain"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EmailParts");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("local")) || (__fields.keeps("local") && obj["local"] !== undefined)) {
-        const __raw_local = obj["local"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("local")) ? "local" in obj : (__fields.keeps("local") && obj["local"] !== undefined)) {
+                const __raw_local = obj["local"] as string;
 
-        if (!(typeof __raw_local === "string")) {
-            errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
-        } else {
-            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
-                if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+                if (!(typeof __raw_local === "string")) {
+                    errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
+                } else {
+                    if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+                        if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+                    }
+                    instance.local = __raw_local;
+                }
             }
-            instance.local = __raw_local;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("domainName")) || (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
-        const __raw_domainName = obj["domainName"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("domainName")) ? "domainName" in obj : (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
+                const __raw_domainName = obj["domainName"] as string;
 
-        if (!(typeof __raw_domainName === "string")) {
-            errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
-        } else {
-            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
-                if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+                if (!(typeof __raw_domainName === "string")) {
+                    errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
+                } else {
+                    if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+                        if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+                    }
+                    instance.domainName = __raw_domainName;
+                }
             }
-            instance.domainName = __raw_domainName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("topLevelDomain")) || (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
-        const __raw_topLevelDomain = obj["topLevelDomain"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("topLevelDomain")) ? "topLevelDomain" in obj : (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
+                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
 
-        if (!(typeof __raw_topLevelDomain === "string")) {
-            errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
-        } else {
-            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
-                if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+                if (!(typeof __raw_topLevelDomain === "string")) {
+                    errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
+                } else {
+                    if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+                        if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+                    }
+                    instance.topLevelDomain = __raw_topLevelDomain;
+                }
             }
-            instance.topLevelDomain = __raw_topLevelDomain;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -276,8 +288,7 @@ export function emailPartsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "local" in o && "domainName" in o && "topLevelDomain" in o;
+    return __mf_holdsAll(obj, ["local", "domainName", "topLevelDomain"]);
 }
 
 export function emailPartsIs(obj: unknown): obj is EmailParts {
@@ -444,6 +455,7 @@ export const EmailParts: {
   readonly encodeWithContext: typeof emailPartsEncodeWithContext;
   readonly encodePartialWithContext: typeof emailPartsEncodePartialWithContext;
   readonly decode: typeof emailPartsDecode;
+  readonly fromString: typeof emailPartsFromString;
   readonly decodeWithContext: typeof emailPartsDecodeWithContext;
   readonly decodePartialWithContext: typeof emailPartsDecodePartialWithContext;
   readonly validateField: typeof emailPartsValidateField;
@@ -458,6 +470,7 @@ export const EmailParts: {
   encodeWithContext: emailPartsEncodeWithContext,
   encodePartialWithContext: emailPartsEncodePartialWithContext,
   decode: emailPartsDecode,
+  fromString: emailPartsFromString,
   decodeWithContext: emailPartsDecodeWithContext,
   decodePartialWithContext: emailPartsDecodePartialWithContext,
   validateField: emailPartsValidateField,
@@ -481,10 +494,21 @@ export declare function emailPartsDefaultValue(): EmailParts;
 export declare function emailPartsEncode(value: EmailParts, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function emailPartsEncodeWithContext(value: EmailParts, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function emailPartsEncodePartialWithContext(value: Partial<EmailParts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EmailParts>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EmailParts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function emailPartsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EmailParts;
 } | {
@@ -554,6 +578,7 @@ export declare const EmailParts: {
 	readonly encodeWithContext: typeof emailPartsEncodeWithContext;
 	readonly encodePartialWithContext: typeof emailPartsEncodePartialWithContext;
 	readonly decode: typeof emailPartsDecode;
+	readonly fromString: typeof emailPartsFromString;
 	readonly decodeWithContext: typeof emailPartsDecodeWithContext;
 	readonly decodePartialWithContext: typeof emailPartsDecodePartialWithContext;
 	readonly validateField: typeof emailPartsValidateField;
@@ -570,26 +595,28 @@ export declare const EmailParts: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..142 -> expanded 700..735
-original 183..207 -> expanded 735..759
-original 248..277 -> expanded 759..788
-original 318..348 -> expanded 788..818
-original 348..349 -> expanded 20068..20069
-generated 0..642 <- imports
-generated 818..967 <- Default
-generated 967..3166 <- Encode
-generated 3166..12992 <- Decode
-generated 12992..18748 <- Gigaform
-generated 18748..20068 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..142 -> expanded 904..939
+original 183..207 -> expanded 939..963
+original 248..277 -> expanded 963..992
+original 318..348 -> expanded 992..1022
+original 348..349 -> expanded 21715..21716
+generated 0..846 <- imports
+generated 1022..1171 <- Default
+generated 1171..3973 <- Encode
+generated 3973..14551 <- Decode
+generated 14551..20307 <- Gigaform
+generated 20307..21715 <- __convenience_const
 
 ## Metadata
 
-interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":184,"start":143}}],"name":"local","optional":false,"readonly":false,"span":{"end":203,"start":189},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":249,"start":208}}],"name":"domainName","optional":false,"readonly":false,"span":{"end":273,"start":254},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":347,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":349,"start":116},"type_params":[]}
+interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":184,"start":143}}],"key":"Named","name":"local","optional":false,"readonly":false,"span":{"end":203,"start":189},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":249,"start":208}}],"key":"Named","name":"domainName","optional":false,"readonly":false,"span":{"end":273,"start":254},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"key":"Named","name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":347,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":349,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

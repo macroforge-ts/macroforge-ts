@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,51 +43,50 @@ export function commissionsEncode(value: Commissions, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return commissionsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function commissionsEncodePartialWithContext(value: Partial<Commissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commissions>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Commissions",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("technician")) {
-
-        if (value.technician !== undefined) {
-            result.technician = value.technician;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("salesRep")) {
-
-        if (value.salesRep !== undefined) {
-            result.salesRep = value.salesRep;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Commissions" });
+    commissionsEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function commissionsEncodePartialWithContext(value: Partial<Commissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commissions>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Commissions" };
+        commissionsEncodeFields(value as Commissions, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function commissionsEncodeFields(value: Commissions, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("technician")) {
+                if (value.technician !== undefined) {
+                    result["technician"] = value.technician;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("salesRep")) {
+                if (value.salesRep !== undefined) {
+                    result["salesRep"] = value.salesRep;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = commissionsDecodeWithContext(data, ctx);
+        const resultOrRef = commissionsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -133,6 +132,10 @@ export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function commissionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => commissionsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -145,53 +148,62 @@ export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Commissions.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Commissions | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Commissions") as Commissions | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Commissions.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("technician")) && !("technician" in obj)) {
-        errors.push({ field: "technician", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) && !("salesRep" in obj)) {
-        errors.push({ field: "salesRep", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["technician", "technician"], ["salesRep", "salesRep"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "technician"?: string | undefined; "salesRep"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Commissions");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("technician")) || (__fields.keeps("technician") && obj["technician"] !== undefined)) {
-        const __raw_technician = obj["technician"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("technician")) ? "technician" in obj : (__fields.keeps("technician") && obj["technician"] !== undefined)) {
+                const __raw_technician = obj["technician"] as string;
 
-        if (!(typeof __raw_technician === "string")) {
-            errors.push({ field: "technician", message: __raw_technician == null ? "Commissions.technician is required" : "expected string" });
-        } else {
-            if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
-                if (__raw_technician.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
+                if (!(typeof __raw_technician === "string")) {
+                    errors.push({ field: "technician", message: __raw_technician == null ? "Commissions.technician is required" : "expected string" });
+                } else {
+                    if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+                        if (__raw_technician.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
+                    }
+                    instance.technician = __raw_technician;
+                }
             }
-            instance.technician = __raw_technician;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
-        const __raw_salesRep = obj["salesRep"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+                const __raw_salesRep = obj["salesRep"] as string;
 
-        if (!(typeof __raw_salesRep === "string")) {
-            errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Commissions.salesRep is required" : "expected string" });
-        } else {
-            if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
-                if (__raw_salesRep.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
+                if (!(typeof __raw_salesRep === "string")) {
+                    errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Commissions.salesRep is required" : "expected string" });
+                } else {
+                    if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+                        if (__raw_salesRep.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
+                    }
+                    instance.salesRep = __raw_salesRep;
+                }
             }
-            instance.salesRep = __raw_salesRep;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -240,8 +252,7 @@ export function commissionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "technician" in o && "salesRep" in o;
+    return __mf_holdsAll(obj, ["technician", "salesRep"]);
 }
 
 export function commissionsIs(obj: unknown): obj is Commissions {
@@ -379,6 +390,7 @@ export const Commissions: {
   readonly encodeWithContext: typeof commissionsEncodeWithContext;
   readonly encodePartialWithContext: typeof commissionsEncodePartialWithContext;
   readonly decode: typeof commissionsDecode;
+  readonly fromString: typeof commissionsFromString;
   readonly decodeWithContext: typeof commissionsDecodeWithContext;
   readonly decodePartialWithContext: typeof commissionsDecodePartialWithContext;
   readonly validateField: typeof commissionsValidateField;
@@ -393,6 +405,7 @@ export const Commissions: {
   encodeWithContext: commissionsEncodeWithContext,
   encodePartialWithContext: commissionsEncodePartialWithContext,
   decode: commissionsDecode,
+  fromString: commissionsFromString,
   decodeWithContext: commissionsDecodeWithContext,
   decodePartialWithContext: commissionsDecodePartialWithContext,
   validateField: commissionsValidateField,
@@ -415,10 +428,21 @@ export declare function commissionsDefaultValue(): Commissions;
 export declare function commissionsEncode(value: Commissions, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function commissionsEncodePartialWithContext(value: Partial<Commissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commissions>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Commissions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function commissionsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Commissions;
 } | {
@@ -485,6 +509,7 @@ export declare const Commissions: {
 	readonly encodeWithContext: typeof commissionsEncodeWithContext;
 	readonly encodePartialWithContext: typeof commissionsEncodePartialWithContext;
 	readonly decode: typeof commissionsDecode;
+	readonly fromString: typeof commissionsFromString;
 	readonly decodeWithContext: typeof commissionsDecodeWithContext;
 	readonly decodePartialWithContext: typeof commissionsDecodePartialWithContext;
 	readonly validateField: typeof commissionsValidateField;
@@ -501,25 +526,27 @@ export declare const Commissions: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..143 -> expanded 700..736
-original 184..213 -> expanded 736..765
-original 254..278 -> expanded 765..789
-original 278..279 -> expanded 16991..16992
-generated 0..642 <- imports
-generated 789..915 <- Default
-generated 915..2941 <- Encode
-generated 2941..11057 <- Decode
-generated 11057..15644 <- Gigaform
-generated 15644..16991 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..143 -> expanded 904..940
+original 184..213 -> expanded 940..969
+original 254..278 -> expanded 969..993
+original 278..279 -> expanded 18570..18571
+generated 0..846 <- imports
+generated 993..1119 <- Default
+generated 1119..3684 <- Encode
+generated 3684..12546 <- Decode
+generated 12546..17133 <- Gigaform
+generated 17133..18570 <- __convenience_const
 
 ## Metadata
 
-interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
+interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"key":"Named","name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"key":"Named","name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

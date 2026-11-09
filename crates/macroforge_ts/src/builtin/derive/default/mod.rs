@@ -31,10 +31,18 @@
 //! | `Map<K,V>`, `ReadonlyMap<K,V>` | `new Map()` |
 //! | `Set<T>`, `ReadonlySet<T>` | `new Set()` |
 //! | `Date` | `new Date()` (current time) |
-//! | `T \| null` | `null` |
-//! | `T \| undefined` | `undefined` |
+//! | `T \| null`, `null` | `null` |
+//! | `T \| undefined`, `undefined` | `undefined` |
+//! | A template literal type, `` `id-${number}` `` | Its text with each hole filled, `` `id-0` `` |
 //! | Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
 //! | `CustomType` | `customTypeDefaultValue()` (recursive standalone-function call) |
+//! | A number literal type, `1_000`, `0x10`, `1n` | The literal |
+//!
+//! A field that is filled from its type's default must not come back to
+//! its own type: `next: Chain` on `Chain`, or two types that require each
+//! other, would give a default that calls itself without end, and is an
+//! expansion error. Make the field optional or nullable, or give it a
+//! `@default`.
 //!
 //! ## Field-Level Options
 //!
@@ -71,11 +79,12 @@
 //!     notifications: boolean; // Uses type default: false
 //!
 //!     static defaultValue(): UserSettings {
-//!         const instance: UserSettings = Object.create(UserSettings.prototype);
-//!         instance.theme = 'light';
-//!         instance.pageSize = 10;
-//!         instance.notifications = false;
-//!         return instance;
+//!         const fields: { theme: string; pageSize: number; notifications: boolean } = {
+//!             theme: 'light',
+//!             pageSize: 10,
+//!             notifications: false
+//!         };
+//!         return __mf_instanceOf(UserSettings.prototype, fields);
 //!     }
 //! }
 //!
@@ -158,8 +167,10 @@
 //!
 //! The macro reports an expansion error only if:
 //!
-//! - An enum has no variant marked with `@default`
-//! - A type alias that is not an object, union or primitive has no `@default(value)`
+//! - An enum has no variant marked with `@default`, or more than one
+//! - A union marks more than one member with `@default`
+//! - A type alias of a type with no default of its own, such as a function or
+//!   a type that does not derive `Default`, has no `@default(value)`
 //! - A primitive alias with `@endec` validators has no `@default(value)`
 //! - A field's `@default` expression fails to parse
 //! - A function-typed field has neither `@default(value)` nor an initializer, as a

@@ -30,8 +30,10 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     span: SpanIR::new(10, 50),
 ///     body_span: SpanIR::new(20, 49),
 ///     is_abstract: false,
+///     is_declare: false,
 ///     type_params: vec![],
 ///     heritage: vec![],
+///     superclass: None,
 ///     decorators: vec![],
 ///     fields: vec![],
 ///     methods: vec![],
@@ -155,7 +157,7 @@ impl MacroDispatcher {
                             return MacroResult {
                                 diagnostics: vec![Diagnostic {
                                     level: DiagnosticLevel::Error,
-                                    message: format!("Failed to create TsStream: {:?}", err),
+                                    message: format!("Failed to create TsStream: {err}"),
                                     span: Some(ctx.decorator_span),
                                     notes: vec![],
                                     help: None,

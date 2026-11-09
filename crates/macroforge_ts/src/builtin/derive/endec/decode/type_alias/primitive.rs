@@ -6,8 +6,11 @@ use crate::macros::ts_template;
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
+use crate::builtin::derive::endec::decode::helpers::{
+    Reported, decoded_keyword_test, decoded_keyword_test_leaving,
+};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
@@ -34,7 +37,7 @@ pub(super) fn handle_primitive_type_alias(
         full_type_name,
         ..
     } = alias;
-    let camel = type_name.to_case(Case::Camel);
+    let camel = function_prefix(type_name);
     let fn_decode_ident = ts_ident!("{}Decode{}", camel, generic_decl);
     let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();
     let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext{}", camel, generic_decl);
@@ -58,15 +61,16 @@ pub(super) fn handle_primitive_type_alias(
             .config
             .and_then(|foreign| foreign.handler_callee(ForeignHandler::Decode))
             .map(|callee| Expr::parse(&callee).expect("foreign decode expression should parse"));
-    // A string input is the value itself, not JSON: always for `string`, and for
-    // a wire-converted base, where parsing would round `bigint` digits.
-    let data_init_expr = if primitive == "string" || wire_decode.is_some() {
-        Expr::parse("input").expect("data init expr should parse")
-    } else {
-        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
-            .expect("data init expr should parse")
-    };
 
+    if let Some(misapplied) = validators
+        .iter()
+        .find_map(|spec| spec.validator.misapplied_to(primitive))
+    {
+        return Err(MacroforgeError::new(
+            alias.type_alias.inner.span,
+            format!("@derive(Decode): type '{type_name}': {misapplied}"),
+        ));
+    }
     let has_validators = !validators.is_empty();
     let validation_code = generate_field_validations(
         validators,
@@ -77,15 +81,19 @@ pub(super) fn handle_primitive_type_alias(
     );
     // Only validators read the context; an unread parameter fails `noUnusedParameters`.
     let ctx_param = ts_ident!(if has_validators { "ctx" } else { "_ctx" });
+    let decoded_is_primitive = Expr::Source(decoded_keyword_test_leaving(
+        primitive,
+        "__decoded",
+        Reported::by(validators),
+    ));
+    let value_is_primitive = Expr::Source(decoded_keyword_test(primitive, "value"));
 
     let mut result = ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const result = @{fn_decode_internal_expr}(data, ctx);
+                const result = @{fn_decode_internal_expr}(input, ctx);
                 if (opts?.freeze) {
                     ctx.freezeAll();
                 }
@@ -106,7 +114,7 @@ pub(super) fn handle_primitive_type_alias(
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, @{ctx_param}: @{decode_context_ident}): @{full_type_ident} {
+        export function @{fn_decode_internal_ident}(value: unknown, @{ctx_param}: @{decode_context_ident}@{&alias.coders}): @{full_type_ident} {
             {#if let Some(wire_decode) = &wire_decode}
                 let __decoded: unknown = value;
                 if (typeof value !== "@{primitive}") {
@@ -119,7 +127,7 @@ pub(super) fn handle_primitive_type_alias(
             {:else}
                 const __decoded: unknown = value;
             {/if}
-            if (typeof __decoded !== "@{primitive}") {
+            if (!(@{&decoded_is_primitive})) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected @{primitive}" }]);
             }
             {#if has_validators}
@@ -132,20 +140,30 @@ pub(super) fn handle_primitive_type_alias(
 
         export function @{fn_has_shape_ident}(value: unknown): boolean {
             {#if wire_decode.is_some()}
-                return typeof value === "@{primitive}" || typeof value === "string";
+                return @{&value_is_primitive} || typeof value === "string";
             {:else}
-                return typeof value === "@{primitive}";
+                return @{&value_is_primitive};
             {/if}
         }
 
+        // A value `is` says yes to decodes.
         export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            {#if has_validators}
-                return typeof value === "@{primitive}" && @{fn_decode_expr}(value).success;
-            {:else}
-                return typeof value === "@{primitive}";
-            {/if}
+            return @{&value_is_primitive} && @{fn_decode_expr}(value).success;
         }
     };
+    let from_string_name = format!("{camel}FromString{generic_decl}");
+    let decode_call = format!("{camel}Decode{generic_args}");
+    let return_type = decode_return_type(full_type_name);
+    result = result.merge(super::super::from_string::from_string_function(
+        &super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: "",
+            passed_coders: "",
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ));
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);

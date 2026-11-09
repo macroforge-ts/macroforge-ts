@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -40,13 +40,11 @@ export function metersEncodeWithContext(value: Meters): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = metersDecodeWithContext(data, ctx);
+        const result = metersDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -84,7 +82,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -94,11 +92,15 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => metersDecode(value, opts));
 }
 
 const Meters: {
@@ -108,13 +110,15 @@ const Meters: {
   readonly decodeWithContext: typeof metersDecodeWithContext;
   readonly hasShape: typeof metersHasShape;
   readonly is: typeof metersIs;
+  readonly fromString: typeof metersFromString;
 } = {
   encode: metersEncode,
   encodeWithContext: metersEncodeWithContext,
   decode: metersDecode,
   decodeWithContext: metersDecodeWithContext,
   hasShape: metersHasShape,
-  is: metersIs
+  is: metersIs,
+  fromString: metersFromString
 };
 
 
@@ -133,59 +137,57 @@ export function runEncode(value: Run, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return runEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Run>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Run",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("distance")) {
-
-        if (value.distance !== undefined) {
-            result.distance = metersEncodeWithContext(value.distance, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("splits")) {
-
-        if (value.splits !== undefined) {
-            result.splits = value.splits.map(
-                (item) => metersEncodeWithContext(item, ctx)
-            );
-        }
-    }
-    if (__fields === undefined || __fields.keeps("best")) {
-
-        if (value.best !== undefined) {
-            result.best = metersEncodeWithContext(value.best, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Run" });
+    runEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Run>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Run" };
+        runEncodeFields(value as Run, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function runEncodeFields(value: Run, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("distance")) {
+                if (value.distance !== undefined) {
+                    result["distance"] = metersEncodeWithContext(value.distance, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("splits")) {
+                if (value.splits !== undefined) {
+                    result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("best")) {
+                if (value.best !== undefined) {
+                    result["best"] = metersEncodeWithContext(value.best, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function runDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Run } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = runDecodeWithContext(data, ctx);
+        const resultOrRef = runDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -231,6 +233,10 @@ export function runDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function runFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Run } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => runDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Run | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -243,110 +249,112 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Run.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Run | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Run") as Run | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Run.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("distance")) && !("distance" in obj)) {
-        errors.push({ field: "distance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("splits")) && !("splits" in obj)) {
-        errors.push({ field: "splits", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["distance", "distance"], ["splits", "splits"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "distance"?: Meters | undefined; "splits"?: Meters[] | undefined; "best"?: Meters | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Run");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("distance")) || (__fields.keeps("distance") && obj["distance"] !== undefined)) {
-        const __raw_distance = obj["distance"] as Meters;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
+                const __raw_distance = obj["distance"] as Meters;
 
-        ctx.pushScope("distance");
-        try {
-            const __result = metersDecodeWithContext(__raw_distance, ctx);
-            ctx.assignOrDefer(instance, "distance", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "distance" : "distance." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("distance");
+                try {
+                    const __result = metersDecodeWithContext(__raw_distance, ctx);
+                    ctx.assignOrDefer(instance, "distance", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "distance" : "distance." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("splits")) || (__fields.keeps("splits") && obj["splits"] !== undefined)) {
-        const __raw_splits = obj["splits"] as Meters[];
-
-        if (Array.isArray(__raw_splits)) {
-            const __arr = __raw_splits.map((item: Meters | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = metersDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
-                        errors.push({
-                            field: __err.field === "_root"
-                                ? "splits[" + idx + "]"
-                                : "splits[" + idx + "]." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.splits = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.splits, idx, (item as any).__refId);
-                }
-            });
-        } else {
-            errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("best"))) {
-        if (("best" in obj && obj["best"] !== undefined)) {
-            const __raw_best = obj["best"] as Meters;
-
-            ctx.pushScope("best");
-            try {
-                const __result = metersDecodeWithContext(__raw_best, ctx);
-                ctx.assignOrDefer(instance, "best", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "best" : "best." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
+                const __raw_splits = obj["splits"] as Meters[];
+                if (Array.isArray(__raw_splits)) {
+                    ctx.pushScope("splits");
+                    try {
+                        instance.splits = __mf_decodeArray(__raw_splits, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "splits" : "splits." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("best"))) {
+                if (("best" in obj && obj["best"] !== undefined)) {
+                    const __raw_best = obj["best"] as Meters;
+
+                    ctx.pushScope("best");
+                    try {
+                        const __result = metersDecodeWithContext(__raw_best, ctx);
+                        ctx.assignOrDefer(instance, "best", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -371,8 +379,7 @@ export function runHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "distance" in o && "splits" in o;
+    return __mf_holdsAll(obj, ["distance", "splits"]);
 }
 
 export function runIs(obj: unknown): obj is Run {
@@ -384,6 +391,7 @@ const Run: {
   readonly encodeWithContext: typeof runEncodeWithContext;
   readonly encodePartialWithContext: typeof runEncodePartialWithContext;
   readonly decode: typeof runDecode;
+  readonly fromString: typeof runFromString;
   readonly decodeWithContext: typeof runDecodeWithContext;
   readonly decodePartialWithContext: typeof runDecodePartialWithContext;
   readonly validateField: typeof runValidateField;
@@ -395,6 +403,7 @@ const Run: {
   encodeWithContext: runEncodeWithContext,
   encodePartialWithContext: runEncodePartialWithContext,
   decode: runDecode,
+  fromString: runFromString,
   decodeWithContext: runDecodeWithContext,
   decodePartialWithContext: runDecodePartialWithContext,
   validateField: runValidateField,
@@ -413,7 +422,7 @@ type Meters = number & {
 export declare function metersEncode(value: Meters, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function metersEncodeWithContext(value: Meters, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Meters;
@@ -428,6 +437,17 @@ export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions):
 export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
 export declare function metersHasShape(value: unknown): boolean;
 export declare function metersIs(value: unknown): value is Meters;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metersFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 interface Run {
 	distance: Meters;
 	splits: Meters[];
@@ -437,10 +457,21 @@ interface Run {
 export declare function runEncode(value: Run, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Run>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function runDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Run;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function runFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Run;
 } | {
@@ -474,24 +505,24 @@ export {};
 
 ## Mapping
 
-original 57..72 -> expanded 528..543
-original 88..89 -> expanded 587..588
-original 89..91 -> expanded 3792..3794
-original 121..196 -> expanded 3794..3869
-original 196..197 -> expanded 15337..15338
-generated 0..483 <- imports
-generated 483..528 <- $Newtype
-generated 543..587 <- $Newtype
-generated 588..1296 <- Encode
-generated 1296..3303 <- Decode
-generated 3303..3792 <- __convenience_const
-generated 3869..6094 <- Encode
-generated 6094..14451 <- Decode
-generated 14451..15337 <- __convenience_const
+original 57..72 -> expanded 765..780
+original 88..89 -> expanded 824..825
+original 89..91 -> expanded 4658..4660
+original 121..196 -> expanded 4660..4735
+original 196..197 -> expanded 17495..17496
+generated 0..720 <- imports
+generated 720..765 <- $Newtype
+generated 780..824 <- $Newtype
+generated 825..1533 <- Encode
+generated 1533..4089 <- Decode
+generated 4089..4658 <- __convenience_const
+generated 4735..7503 <- Encode
+generated 7503..16535 <- Decode
+generated 16535..17495 <- __convenience_const
 
 ## Metadata
 
-interface Run: {"body_span":{"end":270,"start":210},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":195,"start":165}}],"fields":[{"decorators":[],"name":"distance","optional":false,"readonly":false,"span":{"end":231,"start":214},"ts_type":"Meters"},{"decorators":[],"name":"splits","optional":false,"readonly":false,"span":{"end":251,"start":234},"ts_type":"Meters[]"},{"decorators":[],"name":"best","optional":true,"readonly":false,"span":{"end":268,"start":254},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":270,"start":196},"type_params":[]}
+interface Run: {"body_span":{"end":270,"start":210},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":195,"start":165}}],"fields":[{"decorators":[],"key":"Named","name":"distance","optional":false,"readonly":false,"span":{"end":231,"start":214},"ts_type":"Meters"},{"decorators":[],"key":"Named","name":"splits","optional":false,"readonly":false,"span":{"end":251,"start":234},"ts_type":"Meters[]"},{"decorators":[],"key":"Named","name":"best","optional":true,"readonly":false,"span":{"end":268,"start":254},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":270,"start":196},"type_params":[]}
 type Meters: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"nonNegative","name":"endec","span":{"end":103,"start":77}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":76,"start":46}}],"name":"Meters","span":{"end":163,"start":104},"type_params":[]}
 
 ## Registry reads

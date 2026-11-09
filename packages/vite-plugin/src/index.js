@@ -46,127 +46,14 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { encode as encodeVlq } from '@jridgewell/sourcemap-codec';
 import * as engine from '@macroforge/core';
-import { loadMacroConfig } from '@macroforge/shared';
-
-/**
- * Precompute a line-offset table for `source`: `lineStarts[i]` is the
- * byte offset where line `i` (0-indexed) begins. Used to convert byte
- * offsets to (line, column) in O(log n) per lookup instead of scanning
- * the full source each time.
- *
- * @param {string} source
- * @returns {number[]}
- */
-function buildLineStarts(source) {
-    const starts = [0];
-    for (let i = 0; i < source.length; i++) {
-        if (source.charCodeAt(i) === 10 /* \n */) {
-            starts.push(i + 1);
-        }
-    }
-    return starts;
-}
-
-/**
- * Convert a 0-based byte offset to (line, column) using a precomputed
- * line-starts table. Both line and column are 0-based as required by
- * Source Map v3.
- *
- * @param {number} offset
- * @param {number[]} lineStarts
- * @returns {[number, number]}
- */
-function offsetToLineColumn(offset, lineStarts) {
-    // Binary search for the largest lineStarts[i] that is <= offset.
-    let lo = 0;
-    let hi = lineStarts.length - 1;
-    while (lo < hi) {
-        const mid = (lo + hi + 1) >>> 1;
-        if (lineStarts[mid] <= offset) {
-            lo = mid;
-        } else {
-            hi = mid - 1;
-        }
-    }
-    return [lo, offset - lineStarts[lo]];
-}
-
-/**
- * Convert a macroforge `SourceMappingResult` into a Source Map v3 JSON
- * object suitable for return from Vite's `transform` hook.
- *
- * The engine's `SourceMapping` tracks segments of the form
- * `{ original_start, original_end, expanded_start, expanded_end }` :
- * byte-offset ranges in the original and expanded source. Source Map
- * v3 wants `(generated_line, generated_column, source_index,
- * original_line, original_column)` per-segment tuples, VLQ-encoded.
- *
- * The original offsets are in the pre-expansion source (`originalCode`),
- * the expanded offsets are in the post-expansion source (`expandedCode`).
- * Note that the engine's offsets are 0-based from a patch-applicator
- * standpoint even though `SpanIR` uses 1-based storage internally :
- * `SourceMappingResult` emits 0-based values across the ABI boundary.
- *
- * We only emit one source entry (`sources: [sourcePath]`). If other
- * plugins in the chain produced maps, Vite composes them automatically.
- *
- * @param {{ segments: Array<{ originalStart: number, originalEnd: number, expandedStart: number, expandedEnd: number }> }} mapping
- * @param {string} sourcePath
- * @param {string} originalCode
- * @param {string} expandedCode
- * @returns {{ version: 3, sources: string[], sourcesContent: string[], mappings: string, names: string[] } | null}
- */
-function sourceMappingToV3(mapping, sourcePath, originalCode, expandedCode) {
-    if (
-        !mapping ||
-        !Array.isArray(mapping.segments) ||
-        mapping.segments.length === 0
-    ) {
-        return null;
-    }
-
-    const originalLineStarts = buildLineStarts(originalCode);
-    const expandedLineStarts = buildLineStarts(expandedCode);
-
-    // Per-line buckets: index = generated line, value = array of
-    // unencoded 5-tuples sorted by generatedColumn.
-    /** @type {Array<Array<[number, number, number, number]>>} */
-    const lines = [];
-
-    for (const seg of mapping.segments) {
-        const [genLine, genCol] = offsetToLineColumn(
-            seg.expandedStart,
-            expandedLineStarts
-        );
-        const [origLine, origCol] = offsetToLineColumn(
-            seg.originalStart,
-            originalLineStarts
-        );
-
-        while (lines.length <= genLine) lines.push([]);
-        lines[genLine].push([genCol, 0, origLine, origCol]);
-    }
-
-    // Sort each line's segments by generated column.
-    for (const line of lines) {
-        line.sort((a, b) => a[0] - b[0]);
-    }
-
-    // Encode with @jridgewell/sourcemap-codec. The encoder takes a
-    // nested array of [[genCol, srcIdx, origLine, origCol], ...] per
-    // line and returns the VLQ-encoded mappings string.
-    const mappings = encodeVlq(lines);
-
-    return {
-        version: 3,
-        sources: [sourcePath],
-        sourcesContent: [originalCode],
-        mappings,
-        names: []
-    };
-}
+import {
+    DECLARATION_ENDINGS,
+    declarationFileOf,
+    loadMacroConfig,
+    sourceMapOf,
+    TYPESCRIPT_EXTENSIONS
+} from '@macroforge/shared';
 
 /** @type {typeof import('typescript') | undefined} */
 let tsModule;
@@ -389,7 +276,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
         /** @type {string} */ outputName,
         /** @type {string} */ text
     ) => {
-        if (outputName.endsWith('.d.ts')) {
+        if (DECLARATION_ENDINGS.some((ending) => outputName.endsWith(ending))) {
             output = text;
         }
     };
@@ -1151,8 +1038,11 @@ export async function macroforge() {
      * @returns {string}
      */
     function typesPathFor(id) {
-        const parsed = path.parse(containedPath(path.relative(projectRoot, id)));
-        return path.join(projectRoot, typesOutputDir, parsed.dir, `${parsed.name}.d.ts`);
+        return path.join(
+            projectRoot,
+            typesOutputDir,
+            declarationFileOf(containedPath(path.relative(projectRoot, id)))
+        );
     }
 
     /**
@@ -1435,8 +1325,9 @@ export async function macroforge() {
          * @param {string} id
          */
         async transform(code, id) {
-            // Only transform TypeScript files
-            if (!id.endsWith('.ts') && !id.endsWith('.tsx')) {
+            // Only transform TypeScript files: a declaration file among them, so
+            // a derive in one reports the error that refuses it.
+            if (!TYPESCRIPT_EXTENSIONS.some((extension) => id.endsWith(extension))) {
                 return null;
             }
 
@@ -1595,7 +1486,7 @@ export async function macroforge() {
                     // Engine already produced the segments during patch
                     // application; we only encode them here.
                     const map = result.sourceMapping
-                        ? sourceMappingToV3(result.sourceMapping, id, code, result.code)
+                        ? sourceMapOf(result.sourceMapping, id, code, result.code)
                         : null;
 
                     return {
@@ -1614,40 +1505,6 @@ export async function macroforge() {
             }
 
             return null;
-        },
-
-        /**
-         * Phase 17: HMR invalidation for the native scan cache.
-         *
-         * Vite fires `handleHotUpdate` on every file that changed on
-         * disk. We forward the path to the Rust scanner's singleton
-         * cache so the next scan sees fresh IR. For configuration
-         * files we clear the whole cache since any cached entry may now
-         * be stale.
-         *
-         * The hook returns `undefined` so Vite uses its default module-
-         * graph invalidation logic: we're only piggy-backing on the
-         * notification, not trying to control what reloads.
-         *
-         * @param {{ file: string, modules: any[] }} ctx
-         */
-        handleHotUpdate(ctx) {
-            const file = ctx.file;
-            // Config files invalidate the entire cache (matches the
-            // `clear_cache` path in the Rust singleton).
-            if (
-                file.endsWith('macroforge.config.ts') ||
-                file.endsWith('macroforge.config.js') ||
-                file.endsWith('macroforge.config.mjs') ||
-                file.endsWith('tsconfig.json')
-            ) {
-                engine.clearScanCache();
-                return;
-            }
-            // Source file change: drop the single entry. The next
-            // `scanProjectSync` call (either from buildStart or a future
-            // HMR refresh) will re-parse it.
-            engine.invalidateScanCacheEntry(file);
         },
 
         /**

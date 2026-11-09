@@ -1,0 +1,108 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/file_preamble.ts
+---
+## Input
+
+#!/usr/bin/env node
+/// <reference lib="esnext" />
+// @ts-check
+'use client';
+
+/** The first declaration's own comment. */
+export const first = 1;
+
+/** @derive(Clone, PartialEq) */
+export interface Point {
+    x: number;
+    y: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+#!/usr/bin/env node
+/// <reference lib="esnext" />
+// @ts-check
+'use client';
+import { clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+
+/** The first declaration's own comment. */
+export const first = 1;
+
+
+export interface Point {
+    x: number;
+    y: number;
+}
+
+export function pointClone(value: Point): Point {
+    return __mf_clonedWith(value, (): Point => ({
+	x: value.x,
+	y: value.y
+}));
+}
+
+export function pointEquals(a: Point, b: Point): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
+}
+
+export const Point: {
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+} = {
+  clone: pointClone,
+  equals: pointEquals
+};
+
+## DTS
+
+/** The first declaration's own comment. */
+export declare const first = 1;
+export interface Point {
+	x: number;
+	y: number;
+}
+export declare function pointClone(value: Point): Point;
+export declare function pointEquals(a: Point, b: Point): boolean;
+export declare const Point: {
+	readonly clone: typeof pointClone;
+	readonly equals: typeof pointEquals;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..78 -> expanded 0..78
+original 78..148 -> expanded 188..258
+original 180..237 -> expanded 258..315
+original 237..238 -> expanded 915..916
+generated 78..188 <- imports
+generated 315..448 <- Clone
+generated 448..764 <- PartialEq
+generated 764..915 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":238,"start":205},"decorators":[{"args_src":"Clone, PartialEq","name":"Derive","span":{"end":181,"start":149}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":221,"start":211},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":236,"start":226},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":238,"start":189},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

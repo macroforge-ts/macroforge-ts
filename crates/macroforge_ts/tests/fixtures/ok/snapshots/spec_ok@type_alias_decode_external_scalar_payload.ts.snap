@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -42,32 +42,34 @@ export function refEncode(value: Ref, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Ref): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            result["id"] = value.id;
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function refDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ref } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = refDecodeWithContext(data, ctx);
+        const resultOrRef = refDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -113,6 +115,10 @@ export function refDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function refFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Ref } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => refDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ref | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -126,10 +132,11 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
     if (typeof value === "string") {
         return value as Ref;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const __result: Record<string, unknown> = {};
-        __result["id"] = (value as any)["id"];
-        return __result as Ref;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) ? __mf_decodeObject(value, ctx, { id: __mf_decodeString }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Ref;
     }
 
     throw new __mf_DecodeError([{
@@ -139,17 +146,22 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
 }
 export function refHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function refIs(value: unknown): value is Ref {
-    return refHasShape(value);
+    return refHasShape(value) && refDecode(value).success;
 }
 
 export const Ref: {
   readonly encode: typeof refEncode;
   readonly encodeWithContext: typeof refEncodeWithContext;
   readonly decode: typeof refDecode;
+  readonly fromString: typeof refFromString;
   readonly decodeWithContext: typeof refDecodeWithContext;
   readonly hasShape: typeof refHasShape;
   readonly is: typeof refIs;
@@ -157,6 +169,7 @@ export const Ref: {
   encode: refEncode,
   encodeWithContext: refEncodeWithContext,
   decode: refDecode,
+  fromString: refFromString,
   decodeWithContext: refDecodeWithContext,
   hasShape: refHasShape,
   is: refIs
@@ -174,41 +187,31 @@ export function stageEncode(value: Stage, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched && value !== null && typeof value === "object") {
-        const __exName = Object.keys(value as object)[0];
-        if (!__matched && __exName === "Invoice") {
-            __variant = ({ "Invoice": refEncodeWithContext((value as any)["Invoice"], ctx) });
-            __matched = true;
-        }
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Stage): unknown => {
+            if (!(typeof value === "object" && value !== null && "Invoice" in value && Object.keys(value)[0] === "Invoice")) {
+                return __mf_notTheMember;
+            }
+            return { "Invoice": refEncodeWithContext(value["Invoice"], ctx) };
+        },
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { [__typeName]: fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function stageDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Stage } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = stageDecodeWithContext(data, ctx);
+        const resultOrRef = stageDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -254,6 +257,10 @@ export function stageDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function stageFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Stage } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => stageDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Stage | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -265,7 +272,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     
     const allowedLiterals = ['Active'] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as Stage;
     }
 
@@ -273,7 +280,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
         const __keys = Object.keys(value);
         const __variantName = __keys[0];
         if (__variantName !== undefined) {
-            const __inner = (value as any)[__variantName];
+            const __inner = __mf_member(value, __variantName);
             if (__variantName === "Invoice") {
                 return ({ "Invoice": refDecodeWithContext(__inner ?? {}, ctx) }) as Stage;
             }
@@ -287,7 +294,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 }
 export function stageHasShape(value: unknown): boolean {
                 const allowedLiterals = ['Active'] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
                 if (typeof value === "object" && value !== null) {
                     const __keys = Object.keys(value);
                     const __variantName = __keys[0];
@@ -298,9 +305,9 @@ export function stageHasShape(value: unknown): boolean {
                 return false;
 }
 export function stageIs(value: unknown): value is Stage {
-    return stageHasShape(value);
+    return stageHasShape(value) && stageDecode(value).success;
 }
-export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
+export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: unknown }> {
     return __v !== null
         && typeof __v === "object"
         && "Invoice" in __v;
@@ -310,6 +317,7 @@ export const Stage: {
   readonly encode: typeof stageEncode;
   readonly encodeWithContext: typeof stageEncodeWithContext;
   readonly decode: typeof stageDecode;
+  readonly fromString: typeof stageFromString;
   readonly decodeWithContext: typeof stageDecodeWithContext;
   readonly hasShape: typeof stageHasShape;
   readonly is: typeof stageIs;
@@ -318,6 +326,7 @@ export const Stage: {
   encode: stageEncode,
   encodeWithContext: stageEncodeWithContext,
   decode: stageDecode,
+  fromString: stageFromString,
   decodeWithContext: stageDecodeWithContext,
   hasShape: stageHasShape,
   is: stageIs,
@@ -333,8 +342,19 @@ export type Ref = string | {
 export declare function refEncode(value: Ref, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function refDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Ref;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function refFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Ref;
 } | {
@@ -352,6 +372,7 @@ export declare const Ref: {
 	readonly encode: typeof refEncode;
 	readonly encodeWithContext: typeof refEncodeWithContext;
 	readonly decode: typeof refDecode;
+	readonly fromString: typeof refFromString;
 	readonly decodeWithContext: typeof refDecodeWithContext;
 	readonly hasShape: typeof refHasShape;
 	readonly is: typeof refIs;
@@ -363,8 +384,19 @@ export type Stage = "Active" | {
 export declare function stageEncode(value: Stage, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function stageDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Stage;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function stageFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Stage;
 } | {
@@ -379,12 +411,13 @@ export declare function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 export declare function stageHasShape(value: unknown): boolean;
 export declare function stageIs(value: unknown): value is Stage;
 export declare function stageInvoiceIs(__v: unknown): __v is Extract<Stage, {
-	Invoice: any;
+	Invoice: unknown;
 }>;
 export declare const Stage: {
 	readonly encode: typeof stageEncode;
 	readonly encodeWithContext: typeof stageEncodeWithContext;
 	readonly decode: typeof stageDecode;
+	readonly fromString: typeof stageFromString;
 	readonly decodeWithContext: typeof stageDecodeWithContext;
 	readonly hasShape: typeof stageHasShape;
 	readonly is: typeof stageIs;
@@ -397,23 +430,23 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 397..675
-original 308..351 -> expanded 675..718
-original 351..353 -> expanded 5090..5092
-original 425..474 -> expanded 5092..5141
-original 474..475 -> expanded 10777..10778
-generated 0..397 <- imports
-generated 718..1949 <- Encode
-generated 1949..4633 <- Decode
-generated 4633..5090 <- __convenience_const
-generated 5141..6792 <- Encode
-generated 6792..10220 <- Decode
-generated 10220..10777 <- __convenience_const
+original 0..278 -> expanded 715..993
+original 308..351 -> expanded 993..1036
+original 351..353 -> expanded 6661..6663
+original 425..474 -> expanded 6663..6712
+original 474..475 -> expanded 12900..12901
+generated 0..715 <- imports
+generated 1036..2666 <- Encode
+generated 2666..6130 <- Decode
+generated 6130..6661 <- __convenience_const
+generated 6712..8301 <- Encode
+generated 8301..12265 <- Decode
+generated 12265..12900 <- __convenience_const
 
 ## Metadata
 
-type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":349,"start":339},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":309,"start":279}}],"name":"Ref","span":{"end":352,"start":317},"type_params":[]}
-type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"Invoice","optional":false,"readonly":false,"span":{"end":472,"start":460},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":426,"start":385}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":384,"start":354}}],"name":"Stage","span":{"end":475,"start":434},"type_params":[]}
+type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":349,"start":339},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":309,"start":279}}],"name":"Ref","span":{"end":352,"start":317},"type_params":[]}
+type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"Invoice","optional":false,"readonly":false,"span":{"end":472,"start":460},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":426,"start":385}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":384,"start":354}}],"name":"Stage","span":{"end":475,"start":434},"type_params":[]}
 
 ## Registry reads
 

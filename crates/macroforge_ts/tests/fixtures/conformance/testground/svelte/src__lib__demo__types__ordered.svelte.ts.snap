@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -52,67 +52,64 @@ export function orderedEncode(value: Ordered, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return orderedEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Ordered",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("in")) {
-
-        if (value.in !== undefined) {
-            result.in = typeof value.in === "string"
-                ? value.in
-                : accountEncodeWithContext(value.in, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("out")) {
-
-        if (value.out !== undefined) {
-            result.out = typeof value.out === "string"
-                ? value.out
-                : orderEncodeWithContext(value.out, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("date")) {
-
-        if (value.date !== undefined) {
-            result.date = value.date;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Ordered" });
+    orderedEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Ordered" };
+        orderedEncodeFields(value as Ordered, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("in")) {
+                if (value.in !== undefined) {
+                    result["in"] = (typeof value.in === "string" ? value.in : accountEncodeWithContext(value.in, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("out")) {
+                if (value.out !== undefined) {
+                    result["out"] = (typeof value.out === "string" ? value.out : orderEncodeWithContext(value.out, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("date")) {
+                if (value.date !== undefined) {
+                    result["date"] = value.date;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = orderedDecodeWithContext(data, ctx);
+        const resultOrRef = orderedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -158,6 +155,10 @@ export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => orderedDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ordered | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -170,105 +171,114 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Ordered.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Ordered | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Ordered") as Ordered | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Ordered.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
-        errors.push({ field: "in", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("out")) && !("out" in obj)) {
-        errors.push({ field: "out", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["in", "in"], ["out", "out"], ["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "in"?: string | Account | undefined; "out"?: string | Order | undefined; "date"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Ordered");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
-        const __raw_in = obj["in"] as string | Account;
-
-        if (typeof __raw_in === "string") {
-            instance.in = __raw_in;
-        } else {
-            ctx.pushScope("in");
-            try {
-                const __result = accountDecodeWithContext(__raw_in, ctx);
-                ctx.assignOrDefer(instance, "in", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "in" : "in." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.id = __raw_id;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
-        const __raw_out = obj["out"] as string | Order;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
+                const __raw_in = obj["in"] as string | Account;
 
-        if (typeof __raw_out === "string") {
-            instance.out = __raw_out;
-        } else {
-            ctx.pushScope("out");
-            try {
-                const __result = orderDecodeWithContext(__raw_out, ctx);
-                ctx.assignOrDefer(instance, "out", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "out" : "out." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (typeof __raw_in === "string") {
+                    instance.in = __raw_in;
                 } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
-        const __raw_date = obj["date"] as string;
+                    ctx.pushScope("in");
+                    try {
+                        const __result = accountDecodeWithContext(__raw_in, ctx);
+                        ctx.assignOrDefer(instance, "in", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "in" : "in." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (!(typeof __raw_date === "string")) {
-            errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
-        } else {
-            instance.date = __raw_date;
-        }
+                            errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
+                const __raw_out = obj["out"] as string | Order;
+
+                if (typeof __raw_out === "string") {
+                    instance.out = __raw_out;
+                } else {
+                    ctx.pushScope("out");
+                    try {
+                        const __result = orderDecodeWithContext(__raw_out, ctx);
+                        ctx.assignOrDefer(instance, "out", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "out" : "out." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
+                const __raw_date = obj["date"] as string;
+
+                if (!(typeof __raw_date === "string")) {
+                    errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
+                } else {
+                    instance.date = __raw_date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -293,8 +303,7 @@ export function orderedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "in" in o && "out" in o && "date" in o;
+    return __mf_holdsAll(obj, ["id", "in", "out", "date"]);
 }
 
 export function orderedIs(obj: unknown): obj is Ordered {
@@ -490,6 +499,7 @@ export const Ordered: {
   readonly encodeWithContext: typeof orderedEncodeWithContext;
   readonly encodePartialWithContext: typeof orderedEncodePartialWithContext;
   readonly decode: typeof orderedDecode;
+  readonly fromString: typeof orderedFromString;
   readonly decodeWithContext: typeof orderedDecodeWithContext;
   readonly decodePartialWithContext: typeof orderedDecodePartialWithContext;
   readonly validateField: typeof orderedValidateField;
@@ -504,6 +514,7 @@ export const Ordered: {
   encodeWithContext: orderedEncodeWithContext,
   encodePartialWithContext: orderedEncodePartialWithContext,
   decode: orderedDecode,
+  fromString: orderedFromString,
   decodeWithContext: orderedDecodeWithContext,
   decodePartialWithContext: orderedDecodePartialWithContext,
   validateField: orderedValidateField,
@@ -530,10 +541,21 @@ export declare function orderedDefaultValue(): Ordered;
 export declare function orderedEncode(value: Ordered, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Ordered;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Ordered;
 } | {
@@ -606,6 +628,7 @@ export declare const Ordered: {
 	readonly encodeWithContext: typeof orderedEncodeWithContext;
 	readonly encodePartialWithContext: typeof orderedEncodePartialWithContext;
 	readonly decode: typeof orderedDecode;
+	readonly fromString: typeof orderedFromString;
 	readonly decodeWithContext: typeof orderedDecodeWithContext;
 	readonly decodePartialWithContext: typeof orderedDecodePartialWithContext;
 	readonly validateField: typeof orderedValidateField;
@@ -622,27 +645,31 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 810..963
-original 202..250 -> expanded 963..1011
-original 269..300 -> expanded 1011..1042
-original 319..364 -> expanded 1042..1087
-original 364..365 -> expanded 19337..19338
-generated 0..810 <- imports
-generated 1087..1226 <- Default
-generated 1226..3672 <- Encode
-generated 3672..11804 <- Decode
-generated 11804..18098 <- Gigaform
-generated 18098..19337 <- __convenience_const
+original 0..153 -> expanded 1014..1167
+original 202..250 -> expanded 1167..1215
+original 269..300 -> expanded 1215..1246
+original 319..364 -> expanded 1246..1291
+original 364..365 -> expanded 21291..21292
+generated 0..1014 <- imports
+generated 1291..1430 <- Default
+generated 1430..4472 <- Encode
+generated 4472..13676 <- Decode
+generated 13676..19970 <- Gigaform
+generated 19970..21291 <- __convenience_const
 
 ## Metadata
 
-interface Ordered: {"body_span":{"end":365,"start":229},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":203,"start":154}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":246,"start":235},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":270,"start":251}}],"name":"in","optional":false,"readonly":false,"span":{"end":296,"start":275},"ts_type":"string | Account"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":320,"start":301}}],"name":"out","optional":false,"readonly":false,"span":{"end":345,"start":325},"ts_type":"string | Order"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":363,"start":350},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Ordered","span":{"end":365,"start":211},"type_params":[]}
+interface Ordered: {"body_span":{"end":365,"start":229},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":203,"start":154}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":246,"start":235},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":270,"start":251}}],"key":"Named","name":"in","optional":false,"readonly":false,"span":{"end":296,"start":275},"ts_type":"string | Account"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":320,"start":301}}],"key":"Named","name":"out","optional":false,"readonly":false,"span":{"end":345,"start":325},"ts_type":"string | Order"},{"decorators":[],"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":363,"start":350},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Ordered","span":{"end":365,"start":211},"type_params":[]}
 
 ## Registry reads
 
+Name("Account")
+Name("Gigaform")
+Name("Order")
 Name("string")
 Name("string | Account")
 Name("string | Order")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

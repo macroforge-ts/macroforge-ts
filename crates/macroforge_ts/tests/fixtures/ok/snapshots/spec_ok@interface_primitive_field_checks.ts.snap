@@ -32,8 +32,8 @@ true
 
 ## Output
 
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
 interface Profile {
@@ -50,14 +50,11 @@ interface Profile {
   site: URL;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = profileDecodeWithContext(data, ctx);
+        const resultOrRef = profileDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -103,6 +100,10 @@ export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function profileFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => profileDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -115,147 +116,163 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Profile | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Profile") as Profile | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("mode")) && !("mode" in obj)) {
-        errors.push({ field: "mode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nickname")) && !("nickname" in obj)) {
-        errors.push({ field: "nickname", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("height")) && !("height" in obj)) {
-        errors.push({ field: "height", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
-        errors.push({ field: "site", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["age", "age"], ["active", "active"], ["kind", "kind"], ["mode", "mode"], ["nickname", "nickname"], ["height", "height"], ["balance", "balance"], ["site", "site"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined; "active"?: boolean | undefined; "kind"?: "user" | undefined; "mode"?: "light" | "dark" | undefined; "nickname"?: string | null | undefined; "bio"?: string | undefined; "rank"?: number | undefined | undefined; "height"?: number & { readonly [__mf_newtype_1]: true } | undefined; "balance"?: bigint | undefined; "site"?: URL | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Profile");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Profile.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
-
-        if (!(typeof __raw_age === "number")) {
-            errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Profile.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) || (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as "user";
-
-        if (!(__raw_kind === "user")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "Profile.kind is required" : "expected \"user\"" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("mode")) || (__fields.keeps("mode") && obj["mode"] !== undefined)) {
-        const __raw_mode = obj["mode"] as "light" | "dark";
-
-        if (!(__raw_mode === "light" || __raw_mode === "dark")) {
-            errors.push({ field: "mode", message: __raw_mode == null ? "Profile.mode is required" : "expected \"light\" | \"dark\"" });
-        } else {
-            instance.mode = __raw_mode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nickname")) || (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
-        const __raw_nickname = obj["nickname"] as string | null;
-
-        if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
-            errors.push({ field: "nickname", message: "expected string | null" });
-        } else {
-            instance.nickname = __raw_nickname;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("bio"))) {
-        if (("bio" in obj && obj["bio"] !== undefined)) {
-            const __raw_bio = obj["bio"] as string;
-
-            if (!(typeof __raw_bio === "string")) {
-                errors.push({ field: "bio", message: "expected string" });
-            } else {
-                instance.bio = __raw_bio;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Profile.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as number | undefined;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_rank === "number" || __raw_rank === undefined)) {
-            errors.push({ field: "rank", message: "expected number | undefined" });
-        } else {
-            instance.rank = __raw_rank;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("height")) || (__fields.keeps("height") && obj["height"] !== undefined)) {
-        const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
 
-        if (!(typeof __raw_height === "number")) {
-            errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
-        } else {
-            instance.height = __raw_height;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        try {
-            instance.balance = ((v) => BigInt(v as string))(obj["balance"]);
-        } catch (__error) {
-            errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
-        try {
-            instance.site = ((v) => new URL(v as string))(obj["site"]);
-        } catch (__error) {
-            errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Profile.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as "user";
+
+                if (!(__raw_kind === "user")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "Profile.kind is required" : "expected \"user\"" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mode")) ? "mode" in obj : (__fields.keeps("mode") && obj["mode"] !== undefined)) {
+                const __raw_mode = obj["mode"] as "light" | "dark";
+
+                if (!(__raw_mode === "light" || __raw_mode === "dark")) {
+                    errors.push({ field: "mode", message: __raw_mode == null ? "Profile.mode is required" : "expected \"light\" | \"dark\"" });
+                } else {
+                    instance.mode = __raw_mode;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nickname")) ? "nickname" in obj : (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
+                const __raw_nickname = obj["nickname"] as string | null;
+
+                if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
+                    errors.push({ field: "nickname", message: "expected string | null" });
+                } else {
+                    instance.nickname = __raw_nickname;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("bio"))) {
+                if (("bio" in obj && obj["bio"] !== undefined)) {
+                    const __raw_bio = obj["bio"] as string;
+
+                    if (!(typeof __raw_bio === "string")) {
+                        errors.push({ field: "bio", message: "expected string" });
+                    } else {
+                        instance.bio = __raw_bio;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as number | undefined;
+
+                if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank) || __raw_rank === undefined)) {
+                    errors.push({ field: "rank", message: "expected number | undefined" });
+                } else {
+                    instance.rank = __raw_rank;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("height")) ? "height" in obj : (__fields.keeps("height") && obj["height"] !== undefined)) {
+                const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
+
+                if (!(typeof __raw_height === "number" && globalThis.Number.isFinite(__raw_height))) {
+                    errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
+                } else {
+                    instance.height = __raw_height;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                try {
+                    instance.balance = ((__raw: unknown) => ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(__raw) as bigint)(obj["balance"]);
+                } catch (__error) {
+                    errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
+                try {
+                    instance.site = ((__raw: unknown) => ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+                	return new URL(raw);
+                })(__raw) as URL)(obj["site"]);
+                } catch (__error) {
+                    errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -280,8 +297,7 @@ export function profileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o && "active" in o && "kind" in o && "mode" in o && "nickname" in o && "height" in o && "balance" in o && "site" in o;
+    return __mf_holdsAll(obj, ["name", "age", "active", "kind", "mode", "nickname", "height", "balance", "site"]);
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -290,6 +306,7 @@ export function profileIs(obj: unknown): obj is Profile {
 
 const Profile: {
   readonly decode: typeof profileDecode;
+  readonly fromString: typeof profileFromString;
   readonly decodeWithContext: typeof profileDecodeWithContext;
   readonly decodePartialWithContext: typeof profileDecodePartialWithContext;
   readonly validateField: typeof profileValidateField;
@@ -298,6 +315,7 @@ const Profile: {
   readonly is: typeof profileIs;
 } = {
   decode: profileDecode,
+  fromString: profileFromString,
   decodeWithContext: profileDecodeWithContext,
   decodePartialWithContext: profileDecodePartialWithContext,
   validateField: profileValidateField,
@@ -321,13 +339,11 @@ export function taggedEncodeWithContext(value: Tagged): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = taggedDecodeWithContext(data, ctx);
+        const result = taggedDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -365,22 +381,26 @@ export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function taggedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Tagged {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Tagged.decodeWithContext: expected number" }]);
     }
     return __decoded as Tagged;
 }
 
 export function taggedHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function taggedIs(value: unknown): value is Tagged {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && taggedDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => taggedDecode(value, opts));
 }
 
 export function taggedHashCode(value: Tagged): number {
-    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function taggedToString(value: Tagged): string {
@@ -394,6 +414,7 @@ const Tagged: {
   readonly decodeWithContext: typeof taggedDecodeWithContext;
   readonly hasShape: typeof taggedHasShape;
   readonly is: typeof taggedIs;
+  readonly fromString: typeof taggedFromString;
   readonly hashCode: typeof taggedHashCode;
   readonly toString: typeof taggedToString;
 } = {
@@ -403,6 +424,7 @@ const Tagged: {
   decodeWithContext: taggedDecodeWithContext,
   hasShape: taggedHasShape,
   is: taggedIs,
+  fromString: taggedFromString,
   hashCode: taggedHashCode,
   toString: taggedToString
 };
@@ -410,13 +432,11 @@ const Tagged: {
 
 type Loose = string & {};
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = looseDecodeWithContext(data, ctx);
+        const result = looseDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -454,7 +474,7 @@ export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function looseDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Loose {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Loose.decodeWithContext: expected string" }]);
     }
     return __decoded as Loose;
@@ -465,7 +485,11 @@ export function looseHasShape(value: unknown): boolean {
 }
 
 export function looseIs(value: unknown): value is Loose {
-    return typeof value === "string";
+    return typeof value === "string" && looseDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function looseFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => looseDecode(value, opts));
 }
 
 const Loose: {
@@ -473,11 +497,13 @@ const Loose: {
   readonly decodeWithContext: typeof looseDecodeWithContext;
   readonly hasShape: typeof looseHasShape;
   readonly is: typeof looseIs;
+  readonly fromString: typeof looseFromString;
 } = {
   decode: looseDecode,
   decodeWithContext: looseDecodeWithContext,
   hasShape: looseHasShape,
-  is: looseIs
+  is: looseIs,
+  fromString: looseFromString
 };
 
 ## DTS
@@ -498,8 +524,19 @@ interface Profile {
 	balance: bigint;
 	site: URL;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function profileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Profile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function profileFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Profile;
 } | {
@@ -532,7 +569,7 @@ type Tagged = number & {
 export declare function taggedEncode(value: Tagged, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function taggedEncodeWithContext(value: Tagged, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Tagged;
@@ -547,10 +584,21 @@ export declare function taggedDecode(input: unknown, opts?: __mf_DecodeOptions):
 export declare function taggedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Tagged;
 export declare function taggedHasShape(value: unknown): boolean;
 export declare function taggedIs(value: unknown): value is Tagged;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare function taggedHashCode(value: Tagged): number;
 export declare function taggedToString(value: Tagged): string;
 type Loose = string & {};
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function looseDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Loose;
@@ -565,6 +613,17 @@ export declare function looseDecode(input: unknown, opts?: __mf_DecodeOptions): 
 export declare function looseDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Loose;
 export declare function looseHasShape(value: unknown): boolean;
 export declare function looseIs(value: unknown): value is Loose;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function looseFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Loose;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export {};
 
 ## Diagnostics
@@ -573,30 +632,30 @@ export {};
 
 ## Mapping
 
-original 22..216 -> expanded 465..659
-original 232..267 -> expanded 703..738
-original 267..269 -> expanded 12362..12364
-original 312..367 -> expanded 12364..12419
-original 367..369 -> expanded 15832..15834
-original 391..417 -> expanded 15834..15860
-original 417..418 -> expanded 17893..17894
-generated 0..420 <- imports
-generated 420..465 <- $Newtype
-generated 659..703 <- $Newtype
-generated 738..11706 <- Decode
-generated 11706..12362 <- __convenience_const
-generated 12419..13127 <- Encode
-generated 13127..14910 <- Decode
-generated 14910..15096 <- Hash
-generated 15096..15199 <- Debug
-generated 15199..15832 <- __convenience_const
-generated 15860..17585 <- Decode
-generated 17585..17893 <- __convenience_const
+original 22..216 -> expanded 556..750
+original 232..267 -> expanded 794..829
+original 267..269 -> expanded 14111..14113
+original 312..367 -> expanded 14113..14168
+original 367..369 -> expanded 18249..18251
+original 391..417 -> expanded 18251..18277
+original 417..418 -> expanded 20891..20892
+generated 0..511 <- imports
+generated 511..556 <- $Newtype
+generated 750..794 <- $Newtype
+generated 829..13373 <- Decode
+generated 13373..14111 <- __convenience_const
+generated 14168..14876 <- Encode
+generated 14876..17239 <- Decode
+generated 17239..17433 <- Hash
+generated 17433..17536 <- Debug
+generated 17536..18249 <- __convenience_const
+generated 18277..20505 <- Decode
+generated 20505..20891 <- __convenience_const
 
 ## Metadata
 
-interface Profile: {"body_span":{"end":341,"start":87},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":68,"start":46}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":119,"start":107},"ts_type":"number"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":138,"start":122},"ts_type":"boolean"},{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":154,"start":141},"ts_type":"\"user\""},{"decorators":[],"name":"mode","optional":false,"readonly":false,"span":{"end":180,"start":157},"ts_type":"\"light\" | \"dark\""},{"decorators":[],"name":"nickname","optional":false,"readonly":false,"span":{"end":207,"start":183},"ts_type":"string | null"},{"decorators":[],"name":"bio","optional":true,"readonly":false,"span":{"end":223,"start":210},"ts_type":"string"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":251,"start":226},"ts_type":"number | undefined"},{"decorators":[],"name":"height","optional":false,"readonly":false,"span":{"end":307,"start":254},"ts_type":"number & { readonly [__mf_newtype_1]: true }"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":326,"start":310},"ts_type":"bigint"},{"decorators":[],"name":"site","optional":false,"readonly":false,"span":{"end":339,"start":329},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":341,"start":69},"type_params":[]}
-type Tagged: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__brand","optional":false,"readonly":true,"span":{"end":438,"start":412},"ts_type":"\"Tagged\""}]}}}]},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":386,"start":343}}],"name":"Tagged","span":{"end":441,"start":387},"type_params":[]}
+interface Profile: {"body_span":{"end":341,"start":87},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":68,"start":46}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":119,"start":107},"ts_type":"number"},{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":138,"start":122},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":154,"start":141},"ts_type":"\"user\""},{"decorators":[],"key":"Named","name":"mode","optional":false,"readonly":false,"span":{"end":180,"start":157},"ts_type":"\"light\" | \"dark\""},{"decorators":[],"key":"Named","name":"nickname","optional":false,"readonly":false,"span":{"end":207,"start":183},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"bio","optional":true,"readonly":false,"span":{"end":223,"start":210},"ts_type":"string"},{"decorators":[],"key":"Named","name":"rank","optional":false,"readonly":false,"span":{"end":251,"start":226},"ts_type":"number | undefined"},{"decorators":[],"key":"Named","name":"height","optional":false,"readonly":false,"span":{"end":307,"start":254},"ts_type":"number & { readonly [__mf_newtype_1]: true }"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":326,"start":310},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"site","optional":false,"readonly":false,"span":{"end":339,"start":329},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":341,"start":69},"type_params":[]}
+type Tagged: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__brand","optional":false,"readonly":true,"span":{"end":438,"start":412},"ts_type":"\"Tagged\""}]}}}]},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":386,"start":343}}],"name":"Tagged","span":{"end":441,"start":387},"type_params":[]}
 type Loose: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[]}}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":465,"start":443}}],"name":"Loose","span":{"end":491,"start":466},"type_params":[]}
 
 ## Registry reads

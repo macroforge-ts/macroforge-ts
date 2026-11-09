@@ -1,0 +1,477 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_untagged_object_variants.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+type Outcome = { ok: true; at: Date; tags: Set<string> } | { ok: false; reason: string };
+
+/** @derive(Encode, Decode) */
+/** @endec({ untagged: true }) */
+type Loose = { kind: 'a'; when: Date } | { kind: 'b'; count: number; note?: string };
+
+## Changed
+
+true
+
+## Output
+
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+type Outcome = { ok: true; at: Date; tags: Set<string> } | { ok: false; reason: string };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function outcomeEncode(value: Outcome, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = outcomeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function outcomeEncodeWithContext(value: Outcome, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Outcome): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["ok"] = value.ok;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+                () => {
+                    result["tags"] = Array.from(value.tags);
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: Outcome): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["ok"] = value.ok;
+                },
+                () => {
+                    result["reason"] = value.reason;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Outcome } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = outcomeDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Outcome.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Outcome } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => outcomeDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function outcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Outcome | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Outcome.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Outcome | __mf_PendingRef;
+    }
+
+    
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) ? __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), at: __mf_decodeDate, tags: (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString) }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) ? __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), reason: __mf_decodeString }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Outcome;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Outcome.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function outcomeHasShape(value: unknown): boolean {
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
+                return false;
+}
+export function outcomeIs(value: unknown): value is Outcome {
+    return outcomeHasShape(value) && outcomeDecode(value).success;
+}
+
+const Outcome: {
+  readonly encode: typeof outcomeEncode;
+  readonly encodeWithContext: typeof outcomeEncodeWithContext;
+  readonly decode: typeof outcomeDecode;
+  readonly fromString: typeof outcomeFromString;
+  readonly decodeWithContext: typeof outcomeDecodeWithContext;
+  readonly hasShape: typeof outcomeHasShape;
+  readonly is: typeof outcomeIs;
+} = {
+  encode: outcomeEncode,
+  encodeWithContext: outcomeEncodeWithContext,
+  decode: outcomeDecode,
+  fromString: outcomeFromString,
+  decodeWithContext: outcomeDecodeWithContext,
+  hasShape: outcomeHasShape,
+  is: outcomeIs
+};
+
+
+type Loose = { kind: 'a'; when: Date } | { kind: 'b'; count: number; note?: string };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function looseEncode(value: Loose, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = looseEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function looseEncodeWithContext(value: Loose, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Loose): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["when"] = value.when.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: Loose): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "count" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["count"] = value.count;
+                },
+                () => {
+                    if (value.note !== undefined) {
+                        result["note"] = value.note;
+                    }
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { ...fields };
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = looseDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Loose.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function looseFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => looseDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function looseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Loose | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Loose.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Loose | __mf_PendingRef;
+    }
+
+    
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), when: __mf_decodeDate }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "count")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), count: __mf_decodeNumber, note: __mf_decodeString }, ["note"]) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Loose;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Loose.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function looseHasShape(value: unknown): boolean {
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "count"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
+                return false;
+}
+export function looseIs(value: unknown): value is Loose {
+    return looseHasShape(value) && looseDecode(value).success;
+}
+
+const Loose: {
+  readonly encode: typeof looseEncode;
+  readonly encodeWithContext: typeof looseEncodeWithContext;
+  readonly decode: typeof looseDecode;
+  readonly fromString: typeof looseFromString;
+  readonly decodeWithContext: typeof looseDecodeWithContext;
+  readonly hasShape: typeof looseHasShape;
+  readonly is: typeof looseIs;
+} = {
+  encode: looseEncode,
+  encodeWithContext: looseEncodeWithContext,
+  decode: looseDecode,
+  fromString: looseFromString,
+  decodeWithContext: looseDecodeWithContext,
+  hasShape: looseHasShape,
+  is: looseIs
+};
+
+## DTS
+
+type Outcome = {
+	ok: true;
+	at: Date;
+	tags: Set<string>;
+} | {
+	ok: false;
+	reason: string;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function outcomeEncode(value: Outcome, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function outcomeEncodeWithContext(value: Outcome, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Outcome;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Outcome;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function outcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Outcome | __mf_PendingRef;
+export declare function outcomeHasShape(value: unknown): boolean;
+export declare function outcomeIs(value: unknown): value is Outcome;
+type Loose = {
+	kind: "a";
+	when: Date;
+} | {
+	kind: "b";
+	count: number;
+	note?: string;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function looseEncode(value: Loose, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function looseEncodeWithContext(value: Loose, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function looseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Loose;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function looseFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Loose;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function looseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Loose | __mf_PendingRef;
+export declare function looseHasShape(value: unknown): boolean;
+export declare function looseIs(value: unknown): value is Loose;
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 30..120 -> expanded 847..937
+original 120..122 -> expanded 8495..8497
+original 186..272 -> expanded 8497..8583
+original 272..273 -> expanded 16001..16002
+generated 0..847 <- imports
+generated 937..3619 <- Encode
+generated 3619..7911 <- Decode
+generated 7911..8495 <- __convenience_const
+generated 8583..11272 <- Encode
+generated 11272..15447 <- Decode
+generated 15447..16001 <- __convenience_const
+
+## Metadata
+
+type Outcome: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":58,"start":49},"ts_type":"true"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":68,"start":59},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":86,"start":69},"ts_type":"Set<string>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":103,"start":93},"ts_type":"false"},{"decorators":[],"key":"Named","name":"reason","optional":false,"readonly":false,"span":{"end":118,"start":104},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"name":"Outcome","span":{"end":121,"start":32},"type_params":[]}
+type Loose: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":213,"start":203},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":224,"start":214},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":241,"start":231},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":256,"start":242},"ts_type":"number"},{"decorators":[],"key":"Named","name":"note","optional":true,"readonly":false,"span":{"end":270,"start":257},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":187,"start":154}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":153,"start":123}}],"name":"Loose","span":{"end":273,"start":188},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

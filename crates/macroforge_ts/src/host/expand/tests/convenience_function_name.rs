@@ -25,3 +25,25 @@ fn generic_and_plain_functions_are_both_collected() {
         ]
     );
 }
+
+/// A function is found by its whole name, in whatever script it is written
+/// and with a `$` in it.
+#[test]
+fn a_function_named_outside_ascii_is_read_whole() {
+    for (type_name, function) in [
+        ("Ünïcode", "ünïcodeClone"),
+        ("$Dollar", "$dollarClone"),
+        ("_Hidden", "_hiddenClone"),
+    ] {
+        let patch = Patch::Insert {
+            at: SpanIR::new(0, 0),
+            code: format!("export function {function}(value: {type_name}): {type_name} {{}}"),
+            source_macro: None,
+        };
+        assert_eq!(
+            extract_function_names_from_patches(&[patch], type_name),
+            [(function.to_string(), "clone".to_string())],
+            "{type_name}"
+        );
+    }
+}

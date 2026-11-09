@@ -8,7 +8,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNameHashCode(value)` + `static hashCode(value)` | Standalone function + static wrapper method |
+//! | Class | `classNameHashCode(value)` + `static hashCode(value)` | Static method + standalone function that runs it |
 //! | Enum | `enumNameHashCode(value: EnumName): number` | Standalone function hashing by enum value |
 //! | Interface | `interfaceNameHashCode(value: InterfaceName): number` | Standalone function computing hash |
 //! | Type Alias | `typeNameHashCode(value: TypeName): number` | Standalone function computing hash |
@@ -75,26 +75,26 @@
 //!     cachedScore: number;
 //!
 //!     static hashCode(value: User): number {
-//!         return userHashCode(value);
+//!         let hash = 17;
+//!         hash =
+//!             (hash * 31 +
+//!                 (Number.isInteger(value.id)
+//!                     ? value.id | 0
+//!                     : value.id
+//!                           .toString()
+//!                           .split('')
+//!                           .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+//!             0;
+//!         hash =
+//!             (hash * 31 +
+//!                 (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+//!             0;
+//!         return hash;
 //!     }
 //! }
 //!
 //! export function userHashCode(value: User): number {
-//!     let hash = 17;
-//!     hash =
-//!         (hash * 31 +
-//!             (Number.isInteger(value.id)
-//!                 ? value.id | 0
-//!                 : value.id
-//!                       .toString()
-//!                       .split('')
-//!                       .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-//!         0;
-//!     hash =
-//!         (hash * 31 +
-//!             (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-//!         0;
-//!     return hash;
+//!     return User.hashCode(value);
 //! }
 //! ```
 //!

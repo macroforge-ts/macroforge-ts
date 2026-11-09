@@ -28,7 +28,17 @@ use std::{
 ///
 /// The temporary file is created in the destination's own directory so the
 /// final rename stays within one filesystem (a cross-device rename would fail).
+///
+/// A destination that is there and is no file, as `/dev/null`, a pipe or a
+/// terminal, is written through instead: a rename would put a file in its
+/// place, and what reads it reads a stream, which has no half-written state.
 pub(crate) fn write_atomic(path: &Path, contents: &[u8]) -> Result<()> {
+    if let Some(mut stream) = open_stream(path) {
+        return stream
+            .write_all(contents)
+            .with_context(|| format!("failed to write {}", path.display()));
+    }
+
     let parent = path.parent().unwrap_or_else(|| Path::new("."));
     fs::create_dir_all(parent).with_context(|| format!("failed to create {}", parent.display()))?;
 
@@ -61,6 +71,22 @@ pub(crate) fn write_atomic(path: &Path, contents: &[u8]) -> Result<()> {
         .with_context(|| format!("failed to move the temporary file into {}", path.display()))?;
 
     Ok(())
+}
+
+/// `path` opened for writing, when it names a device, a pipe or a terminal.
+///
+/// What the path names may change between being asked and being opened, so
+/// the answer that counts is the opened handle's: a file that took the
+/// stream's place meanwhile is not written through, and goes by the rename.
+fn open_stream(path: &Path) -> Option<fs::File> {
+    let is_stream = |metadata: fs::Metadata| !metadata.is_file() && !metadata.is_dir();
+    // A file is not opened to find out it is one: an open for writing is
+    // seen by what watches it.
+    if !fs::metadata(path).is_ok_and(is_stream) {
+        return None;
+    }
+    let opened = fs::OpenOptions::new().write(true).open(path).ok()?;
+    opened.metadata().is_ok_and(is_stream).then_some(opened)
 }
 
 /// Moves the directory `staging` into place at `dest`, replacing whatever is

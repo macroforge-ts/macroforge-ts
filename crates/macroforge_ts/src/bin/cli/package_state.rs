@@ -20,6 +20,7 @@
 
 use anyhow::{Context, Result};
 use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
+use macroforge_ts::ts_syn::source_path::{TYPESCRIPT_EXTENSIONS, has_extension};
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     fs,
@@ -608,7 +609,7 @@ pub(crate) fn output_fingerprint(output: &Path) -> Result<String> {
 /// file. Tracking the sources the scanner reads closes that gap for the skip
 /// decision; [`PackageState::module_reads`] closes it for the incremental one.
 ///
-/// Mirrors `ScanConfig::default()`: `.ts`/`.tsx` under the project root, minus
+/// Mirrors `ScanConfig::default()`: TypeScript modules under the project root, minus
 /// the usual non-source directories: plus the output directory, which is
 /// otherwise a build's own product feeding back into its next input.
 pub(crate) fn project_hash(root: &Path, output: &Path, hashes: &mut HashCache) -> Result<String> {
@@ -622,7 +623,7 @@ pub(crate) fn project_hash(root: &Path, output: &Path, hashes: &mut HashCache) -
 
     let mut buf = String::new();
     for (rel, path) in files {
-        if !(rel.ends_with(".ts") || rel.ends_with(".tsx")) {
+        if !has_extension(&rel, &TYPESCRIPT_EXTENSIONS) {
             continue;
         }
         // Normalized, so reformatting the project does not force every library

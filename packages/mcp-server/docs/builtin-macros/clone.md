@@ -7,7 +7,7 @@ The `Clone` macro generates a `clone()` method for deep copying objects. This is
 
 | Type       | Generated Code                                  | Description                                                     |
 | ---------- | ----------------------------------------------- | --------------------------------------------------------------- |
-| Class      | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method                     |
+| Class      | `classNameClone(value)` + `static clone(value)` | Static method + standalone function that runs it                |
 | Enum       | `enumNameClone(value): EnumName`                | Standalone function (enums are primitives, returns value as-is) |
 | Interface  | `ifaceNameClone(value): InterfaceName`          | Standalone function creating a new object literal               |
 | Type Alias | `typeNameClone(value): TypeName`                | Standalone function cloning by the alias's shape                |
@@ -46,12 +46,12 @@ class Point {
     y: number;
 
     static clone(value: Point): Point {
-        return pointClone(value);
+        return __mf_instanceWith(value, { x: value.x, y: value.y });
     }
 }
 
 export function pointClone(value: Point): Point {
-    return __mf_instanceWith(value, { x: value.x, y: value.y });
+    return Point.clone(value);
 }
 ```
 

@@ -1,10 +1,10 @@
 use super::*;
 use crate::ts_syn::abi::DiagnosticLevel;
 
-/// The body of the generated function `name`: what follows its last
-/// signature, past any overloads, up to the next exported function.
+/// The body of the generated function `name`, exported or not: what follows
+/// its last signature, past any overloads, up to the next exported function.
 fn function_body<'a>(code: &'a str, name: &str) -> &'a str {
-    code.rsplit_once(&format!("export function {name}("))
+    code.rsplit_once(&format!("function {name}("))
         .and_then(|(_, rest)| rest.split("export function").next())
         .unwrap_or_default()
 }
@@ -298,10 +298,10 @@ class Point {
         result.code
     );
 
-    // Should use direct property access (result.x) not computed (result["x"])
+    // A field is written by its key, which the result's index signature types.
     assert!(
-        result.code.contains("result.x =") || result.code.contains("result.x="),
-        "Should use direct property access for x. Got:\n{}",
+        result.code.contains(r#"result["x"] ="#),
+        "Should write x by its key. Got:\n{}",
         result.code
     );
 
@@ -498,7 +498,7 @@ export interface Crew {
         result.diagnostics
     );
 
-    let crew_encoder = function_body(&result.code, "crewEncodePartialWithContext");
+    let crew_encoder = function_body(&result.code, "crewEncodeFields");
     assert_eq!(
         crew_encoder.matches("memberEncodeWithContext(").count(),
         2,
@@ -512,12 +512,14 @@ export interface Crew {
     );
     for field in ["members", "byName", "stamps"] {
         assert!(
-            crew_encoder.contains(&format!("result.{field} = null;")),
+            crew_encoder.contains(&format!(
+                "result[\"{field}\"] = value.{field} === null ? null : "
+            )),
             "a null {field} should still encode as null. Got:\n{}",
             result.code
         );
         assert!(
-            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            !crew_encoder.contains(&format!("result[\"{field}\"] = value.{field};")),
             "{field} should not be passed through unencoded. Got:\n{}",
             result.code
         );
@@ -530,7 +532,7 @@ export interface Crew {
         result.code
     );
     assert!(
-        crew_decoder.contains("new Date("),
+        crew_decoder.contains("__mf_decodeArray(__raw_stamps, ctx, __mf_decodeDate)"),
         "a nullable array of dates should decode each date. Got:\n{}",
         result.code
     );
@@ -626,7 +628,7 @@ export interface Crew {
         result.diagnostics
     );
 
-    let crew_encoder = function_body(&result.code, "crewEncodePartialWithContext");
+    let crew_encoder = function_body(&result.code, "crewEncodeFields");
     assert_eq!(
         crew_encoder.matches("memberEncodeWithContext(").count(),
         2,
@@ -643,7 +645,7 @@ export interface Crew {
     );
     for field in ["members", "draft"] {
         assert!(
-            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            !crew_encoder.contains(&format!("result[\"{field}\"] = value.{field};")),
             "{field} should not be passed through unencoded. Got:\n{}",
             result.code
         );

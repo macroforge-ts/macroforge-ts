@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,26 +35,20 @@ export function intervalUnitEncode(value: IntervalUnit, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function intervalUnitDecode(input: unknown): { success: true; value: IntervalUnit } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Day':
@@ -97,6 +91,10 @@ export function intervalUnitHasShape(value: unknown): boolean {
 
 export function intervalUnitIs(value: unknown): value is IntervalUnit {
     return intervalUnitHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function intervalUnitFromString(text: string): { success: true; value: IntervalUnit } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => intervalUnitDecode(value));
 }
 
 /** Per-variant error types  */
@@ -265,6 +263,7 @@ export const IntervalUnit: {
   readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
   readonly hasShape: typeof intervalUnitHasShape;
   readonly is: typeof intervalUnitIs;
+  readonly fromString: typeof intervalUnitFromString;
   readonly createForm: typeof intervalUnitCreateForm;
   readonly fromFormData: typeof intervalUnitFromFormData;
 } = {
@@ -275,6 +274,7 @@ export const IntervalUnit: {
   decodeWithContext: intervalUnitDecodeWithContext,
   hasShape: intervalUnitHasShape,
   is: intervalUnitIs,
+  fromString: intervalUnitFromString,
   createForm: intervalUnitCreateForm,
   fromFormData: intervalUnitFromFormData
 };
@@ -288,7 +288,7 @@ export declare function intervalUnitDefaultValue(): IntervalUnit;
 export declare function intervalUnitEncode(value: IntervalUnit, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function intervalUnitDecode(input: unknown): {
 	success: true;
 	value: IntervalUnit;
@@ -303,6 +303,17 @@ export declare function intervalUnitDecode(input: unknown): {
 export declare function intervalUnitDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef;
 export declare function intervalUnitHasShape(value: unknown): boolean;
 export declare function intervalUnitIs(value: unknown): value is IntervalUnit;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function intervalUnitFromString(text: string): {
+	success: true;
+	value: IntervalUnit;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type IntervalUnitDayErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -390,6 +401,7 @@ export declare const IntervalUnit: {
 	readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
 	readonly hasShape: typeof intervalUnitHasShape;
 	readonly is: typeof intervalUnitIs;
+	readonly fromString: typeof intervalUnitFromString;
 	readonly createForm: typeof intervalUnitCreateForm;
 	readonly fromFormData: typeof intervalUnitFromFormData;
 };
@@ -400,15 +412,15 @@ export declare const IntervalUnit: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..185 -> expanded 614..692
-original 185..186 -> expanded 10330..10331
-generated 0..556 <- imports
-generated 692..772 <- Default
-generated 772..2048 <- Encode
-generated 2048..3887 <- Decode
-generated 3887..9464 <- Gigaform
-generated 9464..10330 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..185 -> expanded 769..847
+original 185..186 -> expanded 11037..11038
+generated 0..711 <- imports
+generated 847..927 <- Default
+generated 927..2242 <- Encode
+generated 2242..4502 <- Decode
+generated 4502..10079 <- Gigaform
+generated 10079..11037 <- __convenience_const
 
 ## Metadata
 
@@ -416,7 +428,9 @@ type IntervalUnit: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defau
 
 ## Registry reads
 
+Name("Gigaform")
 Name("IntervalUnit")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

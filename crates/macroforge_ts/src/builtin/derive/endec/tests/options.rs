@@ -34,6 +34,31 @@ fn test_field_rename() {
 }
 
 #[test]
+fn a_word_in_a_value_is_no_option() {
+    let decorator = make_decorator(r#"{ rename: "skip", default: "\"flatten, (default\"" }"#);
+    let opts = EndecFieldOptions::from_decorators(&[decorator], "test_field").options;
+    assert!(!opts.skip);
+    assert!(!opts.flatten);
+    assert_eq!(opts.rename.as_deref(), Some("skip"));
+    assert_eq!(opts.default_expr.as_deref(), Some("\"flatten, (default\""));
+}
+
+#[test]
+fn a_value_of_the_wrong_kind_sets_nothing() {
+    let decorator = make_decorator(r#"{ rename: 5, skip: "yes", flatten: 1 }"#);
+    let opts = EndecFieldOptions::from_decorators(&[decorator], "test_field").options;
+    assert_eq!(opts.rename, None);
+    assert!(!opts.skip);
+    assert!(!opts.flatten);
+
+    let container = make_decorator(r#"{ tag: 5, renameAll: "weird", denyUnknownFields: "yes" }"#);
+    let opts = EndecContainerOptions::from_decorators(&[container]);
+    assert_eq!(opts.tagging, TaggingMode::default());
+    assert_eq!(opts.rename_all, RenameAll::None);
+    assert!(!opts.deny_unknown_fields);
+}
+
+#[test]
 fn test_field_default_flag() {
     let decorator = make_decorator("default");
     let result = EndecFieldOptions::from_decorators(&[decorator], "test_field");
@@ -150,16 +175,6 @@ fn test_container_untagged() {
     assert_eq!(opts.tag_field(), None);
     assert_eq!(opts.tag_field_or_default(), "__type");
     assert_eq!(opts.content_field(), None);
-}
-
-#[test]
-fn test_convert_case_with_angle_brackets() {
-    use convert_case::{Case, Casing};
-    // Generics must be stripped before camelCase conversion since `<>` chars
-    // are not recognized as word boundaries by convert_case.
-    let base = "RecordLink";
-    let fn_name = format!("{}EncodeWithContext", base.to_case(Case::Camel));
-    assert_eq!(fn_name, "recordLinkEncodeWithContext");
 }
 
 #[test]

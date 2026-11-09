@@ -433,9 +433,15 @@ describe('Foreign type import matching', () => {
             { configPath }
         );
 
-        // Falls back to generic handling and leaves the type to tsc.
-        assertNoErrors(result);
-        assertSkipsHandlers(result.code, '__foreign__', '#macroforge/config');
+        // Not the configured `DateTime`: a type no coder reads, which is refused.
+        const errors = (result.diagnostics ?? []).filter((d) => d.level === 'error');
+        assert.equal(errors.length, 1, JSON.stringify(result.diagnostics));
+        assert.ok(
+            errors[0].message.includes('`DateTime.DateTime` is a type no coder reads'),
+            errors[0].message
+        );
+        assert.ok(errors[0].message.includes('foreignTypes'), errors[0].message);
+        assertSkipsHandlers(result.code ?? '', '__foreign__', '#macroforge/config');
     });
 
     test('does not match local types with same name as foreign type', () => {
@@ -1071,6 +1077,16 @@ describe('Foreign types in union type alias decoding', () => {
       import type { DateTime } from 'effect';
 
       /** @derive(Decode) */
+      interface SuccessData {
+        value: number;
+      }
+
+      /** @derive(Decode) */
+      interface FailureData {
+        reason: string;
+      }
+
+      /** @derive(Decode) */
       type EventPayload = SuccessData | FailureData | DateTime.DateTime;
     `,
             'test.ts',
@@ -1114,6 +1130,11 @@ describe('Foreign types in union type alias decoding', () => {
         const result = expandSync(
             `
       import type { DateTime } from 'effect';
+
+      /** @derive(Decode) */
+      interface RegularType {
+        name: string;
+      }
 
       /** @derive(Decode) */
       type Value = DateTime.DateTime | RegularType;

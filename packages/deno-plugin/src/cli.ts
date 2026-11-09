@@ -24,13 +24,16 @@ interface CliOptions {
 function printEvent(event: ExpandFileEvent, root: string) {
     const rel = path.relative(root, event.source);
     if (event.skipped) return;
-    if (event.expanded) {
+    if (event.failed) {
+        console.error(`  failed    ${rel}`);
+    } else if (event.expanded) {
         console.log(`  expanded  ${rel}`);
     } else {
         console.log(`  unchanged ${rel}`);
     }
     for (const diag of event.diagnostics) {
-        console.warn(`    ${diag.level}: ${diag.message}`);
+        const report = diag.level === 'error' ? console.error : console.warn;
+        report(`    ${diag.level}: ${diag.message}`);
     }
 }
 
@@ -62,12 +65,17 @@ async function runExpand(opts: CliOptions) {
     });
     const expanded = events.filter((event) => event.expanded).length;
     const skipped = events.filter((event) => event.skipped).length;
+    const failed = events.filter((event) => event.failed).length;
     const elapsed = (performance.now() - start).toFixed(0);
     console.log(
-        `[@macroforge/deno-plugin] done in ${elapsed}ms — ${expanded} expanded, ${
-            events.length - expanded - skipped
-        } unchanged, ${skipped} skipped`
+        `[@macroforge/deno-plugin] done in ${elapsed}ms: ${expanded} expanded, ${
+            events.length - expanded - skipped - failed
+        } unchanged, ${skipped} skipped, ${failed} failed`
     );
+    // A file with a macro error was not written: the mirror is incomplete.
+    if (failed > 0) {
+        Deno.exit(1);
+    }
 }
 
 async function runWatch(opts: CliOptions) {

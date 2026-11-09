@@ -1,0 +1,83 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_untyped_field.ts
+---
+## Input
+
+declare function makeTags(): string[];
+
+/** @derive(Encode, Decode) */
+class Loose {
+    count = 0;
+    tags = makeTags();
+    items = [];
+    /** @endec({ skip: true }) */
+    scratch = makeTags();
+    /** @endec({ encodeWith: (tags: string[]) => tags.join(','), decodeWith: (raw: unknown) => String(raw).split(',') }) */
+    joined = makeTags();
+
+    constructor(public bag = {}) {}
+}
+
+## Changed
+
+true
+
+## Output
+
+declare function makeTags(): string[];
+
+
+class Loose {
+    count = 0;
+    tags = makeTags();
+    items = [];
+    
+    scratch = makeTags();
+    
+    joined = makeTags();
+
+    constructor(public bag = {}) {}
+}
+
+## DTS
+
+declare function makeTags(): string[];
+declare class Loose {
+	bag: {};
+	count: number;
+	tags;
+	items: unknown;
+	scratch;
+	joined;
+	constructor(bag?: {});
+}
+
+## Diagnostics
+
+Error [105..123]: @derive(Encode): field 'tags' has no type annotation, and its initializer does not say its type without the type checker; write the type (`tags: ...`), or code it with `@endec({ encodeWith: ... })`
+Error [128..139]: @derive(Encode): field 'items' has no type annotation, and its initializer does not say its type without the type checker; write the type (`items: ...`), or code it with `@endec({ encodeWith: ... })`
+Error [366..381]: @derive(Encode): field 'bag' has no type annotation, and its initializer does not say its type without the type checker; write the type (`bag: ...`), or code it with `@endec({ encodeWith: ... })`
+Error [105..123]: @derive(Decode): field 'tags' has no type annotation, and its initializer does not say its type without the type checker; write the type (`tags: ...`), or code it with `@endec({ decodeWith: ... })`
+Error [128..139]: @derive(Decode): field 'items' has no type annotation, and its initializer does not say its type without the type checker; write the type (`items: ...`), or code it with `@endec({ decodeWith: ... })`
+Error [366..381]: @derive(Decode): field 'bag' has no type annotation, and its initializer does not say its type without the type checker; write the type (`bag: ...`), or code it with `@endec({ decodeWith: ... })`
+
+## Mapping
+
+original 0..40 -> expanded 0..40
+original 70..143 -> expanded 40..113
+original 172..203 -> expanded 113..144
+original 322..387 -> expanded 144..209
+
+## Metadata
+
+class Loose: {"body_span":{"end":387,"start":84},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":71,"start":41}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":100,"start":90},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"makeTags()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":123,"start":105},"ts_type":"any","untyped":true,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":139,"start":128},"ts_type":"any","untyped":true,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":173,"start":144}}],"initializer":"makeTags()","key":"Named","name":"scratch","optional":false,"readonly":false,"span":{"end":199,"start":178},"ts_type":"any","untyped":true,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ encodeWith: (tags: string[]) => tags.join(','), decodeWith: (raw: unknown) => String(raw).split(',') }","name":"endec","span":{"end":323,"start":204}}],"initializer":"makeTags()","key":"Named","name":"joined","optional":false,"readonly":false,"span":{"end":348,"start":328},"ts_type":"any","untyped":true,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"{}","key":"Named","name":"bag","optional":false,"readonly":false,"span":{"end":381,"start":366},"ts_type":"any","untyped":true,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":385,"start":383},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public bag = {}","return_type_src":"","span":{"end":385,"start":354},"type_params":[],"visibility":"Public"}],"name":"Loose","span":{"end":387,"start":72},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

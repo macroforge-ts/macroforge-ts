@@ -114,9 +114,12 @@ export function createExpandOptions(macros) {
   return options;
 }
 
+// A TypeScript module that holds code, as the engine's `source_path` reads it.
 export function isMacroSourceFile(fileName) {
-  return (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) &&
-    !fileName.endsWith(".d.ts");
+  return [".ts", ".tsx", ".mts", ".cts"].some((extension) =>
+    fileName.endsWith(extension)
+  ) &&
+    ![".d.ts", ".d.mts", ".d.cts"].some((ending) => fileName.endsWith(ending));
 }
 
 /**

@@ -8,6 +8,7 @@
     },
     "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
     "devDependencies": {
+        "@jridgewell/trace-mapping": "^0.3.31",
         "@types/node": "^26.6.2",
         "svelte": "^5.57.1",
         "typescript": "^6.0.3"

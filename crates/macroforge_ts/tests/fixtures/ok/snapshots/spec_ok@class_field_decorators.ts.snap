@@ -30,6 +30,7 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -49,15 +50,17 @@ class ValidationExample {
     }
 
     static toString(value: ValidationExample): string {
-        return validationExampleToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("userId: " + String(value.id));
+        parts.push("name: " + String(value.name));
+            return "ValidationExample { " + parts.join(", ") + " }";
+        });
     }
 }
 
 export function validationExampleToString(value: ValidationExample): string {
-    const parts: string[] = [];
-    parts.push("userId: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    return "ValidationExample { " + parts.join(", ") + " }";
+    return ValidationExample.toString(value);
 }
 
 ## DTS
@@ -78,18 +81,19 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 62..93 -> expanded 41..72
-original 128..169 -> expanded 72..113
-original 198..390 -> expanded 113..305
-original 390..391 -> expanded 417..418
-original 391..392 -> expanded 686..687
-generated 305..417 <- Debug
-generated 418..686 <- Debug
+original 0..41 -> expanded 85..126
+original 62..93 -> expanded 126..157
+original 128..169 -> expanded 157..198
+original 198..390 -> expanded 198..390
+original 390..391 -> expanded 726..727
+original 391..392 -> expanded 854..855
+generated 0..85 <- imports
+generated 390..726 <- Debug
+generated 727..854 <- Debug
 
 ## Metadata
 
-class ValidationExample: {"body_span":{"end":392,"start":88},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":129,"start":94}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":145,"start":134},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":164,"start":151},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":199,"start":170}}],"initializer":null,"name":"internalFlag","optional":false,"readonly":false,"span":{"end":226,"start":204},"ts_type":"boolean","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":390,"start":293},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.internalFlag = internalFlag;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, internalFlag: boolean","return_type_src":"","span":{"end":390,"start":232},"type_params":[],"visibility":"Public"}],"name":"ValidationExample","span":{"end":392,"start":64},"type_params":[]}
+class ValidationExample: {"body_span":{"end":392,"start":88},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":129,"start":94}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":145,"start":134},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":164,"start":151},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":199,"start":170}}],"initializer":null,"key":"Named","name":"internalFlag","optional":false,"readonly":false,"span":{"end":226,"start":204},"ts_type":"boolean","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":390,"start":293},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.internalFlag = internalFlag;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, internalFlag: boolean","return_type_src":"","span":{"end":390,"start":232},"type_params":[],"visibility":"Public"}],"name":"ValidationExample","span":{"end":392,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

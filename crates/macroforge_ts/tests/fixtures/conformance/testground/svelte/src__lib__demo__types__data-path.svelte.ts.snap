@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -41,51 +41,50 @@ export function dataPathEncode(value: DataPath, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return dataPathEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "DataPath",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("path")) {
-
-        if (value.path !== undefined) {
-            result.path = value.path;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("formatter")) {
-        if (value.formatter !== undefined) {
-
-            result.formatter = value.formatter;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DataPath" });
+    dataPathEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DataPath" };
+        dataPathEncodeFields(value as DataPath, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function dataPathEncodeFields(value: DataPath, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("path")) {
+                if (value.path !== undefined) {
+                    result["path"] = value.path;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("formatter")) {
+                if (value.formatter !== undefined) {
+                    result["formatter"] = value.formatter;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = dataPathDecodeWithContext(data, ctx);
+        const resultOrRef = dataPathDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -131,6 +130,10 @@ export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function dataPathFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => dataPathDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -143,47 +146,71 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DataPath.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DataPath | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DataPath") as DataPath | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "DataPath.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
-        errors.push({ field: "path", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("formatter")) && !("formatter" in obj)) {
-        errors.push({ field: "formatter", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["path", "path"], ["formatter", "formatter"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "path"?: Array<string> | undefined; "formatter"?: string | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DataPath");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("path")) || (__fields.keeps("path") && obj["path"] !== undefined)) {
-        const __raw_path = obj["path"] as Array<string>;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
+                const __raw_path = obj["path"] as Array<string>;
+                if (Array.isArray(__raw_path)) {
+                    ctx.pushScope("path");
+                    try {
+                        instance.path = __mf_decodeArray(__raw_path, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "path" : "path." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("formatter")) ? "formatter" in obj : (__fields.keeps("formatter") && obj["formatter"] !== undefined)) {
+                const __raw_formatter = obj["formatter"] as string | null;
 
-        if (Array.isArray(__raw_path)) {
-            instance.path = __raw_path as string[];
-        } else {
-            errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("formatter")) || (__fields.keeps("formatter") && obj["formatter"] !== undefined)) {
-        const __raw_formatter = obj["formatter"] as string | null;
-
-        if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
-            errors.push({ field: "formatter", message: "expected string | null" });
-        } else {
-            instance.formatter = __raw_formatter;
-        }
+                if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
+                    errors.push({ field: "formatter", message: "expected string | null" });
+                } else {
+                    instance.formatter = __raw_formatter;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -208,8 +235,7 @@ export function dataPathHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "path" in o && "formatter" in o;
+    return __mf_holdsAll(obj, ["path", "formatter"]);
 }
 
 export function dataPathIs(obj: unknown): obj is DataPath {
@@ -359,6 +385,7 @@ export const DataPath: {
   readonly encodeWithContext: typeof dataPathEncodeWithContext;
   readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
   readonly decode: typeof dataPathDecode;
+  readonly fromString: typeof dataPathFromString;
   readonly decodeWithContext: typeof dataPathDecodeWithContext;
   readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
   readonly validateField: typeof dataPathValidateField;
@@ -373,6 +400,7 @@ export const DataPath: {
   encodeWithContext: dataPathEncodeWithContext,
   encodePartialWithContext: dataPathEncodePartialWithContext,
   decode: dataPathDecode,
+  fromString: dataPathFromString,
   decodeWithContext: dataPathDecodeWithContext,
   decodePartialWithContext: dataPathDecodePartialWithContext,
   validateField: dataPathValidateField,
@@ -395,10 +423,21 @@ export declare function dataPathDefaultValue(): DataPath;
 export declare function dataPathEncode(value: DataPath, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DataPath;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function dataPathFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DataPath;
 } | {
@@ -465,6 +504,7 @@ export declare const DataPath: {
 	readonly encodeWithContext: typeof dataPathEncodeWithContext;
 	readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
 	readonly decode: typeof dataPathDecode;
+	readonly fromString: typeof dataPathFromString;
 	readonly decodeWithContext: typeof dataPathDecodeWithContext;
 	readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
 	readonly validateField: typeof dataPathValidateField;
@@ -481,24 +521,26 @@ export declare const DataPath: {
 
 ## Mapping
 
-original 0..58 -> expanded 664..722
-original 107..192 -> expanded 722..807
-original 192..193 -> expanded 15184..15185
-generated 0..664 <- imports
-generated 807..924 <- Default
-generated 924..2900 <- Encode
-generated 2900..8847 <- Decode
-generated 8847..13918 <- Gigaform
-generated 13918..15184 <- __convenience_const
+original 0..58 -> expanded 936..994
+original 107..192 -> expanded 994..1079
+original 192..193 -> expanded 17483..17484
+generated 0..936 <- imports
+generated 1079..1196 <- Default
+generated 1196..3696 <- Encode
+generated 3696..11062 <- Decode
+generated 11062..16133 <- Gigaform
+generated 16133..17483 <- __convenience_const
 
 ## Metadata
 
-interface DataPath: {"body_span":{"end":193,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"path","optional":false,"readonly":false,"span":{"end":161,"start":141},"ts_type":"Array<string>"},{"decorators":[],"name":"formatter","optional":false,"readonly":false,"span":{"end":191,"start":166},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DataPath","span":{"end":193,"start":116},"type_params":[]}
+interface DataPath: {"body_span":{"end":193,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":161,"start":141},"ts_type":"Array<string>"},{"decorators":[],"key":"Named","name":"formatter","optional":false,"readonly":false,"span":{"end":191,"start":166},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DataPath","span":{"end":193,"start":116},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

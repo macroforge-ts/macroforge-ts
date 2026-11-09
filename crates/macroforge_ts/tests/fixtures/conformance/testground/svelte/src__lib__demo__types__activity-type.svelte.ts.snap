@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { commentedDecodeWithContext, commentedHasShape, commentedDefaultValue } from "./commented.svelte";
-import { createdDecodeWithContext, createdHasShape, createdDefaultValue } from "./created.svelte";
-import { editedDecodeWithContext, editedHasShape, editedDefaultValue } from "./edited.svelte";
-import { paidDecodeWithContext, paidHasShape, paidDefaultValue } from "./paid.svelte";
-import { sentDecodeWithContext, sentHasShape, sentDefaultValue } from "./sent.svelte";
-import { viewedDecodeWithContext, viewedHasShape, viewedDefaultValue } from "./viewed.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { commentedDecodeWithContext, commentedHasShape, commentedEncodeWithContext, commentedDefaultValue } from "./commented.svelte";
+import { createdDecodeWithContext, createdHasShape, createdEncodeWithContext, createdDefaultValue } from "./created.svelte";
+import { editedDecodeWithContext, editedHasShape, editedEncodeWithContext, editedDefaultValue } from "./edited.svelte";
+import { paidDecodeWithContext, paidHasShape, paidEncodeWithContext, paidDefaultValue } from "./paid.svelte";
+import { sentDecodeWithContext, sentHasShape, sentEncodeWithContext, sentDefaultValue } from "./sent.svelte";
+import { viewedDecodeWithContext, viewedHasShape, viewedEncodeWithContext, viewedDefaultValue } from "./viewed.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,32 +54,38 @@ export function activityTypeEncode(value: ActivityType, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: ActivityType): member is Created => __mf_member(member, "__type") === "Created", (member) => createdEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Edited => __mf_member(member, "__type") === "Edited", (member) => editedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Sent => __mf_member(member, "__type") === "Sent", (member) => sentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Viewed => __mf_member(member, "__type") === "Viewed", (member) => viewedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Commented => __mf_member(member, "__type") === "Commented", (member) => commentedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Paid => __mf_member(member, "__type") === "Paid", (member) => paidEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Created => typeof member === "object" && member !== null && !Array.isArray(member) && "initialData" in member, (member) => createdEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Edited => typeof member === "object" && member !== null && !Array.isArray(member) && "fieldName" in member && "oldValue" in member && "newValue" in member, (member) => editedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Sent => typeof member === "object" && member !== null && !Array.isArray(member) && "recipient" in member && "method" in member, (member) => sentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Viewed => typeof member === "object" && member !== null && !Array.isArray(member) && "durationSeconds" in member && "source" in member, (member) => viewedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Commented => typeof member === "object" && member !== null && !Array.isArray(member) && "comment" in member && "replyTo" in member, (member) => commentedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Paid => typeof member === "object" && member !== null && !Array.isArray(member) && "amount" in member && "currency" in member && "paymentMethod" in member, (member) => paidEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = activityTypeDecodeWithContext(data, ctx);
+        const resultOrRef = activityTypeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -125,6 +131,10 @@ export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function activityTypeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => activityTypeDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ActivityType | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -137,7 +147,7 @@ export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Created") {
                 return createdDecodeWithContext(value, ctx) as ActivityType;
@@ -240,23 +250,21 @@ export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 export function activityTypeHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid";
                     }
                 }
-
-                let __matchCount = 0;
-                if (createdHasShape(value)) __matchCount++;
-                if (editedHasShape(value)) __matchCount++;
-                if (sentHasShape(value)) __matchCount++;
-                if (viewedHasShape(value)) __matchCount++;
-                if (commentedHasShape(value)) __matchCount++;
-                if (paidHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (createdHasShape(value)) return true;
+                if (editedHasShape(value)) return true;
+                if (sentHasShape(value)) return true;
+                if (viewedHasShape(value)) return true;
+                if (commentedHasShape(value)) return true;
+                if (paidHasShape(value)) return true;
+                return false;
 }
 export function activityTypeIs(value: unknown): value is ActivityType {
-    return activityTypeHasShape(value);
+    return activityTypeHasShape(value) && activityTypeDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -454,6 +462,7 @@ export const ActivityType: {
   readonly encode: typeof activityTypeEncode;
   readonly encodeWithContext: typeof activityTypeEncodeWithContext;
   readonly decode: typeof activityTypeDecode;
+  readonly fromString: typeof activityTypeFromString;
   readonly decodeWithContext: typeof activityTypeDecodeWithContext;
   readonly hasShape: typeof activityTypeHasShape;
   readonly is: typeof activityTypeIs;
@@ -464,6 +473,7 @@ export const ActivityType: {
   encode: activityTypeEncode,
   encodeWithContext: activityTypeEncodeWithContext,
   decode: activityTypeDecode,
+  fromString: activityTypeFromString,
   decodeWithContext: activityTypeDecodeWithContext,
   hasShape: activityTypeHasShape,
   is: activityTypeIs,
@@ -486,8 +496,19 @@ export declare function activityTypeDefaultValue(): ActivityType;
 export declare function activityTypeEncode(value: ActivityType, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ActivityType;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function activityTypeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ActivityType;
 } | {
@@ -609,6 +630,7 @@ export declare const ActivityType: {
 	readonly encode: typeof activityTypeEncode;
 	readonly encodeWithContext: typeof activityTypeEncodeWithContext;
 	readonly decode: typeof activityTypeDecode;
+	readonly fromString: typeof activityTypeFromString;
 	readonly decodeWithContext: typeof activityTypeDecodeWithContext;
 	readonly hasShape: typeof activityTypeHasShape;
 	readonly is: typeof activityTypeIs;
@@ -622,15 +644,15 @@ export declare const ActivityType: {
 
 ## Mapping
 
-original 0..341 -> expanded 1126..1467
-original 390..512 -> expanded 1467..1589
-original 512..513 -> expanded 18140..18141
-generated 0..1126 <- imports
-generated 1589..1685 <- Default
-generated 1685..2961 <- Encode
-generated 2961..10202 <- Decode
-generated 10202..17274 <- Gigaform
-generated 17274..18140 <- __convenience_const
+original 0..341 -> expanded 1431..1772
+original 390..512 -> expanded 1772..1894
+original 512..513 -> expanded 21488..21489
+generated 0..1431 <- imports
+generated 1894..1990 <- Default
+generated 1990..5798 <- Encode
+generated 5798..13458 <- Decode
+generated 13458..20530 <- Gigaform
+generated 20530..21488 <- __convenience_const
 
 ## Metadata
 
@@ -642,9 +664,11 @@ Name("ActivityType")
 Name("Commented")
 Name("Created")
 Name("Edited")
+Name("Gigaform")
 Name("Paid")
 Name("Sent")
 Name("Viewed")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

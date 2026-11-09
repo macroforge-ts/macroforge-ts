@@ -13,8 +13,8 @@ true
 ## Output
 
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
  * A generic alias over a foreign type, declared apart from the types that use
@@ -32,40 +32,32 @@ export function stampedDefaultValue<T>(): Stamped<T> {
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean): string {
+export function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = stampedEncodeWithContext(value, ctx);
+    const __raw = stampedEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
+export function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Stamped<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Stamped<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" && !__foreign__dateTimeDateTimeHasShape(input) ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = stampedDecodeWithContext<T>(data, ctx);
+        const resultOrRef = stampedDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -111,8 +103,12 @@ export function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function stampedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Stamped<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => stampedDecode<T>(value, opts, __decodeT));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Stamped<T> | __mf_PendingRef {
+export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Stamped<T> | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Stamped.decodeWithContext: __ref must be a number" }]);
@@ -123,53 +119,26 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "DateTime.DateTime") {
                 return __foreign__dateTimeDateTimeDecode(value) as Stamped<T>;
             }
-        } else {
-
-            const __shapeMatches: Array<string> = [];
-            if (__shapeMatches.length === 1) {
-            }
-        }
-    } else {
-
-        const __shapeMatches: Array<string> = [];
-        if (__shapeMatches.length === 1) {
         }
     }
     if (__foreign__dateTimeDateTimeHasShape(value)) {
         return __foreign__dateTimeDateTimeDecode(value) as Stamped<T>;
     }
+    if (__decodeT !== undefined && value !== null && value !== undefined) {
+        return __decodeT(value, ctx) as Stamped<T> | __mf_PendingRef;
+    }
     return value as Stamped<T>;
-
-    throw new __mf_DecodeError([{
-        field: "_root",
-        message: "Stamped.decodeWithContext: value does not match any union member"
-    }]);
 }
-export function stampedHasShape(value: unknown): boolean {
-
-                if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
-                    if (typeof __typeName === "string") {
-                        if (__typeName === "DateTime.DateTime") return true;
-                    } else {
-                        let __matchCount = 0;
-                        if (__matchCount === 1) return true;
-                    }
-                } else {
-
-                    let __matchCount = 0;
-                    if (__matchCount === 1) return true;
-                }
-                if (__foreign__dateTimeDateTimeHasShape(value)) return true;
+export function stampedHasShape(_value: unknown): boolean {
                 return true;
 }
-export function stampedIs<T>(value: unknown): value is Stamped<T> {
-    return stampedHasShape(value);
+export function stampedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stamped<T> {
+    return stampedHasShape(value) && stampedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Stamped: {
@@ -177,6 +146,7 @@ export const Stamped: {
   readonly encode: typeof stampedEncode;
   readonly encodeWithContext: typeof stampedEncodeWithContext;
   readonly decode: typeof stampedDecode;
+  readonly fromString: typeof stampedFromString;
   readonly decodeWithContext: typeof stampedDecodeWithContext;
   readonly hasShape: typeof stampedHasShape;
   readonly is: typeof stampedIs;
@@ -185,6 +155,7 @@ export const Stamped: {
   encode: stampedEncode,
   encodeWithContext: stampedEncodeWithContext,
   decode: stampedDecode,
+  fromString: stampedFromString,
   decodeWithContext: stampedDecodeWithContext,
   hasShape: stampedHasShape,
   is: stampedIs
@@ -209,13 +180,11 @@ export function slugEncodeWithContext(value: Slug): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function slugDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Slug } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = slugDecodeWithContext(data, ctx);
+        const result = slugDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -253,7 +222,7 @@ export function slugDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function slugDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Slug {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Slug.decodeWithContext: expected string" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -269,6 +238,10 @@ export function slugHasShape(value: unknown): boolean {
 export function slugIs(value: unknown): value is Slug {
     return typeof value === "string" && slugDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function slugFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Slug } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => slugDecode(value, opts));
+}
 
 export const Slug: {
   readonly defaultValue: typeof slugDefaultValue;
@@ -278,6 +251,7 @@ export const Slug: {
   readonly decodeWithContext: typeof slugDecodeWithContext;
   readonly hasShape: typeof slugHasShape;
   readonly is: typeof slugIs;
+  readonly fromString: typeof slugFromString;
 } = {
   defaultValue: slugDefaultValue,
   encode: slugEncode,
@@ -285,7 +259,8 @@ export const Slug: {
   decode: slugDecode,
   decodeWithContext: slugDecodeWithContext,
   hasShape: slugHasShape,
-  is: slugIs
+  is: slugIs,
+  fromString: slugFromString
 };
 
 ## DTS
@@ -300,11 +275,22 @@ import { DateTime } from "effect";
 export type Stamped<T> = DateTime.DateTime | T;
 export declare function stampedDefaultValue<T>(): Stamped<T>;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean): string;
+export declare function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Stamped<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function stampedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Stamped<T>;
 } | {
@@ -315,14 +301,15 @@ export declare function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptio
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Stamped<T> | __mf_PendingRef;
-export declare function stampedHasShape(value: unknown): boolean;
-export declare function stampedIs<T>(value: unknown): value is Stamped<T>;
+export declare function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Stamped<T> | __mf_PendingRef;
+export declare function stampedHasShape(_value: unknown): boolean;
+export declare function stampedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stamped<T>;
 export declare const Stamped: {
 	readonly defaultValue: typeof stampedDefaultValue;
 	readonly encode: typeof stampedEncode;
 	readonly encodeWithContext: typeof stampedEncodeWithContext;
 	readonly decode: typeof stampedDecode;
+	readonly fromString: typeof stampedFromString;
 	readonly decodeWithContext: typeof stampedDecodeWithContext;
 	readonly hasShape: typeof stampedHasShape;
 	readonly is: typeof stampedIs;
@@ -335,7 +322,7 @@ export declare function slugDefaultValue(): Slug;
 export declare function slugEncode(value: Slug, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function slugEncodeWithContext(value: Slug, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function slugDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Slug;
@@ -350,6 +337,17 @@ export declare function slugDecode(input: unknown, opts?: __mf_DecodeOptions): {
 export declare function slugDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Slug;
 export declare function slugHasShape(value: unknown): boolean;
 export declare function slugIs(value: unknown): value is Slug;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function slugFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Slug;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const Slug: {
 	readonly defaultValue: typeof slugDefaultValue;
 	readonly encode: typeof slugEncode;
@@ -358,6 +356,7 @@ export declare const Slug: {
 	readonly decodeWithContext: typeof slugDecodeWithContext;
 	readonly hasShape: typeof slugHasShape;
 	readonly is: typeof slugIs;
+	readonly fromString: typeof slugFromString;
 };
 export {};
 
@@ -367,23 +366,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 587..838
-original 290..354 -> expanded 838..902
-original 354..356 -> expanded 6614..6616
-original 447..467 -> expanded 6616..6636
-original 483..484 -> expanded 6680..6681
-original 484..485 -> expanded 9945..9946
-generated 0..542 <- imports
-generated 542..587 <- $Newtype
-generated 902..1009 <- Default
-generated 1009..2272 <- Encode
-generated 2272..6015 <- Decode
-generated 6015..6614 <- __convenience_const
-generated 6636..6680 <- $Newtype
-generated 6681..6758 <- Default
-generated 6758..7450 <- Encode
-generated 7450..9391 <- Decode
-generated 9391..9945 <- __convenience_const
+original 0..251 -> expanded 831..1082
+original 290..354 -> expanded 1082..1146
+original 354..356 -> expanded 6771..6773
+original 447..467 -> expanded 6773..6793
+original 483..484 -> expanded 6837..6838
+original 484..485 -> expanded 10648..10649
+generated 0..786 <- imports
+generated 786..831 <- $Newtype
+generated 1146..1253 <- Default
+generated 1253..2624 <- Encode
+generated 2624..6090 <- Decode
+generated 6090..6771 <- __convenience_const
+generated 6793..6837 <- $Newtype
+generated 6838..6915 <- Default
+generated 6915..7607 <- Encode
+generated 7607..10018 <- Decode
+generated 10018..10648 <- __convenience_const
 
 ## Metadata
 
@@ -392,11 +391,13 @@ type Slug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"u
 
 ## Registry reads
 
+Name("DateTime")
 Name("DateTime.DateTime")
 Name("Slug")
 Name("Stamped")
 Name("T")
 Name("string")
+ExportedAs("DateTime")
 
 ## Buildtime dependencies
 

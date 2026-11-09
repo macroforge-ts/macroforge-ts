@@ -1,6 +1,6 @@
 //! Per-file scan cache with mtime+size invalidation.
 //!
-//! A scan lowers every `.ts/.tsx` file in the project. The cache keeps what
+//! A scan lowers every TypeScript module in the project. The cache keeps what
 //! each file lowered to, keyed on its absolute path and `(mtime_ns, size)`,
 //! so a rescan only parses the files that moved on disk.
 //!
@@ -22,10 +22,10 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::host::declarative::ProjectDeclarativeRegistry;
 use crate::host::declarative::project_registry::FileMacros;
-use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, ModuleReExport};
 use crate::ts_syn::abi::ir::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR};
 
-/// Everything the scanner produces for a single `.ts/.tsx` file, plus the
+/// Everything the scanner produces for a single TypeScript module, plus the
 /// `(mtime_ns, size)` tuple used to decide whether the entry is still current.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CacheEntry {
@@ -56,6 +56,11 @@ pub struct CacheEntry {
     /// Names exported from the file, used by the scanner's `exported_only`
     /// filter.
     pub exported_names: HashSet<String>,
+    /// The other names the file exports its declarations under, each as the
+    /// declared name and the exported one.
+    pub export_aliases: Vec<(String, String)>,
+    /// What the file exports again from other modules.
+    pub re_exports: Vec<ModuleReExport>,
     /// Whether the file contains anything the engine expands.
     pub uses_macros: bool,
 }
@@ -261,6 +266,8 @@ mod tests {
             declarative_macros: Arc::default(),
             file_imports: Vec::new(),
             exported_names: HashSet::new(),
+            export_aliases: Vec::new(),
+            re_exports: Vec::new(),
             uses_macros: false,
         })
     }

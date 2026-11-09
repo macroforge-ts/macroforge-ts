@@ -20,8 +20,8 @@ true
 
 ## Output
 
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type ContactInfo = {
     /** @endec(email) */
@@ -31,14 +31,11 @@ type ContactInfo = {
     address: string;
 };
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = contactInfoDecodeWithContext(data, ctx);
+        const resultOrRef = contactInfoDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -84,6 +81,10 @@ export function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function contactInfoFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => contactInfoDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ContactInfo | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -96,54 +97,63 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ContactInfo.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ContactInfo | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ContactInfo") as ContactInfo | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ContactInfo.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("primaryEmail")) && !("primaryEmail" in obj)) {
-        errors.push({ field: "primaryEmail", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("address")) && !("address" in obj)) {
-        errors.push({ field: "address", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["primaryEmail", "primaryEmail"], ["address", "address"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "primaryEmail"?: string | undefined; "address"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ContactInfo");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("primaryEmail")) || (__fields.keeps("primaryEmail") && obj["primaryEmail"] !== undefined)) {
-        const __raw_primaryEmail = obj["primaryEmail"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("primaryEmail")) ? "primaryEmail" in obj : (__fields.keeps("primaryEmail") && obj["primaryEmail"] !== undefined)) {
+                const __raw_primaryEmail = obj["primaryEmail"] as string;
 
-        if (!(typeof __raw_primaryEmail === "string")) {
-            errors.push({ field: "primaryEmail", message: __raw_primaryEmail == null ? "ContactInfo.primaryEmail is required" : "expected string" });
-        } else {
-            if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                if (!(typeof __raw_primaryEmail === "string")) {
+                    errors.push({ field: "primaryEmail", message: __raw_primaryEmail == null ? "ContactInfo.primaryEmail is required" : "expected string" });
+                } else {
+                    if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                    }
+                    instance.primaryEmail = __raw_primaryEmail;
+                }
             }
-            instance.primaryEmail = __raw_primaryEmail;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("address")) || (__fields.keeps("address") && obj["address"] !== undefined)) {
-        const __raw_address = obj["address"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("address")) ? "address" in obj : (__fields.keeps("address") && obj["address"] !== undefined)) {
+                const __raw_address = obj["address"] as string;
 
-        if (!(typeof __raw_address === "string")) {
-            errors.push({ field: "address", message: __raw_address == null ? "ContactInfo.address is required" : "expected string" });
-        } else {
-            if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
-                if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                if (!(typeof __raw_address === "string")) {
+                    errors.push({ field: "address", message: __raw_address == null ? "ContactInfo.address is required" : "expected string" });
+                } else {
+                    if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+                        if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                        if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                    }
+                    instance.address = __raw_address;
+                }
             }
-            instance.address = __raw_address;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -194,8 +204,7 @@ export function contactInfoHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "primaryEmail" in o && "address" in o;
+    return __mf_holdsAll(obj, ["primaryEmail", "address"]);
 }
 
 export function contactInfoIs(obj: unknown): obj is ContactInfo {
@@ -204,6 +213,7 @@ export function contactInfoIs(obj: unknown): obj is ContactInfo {
 
 const ContactInfo: {
   readonly decode: typeof contactInfoDecode;
+  readonly fromString: typeof contactInfoFromString;
   readonly decodeWithContext: typeof contactInfoDecodeWithContext;
   readonly decodePartialWithContext: typeof contactInfoDecodePartialWithContext;
   readonly validateField: typeof contactInfoValidateField;
@@ -212,6 +222,7 @@ const ContactInfo: {
   readonly is: typeof contactInfoIs;
 } = {
   decode: contactInfoDecode,
+  fromString: contactInfoFromString,
   decodeWithContext: contactInfoDecodeWithContext,
   decodePartialWithContext: contactInfoDecodePartialWithContext,
   validateField: contactInfoValidateField,
@@ -228,8 +239,19 @@ type ContactInfo = {
 	/** @endec(minLength(1), maxLength(100)) */
 	address: string;
 };
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ContactInfo;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function contactInfoFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ContactInfo;
 } | {
@@ -263,15 +285,15 @@ export {};
 
 ## Mapping
 
-original 22..167 -> expanded 350..495
-original 167..168 -> expanded 9909..9910
-generated 0..350 <- imports
-generated 495..9193 <- Decode
-generated 9193..9909 <- __convenience_const
+original 22..167 -> expanded 441..586
+original 167..168 -> expanded 10845..10846
+generated 0..441 <- imports
+generated 586..10039 <- Decode
+generated 10039..10845 <- __convenience_const
 
 ## Metadata
 
-type ContactInfo: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":69,"start":49}}],"name":"primaryEmail","optional":false,"readonly":false,"span":{"end":95,"start":74},"ts_type":"string"},{"decorators":[{"args_src":"minLength(1), maxLength(100)","name":"endec","span":{"end":144,"start":101}}],"name":"address","optional":false,"readonly":false,"span":{"end":165,"start":149},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"ContactInfo","span":{"end":168,"start":24},"type_params":[]}
+type ContactInfo: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":69,"start":49}}],"key":"Named","name":"primaryEmail","optional":false,"readonly":false,"span":{"end":95,"start":74},"ts_type":"string"},{"decorators":[{"args_src":"minLength(1), maxLength(100)","name":"endec","span":{"end":144,"start":101}}],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":165,"start":149},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"ContactInfo","span":{"end":168,"start":24},"type_params":[]}
 
 ## Registry reads
 

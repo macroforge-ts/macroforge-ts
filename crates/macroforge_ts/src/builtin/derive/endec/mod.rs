@@ -6,7 +6,7 @@
 //! ## Generated Methods
 //!
 //! For classes, methods are generated as `static` members plus standalone functions
-//! (`{name}Encode`, `{name}Decode`, ...) that delegate to them; interfaces and
+//! (`{name}Encode`, `{name}Decode`, ...) that run them; interfaces and
 //! type aliases get the standalone functions only.
 //!
 //! ### Encode
@@ -24,9 +24,11 @@
 //! - `static hasShape(obj): boolean` - Structural check that all required JSON keys are present
 //! - `static is(value): value is T` - Type guard (instanceof, shape check, then a full decode)
 //! - `static validateField(field, value)` / `static validateFields(partial)` - Run field validators standalone
-//! - Classes also get a synthesized `constructor(props)` that assigns all decoded fields
+//! - Classes without a constructor also get a synthesized `constructor(props)`
+//!   that assigns the fields
 //! - **Enums** get standalone functions only (`{name}Decode`, `{name}Is`); the enum
-//!   `decode` function **throws** on invalid values instead of returning a result union
+//!   `decode` function **throws** a `DecodeError` on invalid values instead of
+//!   returning a result union
 //!
 //! ## Cycle Detection
 //!
@@ -41,6 +43,15 @@
 //! // Creates: { __type: "Node", __id: 1, value: 1, next: { __ref: 1 } }
 //! ```
 //!
+//! ## Absent Values
+//!
+//! JSON has no `undefined`. A field that holds one is written by leaving its
+//! key out, and is `undefined` again when the key is missing. In an array, a
+//! tuple or a `Set`, and as the value of a `Record` or `Map` entry, an
+//! `undefined` is written as `null` and read back as `undefined`, where the
+//! type there takes `undefined` and not `null`. A type that takes both gets
+//! `null` back, which JSON cannot tell from it.
+//!
 //! ## Field-Level Options
 //!
 //! The `@endec` decorator supports many options:
@@ -51,13 +62,31 @@
 //! | `skipEncoding` | Skip only during encoding |
 //! | `skipDecoding` | Skip only during decoding |
 //! | `rename = "name"` | Use a different JSON key |
-//! | `default` | Use type's default if missing |
+//! | `default`, `default: true` | Use type's default if missing |
 //! | `default = "expr"` | Use specific expression if missing |
 //! | `flatten` | Flatten nested object fields into parent |
 //! | `encodeWith = "fn"` | Use custom function for encoding |
 //! | `decodeWith = "fn"` | Use custom function for decoding |
-//! | `format = "decimal"` | Encode a number field as a string |
+//! | `format = "decimal"` | Encode a `number` field as a string |
 //! | `validate: [...]` | Run validators during decoding (see below) |
+//!
+//! A field `Decode` skips is still a field of the value it builds, so it is
+//! set to its `default`, or else to its type's own default; only an optional
+//! field is left out. A default is checked against the field's type where
+//! the generated code is type-checked.
+//!
+//! `flatten` takes a class, an interface, an object type alias or a `Record`,
+//! which may be `null` or optional: any other type has no fields for the
+//! enclosing object to hold, and is an expansion error. One type flattens
+//! at most one `Record`, which holds every key no other field reads.
+//!
+//! An option's value is read as written. A flag (`skip`, `flatten`,
+//! `denyUnknownFields`, `untagged`, ...) stands alone or takes `true` or
+//! `false`; `rename`, `tag` and `content` take a string literal that is not
+//! empty; `renameAll` one of the conventions below. Anything else is an
+//! expansion error, as are an option given twice, a field's option on a
+//! type or a type's on a field, and any option on an enum, whose values are
+//! coded as they are.
 //!
 //! ## Container-Level Options
 //!
@@ -69,6 +98,12 @@
 //! | `content = "fieldName"` | With `tag`, selects adjacently-tagged union representation |
 //! | `untagged` | Untagged union representation (raw value, no discriminator) |
 //! | `externallyTagged` | Externally-tagged union representation (`{ "TypeName": {...} }`) |
+//!
+//! `tag`, `untagged` and `externallyTagged` each say how the members of a
+//! union are told apart, so a type takes one of them; `content` goes with
+//! `tag`, under another key; and `untagged`, `externallyTagged` and `content`
+//! are expansion errors on a class, an interface or an object type, which is
+//! no union.
 //!
 //! The tagging options combine into four modes mirroring Rust endec: internally tagged
 //! (the default, `tag` only), adjacently tagged (`tag` + `content`), externally tagged,
@@ -85,7 +120,10 @@
 //!
 //! ## Validation
 //!
-//! The Decode macro supports 40+ validators for runtime validation:
+//! The Decode macro supports 40+ validators for runtime validation. A name in
+//! `@endec(...)` that is neither an option nor a validator is an expansion
+//! error, as is a validator on a field whose type is plainly of another kind
+//! than it checks: `email` on a `number`, `positive` on a `string[]`.
 //!
 //! ### String Validators
 //! - `email` - Valid email format
@@ -102,6 +140,10 @@
 //! - `positive`, `negative`, `nonNegative`, `nonPositive`
 //! - `greaterThan(n)`, `greaterThanOrEqualTo(n)`, `lessThan(n)`, `lessThanOrEqualTo(n)`, `between(min, max)`
 //! - `multipleOf(n)`, `uint8`, `finite`, `nonNaN`
+//!
+//! `decode` takes finite numbers only, so `finite` and `nonNaN` add no
+//! check to it: they give the refusal their own message, and check a value
+//! handed to `validateField`.
 //!
 //! ### BigInt Validators
 //! - `positiveBigInt`, `negativeBigInt`, `nonNegativeBigInt`, `nonPositiveBigInt`
@@ -219,12 +261,18 @@ pub mod decode;
 /// Encode macro implementation.
 pub mod encode;
 
+mod coder;
 mod foreign_types;
 mod helpers;
+mod nested;
 mod options;
+mod reserved_keys;
 mod source_field;
+mod type_arguments;
 mod type_category;
+mod uncodable;
 mod union_guard;
+mod untyped_fields;
 mod validators;
 mod value_kind;
 
@@ -237,11 +285,14 @@ pub use crate::host::import_registry::{
 };
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::derive::endec::*`) keep working.
+pub(crate) use coder::{TypeScope, inline_object_fields};
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types};
-pub(crate) use helpers::find_top_level_comma;
+pub(crate) use options::{ENDEC_OPTIONS, Placement, endec_option};
 pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, EndecFormat, RenameAll,
     TaggingMode, decorator_validators,
 };
 pub use type_category::{TypeCategory, WrapperFields};
+pub(crate) use uncodable::checker_only;
+pub(crate) use validators::KNOWN_VALIDATORS;
 pub use validators::{Validator, ValidatorSpec, extract_validators};

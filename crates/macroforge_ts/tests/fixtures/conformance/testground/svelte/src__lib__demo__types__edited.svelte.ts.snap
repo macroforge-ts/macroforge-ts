@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -44,57 +44,57 @@ export function editedEncode(value: Edited, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return editedEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Edited>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Edited",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("fieldName")) {
-
-        if (value.fieldName !== undefined) {
-            result.fieldName = value.fieldName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("oldValue")) {
-        if (value.oldValue !== undefined) {
-
-            result.oldValue = value.oldValue;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("newValue")) {
-        if (value.newValue !== undefined) {
-
-            result.newValue = value.newValue;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Edited" });
+    editedEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Edited>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Edited" };
+        editedEncodeFields(value as Edited, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function editedEncodeFields(value: Edited, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("fieldName")) {
+                if (value.fieldName !== undefined) {
+                    result["fieldName"] = value.fieldName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("oldValue")) {
+                if (value.oldValue !== undefined) {
+                    result["oldValue"] = value.oldValue;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("newValue")) {
+                if (value.newValue !== undefined) {
+                    result["newValue"] = value.newValue;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = editedDecodeWithContext(data, ctx);
+        const resultOrRef = editedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -140,6 +140,10 @@ export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function editedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => editedDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Edited | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -152,62 +156,70 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Edited.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Edited | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Edited") as Edited | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Edited.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("fieldName")) && !("fieldName" in obj)) {
-        errors.push({ field: "fieldName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("oldValue")) && !("oldValue" in obj)) {
-        errors.push({ field: "oldValue", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("newValue")) && !("newValue" in obj)) {
-        errors.push({ field: "newValue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["fieldName", "fieldName"], ["oldValue", "oldValue"], ["newValue", "newValue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "fieldName"?: string | undefined; "oldValue"?: string | null | undefined; "newValue"?: string | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Edited");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldName")) || (__fields.keeps("fieldName") && obj["fieldName"] !== undefined)) {
-        const __raw_fieldName = obj["fieldName"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("fieldName")) ? "fieldName" in obj : (__fields.keeps("fieldName") && obj["fieldName"] !== undefined)) {
+                const __raw_fieldName = obj["fieldName"] as string;
 
-        if (!(typeof __raw_fieldName === "string")) {
-            errors.push({ field: "fieldName", message: __raw_fieldName == null ? "Edited.fieldName is required" : "expected string" });
-        } else {
-            if (__raw_fieldName == null) { errors.push({ field: "fieldName", message: "Edited.fieldName is required" }); } else {
-                if (__raw_fieldName.length === 0) { errors.push({ field: "fieldName", message: "Edited.fieldName must not be empty" }); }
+                if (!(typeof __raw_fieldName === "string")) {
+                    errors.push({ field: "fieldName", message: __raw_fieldName == null ? "Edited.fieldName is required" : "expected string" });
+                } else {
+                    if (__raw_fieldName == null) { errors.push({ field: "fieldName", message: "Edited.fieldName is required" }); } else {
+                        if (__raw_fieldName.length === 0) { errors.push({ field: "fieldName", message: "Edited.fieldName must not be empty" }); }
+                    }
+                    instance.fieldName = __raw_fieldName;
+                }
             }
-            instance.fieldName = __raw_fieldName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("oldValue")) || (__fields.keeps("oldValue") && obj["oldValue"] !== undefined)) {
-        const __raw_oldValue = obj["oldValue"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("oldValue")) ? "oldValue" in obj : (__fields.keeps("oldValue") && obj["oldValue"] !== undefined)) {
+                const __raw_oldValue = obj["oldValue"] as string | null;
 
-        if (!(typeof __raw_oldValue === "string" || __raw_oldValue === null)) {
-            errors.push({ field: "oldValue", message: "expected string | null" });
-        } else {
-            instance.oldValue = __raw_oldValue;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("newValue")) || (__fields.keeps("newValue") && obj["newValue"] !== undefined)) {
-        const __raw_newValue = obj["newValue"] as string | null;
+                if (!(typeof __raw_oldValue === "string" || __raw_oldValue === null)) {
+                    errors.push({ field: "oldValue", message: "expected string | null" });
+                } else {
+                    instance.oldValue = __raw_oldValue;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("newValue")) ? "newValue" in obj : (__fields.keeps("newValue") && obj["newValue"] !== undefined)) {
+                const __raw_newValue = obj["newValue"] as string | null;
 
-        if (!(typeof __raw_newValue === "string" || __raw_newValue === null)) {
-            errors.push({ field: "newValue", message: "expected string | null" });
-        } else {
-            instance.newValue = __raw_newValue;
-        }
+                if (!(typeof __raw_newValue === "string" || __raw_newValue === null)) {
+                    errors.push({ field: "newValue", message: "expected string | null" });
+                } else {
+                    instance.newValue = __raw_newValue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -244,8 +256,7 @@ export function editedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldName" in o && "oldValue" in o && "newValue" in o;
+    return __mf_holdsAll(obj, ["fieldName", "oldValue", "newValue"]);
 }
 
 export function editedIs(obj: unknown): obj is Edited {
@@ -412,6 +423,7 @@ export const Edited: {
   readonly encodeWithContext: typeof editedEncodeWithContext;
   readonly encodePartialWithContext: typeof editedEncodePartialWithContext;
   readonly decode: typeof editedDecode;
+  readonly fromString: typeof editedFromString;
   readonly decodeWithContext: typeof editedDecodeWithContext;
   readonly decodePartialWithContext: typeof editedDecodePartialWithContext;
   readonly validateField: typeof editedValidateField;
@@ -426,6 +438,7 @@ export const Edited: {
   encodeWithContext: editedEncodeWithContext,
   encodePartialWithContext: editedEncodePartialWithContext,
   decode: editedDecode,
+  fromString: editedFromString,
   decodeWithContext: editedDecodeWithContext,
   decodePartialWithContext: editedDecodePartialWithContext,
   validateField: editedValidateField,
@@ -449,10 +462,21 @@ export declare function editedDefaultValue(): Edited;
 export declare function editedEncode(value: Edited, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Edited>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function editedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Edited;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function editedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Edited;
 } | {
@@ -522,6 +546,7 @@ export declare const Edited: {
 	readonly encodeWithContext: typeof editedEncodeWithContext;
 	readonly encodePartialWithContext: typeof editedEncodePartialWithContext;
 	readonly decode: typeof editedDecode;
+	readonly fromString: typeof editedFromString;
 	readonly decodeWithContext: typeof editedDecodeWithContext;
 	readonly decodePartialWithContext: typeof editedDecodePartialWithContext;
 	readonly validateField: typeof editedValidateField;
@@ -538,24 +563,26 @@ export declare const Edited: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..138 -> expanded 700..731
-original 179..262 -> expanded 731..814
-original 262..263 -> expanded 17432..17433
-generated 0..642 <- imports
-generated 814..955 <- Default
-generated 955..3098 <- Encode
-generated 3098..10628 <- Decode
-generated 10628..16220 <- Gigaform
-generated 16220..17432 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..138 -> expanded 904..935
+original 179..262 -> expanded 935..1018
+original 262..263 -> expanded 18993..18994
+generated 0..846 <- imports
+generated 1018..1159 <- Default
+generated 1159..3885 <- Encode
+generated 3885..12109 <- Decode
+generated 12109..17701 <- Gigaform
+generated 17701..18993 <- __convenience_const
 
 ## Metadata
 
-interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"fieldName","optional":false,"readonly":false,"span":{"end":203,"start":185},"ts_type":"string"},{"decorators":[],"name":"oldValue","optional":false,"readonly":false,"span":{"end":232,"start":208},"ts_type":"string | null"},{"decorators":[],"name":"newValue","optional":false,"readonly":false,"span":{"end":261,"start":237},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":263,"start":116},"type_params":[]}
+interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"key":"Named","name":"fieldName","optional":false,"readonly":false,"span":{"end":203,"start":185},"ts_type":"string"},{"decorators":[],"key":"Named","name":"oldValue","optional":false,"readonly":false,"span":{"end":232,"start":208},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"newValue","optional":false,"readonly":false,"span":{"end":261,"start":237},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":263,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

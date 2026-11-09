@@ -7,13 +7,16 @@ Rust
 ```
 struct FieldIR {
     pub name: String,               // Field name
+    pub key: MemberKey,             // Named, Private (#name) or Unnamed ([KEY], [key: string])
     pub span: SpanIR,               // Field span
-    pub ts_type: String,            // TypeScript type annotation
+    pub ts_type: String,            // Annotation, else what the initializer makes plain, else "any"
     pub optional: bool,             // Whether field has ?
     pub readonly: bool,             // Whether field is readonly
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
     pub initializer: Option<String>,  // Initializer as written, e.g. "dark"
+    pub accessor: bool,             // Declared with the accessor keyword
+    pub untyped: bool,              // No annotation and no plain initializer: ts_type is "any"
 }
 ```
 
@@ -24,6 +27,7 @@ Rust
 ```
 struct InterfaceFieldIR {
     pub name: String,
+    pub key: MemberKey,
     pub span: SpanIR,
     pub ts_type: String,
     pub optional: bool,
@@ -32,6 +36,13 @@ struct InterfaceFieldIR {
     // Note: No visibility field (interfaces are always public)
 }
 ```
+
+Note
+
+Every member a type declares is listed. One under a computed key or an index signature has no name
+to read it by: its `key` is `MemberKey::Unnamed` and its `name` is the key as written, brackets
+included. A `#private` field has `MemberKey::Private` and keeps its `#`. Skip or reject what your
+macro cannot reach.
 
 ### Enum Variants (EnumVariantIR)
 

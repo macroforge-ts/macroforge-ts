@@ -133,7 +133,7 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
         firstName: 'Ada',
         lastName: 'Lovelace'
     });
-    const roundTrip = personName.personNameDecode(json);
+    const roundTrip = personName.personNameFromString(json);
     assert.equal(
         roundTrip.success,
         true,
@@ -619,6 +619,38 @@ test('packaging: an added source is packaged and its removal is propagated', () 
         ),
         'removing a source should drop its expanded artifact'
     );
+});
+
+test('packaging: a module the packager copies ships expanded', () => {
+    ensureInstalled();
+    // svelte-package compiles `.ts` modules and copies `.tsx`, `.mts` and `.cts` ones.
+    const sources = {
+        'src/lib/types/esm-kind.mts': 'EsmKind',
+        'src/lib/types/common-kind.cts': 'CommonKind',
+        'src/lib/types/view-kind.tsx': 'ViewKind'
+    };
+    try {
+        for (const [relPath, typeName] of Object.entries(sources)) {
+            writeFileSync(
+                path.join(libraryRoot, relPath),
+                `/** @derive(Default) */\nexport interface ${typeName} {\n    id: string;\n}\n`
+            );
+        }
+        packageOk();
+        for (const [relPath, typeName] of Object.entries(sources)) {
+            const shipped = path.join(distDir, path.relative('src/lib', relPath));
+            assert.ok(existsSync(shipped), `${relPath} should be packaged`);
+            const text = readFileSync(shipped, 'utf8');
+            const runtime = `${typeName[0].toLowerCase()}${typeName.slice(1)}DefaultValue`;
+            assert.ok(text.includes(runtime), `${relPath} should ship its runtime:\n${text}`);
+            assert.ok(!text.includes('@derive'), `${relPath} should ship expanded:\n${text}`);
+        }
+    } finally {
+        for (const relPath of Object.keys(sources)) {
+            rmSync(path.join(libraryRoot, relPath), { force: true });
+        }
+    }
+    packageOk();
 });
 
 test('packaging: a missing expanded artifact is rebuilt, not silently skipped', () => {

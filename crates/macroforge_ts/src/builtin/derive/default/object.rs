@@ -1,14 +1,14 @@
 //! `Default` for an object-shaped interface or type alias: an object literal
 //! holding each required field's default.
 
-use crate::ast::{Expr, Ident};
+use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::{DiagnosticCollector, InterfaceFieldIR, SpanIR};
-use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
+use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream};
 
 use super::values::{DefaultSources, missing_default_derives, resolve_default_value};
 use crate::builtin::derive::common::TypeNames;
-use crate::builtin::derive::common::{DefaultFieldOptions, has_known_default};
+use crate::builtin::derive::common::{DefaultFieldOptions, has_known_default, property_key};
 
 /// `{camelName}DefaultValue`, returning every required field's `@default`,
 /// else its type's default. Optional fields are left out.
@@ -30,7 +30,7 @@ pub(super) fn object_default(
             .filter(undeclared)
             .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.span)),
         names,
-        sources.registry,
+        sources,
         &mut diagnostics,
     );
     if diagnostics.has_errors() {
@@ -55,7 +55,7 @@ pub(super) fn object_default(
         ));
     }
 
-    let object_fields: Vec<(Ident, Expr)> = required
+    let object_fields: Vec<(String, Expr)> = required
         .iter()
         .map(|field| {
             let opts = DefaultFieldOptions::from_decorators(&field.decorators);
@@ -64,12 +64,12 @@ pub(super) fn object_default(
                 MacroforgeError::new(
                     decorator_span,
                     format!(
-                        "@derive(Default): invalid default expression for '{}': {err:?}",
+                        "@derive(Default): invalid default expression for '{}': {err}",
                         field.name
                     ),
                 )
             })?;
-            Ok((ts_ident!(field.name.as_str()), value_expr))
+            Ok((property_key(&field.name), value_expr))
         })
         .collect::<Result<_, MacroforgeError>>()?;
 
@@ -78,8 +78,8 @@ pub(super) fn object_default(
     Ok(ts_template! {
         export function @{fn_name_ident}(): @{full_type_ident} {
             return {
-                {#for (name_ident, value_expr) in &object_fields}
-                    @{name_ident}: @{value_expr},
+                {#for (key, value_expr) in &object_fields}
+                    @{key}: @{value_expr},
                 {/for}
             };
         }

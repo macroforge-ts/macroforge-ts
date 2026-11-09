@@ -378,8 +378,7 @@ test('skips .d.ts generation, by name, when typescript has no compiler API', (t)
     for (
         const dependency of [
             '@macroforge/core',
-            '@macroforge/shared',
-            '@jridgewell/sourcemap-codec'
+            '@macroforge/shared'
         ]
     ) {
         const link = path.join(tempDir, 'node_modules', dependency);

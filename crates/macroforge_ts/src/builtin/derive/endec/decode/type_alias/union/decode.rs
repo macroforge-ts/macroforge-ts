@@ -1,27 +1,24 @@
 //! `decode` and `decodeWithContext` for a union alias that is not literals only.
 
 use crate::ast::Expr;
-use crate::builtin::derive::common::{primitive_keyword_test, rendered};
+use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
-use convert_case::{Case, Casing};
 
 use super::encodable::encodable_dispatch;
 use super::mixed::mixed_dispatch;
-use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
 use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::builtin::return_types::{PENDING_REF, decode_return_type, wrap_error, wrap_success};
 
-/// `{camelName}Decode`: parses JSON text unless a string is itself a member
-/// value, then decodes through the context-taking decoder.
+/// `{camelName}Decode`: decodes a value through the context-taking decoder,
+/// and `{camelName}FromString`, which decodes JSON text.
 pub(super) fn decode_entry(u: &Union) -> TsStream {
     let Union {
-        has_literals,
-        primitive_types,
-        encodable_types,
         type_name,
         decode_context_expr,
         decode_error_expr,
@@ -29,17 +26,15 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         decode_options_ident,
         generic_decl,
         generic_args,
+        coders,
+        passed_coders,
         full_type_name,
-        foreign_types_config,
-        type_registry,
-        caller_file_path,
-        file_imports,
         ..
     } = u;
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_expr: Expr = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_args
     )
     .into();
@@ -66,43 +61,12 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
     let error_from_ctx_expr =
         Expr::parse(&error_from_ctx).expect("decode ctx error wrapper should parse");
 
-    // A string input is the value itself when a member accepts strings, and
-    // JSON text otherwise. A foreign member's hasShape decides that at runtime,
-    // since its handler is imported rather than visible here.
-    let has_string_variant = primitive_types.iter().any(|p| p == "string")
-        || *has_literals
-        || type_accepts_string(
-            type_name,
-            type_registry,
-            caller_file_path,
-            file_imports,
-            foreign_types_config,
-        );
-    let foreign_shape_checks: Vec<String> = encodable_types
-        .iter()
-        .filter(|member| member.is_foreign)
-        .filter_map(|member| member.foreign_has_shape_callee.as_deref())
-        .map(|callee| rendered(ts_template! { @{callee}(input) }))
-        .collect();
-    let data_init = if has_string_variant {
-        "input".to_string()
-    } else if foreign_shape_checks.is_empty() {
-        r#"typeof input === "string" ? JSON.parse(input) : input"#.to_string()
-    } else {
-        let shaped = foreign_shape_checks.join(" || ");
-        rendered(
-            ts_template! { typeof input === "string" && !(@{shaped}) ? JSON.parse(input) : input },
-        )
-    };
-    let data_init_expr = Expr::parse(&data_init).expect("data init expr should parse");
-    ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+    let decode = ts_template! {
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{fn_decode_internal_expr}(data, ctx);
+                const resultOrRef = @{fn_decode_internal_expr}(input, ctx@{passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -127,7 +91,19 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
                 return @{error_generic_message_expr};
             }
         }
-    }
+    };
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode{}", function_prefix(type_name), generic_args);
+    decode.merge(super::super::super::from_string::from_string_function(
+        &super::super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders,
+            passed_coders,
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ))
 }
 
 /// `{camelName}DecodeWithContext`: resolves references, then decodes by the
@@ -140,6 +116,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
         decode_context_ident,
         pending_ref_ident,
         generic_decl,
+        coders,
         full_type_ident,
         full_type_name,
         ..
@@ -148,7 +125,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
     let reference = decode_reference(type_name, &returns);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_decl
     );
     let body = if *is_primitive_only {
@@ -160,7 +137,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
     };
     ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{coders}): @{full_type_ident} | @{pending_ref_ident} {
             {$typescript reference}
 
             {$typescript body}
@@ -181,7 +158,7 @@ fn primitive_only(u: &Union) -> TsStream {
     } = u;
     ts_template! {
                             {#for (prim, arm_validators) in primitive_arms}
-                                {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                {$let is_primitive: Expr = decoded_keyword_test(prim, "value").into()}
                                 if (@{is_primitive}) {
                                     {#if !arm_validators.is_empty()}
                                         const errors: Array<{ field: string; message: string }> = [];

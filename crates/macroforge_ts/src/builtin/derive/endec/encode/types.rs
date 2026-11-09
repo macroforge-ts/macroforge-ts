@@ -1,10 +1,7 @@
-use crate::ast::{Expr, Ident};
+use crate::ast::Expr;
+use crate::builtin::derive::common::Member;
 
-use super::super::union_guard::UnionGuard;
-use super::super::value_kind::EndecValueKind;
-use super::super::{TypeCategory, WrapperFields};
-
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 /// Generates the EncodePartialWithContext function name for a nested
 /// encodable type, which encodes whichever of its fields a value has.
@@ -13,7 +10,7 @@ pub(crate) fn nested_encode_partial_fn_name(type_name: &str) -> String {
     let base = type_name
         .find('<')
         .map_or(type_name, |generics| &type_name[..generics]);
-    format!("{}EncodePartialWithContext", base.to_case(Case::Camel))
+    format!("{}EncodePartialWithContext", function_prefix(base))
 }
 
 /// Generates the EncodeWithContext function name for a nested encodable type.
@@ -27,89 +24,49 @@ pub(crate) fn nested_encode_fn_name(type_name: &str) -> String {
     } else {
         type_name
     };
-    format!("{}EncodeWithContext", base.to_case(Case::Camel))
+    format!("{}EncodeWithContext", function_prefix(base))
 }
 
-/// Contains field information needed for JSON encoding code generation.
-///
-/// Each field that should be included in encoding is represented by this struct,
-/// capturing the JSON key name, field access name, type category, and encoding options.
+/// How a field's value is encoded once it is known to be there.
+#[derive(Clone)]
+pub(crate) enum FieldEncoding {
+    /// Through the function `@endec({ encodeWith })` names, whatever the type.
+    With(Expr),
+    /// As a string, under `@endec({ format: "decimal" })`.
+    Decimal,
+    /// By its type: the expression encoding the value, or `None` for a value
+    /// that is its own encoding.
+    ByType(Option<String>),
+}
+
+/// A field as `Encode` writes it: where it is read from, the key it is
+/// written under, and how its value encodes.
 #[derive(Clone)]
 pub(crate) struct EncodeField {
-    /// The JSON key as an AST identifier for direct property access. It may
-    /// differ from the field name if `@endec(rename = "...")` is used.
-    /// Used in templates as `result.@{json_key_ident}` instead of computed access.
-    pub(crate) json_key_ident: Ident,
+    /// The JSON key as reached off `result`. It differs from the field's
+    /// name under `@endec(rename = "...")` or the container's `renameAll`.
+    pub(crate) json_member: Member,
 
-    /// The field name as an AST identifier for property access.
-    pub(crate) field_ident: Ident,
+    /// The field's name as written in the source.
+    pub(crate) field_name: String,
 
-    /// The category of the field's type, used to select the appropriate
-    /// encoding strategy (primitive, Date, Array, Map, Set, etc.).
-    pub(crate) type_cat: TypeCategory,
+    /// The field as reached off `value`.
+    pub(crate) member: Member,
 
-    /// Whether the field is optional (has `?` modifier).
-    /// Optional fields are wrapped in `if (value !== undefined)` checks.
+    /// Whether the value may be `undefined`, which leaves the key out: an
+    /// optional field, or one typed `T | undefined`.
     pub(crate) optional: bool,
 
-    /// Whether the field should be flattened into the parent object.
-    /// Flattened fields have their properties merged directly into the parent
-    /// rather than being nested under their field name.
+    /// Whether the value may be `null`, which is written as it is.
+    pub(crate) nullable: bool,
+
+    /// Whether the value's own members are merged into the enclosing object
+    /// in place of being written under a key.
     pub(crate) flatten: bool,
 
-    /// For `T | undefined` unions: classification of `T`.
-    pub(crate) optional_inner_kind: Option<EndecValueKind>,
-    /// For `T | null` unions: classification of `T`.
-    pub(crate) nullable_inner_kind: Option<EndecValueKind>,
-    /// For `Array<T>` and `T[]`: classification of `T`.
-    pub(crate) array_elem_kind: Option<EndecValueKind>,
-    /// For `Set<T>`: classification of `T`.
-    pub(crate) set_elem_kind: Option<EndecValueKind>,
-    /// For `Map<K, V>`: classification of `V`.
-    pub(crate) map_value_kind: Option<EndecValueKind>,
-    /// For `Record<K, V>`: classification of `V`.
-    pub(crate) record_value_kind: Option<EndecValueKind>,
-    /// For wrapper types like Partial<T>, Required<T>, etc.: classification of `T`.
-    pub(crate) wrapper_inner_kind: Option<EndecValueKind>,
+    /// Whether the value is a `Record`, whose members are all its own: a
+    /// flattened one has no tag or `__id` to leave behind.
+    pub(crate) is_record: bool,
 
-    // --- Encodable type tracking for direct function calls ---
-    /// For `T | undefined` where T is Encodable: the type name.
-    pub(crate) optional_encodable_type: Option<String>,
-    /// For `T | null` where T is Encodable: the type name.
-    pub(crate) nullable_encodable_type: Option<String>,
-    /// For `T | null` and `T | undefined` where the union's own cases do not
-    /// encode `T`: `T` as a field of its own, encoded by its own category once
-    /// the value is known to be present.
-    pub(crate) present_inner: Option<Box<EncodeField>>,
-    /// For `Array<T>` where T is Encodable: the type name.
-    pub(crate) array_elem_encodable_type: Option<String>,
-    /// For `Set<T>` where T is Encodable: the type name.
-    pub(crate) set_elem_encodable_type: Option<String>,
-    /// For `Map<K, V>` where V is Encodable: the type name.
-    pub(crate) map_value_encodable_type: Option<String>,
-    /// For `Record<K, V>` where V is Encodable: the type name.
-    pub(crate) record_value_encodable_type: Option<String>,
-    /// For wrapper types like Partial<T> where T is Encodable: the type name.
-    pub(crate) wrapper_encodable_type: Option<String>,
-    /// For wrapper types: which of T's fields a value has.
-    pub(crate) wrapper_fields: Option<WrapperFields>,
-
-    /// Custom encoding function expression (from `@endec({encodeWith: "fn"})`)
-    /// When set, this function is called instead of type-based encoding.
-    pub(crate) encode_with: Option<Expr>,
-
-    /// Whether this field uses decimal format (encode number as string).
-    pub(crate) decimal_format: bool,
-
-    /// Set when the field's resolved type is a two-member union of a
-    /// primitive or foreign type with the `Encodable` type, as
-    /// `RecordLink<T>` resolves to. The `Encodable(name)` branch encodes the
-    /// guard's member through it, and the user type through its encoder.
-    pub(crate) union_guard: Option<UnionGuard>,
-
-    /// The same guard for the non-null member of a `T | null` field.
-    pub(crate) nullable_union_guard: Option<UnionGuard>,
-
-    /// The same guard for each element of an `Array<T>` field.
-    pub(crate) array_elem_union_guard: Option<UnionGuard>,
+    pub(crate) encoding: FieldEncoding,
 }

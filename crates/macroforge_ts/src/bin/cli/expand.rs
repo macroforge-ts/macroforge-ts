@@ -4,6 +4,7 @@ use macroforge_ts::host::MacroExpansion;
 use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::line_index::LineIndex;
 use macroforge_ts::ts_syn::abi::{Diagnostic, DiagnosticLevel};
+use macroforge_ts::ts_syn::source_path::{declaration_path, is_typescript_source};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -120,12 +121,7 @@ pub fn scan_and_expand(
             continue;
         }
 
-        let is_ts_file = path
-            .extension()
-            .is_some_and(|ext| ext == "ts" || ext == "tsx")
-            && !filename.ends_with(".d.ts");
-
-        if is_ts_file {
+        if is_typescript_source(&filename) {
             ts_files.push(path.to_path_buf());
         } else if opts.out_dir.is_some() {
             passthrough_files.push(path.to_path_buf());
@@ -314,22 +310,30 @@ pub(crate) fn expand_file_in_memory(
     if !macroforge_ts::has_macro_annotations(&source, &input.to_string_lossy()) {
         return Ok(None);
     }
+    // The registries name a file by its canonical path, as the project root
+    // is named, and tell two types of one name apart by the file each is in.
+    let named = input
+        .canonicalize()
+        .or_else(|_| std::path::absolute(input))
+        .unwrap_or_else(|_| input.to_path_buf());
     // Outside a project there are no registries to build or share, so the
     // file expands on its own and nothing is written.
     let expansion = match project_root {
         Some(root) => {
             super::wrappers::ensure_type_registry_cache(root)?;
-            expand_project_file(root, input, &source, &super::cache::project_registries()?)?
+            expand_project_file(root, &named, &source, &super::cache::project_registries()?)?
         }
         None => expand_project_file(
-            input.parent().unwrap_or_else(|| Path::new(".")),
-            input,
+            named.parent().unwrap_or_else(|| Path::new(".")),
+            &named,
             &source,
             &ProjectRegistries::default(),
         )?,
     };
 
-    if !expansion.changed {
+    // An expansion that changed nothing may still have refused something,
+    // as an `@derive` attached to nothing: that is no file without macros.
+    if !expansion.changed && error_count(&expansion) == 0 {
         return Ok(None);
     }
 
@@ -528,14 +532,10 @@ pub(crate) fn get_expanded_path(input: &Path) -> PathBuf {
 /// preserving directory structure and any middle extensions.
 ///
 /// Examples: `User.ts` → `User.d.ts`, `types/person-name.svelte.ts` →
-/// `types/person-name.svelte.d.ts`, `Button.tsx` → `Button.d.ts`.
+/// `types/person-name.svelte.d.ts`, `Button.tsx` → `Button.d.ts`,
+/// `User.mts` → `User.d.mts`.
 pub(crate) fn type_surface_rel_path(rel: &Path) -> PathBuf {
-    let filename = rel.file_name().unwrap_or_default().to_string_lossy();
-    let stem = filename
-        .strip_suffix(".ts")
-        .or_else(|| filename.strip_suffix(".tsx"))
-        .unwrap_or(&filename);
-    let new_name = format!("{stem}.d.ts");
+    let new_name = declaration_path(&rel.file_name().unwrap_or_default().to_string_lossy());
 
     match rel.parent() {
         Some(parent) if !parent.as_os_str().is_empty() => parent.join(new_name),

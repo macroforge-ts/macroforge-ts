@@ -20,133 +20,19 @@
  *
  * - Must be placed BEFORE other preprocessors (like `vitePreprocess()`) in the chain
  * - Uses lazy-loading for native bindings to avoid initialization overhead
- * - Gracefully degrades if native bindings are unavailable
+ * - Fails a script block whose macros fail, as a syntax error in it would
  * - Only processes TypeScript blocks by default (configurable via options)
  *
  * @packageDocumentation
  */
 
-import type { ExpandOptions } from '@macroforge/shared';
 import type { Preprocessor, PreprocessorGroup } from 'svelte/compiler';
-
-// ============================================================================
-// Source Map Generation
-// ============================================================================
-
-const VLQ_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-function vlqEncode(value: number): string {
-    let vlq = value < 0 ? (-value << 1) | 1 : value << 1;
-    let encoded = '';
-    do {
-        let digit = vlq & 0x1f;
-        vlq >>>= 5;
-        if (vlq > 0) digit |= 0x20;
-        encoded += VLQ_CHARS[digit];
-    } while (vlq > 0);
-    return encoded;
-}
-
-interface SourceMapping {
-    segments: Array<{
-        originalStart: number;
-        originalEnd: number;
-        expandedStart: number;
-        expandedEnd: number;
-    }>;
-}
-
-/** Build line offsets table: lineOffsets[i] = UTF-16 offset of the start of line i */
-function buildLineOffsets(text: string): number[] {
-    const offsets = [0];
-    for (let i = 0; i < text.length; i++) {
-        if (text[i] === '\n') offsets.push(i + 1);
-    }
-    return offsets;
-}
-
-/** Convert a UTF-16 offset to { line, column } (0-based) */
-function offsetToLineCol(
-    offset: number,
-    lineOffsets: number[]
-): { line: number; column: number } {
-    let lo = 0,
-        hi = lineOffsets.length - 1;
-    while (lo < hi) {
-        const mid = (lo + hi + 1) >> 1;
-        if (lineOffsets[mid] <= offset) lo = mid;
-        else hi = mid - 1;
-    }
-    return { line: lo, column: offset - lineOffsets[lo] };
-}
-
-/**
- * Build a v3 source map from macroforge's segment-based mapping.
- * Each segment maps a UTF-16 range in the expanded code to a UTF-16 range in the original.
- */
-function buildSourceMap(
-    original: string,
-    expanded: string,
-    mapping: SourceMapping,
-    filename: string
-): object {
-    const origOffsets = buildLineOffsets(original);
-    const expOffsets = buildLineOffsets(expanded);
-
-    // Group segments by expanded line
-    const lineSegments = new Map<
-        number,
-        Array<{ expCol: number; origLine: number; origCol: number }>
-    >();
-
-    for (const seg of mapping.segments) {
-        const exp = offsetToLineCol(seg.expandedStart, expOffsets);
-        const orig = offsetToLineCol(seg.originalStart, origOffsets);
-        if (!lineSegments.has(exp.line)) lineSegments.set(exp.line, []);
-        lineSegments.get(exp.line)!.push({
-            expCol: exp.column,
-            origLine: orig.line,
-            origCol: orig.column
-        });
-    }
-
-    // Encode VLQ mappings
-    const totalLines = expOffsets.length;
-    const mappingsArr: string[] = [];
-    let prevOrigLine = 0,
-        prevOrigCol = 0;
-
-    for (let line = 0; line < totalLines; line++) {
-        const segs = lineSegments.get(line);
-        if (!segs || segs.length === 0) {
-            mappingsArr.push('');
-            continue;
-        }
-        segs.sort((a, b) => a.expCol - b.expCol);
-        const parts: string[] = [];
-        let lineExpCol = 0;
-        for (const seg of segs) {
-            parts.push(
-                vlqEncode(seg.expCol - lineExpCol) +
-                    vlqEncode(0) + // source index (always 0)
-                    vlqEncode(seg.origLine - prevOrigLine) +
-                    vlqEncode(seg.origCol - prevOrigCol)
-            );
-            lineExpCol = seg.expCol;
-            prevOrigLine = seg.origLine;
-            prevOrigCol = seg.origCol;
-        }
-        mappingsArr.push(parts.join(','));
-    }
-
-    return {
-        version: 3,
-        sources: [filename],
-        sourcesContent: [original],
-        names: [],
-        mappings: mappingsArr.join(';')
-    };
-}
+import {
+    type ExpandOptions,
+    lineAndColumn,
+    sourceMapOf,
+    type SourceMapping
+} from '@macroforge/shared';
 
 /**
  * Result returned from the native macro expansion engine.
@@ -245,15 +131,14 @@ interface Engine {
  * ## Error Handling
  *
  * If the native bindings fail to load (e.g., missing native module, architecture
- * mismatch), the function logs a warning and returns `null`. Because failure
- * leaves the cache `null`, the import (and the warning) is retried on every
- * subsequent call. This allows the preprocessor to skip macro expansion rather
- * than crashing the build.
+ * mismatch), the function throws with the cause. Without the engine no macro
+ * is expanded, and a component built that way lacks what its macros generate.
+ * A failed load leaves the cache empty, so the next block tries again.
  *
- * @returns The cached engine, or `null` if loading failed
+ * @returns The cached engine
  * @internal
  */
-async function ensureEngine(): Promise<Engine | null> {
+async function ensureEngine(): Promise<Engine> {
     if (engine === null) {
         try {
             // Dynamic import defers loading until first use
@@ -263,12 +148,12 @@ async function ensureEngine(): Promise<Engine | null> {
                 hasMacroAnnotations: macroforge.hasMacroAnnotations
             };
         } catch (error) {
-            // Log warning but don't throw - allows graceful degradation
-            console.warn(
-                '[@macroforge/svelte-preprocessor] Failed to load macroforge native bindings:',
-                error
+            // Without the engine no macro is expanded, and a component that
+            // uses one would be built without what it generates.
+            throw new Error(
+                '[@macroforge/svelte-preprocessor] Failed to load the macro engine `@macroforge/core`',
+                { cause: error }
             );
-            engine = null;
         }
     }
     return engine;
@@ -323,6 +208,90 @@ export interface MacroforgePreprocessorOptions {
     processJavaScript?: boolean;
 }
 
+/** Whether the script block is a component's module script. */
+function isModuleScript(attributes: Record<string, string | boolean>): boolean {
+    return attributes.module === true || attributes.context === 'module';
+}
+
+/** The content of the component's module script, when it has one. */
+function moduleScriptOf(markup: string): string | undefined {
+    for (const match of markup.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+        const attributes = match[1] ?? '';
+        if (
+            /(^|\s)module(\s|=|$)/.test(attributes) ||
+            /context\s*=\s*["']module["']/.test(attributes)
+        ) {
+            return match[2];
+        }
+    }
+    return undefined;
+}
+
+/** The import declarations of `@macroforge` modules an expansion writes, one a line. */
+const RUNTIME_IMPORT =
+    /^import\s+(type\s+)?\{([^}]*)\}\s+from\s+(["']@macroforge\/[^"']+["']);?[ \t]*\r?\n?/gm;
+
+/** The local names the runtime imports of `code` bind. */
+function runtimeImports(code: string): Set<string> {
+    const names = new Set<string>();
+    for (const match of code.matchAll(RUNTIME_IMPORT)) {
+        for (const specifier of (match[2] ?? '').split(',')) {
+            const local = specifier.split(/\s+as\s+/).pop()?.trim();
+            if (local) names.add(local);
+        }
+    }
+    return names;
+}
+
+/** The functions an expansion declares at the top of a script. */
+function declaredFunctions(code: string): Set<string> {
+    return new Set(
+        Array.from(
+            code.matchAll(/^export\s+(?:declare\s+)?function\s+([A-Za-z_$][\w$]*)/gm),
+            (match) => match[1] ?? ''
+        )
+    );
+}
+
+/**
+ * `code` without the runtime imports binding `names`, which are in scope
+ * already, with its mapping moved to the text that stays.
+ */
+function withoutImports(
+    code: string,
+    mapping: SourceMapping | undefined,
+    names: Set<string>
+): { code: string; mapping: SourceMapping | undefined } {
+    const removed: Array<{ at: number; length: number }> = [];
+    const kept = code.replace(RUNTIME_IMPORT, (line, typeOnly, specifiers, module, at: number) => {
+        const left = String(specifiers)
+            .split(',')
+            .map((specifier) => specifier.trim())
+            .filter((specifier) =>
+                specifier && !names.has(specifier.split(/\s+as\s+/).pop()?.trim() ?? '')
+            );
+        const written = left.length === 0
+            ? ''
+            : `import ${typeOnly ?? ''}{ ${left.join(', ')} } from ${module};\n`;
+        removed.push({ at, length: line.length - written.length });
+        return written;
+    });
+    if (mapping === undefined) return { code: kept, mapping };
+    const moved = (offset: number) =>
+        offset -
+        removed.filter((edit) => edit.at < offset).reduce((sum, edit) => sum + edit.length, 0);
+    return {
+        code: kept,
+        mapping: {
+            segments: mapping.segments.map((segment) => ({
+                ...segment,
+                expandedStart: moved(segment.expandedStart),
+                expandedEnd: moved(segment.expandedEnd)
+            }))
+        }
+    };
+}
+
 /**
  * Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.
  *
@@ -351,11 +320,11 @@ export interface MacroforgePreprocessorOptions {
  *
  * ## Error Handling
  *
- * The preprocessor is designed to be resilient:
- * - If native bindings fail to load, it logs a warning, skips the block, and
- *   retries the import on the next block (so a warning is emitted per attempt)
- * - If macro expansion throws, it logs a warning and continues
- * - Svelte compilation proceeds even if preprocessing fails
+ * A failure fails the script block, and Svelte reports it for the component:
+ * - If the native bindings fail to load, it throws with the cause
+ * - If the engine reports a macro error, it throws with every message
+ * - If macro expansion throws, it throws with the file and the cause
+ * Warnings are logged and the block is expanded.
  *
  * @param options - Configuration options for the preprocessor
  * @returns A Svelte `PreprocessorGroup` with name "macroforge" and a script preprocessor
@@ -407,6 +376,7 @@ export function macroforgePreprocess(
      */
     const scriptPreprocessor: Preprocessor = async ({
         content,
+        markup,
         filename,
         attributes
     }) => {
@@ -440,84 +410,126 @@ export function macroforgePreprocess(
          * We lazy-load it on first use to avoid startup overhead.
          */
         const loaded = await ensureEngine();
-        if (!loaded) {
-            // Native bindings unavailable (missing module, architecture mismatch, etc.)
-            // ensureEngine already logged a warning; skip this block. The import
-            // is retried on the next block, so the warning repeats per attempt.
-            return;
-        }
+
+        // A JavaScript block is expanded under a JavaScript name, so that a
+        // macro that writes TypeScript is refused there instead of leaving
+        // types in a script Svelte reads as JavaScript.
+        const component = filename || 'component.svelte';
+        const expandedAs = isTypeScript ? component : `${component}.js`;
 
         // A block with nothing to expand never reaches the engine.
-        if (!loaded.hasMacroAnnotations(content, filename || 'component.svelte')) {
+        if (!loaded.hasMacroAnnotations(content, expandedAs)) {
             return;
         }
 
+        /*
+         * STEP 3: Macro Expansion
+         *
+         * Call the native engine to parse the TypeScript, find @derive decorators,
+         * and generate the expanded code with all macro-derived methods/properties.
+         */
+        let result;
         try {
-            /*
-             * STEP 3: Macro Expansion
-             *
-             * Call the native engine to parse the TypeScript, find @derive decorators,
-             * and generate the expanded code with all macro-derived methods/properties.
-             */
-            const result = loaded.expandSync(content, filename || 'component.svelte', {
+            result = loaded.expandSync(content, expandedAs, {
                 keepDecorators,
                 emitMetadata: false
             });
-
-            /*
-             * STEP 4: Diagnostic Reporting
-             *
-             * The expansion engine may report errors (invalid macro syntax, unknown macros)
-             * or warnings (deprecated patterns, suggestions). Log these to help developers
-             * debug issues without failing the build.
-             */
-            for (const diag of result.diagnostics) {
-                if (diag.level === 'error') {
-                    console.error(
-                        `[@macroforge/svelte-preprocessor] Error in ${filename}: ${diag.message}`
-                    );
-                } else if (diag.level === 'warning') {
-                    console.warn(
-                        `[@macroforge/svelte-preprocessor] Warning in ${filename}: ${diag.message}`
-                    );
-                }
-            }
-
-            /*
-             * STEP 5: Return Transformed Code
-             *
-             * Only return a result if the code was actually modified. Returning undefined
-             * tells Svelte to keep the original content, which is more efficient than
-             * returning identical code.
-             *
-             * The return object can include:
-             * - code: The transformed source code (required)
-             * - map: v3 source map built from the engine's segment mapping (when available)
-             */
-            if (result.code && result.code !== content) {
-                const mapping = result.sourceMapping;
-                const map = mapping?.segments?.length && filename
-                    ? buildSourceMap(content, result.code, mapping, filename)
-                    : undefined;
-                return { code: result.code, map };
-            }
         } catch (error) {
-            /*
-             * Error Recovery
-             *
-             * If expansion throws (parser error, internal bug, etc.), log a warning
-             * but don't fail the build. This allows:
-             * - Partial builds during development
-             * - Graceful degradation if the macro engine has issues
-             * - Svelte's own error reporting to kick in for syntax errors
-             */
-            console.warn(
-                `[@macroforge/svelte-preprocessor] Failed to expand macros in ${filename}:`,
-                error instanceof Error ? error.message : String(error)
+            throw new Error(
+                `[@macroforge/svelte-preprocessor] Failed to expand macros in ${component}: ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+                { cause: error }
             );
         }
 
-        // No changes - either expansion produced identical output or an error occurred
+        /*
+         * STEP 4: Diagnostic Reporting
+         *
+         * A macro error fails the block, as a syntax error would: a component
+         * built without the code its macros generate is broken where it is
+         * used, with nothing to say why. Warnings are logged.
+         */
+        // Where the script starts in the component, so a message names the
+        // place in the file that holds it.
+        const scriptStart = typeof markup === 'string' && content.length > 0
+            ? markup.indexOf(content)
+            : -1;
+        const place = (start: number | undefined) => {
+            if (start === undefined || scriptStart < 0 || typeof markup !== 'string') return '';
+            const { line, column } = lineAndColumn(markup, scriptStart + start);
+            return `${component}:${line}:${column}: `;
+        };
+        const errors = [];
+        for (const diag of result.diagnostics) {
+            if (diag.level === 'error') {
+                errors.push(place(diag.start) + diag.message);
+            } else if (diag.level === 'warning') {
+                console.warn(
+                    `[@macroforge/svelte-preprocessor] Warning in ${component}: ${diag.message}`
+                );
+            }
+        }
+        if (errors.length > 0) {
+            throw new Error(
+                `[@macroforge/svelte-preprocessor] ${errors.length} macro error(s) in ${component}:\n${
+                    errors.join('\n')
+                }`
+            );
+        }
+
+        /*
+         * STEP 4b: The Module Script's Scope
+         *
+         * A component's module script and its instance script are one scope:
+         * what the module script imports, the instance script has, and a
+         * function both declare is declared twice.
+         */
+        let code = result.code;
+        let sourceMapping = result.sourceMapping;
+        const moduleContent = !isModuleScript(attributes) && typeof markup === 'string'
+            ? moduleScriptOf(markup)
+            : undefined;
+        if (moduleContent !== undefined && loaded.hasMacroAnnotations(moduleContent, expandedAs)) {
+            const moduleExpansion = loaded.expandSync(moduleContent, expandedAs, {
+                keepDecorators,
+                emitMetadata: false
+            });
+            const moduleFunctions = declaredFunctions(moduleExpansion.code);
+            const twice = [...declaredFunctions(code)].filter((name) => moduleFunctions.has(name));
+            if (twice.length > 0) {
+                throw new Error(
+                    `[@macroforge/svelte-preprocessor] ${component}: the module script and the instance script are one scope, and both generate ${
+                        twice.map((name) => `\`${name}\``).join(', ')
+                    }; derive each type in one of them`
+                );
+            }
+            ({ code, mapping: sourceMapping } = withoutImports(
+                code,
+                sourceMapping,
+                runtimeImports(moduleExpansion.code)
+            ));
+        }
+
+        /*
+         * STEP 5: Return Transformed Code
+         *
+         * Only return a result if the code was actually modified. Returning undefined
+         * tells Svelte to keep the original content, which is more efficient than
+         * returning identical code.
+         *
+         * The return object can include:
+         * - code: The transformed source code (required)
+         * - map: v3 source map built from the engine's segment mapping (when available)
+         */
+        if (code && code !== content) {
+            const map = sourceMapping && filename
+                ? sourceMapOf(sourceMapping, filename, content, code)
+                : undefined;
+            return { code, map };
+        }
+
+        // The expansion left the block as it was.
         return;
     };
 

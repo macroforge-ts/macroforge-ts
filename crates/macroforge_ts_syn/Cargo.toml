@@ -20,6 +20,15 @@ oxc = { workspace = true }
 thiserror = { workspace = true }
 indexmap = { workspace = true }
 pathdiff = { workspace = true }
+proptest = { workspace = true, optional = true }
+
+[features]
+# The strategies of `macroforge_ts_syn::strategies`, for property tests of
+# code reading TypeScript type text.
+proptest = ["dep:proptest"]
+
+[dev-dependencies]
+proptest = { workspace = true }
 
 [build-dependencies]
 proc-macro2 = { workspace = true }

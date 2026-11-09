@@ -2,16 +2,17 @@
 
 use crate::LoweredTarget;
 use crate::TsSynError;
-use crate::abi::ir::TypeParamIR;
+use crate::abi::ir::{ModuleReExport, TypeParamIR};
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumValue, EnumVariantIR, FieldIR, FunctionIR, FunctionParamIR,
-    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MethodSigIR, NEWTYPE_BRAND_PREFIX,
+    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MemberKey, MethodSigIR, NEWTYPE_BRAND_PREFIX,
     NEWTYPE_MACRO, SpanIR, TypeAliasIR, TypeBody, TypeMember, TypeMemberKind, Visibility,
 };
 use ::oxc::ast::ast::{
     BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
-    Function, Program, PropertyKey, Statement, TSAccessibility, TSEnumDeclaration,
-    TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType, TSTypeAliasDeclaration,
+    FormalParameter, Function, MethodDefinitionKind, Program, PropertyKey, Statement,
+    TSAccessibility, TSEnumDeclaration, TSEnumMemberName, TSInterfaceDeclaration,
+    TSMethodSignatureKind, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
     TSTypeLiteral, TSTypeName, TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
 };
 use oxc::span::GetSpan;
@@ -93,6 +94,160 @@ pub fn lower_classes(
     Ok(classes)
 }
 
+/// The name a property key gives its property, and how the key is written:
+/// an identifier's own name, the value of a string or whole-number literal,
+/// as `'first-name'` and `0` are written, or a `#private` name with its `#`.
+///
+/// A key that is worked out as the code runs gives no name to read off, so
+/// its member is carried under the key's source in brackets, `[KEY]`. A macro
+/// that cannot reach such a member has to say so rather than never see it.
+fn property_name(key: &PropertyKey<'_>, computed: bool, source: &str) -> (String, MemberKey) {
+    let named = |name: String| (name, MemberKey::Named);
+    match key {
+        _ if computed => {}
+        PropertyKey::StaticIdentifier(ident) => return named(ident.name.to_string()),
+        PropertyKey::PrivateIdentifier(private) => {
+            return (format!("#{}", private.name), MemberKey::Private);
+        }
+        PropertyKey::StringLiteral(literal) => return named(literal.value.to_string()),
+        PropertyKey::NumericLiteral(literal) => {
+            // The largest whole number a property name spells without an exponent.
+            const LARGEST_PLAIN: f64 = 1e21;
+            let value = literal.value;
+            if value.fract() == 0.0 && (0.0..LARGEST_PLAIN).contains(&value) {
+                return named(format!("{value:.0}"));
+            }
+        }
+        _ => {}
+    }
+    let span = key.span();
+    (
+        format!("[{}]", &source[span.start as usize..span.end as usize]),
+        MemberKey::Unnamed,
+    )
+}
+
+/// The name an index signature is carried under: its bracketed parameter, as
+/// `[key: string]`.
+fn index_signature_name(span: oxc::span::Span, source: &str) -> String {
+    let text = &source[span.start as usize..span.end as usize];
+    match (text.find('['), text.find(']')) {
+        (Some(open), Some(close)) if open < close => text[open..=close].to_string(),
+        _ => format!("[{text}]"),
+    }
+}
+
+/// The type an annotation gives, as written, or `any` without one.
+fn annotated_type(
+    annotation: Option<&oxc::ast::ast::TSTypeAnnotation<'_>>,
+    source: &str,
+) -> String {
+    annotation.map_or_else(
+        || "any".to_string(),
+        |annotation| {
+            let span = annotation.type_annotation.span();
+            source[span.start as usize..span.end as usize].to_string()
+        },
+    )
+}
+
+fn source_text(span: oxc::span::Span, source: &str) -> String {
+    source[span.start as usize..span.end as usize].to_string()
+}
+
+fn visibility(accessibility: Option<TSAccessibility>) -> Visibility {
+    match accessibility {
+        Some(TSAccessibility::Private) => Visibility::Private,
+        Some(TSAccessibility::Protected) => Visibility::Protected,
+        Some(TSAccessibility::Public) | None => Visibility::Public,
+    }
+}
+
+/// A field's type, and whether its declaration leaves the type unsaid: what
+/// its annotation gives, else what its initializer makes plain, else `any`.
+fn declared_type(
+    annotation: Option<&TSTypeAnnotation<'_>>,
+    initializer: Option<&Expression<'_>>,
+    readonly: bool,
+    source: &str,
+) -> (String, bool) {
+    if annotation.is_some() {
+        return (annotated_type(annotation, source), false);
+    }
+    initializer
+        .and_then(|value| initializer_type(value, readonly, source))
+        .map_or_else(|| ("any".to_string(), true), |ts_type| (ts_type, false))
+}
+
+/// Constructors of the standard library whose instances have one type,
+/// whatever they are given.
+const PLAIN_CONSTRUCTORS: &[&str] = &["Date", "Error", "RegExp", "URL", "URLSearchParams"];
+
+/// The type TypeScript gives a field for the initializer `value`, where the
+/// initializer alone says it: a literal, an assertion, or a `new` whose type
+/// takes no inference. A `readonly` field keeps a literal's own type, and
+/// any other field the widened one. `source` is the text `value` was parsed
+/// from.
+pub fn initializer_type(value: &Expression<'_>, readonly: bool, source: &str) -> Option<String> {
+    let value = value.without_parentheses();
+    let literal = |widened: &str| {
+        Some(if readonly {
+            source_text(value.span(), source)
+        } else {
+            widened.to_string()
+        })
+    };
+    match value {
+        Expression::NumericLiteral(_) => literal("number"),
+        Expression::StringLiteral(_) => literal("string"),
+        Expression::BooleanLiteral(_) => literal("boolean"),
+        Expression::BigIntLiteral(_) => literal("bigint"),
+        Expression::UnaryExpression(negated)
+            if negated.operator == UnaryOperator::UnaryNegation =>
+        {
+            match &negated.argument {
+                Expression::NumericLiteral(_) => literal("number"),
+                Expression::BigIntLiteral(_) => literal("bigint"),
+                _ => None,
+            }
+        }
+        // A template with no holes is a literal, whose own type a `readonly`
+        // field keeps.
+        Expression::TemplateLiteral(template) if !readonly || !template.expressions.is_empty() => {
+            Some("string".to_string())
+        }
+        Expression::RegExpLiteral(_) => Some("RegExp".to_string()),
+        Expression::TSAsExpression(asserted) => asserted_type(&asserted.type_annotation, source),
+        Expression::TSTypeAssertion(asserted) => asserted_type(&asserted.type_annotation, source),
+        Expression::TSSatisfiesExpression(checked) => {
+            initializer_type(&checked.expression, readonly, source)
+        }
+        Expression::NewExpression(created) => {
+            let Expression::Identifier(constructor) = &created.callee else {
+                return None;
+            };
+            match &created.type_arguments {
+                Some(arguments) => Some(format!(
+                    "{}{}",
+                    constructor.name,
+                    source_text(arguments.span, source)
+                )),
+                None => PLAIN_CONSTRUCTORS
+                    .contains(&constructor.name.as_str())
+                    .then(|| constructor.name.to_string()),
+            }
+        }
+        _ => None,
+    }
+}
+
+/// The type an assertion gives, unless it is `as const`, whose type is read
+/// off the value.
+fn asserted_type(asserted: &TSType<'_>, source: &str) -> Option<String> {
+    let ts_type = source_text(asserted.span(), source);
+    (ts_type != "const").then_some(ts_type)
+}
+
 fn lower_class(
     decl: &Class<'_>,
     source: &str,
@@ -109,11 +264,14 @@ fn lower_class(
         .unwrap_or_default();
 
     let mut heritage = Vec::new();
-    if let Some(super_class) = &decl.heritage
-        && let Expression::Identifier(ident) = &super_class.expression
-    {
-        heritage.push(ident.name.to_string());
-    }
+    let superclass = match &decl.heritage {
+        Some(super_class) => match &super_class.expression {
+            Expression::Identifier(ident) => Some(ident.name.to_string()),
+            _ => None,
+        },
+        None => None,
+    };
+    heritage.extend(superclass.clone());
     for item in &decl.implements {
         if let TSTypeName::IdentifierReference(ident) = &item.expression {
             heritage.push(ident.name.to_string());
@@ -132,36 +290,98 @@ fn lower_class(
         match element {
             // A static property belongs to the class, not to its instances.
             ClassElement::PropertyDefinition(prop) if !prop.r#static => {
-                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
-                    let field_decorators =
-                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
-                    fields.push(FieldIR {
-                        name: ident.name.to_string(),
-                        span: oxc_span_ir(prop.span),
-                        ts_type: prop
-                            .type_annotation
-                            .as_ref()
-                            .map(|ann| {
-                                let sp = ann.type_annotation.span();
-                                source[sp.start as usize..sp.end as usize].to_string()
-                            })
-                            .unwrap_or_else(|| "any".to_string()),
-                        optional: prop.optional,
-                        readonly: prop.readonly,
-                        visibility: match prop.accessibility {
-                            Some(TSAccessibility::Private) => Visibility::Private,
-                            Some(TSAccessibility::Protected) => Visibility::Protected,
-                            _ => Visibility::Public,
-                        },
-                        decorators: field_decorators,
-                        initializer: prop.value.as_ref().map(|value| {
-                            let sp = value.span();
-                            source[sp.start as usize..sp.end as usize].to_string()
-                        }),
-                    });
-                }
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                let (ts_type, untyped) = declared_type(
+                    prop.type_annotation.as_deref(),
+                    prop.value.as_ref(),
+                    prop.readonly,
+                    source,
+                );
+                fields.push(FieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type,
+                    optional: prop.optional,
+                    readonly: prop.readonly,
+                    visibility: visibility(prop.accessibility),
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                    initializer: prop
+                        .value
+                        .as_ref()
+                        .map(|value| source_text(value.span(), source)),
+                    accessor: false,
+                    untyped,
+                });
+            }
+            // An `accessor` is a field too, kept behind a getter and a setter.
+            ClassElement::AccessorProperty(prop) if !prop.r#static => {
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                let (ts_type, untyped) = declared_type(
+                    prop.type_annotation.as_deref(),
+                    prop.value.as_ref(),
+                    false,
+                    source,
+                );
+                fields.push(FieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type,
+                    optional: false,
+                    readonly: false,
+                    visibility: visibility(prop.accessibility),
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                    initializer: prop
+                        .value
+                        .as_ref()
+                        .map(|value| source_text(value.span(), source)),
+                    accessor: true,
+                    untyped,
+                });
+            }
+            ClassElement::TSIndexSignature(signature) if !signature.r#static => {
+                fields.push(FieldIR {
+                    name: index_signature_name(signature.span, source),
+                    key: MemberKey::Unnamed,
+                    span: oxc_span_ir(signature.span),
+                    ts_type: annotated_type(Some(&*signature.type_annotation), source),
+                    optional: false,
+                    readonly: signature.readonly,
+                    visibility: Visibility::Public,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        signature.span.start as usize,
+                        filter,
+                    ),
+                    initializer: None,
+                    accessor: false,
+                    untyped: false,
+                });
             }
             ClassElement::MethodDefinition(method) => {
+                // A constructor parameter with a modifier declares a field.
+                if method.kind == MethodDefinitionKind::Constructor {
+                    // A parameter's decorators stand between the one before
+                    // it, or the parenthesis that opens the list, and itself.
+                    let params = &method.value.params;
+                    let mut after = params.span.start as usize;
+                    for param in &params.items {
+                        let floor = std::mem::replace(&mut after, param.span.end as usize);
+                        fields.extend(parameter_property(param, source, floor, filter));
+                    }
+                }
                 if let PropertyKey::StaticIdentifier(ident) = &method.key {
                     let func = &method.value;
 
@@ -215,11 +435,7 @@ fn lower_class(
                         return_type_src,
                         is_static: method.r#static,
                         is_async: method.value.r#async,
-                        visibility: match method.accessibility {
-                            Some(TSAccessibility::Private) => Visibility::Private,
-                            Some(TSAccessibility::Protected) => Visibility::Protected,
-                            _ => Visibility::Public,
-                        },
+                        visibility: visibility(method.accessibility),
                         decorators: method_decorators,
                         body_span: method_body_span,
                         body_src: method_body_src,
@@ -235,11 +451,53 @@ fn lower_class(
         span,
         body_span,
         is_abstract: decl.r#abstract,
+        is_declare: decl.declare,
         type_params,
         heritage,
+        superclass,
         decorators,
         fields,
         methods,
+    })
+}
+
+/// The field a constructor parameter declares, when it carries the modifier
+/// that makes it one: `public`, `protected`, `private` or `readonly`. Its
+/// default value is the field's initializer, and the decorators written
+/// above it, after `floor`, are the field's.
+fn parameter_property(
+    param: &FormalParameter<'_>,
+    source: &str,
+    floor: usize,
+    filter: Option<&HashSet<String>>,
+) -> Option<FieldIR> {
+    if param.accessibility.is_none() && !param.readonly {
+        return None;
+    }
+    let BindingPattern::BindingIdentifier(ident) = &param.pattern else {
+        return None;
+    };
+    let (ts_type, untyped) = declared_type(
+        param.type_annotation.as_deref(),
+        param.initializer.as_deref(),
+        param.readonly,
+        source,
+    );
+    Some(FieldIR {
+        name: ident.name.to_string(),
+        key: MemberKey::Named,
+        span: oxc_span_ir(param.span),
+        ts_type,
+        optional: param.optional,
+        readonly: param.readonly,
+        visibility: visibility(param.accessibility),
+        decorators: collect_leading_decorators(source, floor, param.span.start as usize, filter),
+        initializer: param
+            .initializer
+            .as_ref()
+            .map(|value| source_text(value.span(), source)),
+        accessor: false,
+        untyped,
     })
 }
 
@@ -254,6 +512,10 @@ pub fn lower_interfaces(
             Statement::TSInterfaceDeclaration(d) => Some(d.as_ref()),
             Statement::ExportDeclaration(d) => match &d.declaration {
                 Declaration::TSInterfaceDeclaration(d) => Some(d.as_ref()),
+                _ => None,
+            },
+            Statement::ExportDefaultDeclaration(d) => match &d.declaration {
+                ExportDefaultDeclarationKind::TSInterfaceDeclaration(d) => Some(d.as_ref()),
                 _ => None,
             },
             _ => None,
@@ -305,6 +567,16 @@ fn lower_interface(
     }
 }
 
+/// The members of an object type written in place. A method it declares is
+/// a member that holds a function, since the type has no list of methods
+/// apart from its fields.
+fn object_type_fields(literal: &TSTypeLiteral<'_>, source: &str) -> Vec<InterfaceFieldIR> {
+    let (mut fields, methods) =
+        lower_interface_members(&literal.members, literal.span.start, source, None);
+    fields.extend(methods.iter().map(InterfaceMethodIR::as_field));
+    fields
+}
+
 /// The members of an interface or type literal whose body opens with the `{`
 /// at `body_start`.
 fn lower_interface_members(
@@ -315,33 +587,93 @@ fn lower_interface_members(
 ) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
     let mut fields = Vec::new();
     let mut methods = Vec::new();
+    // The properties declared by a `get` or a `set` signature, by name.
+    let accessors = |kind: TSMethodSignatureKind| -> HashSet<String> {
+        body.iter()
+            .filter_map(|member| match member {
+                TSSignature::TSMethodSignature(accessor) if accessor.kind == kind => {
+                    Some(property_name(&accessor.key, accessor.computed, source).0)
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let (getters, setters) = (
+        accessors(TSMethodSignatureKind::Get),
+        accessors(TSMethodSignatureKind::Set),
+    );
 
     let mut previous_end = body_start as usize + 1;
     for elem in body {
         let floor = std::mem::replace(&mut previous_end, elem.span().end as usize);
         match elem {
-            TSSignature::TSPropertySignature(prop) => {
-                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
-                    let ts_type = prop
-                        .type_annotation
-                        .as_ref()
-                        .map(|ann| {
-                            let sp = ann.type_annotation.span();
-                            source[sp.start as usize..sp.end as usize].to_string()
-                        })
-                        .unwrap_or_else(|| "any".to_string());
-
-                    let field_decorators =
-                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
-                    fields.push(InterfaceFieldIR {
-                        name: ident.name.to_string(),
-                        span: oxc_span_ir(prop.span),
-                        ts_type,
-                        optional: prop.optional,
-                        readonly: prop.readonly,
-                        decorators: field_decorators,
-                    });
+            // `get name(): T` declares a property of type `T`, which nothing
+            // sets without a `set` beside it. A lone `set name(value: T)`
+            // declares one of its parameter's type.
+            TSSignature::TSMethodSignature(accessor)
+                if accessor.kind != TSMethodSignatureKind::Method =>
+            {
+                let (name, key) = property_name(&accessor.key, accessor.computed, source);
+                let is_getter = accessor.kind == TSMethodSignatureKind::Get;
+                if !is_getter && getters.contains(&name) {
+                    continue;
                 }
+                let annotation = if is_getter {
+                    accessor.return_type.as_deref()
+                } else {
+                    accessor
+                        .params
+                        .items
+                        .first()
+                        .and_then(|param| param.type_annotation.as_deref())
+                };
+                fields.push(InterfaceFieldIR {
+                    readonly: is_getter && !setters.contains(&name),
+                    name,
+                    key,
+                    span: oxc_span_ir(accessor.span),
+                    ts_type: annotated_type(annotation, source),
+                    optional: false,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        accessor.span.start as usize,
+                        filter,
+                    ),
+                });
+            }
+            TSSignature::TSPropertySignature(prop) => {
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                fields.push(InterfaceFieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type: annotated_type(prop.type_annotation.as_deref(), source),
+                    optional: prop.optional,
+                    readonly: prop.readonly,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                });
+            }
+            TSSignature::TSIndexSignature(signature) => {
+                fields.push(InterfaceFieldIR {
+                    name: index_signature_name(signature.span, source),
+                    key: MemberKey::Unnamed,
+                    span: oxc_span_ir(signature.span),
+                    ts_type: annotated_type(Some(&*signature.type_annotation), source),
+                    optional: false,
+                    readonly: signature.readonly,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        signature.span.start as usize,
+                        filter,
+                    ),
+                });
             }
             TSSignature::TSMethodSignature(meth) => {
                 if let PropertyKey::StaticIdentifier(ident) = &meth.key {
@@ -497,6 +829,7 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
         decorators,
         variants,
         is_const: decl.r#const,
+        is_declare: decl.declare,
     }
 }
 
@@ -565,11 +898,9 @@ fn lower_union_member(t: &TSType<'_>, floor: usize, source: &str) -> TypeMember 
         TSType::TSLiteralType(_) => TypeMemberKind::Literal(text),
         TSType::TSTypeLiteral(lit) => match brand_symbols(lit) {
             Some(symbols) => TypeMemberKind::Brand(symbols),
-            None => {
-                let (fields, _) =
-                    lower_interface_members(&lit.members, lit.span.start, source, None);
-                TypeMemberKind::Object { fields }
-            }
+            None => TypeMemberKind::Object {
+                fields: object_type_fields(lit, source),
+            },
         },
         TSType::TSIntersectionType(inter) => {
             TypeMemberKind::Intersection(lower_union_members(&inter.types, source))
@@ -620,11 +951,9 @@ fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
         TSType::TSIntersectionType(inter) => {
             TypeBody::Intersection(lower_union_members(&inter.types, source))
         }
-        TSType::TSTypeLiteral(lit) => {
-            let (fields, _methods) =
-                lower_interface_members(&lit.members, lit.span.start, source, None);
-            TypeBody::Object { fields }
-        }
+        TSType::TSTypeLiteral(lit) => TypeBody::Object {
+            fields: object_type_fields(lit, source),
+        },
         TSType::TSTupleType(tuple) => {
             let elements = tuple
                 .element_types
@@ -920,6 +1249,95 @@ pub fn lower_targets(
     Ok(targets)
 }
 
+/// The names a module exports its own declarations under besides their own:
+/// `default` for a default export (`export default class User`, `export
+/// default User`) and the alias of `export { User as Member }`, each as the
+/// declared name and the exported one. A re-export from another module
+/// exports no declaration of this one.
+pub fn collect_export_aliases(program: &Program<'_>) -> Vec<(String, String)> {
+    let mut aliases = Vec::new();
+    for statement in &program.body {
+        match statement {
+            Statement::ExportNamedDeclaration(export) => {
+                for specifier in &export.specifiers {
+                    let (declared, exported) = (specifier.local.name(), specifier.exported.name());
+                    if declared != exported {
+                        aliases.push((declared.to_string(), exported.to_string()));
+                    }
+                }
+            }
+            Statement::ExportDefaultDeclaration(export) => {
+                let declared = match &export.declaration {
+                    ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+                        class.id.as_ref().map(|id| id.name.to_string())
+                    }
+                    ExportDefaultDeclarationKind::TSInterfaceDeclaration(interface) => {
+                        Some(interface.id.name.to_string())
+                    }
+                    ExportDefaultDeclarationKind::Identifier(name) => Some(name.name.to_string()),
+                    _ => None,
+                };
+                if let Some(declared) = declared {
+                    aliases.push((declared, "default".to_string()));
+                }
+            }
+            _ => {}
+        }
+    }
+    aliases
+}
+
+/// What a module exports again from other modules: `export { A as B } from
+/// './a'`, `export { default as A } from './a'` and `export * from './a'`,
+/// and a name it imports and then exports (`import { A } from './a'; export
+/// { A as B }`, `export default A`). `export * as space from './a'` and an
+/// exported namespace import export a namespace, which names no type.
+pub fn collect_re_exports(program: &Program<'_>) -> Vec<ModuleReExport> {
+    let imports = crate::import_registry::collect_file_imports(program);
+    let imported_as = |local: &str, exported: &str| {
+        let import = imports.iter().find(|import| import.local_name == local)?;
+        let imported = import.original_name.as_deref().unwrap_or(local);
+        (imported != "*").then(|| ModuleReExport {
+            module_specifier: import.module_specifier.clone(),
+            imported: imported.to_string(),
+            exported: exported.to_string(),
+        })
+    };
+    let mut re_exports = Vec::new();
+    for statement in &program.body {
+        match statement {
+            Statement::ExportNamedDeclaration(export) => {
+                re_exports.extend(export.specifiers.iter().filter_map(|specifier| {
+                    imported_as(&specifier.local.name(), &specifier.exported.name())
+                }));
+            }
+            Statement::ExportDefaultDeclaration(export) => {
+                if let ExportDefaultDeclarationKind::Identifier(name) = &export.declaration {
+                    re_exports.extend(imported_as(&name.name, "default"));
+                }
+            }
+            Statement::ExportFromDeclaration(export) => {
+                for specifier in &export.specifiers {
+                    re_exports.push(ModuleReExport {
+                        module_specifier: export.source.value.to_string(),
+                        imported: specifier.local.name().to_string(),
+                        exported: specifier.exported.name().to_string(),
+                    });
+                }
+            }
+            Statement::ExportAllDeclaration(export) if export.exported.is_none() => {
+                re_exports.push(ModuleReExport {
+                    module_specifier: export.source.value.to_string(),
+                    imported: "*".to_string(),
+                    exported: "*".to_string(),
+                });
+            }
+            _ => {}
+        }
+    }
+    re_exports
+}
+
 /// Collect names of exported declarations from a parsed Oxc program.
 pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
     let mut names = HashSet::new();
@@ -954,13 +1372,17 @@ pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
                     names.insert(spec.local.name().to_string());
                 }
             }
-            Statement::ExportDefaultDeclaration(decl) => {
-                if let ExportDefaultDeclarationKind::ClassDeclaration(c) = &decl.declaration
-                    && let Some(id) = &c.id
-                {
-                    names.insert(id.name.to_string());
+            Statement::ExportDefaultDeclaration(decl) => match &decl.declaration {
+                ExportDefaultDeclarationKind::ClassDeclaration(c) => {
+                    if let Some(id) = &c.id {
+                        names.insert(id.name.to_string());
+                    }
                 }
-            }
+                ExportDefaultDeclarationKind::TSInterfaceDeclaration(i) => {
+                    names.insert(i.id.name.to_string());
+                }
+                _ => {}
+            },
             _ => {}
         }
     }
@@ -972,8 +1394,9 @@ pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
 mod tests {
     use super::{
         ClassIR, InterfaceIR, Program, SpanIR, TypeAliasIR, TypeBody, TypeMemberKind,
-        lower_classes, lower_interfaces, lower_type_aliases,
+        lower_classes, lower_enums, lower_interfaces, lower_type_aliases,
     };
+    use crate::abi::MemberKey;
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
     use oxc::span::SourceType;
@@ -1037,6 +1460,169 @@ mod tests {
                 "{source}"
             );
         }
+    }
+
+    #[test]
+    fn a_field_takes_the_type_its_declaration_makes_plain() {
+        let class = single_class(
+            "class Shape { count = 0; label = 'a'; on = true; big = 1n; low = -1; note = `n${1}`; \
+             at = new Date(); tags = new Set<string>(); ratio = (0.5 as number); held = <string>x; \
+             checked = 2 satisfies number; pattern = /a/; readonly kind = 'k'; readonly rank = -2; \
+             readonly mark = `m`; list = []; made = new Thing(); frozen = [1] as const; \
+             said: string = x; accessor step = 1; static accessor all = 0; accessor open; \
+             constructor(public id = '', readonly code = 7, private bag = {}) {} }",
+        );
+        let plain = |name: &'static str, ts_type: &'static str| (name, ts_type, false, false);
+        let unsaid = |name: &'static str| (name, "any", true, false);
+        assert_eq!(
+            class
+                .fields
+                .iter()
+                .map(|field| {
+                    (
+                        field.name.as_str(),
+                        field.ts_type.as_str(),
+                        field.untyped,
+                        field.accessor,
+                    )
+                })
+                .collect::<Vec<_>>(),
+            vec![
+                plain("count", "number"),
+                plain("label", "string"),
+                plain("on", "boolean"),
+                plain("big", "bigint"),
+                plain("low", "number"),
+                plain("note", "string"),
+                plain("at", "Date"),
+                plain("tags", "Set<string>"),
+                plain("ratio", "number"),
+                plain("held", "string"),
+                plain("checked", "number"),
+                plain("pattern", "RegExp"),
+                plain("kind", "'k'"),
+                plain("rank", "-2"),
+                unsaid("mark"),
+                unsaid("list"),
+                unsaid("made"),
+                unsaid("frozen"),
+                plain("said", "string"),
+                ("step", "number", false, true),
+                ("open", "any", true, true),
+                plain("id", "string"),
+                plain("code", "7"),
+                unsaid("bag"),
+            ]
+        );
+    }
+
+    #[test]
+    fn an_accessor_signature_declares_a_field_and_a_method_a_function() {
+        let interface = single_interface(
+            "interface Sized { id: string; get size(): number; set size(value: number); get stamp(): Date; set mark(value: string); run(): void; }",
+        );
+        assert_eq!(
+            interface
+                .fields
+                .iter()
+                .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.readonly))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id", "string", false),
+                ("size", "number", false),
+                ("stamp", "Date", true),
+                ("mark", "string", false),
+            ]
+        );
+        assert_eq!(
+            interface
+                .methods
+                .iter()
+                .map(|method| method.name.as_str())
+                .collect::<Vec<_>>(),
+            vec!["run"]
+        );
+
+        let allocator = Allocator::default();
+        let source = "type Sized = { id: string; get size(): number; run(count: number): void; };";
+        let aliases =
+            lower_type_aliases(&parse(&allocator, source), source).expect("aliases should lower");
+        let fields = aliases
+            .first()
+            .and_then(|alias| alias.body.as_object())
+            .expect("an object type");
+        assert_eq!(
+            fields
+                .iter()
+                .map(|field| (field.name.as_str(), field.ts_type.as_str()))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id", "string"),
+                ("size", "number"),
+                ("run", "(count: number) => void"),
+            ]
+        );
+    }
+
+    #[test]
+    fn an_enum_is_carried_with_how_it_is_declared() {
+        let declared = |source: &str| {
+            let allocator = Allocator::default();
+            let enums =
+                lower_enums(&parse(&allocator, source), source, None).expect("enums should lower");
+            let lowered = enums.first().expect("source declares an enum");
+            (lowered.is_const, lowered.is_declare)
+        };
+        assert_eq!(declared("enum Plain { A }"), (false, false));
+        assert_eq!(declared("const enum Inlined { A }"), (true, false));
+        assert_eq!(declared("declare enum Elsewhere { A }"), (false, true));
+    }
+
+    #[test]
+    fn a_member_is_carried_with_how_its_key_is_written() {
+        let class = single_class(
+            "class Bag { name = ''; 'first-name' = ''; #secret = 1; [KEY] = 2; [Symbol.iterator] = 3; 1.5 = 4; [key: string]: unknown; static [index: number]: string; }",
+        );
+        assert_eq!(
+            class
+                .fields
+                .iter()
+                .map(|field| (field.name.clone(), field.key))
+                .collect::<Vec<_>>(),
+            vec![
+                ("name".to_string(), MemberKey::Named),
+                ("first-name".to_string(), MemberKey::Named),
+                ("#secret".to_string(), MemberKey::Private),
+                ("[KEY]".to_string(), MemberKey::Unnamed),
+                ("[Symbol.iterator]".to_string(), MemberKey::Unnamed),
+                ("[1.5]".to_string(), MemberKey::Unnamed),
+                ("[key: string]".to_string(), MemberKey::Unnamed),
+            ]
+        );
+        assert_eq!(class.fields[6].ts_type, "unknown");
+
+        let interface = single_interface(
+            "interface Bag { id: string; '#tag': string; '[x]': string; [KEY]: number; readonly [key: string]: unknown; }",
+        );
+        assert_eq!(
+            interface
+                .fields
+                .iter()
+                .map(|field| (field.name.clone(), field.key))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id".to_string(), MemberKey::Named),
+                ("#tag".to_string(), MemberKey::Named),
+                ("[x]".to_string(), MemberKey::Named),
+                ("[KEY]".to_string(), MemberKey::Unnamed),
+                ("[key: string]".to_string(), MemberKey::Unnamed),
+            ]
+        );
+        assert!(interface.fields[4].readonly);
+
+        let alias = single_type_alias("type Bag = { id: string; [key: string]: unknown };");
+        let fields = alias.body.as_object().expect("an object type");
+        assert_eq!(fields[1].key, MemberKey::Unnamed);
     }
 
     #[test]

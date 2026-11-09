@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -27,17 +27,15 @@ class Data {
     val: number;
 
 constructor(props: { val: number }) {
+
     this.val = props.val;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Data } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Data.decodeWithContext(data, ctx);
+        const resultOrRef = Data.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -84,6 +82,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Data } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Data.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Data | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -96,30 +99,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Data.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Data | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Data") as Data | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Data.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("val")) && !("val" in obj)) {
-        errors.push({ field: "val", message: "missing required field" });
-    }
-    const instance = Object.create(Data.prototype) as Data;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["val", "val"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(Data.prototype);
+    const instance: { "val"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Data");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("val")) || (__fields.keeps("val") && obj["val"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("val")) ? "val" in obj : (__fields.keeps("val") && obj["val"] !== undefined)) {
         const __raw_val = obj["val"] as number;
 
-        if (!(typeof __raw_val === "number")) {
+        if (!(typeof __raw_val === "number" && globalThis.Number.isFinite(__raw_val))) {
             errors.push({ field: "val", message: __raw_val == null ? "Data.val is required" : "expected number" });
         } else {
             instance.val = __raw_val;
@@ -128,7 +137,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Data)) {
+        throw new TypeError("Data.decodeWithContext: the value made is no Data");
+    }
+    return made;
 }
 static validateField<K extends keyof Data>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -144,8 +156,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "val" in o;
+    return __mf_holdsAll(obj, ["val"]);
 }
 
 static is(obj: unknown): obj is Data {
@@ -155,14 +166,20 @@ static is(obj: unknown): obj is Data {
     if (!Data.hasShape(obj)) {
         return false;
     }
+
     const result = Data.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function dataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Data } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Data.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function dataFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Data } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Data.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -192,8 +209,19 @@ declare class Data {
 	constructor(props: {
 		val: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Data;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Data;
 	} | {
@@ -218,8 +246,19 @@ declare class Data {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is Data;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function dataDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Data;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function dataFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Data;
 } | {
@@ -245,17 +284,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 350..391
-original 63..94 -> expanded 391..422
-original 94..95 -> expanded 5191..5192
-original 95..96 -> expanded 6914..6915
-generated 0..350 <- imports
-generated 422..5191 <- Decode
-generated 5192..6914 <- Decode
+original 0..41 -> expanded 441..482
+original 63..94 -> expanded 482..513
+original 94..95 -> expanded 6002..6003
+original 95..96 -> expanded 8115..8116
+generated 0..441 <- imports
+generated 513..6002 <- Decode
+generated 6003..8115 <- Decode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

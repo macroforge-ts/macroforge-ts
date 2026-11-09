@@ -22,9 +22,13 @@ export enum Status {
 }
 
 export function statusToString(value: Status): string {
-    const key = Status[value as unknown as keyof typeof Status];
-    if (key !== undefined) {
-        return "Status." + key;
+
+    const held: unknown = value;
+    if (held === Status["Active"]) {
+        return "Status.Active";
+    }
+    if (held === Status["Inactive"]) {
+        return "Status.Inactive";
     }
     return "Status(" + String(value) + ")";
 }
@@ -51,13 +55,13 @@ export declare namespace Status {
 ## Mapping
 
 original 21..69 -> expanded 0..48
-original 69..70 -> expanded 377..378
-generated 48..283 <- Debug
-generated 283..377 <- __convenience_const
+original 69..70 -> expanded 433..434
+generated 48..339 <- Debug
+generated 339..433 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":70,"start":42},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"name":"Status","span":{"end":70,"start":30},"variants":[{"decorators":[],"name":"Active","span":{"end":54,"start":48},"value":{"Number":0.0}},{"decorators":[],"name":"Inactive","span":{"end":68,"start":60},"value":{"Number":1.0}}]}
+enum Status: {"body_span":{"end":70,"start":42},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"is_declare":false,"name":"Status","span":{"end":70,"start":30},"variants":[{"decorators":[],"name":"Active","span":{"end":54,"start":48},"value":{"Number":0.0}},{"decorators":[],"name":"Inactive","span":{"end":68,"start":60},"value":{"Number":1.0}}]}
 
 ## Registry reads
 

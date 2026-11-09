@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::builtin::derive::common::{
-    ValueType, classify_value_type, collection_element_type, derived_function, js_string, rendered,
-    structural_helper,
+    Member, ValueType, classify_value_type, collection_element_type, derived_function, js_string,
+    rendered, structural_helper,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
@@ -21,7 +21,7 @@ pub(super) fn push_statements(
             let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
             let shown = debug_value_expr(
                 &field.ts_type,
-                &rendered(ts_template! { value.@{&field.name} }),
+                &rendered(ts_template! { value@{Member::of(&field.name)} }),
                 resolved,
                 registry,
             );

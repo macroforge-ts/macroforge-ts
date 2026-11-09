@@ -3,11 +3,23 @@
 use crate::ast::Ident;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::TypeParamIR;
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
+use super::registry_helpers::InheritedStatics;
 use super::value_type::rendered;
 
 use convert_case::{Case, Casing};
+
+/// What the functions generated for the type `type_name` are named by: the
+/// name in camel case, `user` for `User` and `httpServer` for `HTTPServer`.
+/// The underscores a name opens with stay where they are, so `_Hidden` gives
+/// `_hidden`: case tells nothing apart before them, and a name of nothing
+/// else would leave no prefix at all.
+pub fn function_prefix(type_name: &str) -> String {
+    let named = type_name.trim_start_matches('_');
+    let underscores = type_name.strip_suffix(named).unwrap_or_default();
+    format!("{underscores}{}", named.to_case(Case::Camel))
+}
 
 /// A type's name and parameters, which name its generated functions.
 pub(crate) struct TypeNames {
@@ -21,6 +33,8 @@ pub(crate) struct TypeNames {
     pub generic_args: String,
     /// The type applied to its parameters, e.g. `Box<T>`.
     pub full_type: String,
+    /// The statics a class is handed down, which its own override.
+    inherited: InheritedStatics,
 }
 
 /// The key parameter of a `validateField`.
@@ -43,12 +57,18 @@ impl TypeNames {
             generic_decl: TypeParamIR::declare_all(type_params),
             params: type_params.iter().map(|param| param.name.clone()).collect(),
             generic_args,
+            inherited: InheritedStatics::default(),
         }
+    }
+
+    /// The names of a class that is handed down `inherited`.
+    pub fn inheriting(self, inherited: InheritedStatics) -> Self {
+        Self { inherited, ..self }
     }
 
     /// `{camelName}{suffix}`, the name of one generated function.
     pub fn function(&self, suffix: &str) -> String {
-        format!("{}{suffix}", self.type_name.to_case(Case::Camel))
+        format!("{}{suffix}", function_prefix(&self.type_name))
     }
 
     /// `{camelName}{suffix}<T extends Shape>`, a generated function declaring
@@ -60,7 +80,51 @@ impl TypeNames {
     /// `{name}<T extends Shape>`, a generated static method declaring the
     /// type's parameters: a static member cannot name the class's own.
     pub fn generic_method(&self, name: &str) -> Ident {
-        ts_ident!(format!("{name}{}", self.generic_decl))
+        self.static_method(name, &self.generic_decl)
+    }
+
+    /// `{name}{type_params}`, a generated static method, marked `override`
+    /// when a class the type extends hands down one of that name: without
+    /// the mark it fails `noImplicitOverride`, and with one it has no need
+    /// of it fails everywhere.
+    pub fn static_method(&self, name: &str, type_params: &str) -> Ident {
+        let modifier = if self.inherited.holds(name) {
+            "override "
+        } else {
+            ""
+        };
+        ts_ident!(format!("{modifier}{name}{type_params}"))
+    }
+
+    /// A function a class derives, written where it reaches every field of
+    /// the class, a private one included: `body` as the static method
+    /// `method`, and the standalone `{camelName}{suffix}` that runs it.
+    /// `params` is what both take, and `arguments` hands it on.
+    pub fn class_function(
+        &self,
+        method: &str,
+        suffix: &str,
+        params: &str,
+        arguments: &str,
+        return_type: &str,
+        body: TsStream,
+    ) -> TsStream {
+        let function = self.generic_function(suffix);
+        let static_method = self.generic_method(method);
+        let class = ts_ident!(self.type_name.as_str());
+        let call = ts_ident!(format!("{method}{}", self.generic_args));
+        let standalone = ts_template! {
+            export function @{function}(@{params}): @{return_type} {
+                return @{class}.@{call}(@{arguments});
+            }
+        };
+        let class_body = ts_template!(Within {
+            static @{static_method}(@{params}): @{return_type} {
+                {$typescript body}
+            }
+        });
+        // The standalone function comes first, so it lands below the class.
+        standalone.merge(class_body)
     }
 
     /// The key a `validateField` validates, declared after the type's own
@@ -95,19 +159,6 @@ impl TypeNames {
     /// The type applied to its parameters, as an identifier.
     pub fn full_type_ident(&self) -> Ident {
         ts_ident!(self.full_type.as_str())
-    }
-
-    /// The type an instance is filled in under, field by field, outside its
-    /// constructor: the type itself, or its writable form when a field is
-    /// `readonly`, which only a constructor may otherwise assign.
-    pub fn fillable_type_ident(&self, has_readonly_field: bool) -> Ident {
-        if !has_readonly_field {
-            return self.full_type_ident();
-        }
-        let full = self.full_type.as_str();
-        ts_ident!(rendered(
-            ts_template! { { -readonly [Key in keyof @{full}]: @{full}[Key] } }
-        ))
     }
 }
 

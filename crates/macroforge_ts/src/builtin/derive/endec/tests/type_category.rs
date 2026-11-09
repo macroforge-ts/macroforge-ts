@@ -135,6 +135,42 @@ fn test_type_category_encodable() {
     );
 }
 
+/// A name is a type by being one, not by the letter it starts with, and a
+/// word the language keeps for itself is none.
+#[test]
+fn a_name_is_a_type_whatever_it_starts_with() {
+    for name in [
+        "lower",
+        "point2D",
+        "_Hidden",
+        "__double",
+        "$Dollar",
+        "my_type",
+        "élan",
+        "Ünïcode",
+    ] {
+        assert_eq!(
+            TypeCategory::from_ts_type(name),
+            TypeCategory::Encodable(name.to_string()),
+            "{name}"
+        );
+    }
+    assert_eq!(
+        TypeCategory::from_ts_type("box<string>"),
+        TypeCategory::Encodable("box".into())
+    );
+    for keyword in [
+        "any", "unknown", "never", "void", "object", "symbol", "true", "false", "this", "1", "1n",
+        "0x10",
+    ] {
+        assert_eq!(
+            TypeCategory::from_ts_type(keyword),
+            TypeCategory::Unknown,
+            "{keyword}"
+        );
+    }
+}
+
 #[test]
 fn test_type_category_encodable_strips_generics() {
     // Generic type parameters must be stripped from the Encodable variant
@@ -274,5 +310,48 @@ fn test_type_category_non_encodable_utility_types() {
     assert_eq!(
         TypeCategory::from_ts_type("Awaited<Promise<User>>"),
         TypeCategory::Unknown
+    );
+}
+
+#[test]
+fn test_type_category_reads_a_grouped_type_as_the_type_in_it() {
+    assert_eq!(
+        TypeCategory::from_ts_type("(string | undefined)"),
+        TypeCategory::Optional("string".to_string())
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("((Date | null))"),
+        TypeCategory::Nullable("Date".to_string())
+    );
+    // The parentheses of an array's element type group the element, not the array.
+    assert!(matches!(
+        TypeCategory::from_ts_type("(string | number)[]"),
+        TypeCategory::Array(_)
+    ));
+}
+
+/// A generic's arguments are split at the comma between them, past the
+/// arrows, brackets and strings an argument holds, and a union of generics
+/// is no one generic.
+#[test]
+fn a_generic_is_read_by_its_own_arguments() {
+    assert_eq!(
+        TypeCategory::from_ts_type("Map<(value: string) => (other: number) => 7, string | null>"),
+        TypeCategory::Map(
+            "(value: string) => (other: number) => 7".to_string(),
+            "string | null".to_string()
+        )
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Record<'a, b', number>"),
+        TypeCategory::Record("'a, b'".to_string(), "number".to_string())
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Record<string, A> | Record<string, B>"),
+        TypeCategory::Unknown
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Pick<User, 'a' | 'b'>"),
+        TypeCategory::Wrapper("User".to_string())
     );
 }

@@ -59,8 +59,14 @@ export function structuralEquals(left: unknown, right: unknown): boolean {
   return equalsWithin(left, right, new Map());
 }
 
+/** Whether two numbers are the same one, `NaN` being the same as `NaN`. */
+function sameNumber(left: number, right: number): boolean {
+  return left === right || (Number.isNaN(left) && Number.isNaN(right));
+}
+
 function equalsWithin(left: unknown, right: unknown, seen: Map<object, Set<object>>): boolean {
   if (left === right) return true;
+  if (typeof left === 'number' && typeof right === 'number') return sameNumber(left, right);
   if (typeof left !== 'object' || typeof right !== 'object' || left === null || right === null) {
     return false;
   }
@@ -72,7 +78,9 @@ function equalsWithin(left: unknown, right: unknown, seen: Map<object, Set<objec
 
   const equals = classTrait(left, 'equals');
   if (equals) return equals(left, right) === true;
-  if (left instanceof Date && right instanceof Date) return left.getTime() === right.getTime();
+  if (left instanceof Date && right instanceof Date) {
+    return sameNumber(left.getTime(), right.getTime());
+  }
   if (left instanceof RegExp && right instanceof RegExp) {
     return left.source === right.source && left.flags === right.flags;
   }
@@ -207,7 +215,135 @@ function hashObject(value: object, path: Set<object>): number {
  */
 export function structuralClone<T>(value: T): T;
 export function structuralClone(value: unknown): unknown {
-  return cloneWithin(value, new Map());
+  return walking(cloning, () => new Map<object, unknown>(), (copies) => cloneWithin(value, copies));
+}
+
+/**
+ * What one walk over a value keeps, from the outermost call of it to that
+ * call's return. The functions a derive generates call each other and the
+ * structural ones freely, and a walk they all share is what lets any of them
+ * know a value it has met before, as a value that holds itself is.
+ */
+interface Walk<State> {
+  current?: State;
+}
+
+function walking<State, Result>(
+  walk: Walk<State>,
+  begin: () => State,
+  step: (state: State) => Result,
+): Result {
+  if (walk.current !== undefined) return step(walk.current);
+  const state = begin();
+  walk.current = state;
+  try {
+    return step(state);
+  } finally {
+    walk.current = undefined;
+  }
+}
+
+const cloning: Walk<Map<object, unknown>> = {};
+const equating: Walk<Map<object, Set<object>>> = {};
+const comparing: Walk<Map<object, Set<object>>> = {};
+const hashing: Walk<Set<object>> = {};
+const rendering: Walk<Set<object>> = {};
+
+/**
+ * The copy of `value` a derived `Clone` makes: an object of `value`'s own
+ * prototype, made without running a constructor, holding the fields
+ * `fields` gives. A value met again within one clone, as one held twice or
+ * one that holds itself is, is the copy already made of it.
+ */
+export function clonedWith<T extends object>(value: T, fields: () => object): T;
+export function clonedWith(value: object, fields: () => object): unknown {
+  return walking(cloning, () => new Map<object, unknown>(), (copies) => {
+    if (copies.has(value)) return copies.get(value);
+    const copy: object = Object.create(Object.getPrototypeOf(value));
+    copies.set(value, copy);
+    return Object.assign(copy, fields());
+  });
+}
+
+/**
+ * What `compare` gives for `left` and `right`, or `same` when the two are
+ * already being compared further out in the walk `pairs`.
+ */
+function comparingPair<Result>(
+  pairs: Map<object, Set<object>>,
+  left: object,
+  right: object,
+  same: Result,
+  compare: () => Result,
+): Result {
+  const partners = pairs.get(left) ?? new Set<object>();
+  pairs.set(left, partners);
+  if (partners.has(right)) return same;
+  partners.add(right);
+  try {
+    return compare();
+  } finally {
+    partners.delete(right);
+  }
+}
+
+/**
+ * Whether `left` and `right` are equal by `equal`, for a derived
+ * `PartialEq`. A pair met again while it is being compared, as two values
+ * that hold themselves the same way are, is equal as far as that goes.
+ */
+export function equalWithin(left: object, right: object, equal: () => boolean): boolean {
+  return walking(
+    equating,
+    () => new Map<object, Set<object>>(),
+    (pairs) => comparingPair(pairs, left, right, true, equal),
+  );
+}
+
+/**
+ * How `left` and `right` are ordered by `compare`, for a derived `Ord` or
+ * `PartialOrd`. A pair met again while it is being compared is ordered
+ * equal as far as that goes.
+ */
+export function comparedWithin<Order>(left: object, right: object, compare: () => Order): Order | 0 {
+  return walking(
+    comparing,
+    () => new Map<object, Set<object>>(),
+    (pairs) => comparingPair<Order | 0>(pairs, left, right, 0, compare),
+  );
+}
+
+/**
+ * The hash `hash` gives `value`, for a derived `Hash`. A value met again
+ * while it is being hashed adds nothing, so equal values that hold
+ * themselves hash alike.
+ */
+export function hashedWithin(value: object, hash: () => number): number {
+  return walking(hashing, () => new Set<object>(), (open) => {
+    if (open.has(value)) return 0;
+    open.add(value);
+    try {
+      return hash();
+    } finally {
+      open.delete(value);
+    }
+  });
+}
+
+/**
+ * The rendering `render` gives `value`, for a derived `Debug`. A value met
+ * again while it is being rendered is `[Circular]`.
+ */
+export function debuggedWithin(value: object, render: () => string): string {
+  return walking(rendering, () => new Set<object>(), (open) => {
+    if (open.has(value)) return '[Circular]';
+    open.add(value);
+    try {
+      return render();
+    } finally {
+      open.delete(value);
+    }
+  });
 }
 
 function cloneWithin(value: unknown, seen: Map<object, unknown>): unknown {
@@ -254,14 +390,21 @@ function cloneWithin(value: unknown, seen: Map<object, unknown>): unknown {
 }
 
 /**
+ * A new object with `prototype` and `fields` as its own properties: an
+ * instance of the class whose prototype it is, made without running its
+ * constructor. `fields` is whatever the caller holds for the instance's
+ * fields, private ones included, which no type over the instance can name.
+ */
+export function instanceOf<T extends object>(prototype: T, fields: object): T {
+  return Object.assign(Object.create(prototype), fields);
+}
+
+/**
  * A new object with `value`'s prototype and `fields` as its own properties:
  * an instance of `value`'s class, made without running its constructor.
  */
-export function instanceWith<T extends object>(
-  value: T,
-  fields: { [Key in keyof T]?: T[Key] | undefined },
-): T {
-  return Object.assign(Object.create(Object.getPrototypeOf(value)), fields);
+export function instanceWith<T extends object>(value: T, fields: object): T {
+  return instanceOf(Object.getPrototypeOf(value), fields);
 }
 
 /**

@@ -1,19 +1,28 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+#[cfg(not(all(target_arch = "wasm32", feature = "wasm")))]
 use ignore::WalkBuilder;
 
+use crate::host::file_access;
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+use crate::host::file_access::PathKind;
+
 use crate::host::declarative::ProjectDeclarativeRegistry;
-use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
+use crate::ts_syn::abi::ir::type_registry::{
+    ReExport, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+};
 
 use crate::ts_syn::{
-    collect_exported_names, collect_file_imports, lower_classes, lower_enums, lower_interfaces,
-    lower_type_aliases,
+    collect_export_aliases, collect_exported_names, collect_file_imports, collect_re_exports,
+    lower_classes, lower_enums, lower_interfaces, lower_type_aliases,
 };
 
 use super::cache::{CacheEntry, FileStamp, ScanCache, file_stamp, splice_declarative};
 use super::config::ScanConfig;
+use super::re_exports::link_re_exports;
 
 /// Result of scanning a project.
 pub struct ScanOutput {
@@ -154,17 +163,29 @@ impl ProjectScanner {
             removed = cache.len() != before;
         }
 
+        // A barrel declares nothing: what it exports again is recorded on
+        // the declarations it leads to.
+        let scanned: Vec<(String, &CacheEntry)> = paths
+            .iter()
+            .zip(&entries)
+            .filter_map(|(path, entry)| match entry {
+                Some(Ok(entry)) => Some((path.to_string_lossy().to_string(), entry.as_ref())),
+                Some(Err(_)) | None => None,
+            })
+            .collect();
+        let re_exported = link_re_exports(&scanned);
+
         let mut registry = TypeRegistry::new();
         let mut declarative_registry = ProjectDeclarativeRegistry::new();
         let root_str = self.config.root_dir.to_string_lossy().to_string();
         let mut macro_files: u32 = 0;
-        for (path, entry) in paths.iter().zip(entries) {
+        for (path, entry) in paths.iter().zip(&entries) {
             match entry {
                 Some(Ok(entry)) => {
                     let file_name = path.to_string_lossy().to_string();
-                    splice_declarative(&mut declarative_registry, &file_name, &entry);
+                    splice_declarative(&mut declarative_registry, &file_name, entry);
                     macro_files += u32::from(entry.uses_macros);
-                    self.register_items(&mut registry, &root_str, &file_name, &entry);
+                    self.register_items(&mut registry, &root_str, &file_name, entry, &re_exported);
                 }
                 Some(Err(e)) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
                 None => warnings.push(format!("{} was not scanned", path.display())),
@@ -183,6 +204,7 @@ impl ProjectScanner {
 
     /// The source files under the root, in path order, and warnings for
     /// entries the walk could not read or files past the limit.
+    #[cfg(not(all(target_arch = "wasm32", feature = "wasm")))]
     fn source_files(&self) -> (Vec<PathBuf>, Vec<String>) {
         let root = self.config.root_dir.clone();
         let skip_dirs = self.config.skip_dirs.clone();
@@ -238,12 +260,32 @@ impl ProjectScanner {
         (paths, warnings)
     }
 
+    /// The source files under the root, walked through Node's `fs` as the
+    /// wasm build has no filesystem of its own: in path order, hidden entries
+    /// and the configured directories left out, and, inside a git repository,
+    /// what each directory's `.gitignore` names, as the native walk does.
+    #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+    fn source_files(&self) -> (Vec<PathBuf>, Vec<String>) {
+        let mut walk = BridgedWalk {
+            scanner: self,
+            in_repository: self.config.root_dir.ancestors().any(|dir| {
+                file_access::kind(&dir.join(".git")).is_ok_and(|kind| kind != PathKind::Absent)
+            }),
+            ignores: Vec::new(),
+            paths: Vec::new(),
+            warnings: Vec::new(),
+        };
+        walk.directory(&self.config.root_dir);
+        (walk.paths, walk.warnings)
+    }
+
     fn register_items(
         &self,
         registry: &mut TypeRegistry,
         project_root: &str,
         file_name: &str,
         entry: &CacheEntry,
+        re_exported: &HashMap<(String, String), Vec<ReExport>>,
     ) {
         let definitions = entry
             .classes
@@ -277,6 +319,16 @@ impl ProjectScanner {
                     name: name.clone(),
                     file_path: file_name.to_string(),
                     is_exported,
+                    exported_as: entry
+                        .export_aliases
+                        .iter()
+                        .filter(|(declared, _)| declared == name)
+                        .map(|(_, exported)| exported.clone())
+                        .collect(),
+                    re_exported: re_exported
+                        .get(&(file_name.to_string(), name.clone()))
+                        .cloned()
+                        .unwrap_or_default(),
                     definition,
                     file_imports: entry.file_imports.clone(),
                 },
@@ -317,18 +369,22 @@ fn lower_files(
 fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntry> {
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
-    use oxc::span::SourceType;
 
     let file_name = path.to_string_lossy();
-    let source = std::fs::read_to_string(path)?;
+    let source = file_access::read_to_string(path)?;
     let uses_macros = crate::has_macro_annotations(&source, &file_name);
 
     let allocator = Allocator::default();
-    let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
-    let ret = Parser::new(&allocator, &source, source_type).parse();
+    let ret = Parser::new(
+        &allocator,
+        &source,
+        crate::source_type::for_path(&file_name),
+    )
+    .parse();
 
     if !ret.diagnostics.is_empty() {
-        return Err(anyhow::anyhow!("parse errors: {:?}", ret.diagnostics));
+        let messages: Vec<String> = ret.diagnostics.iter().map(ToString::to_string).collect();
+        return Err(anyhow::anyhow!("parse errors: {}", messages.join("; ")));
     }
 
     // Declarative macro discovery shares the same parse. The discovery
@@ -360,6 +416,131 @@ fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntr
         declarative_macros,
         file_imports: collect_file_imports(&ret.program),
         exported_names: collect_exported_names(&ret.program),
+        export_aliases: collect_export_aliases(&ret.program),
+        re_exports: collect_re_exports(&ret.program),
         uses_macros,
     })
+}
+
+/// A walk of the project through Node's `fs`, for the wasm build.
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+struct BridgedWalk<'a> {
+    scanner: &'a ProjectScanner,
+    /// Whether the root is in a git repository, outside which the native
+    /// walk reads no `.gitignore`.
+    in_repository: bool,
+    /// The `.gitignore` of each directory from the root down to the current.
+    ignores: Vec<ignore::gitignore::Gitignore>,
+    paths: Vec<PathBuf>,
+    warnings: Vec<String>,
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+impl BridgedWalk<'_> {
+    /// Walks `dir`, returning `false` once the file limit is reached.
+    fn directory(&mut self, dir: &Path) -> bool {
+        let pushed = self.in_repository && self.push_gitignore(dir);
+        let keep_going = self.entries(dir);
+        if pushed {
+            self.ignores.pop();
+        }
+        keep_going
+    }
+
+    fn entries(&mut self, dir: &Path) -> bool {
+        let mut entries = match file_access::list_directory(dir) {
+            Ok(entries) => entries,
+            Err(error) => {
+                self.warnings.push(format!(
+                    "Skipped an unreadable directory {}: {error}",
+                    dir.display()
+                ));
+                return true;
+            }
+        };
+        entries.sort_by(|left, right| left.0.cmp(&right.0));
+        let config = &self.scanner.config;
+        for (name, kind) in entries {
+            if name.starts_with('.') {
+                continue;
+            }
+            let path = dir.join(&name);
+            let is_dir = kind == PathKind::Directory;
+            if self.ignored(&path, is_dir) {
+                continue;
+            }
+            match kind {
+                PathKind::Directory => {
+                    if !config.skip_dirs.contains(&name) && !self.directory(&path) {
+                        return false;
+                    }
+                }
+                PathKind::File => {
+                    let matches = path
+                        .extension()
+                        .and_then(|extension| extension.to_str())
+                        .is_some_and(|extension| {
+                            config.extensions.contains(&format!(".{extension}"))
+                        });
+                    if !matches {
+                        continue;
+                    }
+                    if self.paths.len() == config.max_files {
+                        self.warnings.push(format!(
+                            "Reached max file limit ({}). Some types may be missing.",
+                            config.max_files
+                        ));
+                        return false;
+                    }
+                    self.paths.push(path);
+                }
+                PathKind::Absent => {}
+            }
+        }
+        true
+    }
+
+    /// Reads `dir`'s `.gitignore` onto the stack, returning whether it did.
+    fn push_gitignore(&mut self, dir: &Path) -> bool {
+        let file = dir.join(".gitignore");
+        if !file_access::kind(&file).is_ok_and(|kind| kind == PathKind::File) {
+            return false;
+        }
+        let text = match file_access::read_to_string(&file) {
+            Ok(text) => text,
+            Err(error) => {
+                self.warnings
+                    .push(format!("Could not read {}: {error}", file.display()));
+                return false;
+            }
+        };
+        let mut builder = ignore::gitignore::GitignoreBuilder::new(dir);
+        for line in text.lines() {
+            if let Err(error) = builder.add_line(None, line) {
+                self.warnings.push(format!("{}: {error}", file.display()));
+            }
+        }
+        match builder.build() {
+            Ok(gitignore) => {
+                self.ignores.push(gitignore);
+                true
+            }
+            Err(error) => {
+                self.warnings.push(format!("{}: {error}", file.display()));
+                false
+            }
+        }
+    }
+
+    /// Whether the nearest `.gitignore` that speaks of `path` ignores it.
+    fn ignored(&self, path: &Path, is_dir: bool) -> bool {
+        for gitignore in self.ignores.iter().rev() {
+            match gitignore.matched(path, is_dir) {
+                ignore::Match::Ignore(_) => return true,
+                ignore::Match::Whitelist(_) => return false,
+                ignore::Match::None => {}
+            }
+        }
+        false
+    }
 }

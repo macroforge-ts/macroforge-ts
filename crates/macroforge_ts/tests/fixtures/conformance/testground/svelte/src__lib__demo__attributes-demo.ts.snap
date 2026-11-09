@@ -79,7 +79,7 @@ generated 766..840 <- nonExhaustive
 
 ## Metadata
 
-type ServerStatus: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"'green' | 'yellow' | 'red'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__nonExhaustive","optional":false,"readonly":true,"span":{"end":839,"start":800},"ts_type":"unique symbol"}]}}}]},"decorators":[],"name":"ServerStatus","span":{"end":842,"start":747},"type_params":[]}
+type ServerStatus: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"'green' | 'yellow' | 'red'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__nonExhaustive","optional":false,"readonly":true,"span":{"end":839,"start":800},"ts_type":"unique symbol"}]}}}]},"decorators":[],"name":"ServerStatus","span":{"end":842,"start":747},"type_params":[]}
 
 ## Registry reads
 

@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
-import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
-import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
-import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dailyRecurrenceRuleEncodeWithContext, dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
+import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
+import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
+import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,32 +48,34 @@ export function intervalEncode(value: Interval, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Interval): member is DailyRecurrenceRule => __mf_member(member, "__type") === "DailyRecurrenceRule", (member) => dailyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is WeeklyRecurrenceRule => __mf_member(member, "__type") === "WeeklyRecurrenceRule", (member) => weeklyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is MonthlyRecurrenceRule => __mf_member(member, "__type") === "MonthlyRecurrenceRule", (member) => monthlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is YearlyRecurrenceRule => __mf_member(member, "__type") === "YearlyRecurrenceRule", (member) => yearlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is DailyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfDays" in member, (member) => dailyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is WeeklyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfWeeks" in member && "weekdays" in member, (member) => weeklyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is MonthlyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfMonths" in member && "day" in member && "name" in member, (member) => monthlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is YearlyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfYears" in member, (member) => yearlyRecurrenceRuleEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = intervalDecodeWithContext(data, ctx);
+        const resultOrRef = intervalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -119,6 +121,10 @@ export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function intervalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => intervalDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Interval | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -131,7 +137,7 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "DailyRecurrenceRule") {
                 return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
@@ -210,21 +216,19 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function intervalHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
                     }
                 }
-
-                let __matchCount = 0;
-                if (dailyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (weeklyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (monthlyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (yearlyRecurrenceRuleHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (dailyRecurrenceRuleHasShape(value)) return true;
+                if (weeklyRecurrenceRuleHasShape(value)) return true;
+                if (monthlyRecurrenceRuleHasShape(value)) return true;
+                if (yearlyRecurrenceRuleHasShape(value)) return true;
+                return false;
 }
 export function intervalIs(value: unknown): value is Interval {
-    return intervalHasShape(value);
+    return intervalHasShape(value) && intervalDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -390,6 +394,7 @@ export const Interval: {
   readonly encode: typeof intervalEncode;
   readonly encodeWithContext: typeof intervalEncodeWithContext;
   readonly decode: typeof intervalDecode;
+  readonly fromString: typeof intervalFromString;
   readonly decodeWithContext: typeof intervalDecodeWithContext;
   readonly hasShape: typeof intervalHasShape;
   readonly is: typeof intervalIs;
@@ -400,6 +405,7 @@ export const Interval: {
   encode: intervalEncode,
   encodeWithContext: intervalEncodeWithContext,
   decode: intervalDecode,
+  fromString: intervalFromString,
   decodeWithContext: intervalDecodeWithContext,
   hasShape: intervalHasShape,
   is: intervalIs,
@@ -420,8 +426,19 @@ export declare function intervalDefaultValue(): Interval;
 export declare function intervalEncode(value: Interval, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Interval;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function intervalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Interval;
 } | {
@@ -519,6 +536,7 @@ export declare const Interval: {
 	readonly encode: typeof intervalEncode;
 	readonly encodeWithContext: typeof intervalEncodeWithContext;
 	readonly decode: typeof intervalDecode;
+	readonly fromString: typeof intervalFromString;
 	readonly decodeWithContext: typeof intervalDecodeWithContext;
 	readonly hasShape: typeof intervalHasShape;
 	readonly is: typeof intervalIs;
@@ -532,15 +550,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1168..1535
-original 416..564 -> expanded 1535..1683
-original 564..565 -> expanded 17004..17005
-generated 0..1168 <- imports
-generated 1683..1783 <- Default
-generated 1783..3039 <- Encode
-generated 3039..9594 <- Decode
-generated 9594..16214 <- Gigaform
-generated 16214..17004 <- __convenience_const
+original 0..367 -> expanded 1479..1846
+original 416..564 -> expanded 1846..1994
+original 564..565 -> expanded 19740..19741
+generated 0..1479 <- imports
+generated 1994..2094 <- Default
+generated 2094..5282 <- Encode
+generated 5282..12246 <- Decode
+generated 12246..18866 <- Gigaform
+generated 18866..19740 <- __convenience_const
 
 ## Metadata
 
@@ -549,10 +567,12 @@ type Interval: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 ## Registry reads
 
 Name("DailyRecurrenceRule")
+Name("Gigaform")
 Name("Interval")
 Name("MonthlyRecurrenceRule")
 Name("WeeklyRecurrenceRule")
 Name("YearlyRecurrenceRule")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

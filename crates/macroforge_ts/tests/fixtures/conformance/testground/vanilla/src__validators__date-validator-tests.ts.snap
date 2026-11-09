@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Date validator test classes for comprehensive decoder validation testing.
@@ -25,17 +25,15 @@ export class ValidDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ValidDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = ValidDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -82,6 +80,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ValidDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ValidDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -94,40 +97,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ValidDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ValidDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ValidDateValidator") as ValidDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ValidDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(ValidDateValidator.prototype) as ValidDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(ValidDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ValidDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "ValidDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined) {
+                errors.push({ field: "date", message: __raw_date == null ? "ValidDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "ValidDateValidator.date is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "date", message: "ValidDateValidator.date must be a valid date" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ValidDateValidator)) {
+        throw new TypeError("ValidDateValidator.decodeWithContext: the value made is no ValidDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ValidDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -155,8 +171,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is ValidDateValidator {
@@ -166,14 +181,20 @@ static is(obj: unknown): obj is ValidDateValidator {
     if (!ValidDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = ValidDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ValidDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function validDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ValidDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -203,17 +224,15 @@ export class GreaterThanDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -260,6 +279,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -272,40 +296,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanDateValidator") as GreaterThanDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(GreaterThanDateValidator.prototype) as GreaterThanDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(GreaterThanDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "GreaterThanDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "date", message: __raw_date == null ? "GreaterThanDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "GreaterThanDateValidator.date is required" }); } else {
                 if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: "date", message: "GreaterThanDateValidator.date must be after 2020-01-01" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanDateValidator)) {
+        throw new TypeError("GreaterThanDateValidator.decodeWithContext: the value made is no GreaterThanDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -333,8 +370,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is GreaterThanDateValidator {
@@ -344,14 +380,20 @@ static is(obj: unknown): obj is GreaterThanDateValidator {
     if (!GreaterThanDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -381,17 +423,15 @@ export class GreaterThanOrEqualToDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -438,6 +478,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanOrEqualToDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -450,40 +495,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanOrEqualToDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanOrEqualToDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanOrEqualToDateValidator") as GreaterThanOrEqualToDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(GreaterThanOrEqualToDateValidator.prototype) as GreaterThanOrEqualToDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(GreaterThanOrEqualToDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "GreaterThanOrEqualToDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "date", message: __raw_date == null ? "GreaterThanOrEqualToDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "GreaterThanOrEqualToDateValidator.date is required" }); } else {
                 if (__dateVal.getTime() < new Date("2020-01-01").getTime()) { errors.push({ field: "date", message: "GreaterThanOrEqualToDateValidator.date must be on or after 2020-01-01" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanOrEqualToDateValidator)) {
+        throw new TypeError("GreaterThanOrEqualToDateValidator.decodeWithContext: the value made is no GreaterThanOrEqualToDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanOrEqualToDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -511,8 +569,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
@@ -522,14 +579,20 @@ static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
     if (!GreaterThanOrEqualToDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanOrEqualToDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanOrEqualToDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanOrEqualToDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -559,17 +622,15 @@ export class LessThanDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -616,6 +677,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -628,40 +694,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanDateValidator") as LessThanDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(LessThanDateValidator.prototype) as LessThanDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(LessThanDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "LessThanDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "date", message: __raw_date == null ? "LessThanDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "LessThanDateValidator.date is required" }); } else {
                 if (__dateVal.getTime() >= new Date("2030-01-01").getTime()) { errors.push({ field: "date", message: "LessThanDateValidator.date must be before 2030-01-01" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanDateValidator)) {
+        throw new TypeError("LessThanDateValidator.decodeWithContext: the value made is no LessThanDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -689,8 +768,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is LessThanDateValidator {
@@ -700,14 +778,20 @@ static is(obj: unknown): obj is LessThanDateValidator {
     if (!LessThanDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -737,17 +821,15 @@ export class LessThanOrEqualToDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -794,6 +876,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanOrEqualToDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -806,40 +893,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanOrEqualToDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanOrEqualToDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanOrEqualToDateValidator") as LessThanOrEqualToDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(LessThanOrEqualToDateValidator.prototype) as LessThanOrEqualToDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(LessThanOrEqualToDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "LessThanOrEqualToDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "date", message: __raw_date == null ? "LessThanOrEqualToDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "LessThanOrEqualToDateValidator.date is required" }); } else {
                 if (__dateVal.getTime() > new Date("2030-01-01").getTime()) { errors.push({ field: "date", message: "LessThanOrEqualToDateValidator.date must be on or before 2030-01-01" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanOrEqualToDateValidator)) {
+        throw new TypeError("LessThanOrEqualToDateValidator.decodeWithContext: the value made is no LessThanOrEqualToDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanOrEqualToDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -867,8 +967,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
@@ -878,14 +977,20 @@ static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
     if (!LessThanOrEqualToDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanOrEqualToDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanOrEqualToDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanOrEqualToDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -915,17 +1020,15 @@ export class BetweenDateValidator {
     date: Date;
 
 constructor(props: { date: Date }) {
+
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = BetweenDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = BetweenDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -972,6 +1075,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => BetweenDateValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenDateValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -984,40 +1092,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "BetweenDateValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as BetweenDateValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "BetweenDateValidator") as BetweenDateValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "BetweenDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
-    }
-    const instance = Object.create(BetweenDateValidator.prototype) as BetweenDateValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(BetweenDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "BetweenDateValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;if (__dateVal == null) { errors.push({ field: "date", message: "BetweenDateValidator.date is required" }); } else {
+            const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "date", message: __raw_date == null ? "BetweenDateValidator.date is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "date", message: "BetweenDateValidator.date is required" }); } else {
                 if (__dateVal.getTime() < new Date("2020-01-01").getTime() || __dateVal.getTime() > new Date("2030-01-01").getTime()) { errors.push({ field: "date", message: "BetweenDateValidator.date must be between 2020-01-01 and 2030-01-01" }); }
             }
-            instance.date = __dateVal;
+                instance.date = __dateVal;
+            }
         }
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof BetweenDateValidator)) {
+        throw new TypeError("BetweenDateValidator.decodeWithContext: the value made is no BetweenDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof BetweenDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1045,8 +1166,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is BetweenDateValidator {
@@ -1056,14 +1176,20 @@ static is(obj: unknown): obj is BetweenDateValidator {
     if (!BetweenDateValidator.hasShape(obj)) {
         return false;
     }
+
     const result = BetweenDateValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return BetweenDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function betweenDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return BetweenDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1098,8 +1224,19 @@ export declare class ValidDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ValidDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ValidDateValidator;
 	} | {
@@ -1124,8 +1261,19 @@ export declare class ValidDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ValidDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ValidDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function validDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ValidDateValidator;
 } | {
@@ -1150,8 +1298,19 @@ export declare class GreaterThanDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanDateValidator;
 	} | {
@@ -1176,8 +1335,19 @@ export declare class GreaterThanDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanDateValidator;
 } | {
@@ -1202,8 +1372,19 @@ export declare class GreaterThanOrEqualToDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanOrEqualToDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanOrEqualToDateValidator;
 	} | {
@@ -1228,8 +1409,19 @@ export declare class GreaterThanOrEqualToDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanOrEqualToDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanOrEqualToDateValidator;
 } | {
@@ -1254,8 +1446,19 @@ export declare class LessThanDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanDateValidator;
 	} | {
@@ -1280,8 +1483,19 @@ export declare class LessThanDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanDateValidator;
 } | {
@@ -1306,8 +1520,19 @@ export declare class LessThanOrEqualToDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanOrEqualToDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanOrEqualToDateValidator;
 	} | {
@@ -1332,8 +1557,19 @@ export declare class LessThanOrEqualToDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanOrEqualToDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanOrEqualToDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanOrEqualToDateValidator;
 } | {
@@ -1358,8 +1594,19 @@ export declare class BetweenDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: BetweenDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: BetweenDateValidator;
 	} | {
@@ -1384,8 +1631,19 @@ export declare class BetweenDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is BetweenDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: BetweenDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function betweenDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: BetweenDateValidator;
 } | {
@@ -1410,41 +1668,41 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 
 ## Mapping
 
-original 0..229 -> expanded 350..579
-original 229..230 -> expanded 6558..6559
-original 230..407 -> expanded 8491..8668
-original 407..408 -> expanded 14860..14861
-original 408..612 -> expanded 16883..17087
-original 612..613 -> expanded 23510..23511
-original 613..781 -> expanded 25668..25836
-original 781..782 -> expanded 31959..31960
-original 782..977 -> expanded 33937..34132
-original 977..978 -> expanded 40486..40487
-original 978..1157 -> expanded 42599..42778
-original 1157..1158 -> expanded 49088..49089
-original 1158..1159 -> expanded 51051..51052
-generated 0..350 <- imports
-generated 579..6558 <- Decode
-generated 6559..8491 <- Decode
-generated 8668..14860 <- Decode
-generated 14861..16883 <- Decode
-generated 17087..23510 <- Decode
-generated 23511..25668 <- Decode
-generated 25836..31959 <- Decode
-generated 31960..33937 <- Decode
-generated 34132..40486 <- Decode
-generated 40487..42599 <- Decode
-generated 42778..49088 <- Decode
-generated 49089..51051 <- Decode
+original 0..229 -> expanded 441..670
+original 229..230 -> expanded 7663..7664
+original 230..407 -> expanded 10028..10205
+original 407..408 -> expanded 17501..17502
+original 408..612 -> expanded 19974..20178
+original 612..613 -> expanded 27768..27769
+original 613..781 -> expanded 30403..30571
+original 781..782 -> expanded 37777..37778
+original 782..977 -> expanded 40196..40391
+original 977..978 -> expanded 47891..47892
+original 978..1157 -> expanded 50472..50651
+original 1157..1158 -> expanded 58037..58038
+original 1158..1159 -> expanded 60438..60439
+generated 0..441 <- imports
+generated 670..7663 <- Decode
+generated 7664..10028 <- Decode
+generated 10205..17501 <- Decode
+generated 17502..19974 <- Decode
+generated 20178..27768 <- Decode
+generated 27769..30403 <- Decode
+generated 30571..37777 <- Decode
+generated 37778..40196 <- Decode
+generated 40391..47891 <- Decode
+generated 47892..50472 <- Decode
+generated 50651..58037 <- Decode
+generated 58038..60438 <- Decode
 
 ## Metadata
 
-class ValidDateValidator: {"body_span":{"end":231,"start":165},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":213,"start":171}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":229,"start":218},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ValidDateValidator","span":{"end":231,"start":140},"type_params":[]}
-class GreaterThanDateValidator: {"body_span":{"end":409,"start":323},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":284,"start":262}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":391,"start":329}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":407,"start":396},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":409,"start":292},"type_params":[]}
-class GreaterThanOrEqualToDateValidator: {"body_span":{"end":614,"start":519},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":471,"start":449}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":596,"start":525}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":612,"start":601},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":614,"start":479},"type_params":[]}
-class LessThanDateValidator: {"body_span":{"end":783,"start":700},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":664,"start":642}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"endec","span":{"end":765,"start":706}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":781,"start":770},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanDateValidator","span":{"end":783,"start":672},"type_params":[]}
-class LessThanOrEqualToDateValidator: {"body_span":{"end":979,"start":887},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":842,"start":820}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"endec","span":{"end":961,"start":893}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":977,"start":966},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":979,"start":850},"type_params":[]}
-class BetweenDateValidator: {"body_span":{"end":1159,"start":1063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1028,"start":1006}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"endec","span":{"end":1141,"start":1069}}],"initializer":null,"name":"date","optional":false,"readonly":false,"span":{"end":1157,"start":1146},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1159,"start":1036},"type_params":[]}
+class ValidDateValidator: {"body_span":{"end":231,"start":165},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":213,"start":171}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":229,"start":218},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ValidDateValidator","span":{"end":231,"start":140},"superclass":null,"type_params":[]}
+class GreaterThanDateValidator: {"body_span":{"end":409,"start":323},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":284,"start":262}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":391,"start":329}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":407,"start":396},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":409,"start":292},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToDateValidator: {"body_span":{"end":614,"start":519},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":471,"start":449}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":596,"start":525}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":612,"start":601},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":614,"start":479},"superclass":null,"type_params":[]}
+class LessThanDateValidator: {"body_span":{"end":783,"start":700},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":664,"start":642}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"endec","span":{"end":765,"start":706}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":781,"start":770},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"LessThanDateValidator","span":{"end":783,"start":672},"superclass":null,"type_params":[]}
+class LessThanOrEqualToDateValidator: {"body_span":{"end":979,"start":887},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":842,"start":820}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"endec","span":{"end":961,"start":893}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":977,"start":966},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":979,"start":850},"superclass":null,"type_params":[]}
+class BetweenDateValidator: {"body_span":{"end":1159,"start":1063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1028,"start":1006}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"endec","span":{"end":1141,"start":1069}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":1157,"start":1146},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1159,"start":1036},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

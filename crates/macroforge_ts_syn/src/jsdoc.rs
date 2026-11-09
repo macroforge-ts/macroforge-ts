@@ -6,6 +6,8 @@
 
 use std::collections::HashSet;
 
+use crate::scan::Nesting;
+
 /// Modifiers that may sit between a declaration's JSDoc and the start of the
 /// declaration's own span.
 const DECLARATION_MODIFIERS: &[&str] = &["export", "declare", "abstract", "default", "async"];
@@ -109,7 +111,27 @@ pub fn parse_all_macro_directives(
     comment_body: &str,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<(String, String)> {
+    read_comment_directives(comment_body, valid_annotations).0
+}
+
+/// The names of the directives in a JSDoc comment body whose argument list
+/// never closes, as `@default(5` and `@endec({ rename: "x"`. Such a text is
+/// no directive, and [`parse_all_macro_directives`] leaves it out.
+pub fn unclosed_directives(
+    comment_body: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<String> {
+    read_comment_directives(comment_body, valid_annotations).1
+}
+
+/// The directives of a comment body, and the names of those whose argument
+/// list never closes.
+fn read_comment_directives(
+    comment_body: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> (Vec<(String, String)>, Vec<String>) {
     let mut results = Vec::new();
+    let mut unclosed = Vec::new();
 
     let lines: Vec<&str> = comment_body
         .lines()
@@ -118,13 +140,11 @@ pub fn parse_all_macro_directives(
         .collect();
 
     let mut accumulated = String::new();
-    let mut paren_depth: i32 = 0;
-    let mut brace_depth: i32 = 0;
-    let mut bracket_depth: i32 = 0;
+    let mut nesting = Nesting::default();
 
     let mut in_fence = false;
     for line in &lines {
-        let in_continuation = paren_depth > 0 || brace_depth > 0 || bracket_depth > 0;
+        let in_continuation = nesting.has_open_bracket();
 
         // A fenced block is example code; its `@` lines are not directives.
         if !in_continuation && line.starts_with("```") {
@@ -138,23 +158,11 @@ pub fn parse_all_macro_directives(
         if in_continuation {
             accumulated.push(' ');
             accumulated.push_str(line);
-            for c in line.chars() {
-                match c {
-                    '(' => paren_depth += 1,
-                    ')' => paren_depth -= 1,
-                    '{' => brace_depth += 1,
-                    '}' => brace_depth -= 1,
-                    '[' => bracket_depth += 1,
-                    ']' => bracket_depth -= 1,
-                    _ => {}
-                }
-            }
-            if paren_depth <= 0 && brace_depth <= 0 && bracket_depth <= 0 {
-                parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+            nesting.feed_line(line);
+            if !nesting.has_open_bracket() {
+                read_directives(&accumulated, valid_annotations, &mut results, &mut unclosed);
                 accumulated.clear();
-                paren_depth = 0;
-                brace_depth = 0;
-                bracket_depth = 0;
+                nesting = Nesting::default();
             }
             continue;
         }
@@ -163,34 +171,21 @@ pub fn parse_all_macro_directives(
             continue;
         }
 
-        for c in line.chars() {
-            match c {
-                '(' => paren_depth += 1,
-                ')' => paren_depth -= 1,
-                '{' => brace_depth += 1,
-                '}' => brace_depth -= 1,
-                '[' => bracket_depth += 1,
-                ']' => bracket_depth -= 1,
-                _ => {}
-            }
-        }
-
-        if paren_depth > 0 || brace_depth > 0 || bracket_depth > 0 {
+        nesting.feed_line(line);
+        if nesting.has_open_bracket() {
             accumulated = line.to_string();
             continue;
         }
 
-        paren_depth = 0;
-        brace_depth = 0;
-        bracket_depth = 0;
-        parse_directives_from_text(line, valid_annotations, &mut results);
+        nesting = Nesting::default();
+        read_directives(line, valid_annotations, &mut results, &mut unclosed);
     }
 
     if !accumulated.is_empty() {
-        parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+        read_directives(&accumulated, valid_annotations, &mut results, &mut unclosed);
     }
 
-    results
+    (results, unclosed)
 }
 
 /// Parse the directives a text fragment opens with: `@name` or `@name(args)`,
@@ -201,6 +196,20 @@ pub fn parse_directives_from_text(
     valid_annotations: Option<&HashSet<String>>,
     results: &mut Vec<(String, String)>,
 ) {
+    read_directives(text, valid_annotations, results, &mut Vec::new());
+}
+
+/// Reads the directives `text` opens with into `results`, and the name of
+/// one whose argument list never closes, which ends the run, into `unclosed`.
+fn read_directives(
+    text: &str,
+    valid_annotations: Option<&HashSet<String>>,
+    results: &mut Vec<(String, String)>,
+    unclosed: &mut Vec<String>,
+) {
+    let is_valid = |name: &str| {
+        valid_annotations.is_none_or(|valid| valid.contains(&name.to_ascii_lowercase()))
+    };
     let mut remaining = text.trim_start();
     while let Some(after_at) = remaining.strip_prefix('@') {
         let name_end = after_at
@@ -215,6 +224,9 @@ pub fn parse_directives_from_text(
         let trimmed_after_name = after_name.trim_start();
         let (args, rest) = if let Some(args_and_rest) = trimmed_after_name.strip_prefix('(') {
             let Some(close) = closing_paren(args_and_rest) else {
+                if is_valid(name) {
+                    unclosed.push(name.to_string());
+                }
                 return;
             };
             (args_and_rest[..close].trim(), &args_and_rest[close + 1..])
@@ -222,9 +234,7 @@ pub fn parse_directives_from_text(
             ("", after_name)
         };
 
-        let is_valid =
-            valid_annotations.is_none_or(|valid| valid.contains(&name.to_ascii_lowercase()));
-        if is_valid {
+        if is_valid(name) {
             let normalized_name = if name.eq_ignore_ascii_case("derive") {
                 "Derive".to_string()
             } else {
@@ -237,33 +247,25 @@ pub fn parse_directives_from_text(
 }
 
 /// The offset of the `)` that closes a directive's argument list, given the
-/// text after its `(`. Parentheses, braces and brackets nest.
+/// text after its `(`. Parentheses, braces and brackets nest, and none of
+/// them counts inside a string literal.
 fn closing_paren(args: &str) -> Option<usize> {
-    let mut depth: i32 = 1;
-    let mut brace_depth: i32 = 0;
-    let mut bracket_depth: i32 = 0;
-    for (offset, c) in args.char_indices() {
-        match c {
-            '(' => depth += 1,
-            ')' => {
-                depth -= 1;
-                if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
-                    return Some(offset);
-                }
-            }
-            '{' => brace_depth += 1,
-            '}' => brace_depth = brace_depth.saturating_sub(1),
-            '[' => bracket_depth += 1,
-            ']' => bracket_depth = bracket_depth.saturating_sub(1),
-            _ => {}
+    let mut nesting = Nesting::default();
+    for (offset, letter) in args.char_indices() {
+        if letter == ')' && nesting.is_top_level() {
+            return Some(offset);
         }
+        nesting.feed(letter);
     }
     None
 }
 
 #[cfg(test)]
 mod adjacency_tests {
-    use super::*;
+    use super::{
+        HashSet, adjacent_jsdoc, adjacent_jsdoc_after, is_macro_import_comment,
+        parse_all_macro_directives, stacked_jsdoc_above, unclosed_directives,
+    };
 
     #[test]
     fn finds_the_comment_directly_above_a_declaration() {
@@ -323,6 +325,39 @@ mod adjacency_tests {
     }
 
     #[test]
+    fn a_bracket_in_a_string_literal_is_text() {
+        let directives = |body: &str| parse_all_macro_directives(body, None);
+        let pair = |name: &str, args: &str| (name.to_string(), args.to_string());
+        assert_eq!(
+            directives(r#" @default(":(") @endec({ rename: "a)" }) "#),
+            vec![
+                pair("default", r#"":(""#),
+                pair("endec", r#"{ rename: "a)" }"#)
+            ]
+        );
+        assert_eq!(
+            directives(" @endec({ default: \"[\" })\n * @debug({ rename: 'it\\'s {' }) "),
+            vec![
+                pair("endec", r#"{ default: "[" }"#),
+                pair("debug", r"{ rename: 'it\'s {' }"),
+            ]
+        );
+        // Arguments run over lines until their brackets close.
+        assert_eq!(
+            directives(" @endec({ rename: \"a\",\n *   skip: true })\n * @default(1) "),
+            vec![
+                pair("endec", r#"{ rename: "a", skip: true }"#),
+                pair("default", "1"),
+            ]
+        );
+        // An apostrophe in prose opens no string that outlives its line.
+        assert_eq!(
+            directives(" @remarks the user's (first\n * @default(1) "),
+            vec![pair("remarks", ""), pair("default", "1")]
+        );
+    }
+
+    #[test]
     fn a_tag_mentioned_in_prose_is_not_a_directive() {
         let body = "\n * @returns names from the enclosing @derive, or null\n * @see {@link find} - For `@derive` decorators\n ";
         let valid: HashSet<String> = ["derive".to_string()].into_iter().collect();
@@ -350,6 +385,52 @@ mod adjacency_tests {
         );
     }
 
+    /// An argument list that never closes is told from a directive without
+    /// one, and from a tag of prose, by the names a macro reads.
+    #[test]
+    fn a_directive_whose_arguments_never_close_is_named() {
+        let valid: HashSet<String> = ["default", "endec", "derive"]
+            .into_iter()
+            .map(str::to_string)
+            .collect();
+        for (body, name) in [
+            (" @default(5 ", "default"),
+            (" @default(] ", "default"),
+            (" @default({ a: ) ", "default"),
+            ("\n * @endec({\n *   rename: \"x\"\n ", "endec"),
+            (" @derive(Debug ", "derive"),
+            (" @default(\"a)\" ", "default"),
+        ] {
+            assert_eq!(unclosed_directives(body, Some(&valid)), [name], "{body}");
+            assert_eq!(
+                parse_all_macro_directives(body, Some(&valid)),
+                Vec::new(),
+                "{body}"
+            );
+        }
+        // The directives before it are read, and it ends the run.
+        assert_eq!(
+            parse_all_macro_directives(" @derive(Debug) @default(5 ", Some(&valid)),
+            [("Derive".to_string(), "Debug".to_string())]
+        );
+        assert_eq!(
+            unclosed_directives(" @derive(Debug) @default(5 ", Some(&valid)),
+            ["default"]
+        );
+        for closed in [
+            " @default(5) ",
+            " @default ",
+            " @see (the docs ",
+            " prose with @default(5 ",
+        ] {
+            assert_eq!(
+                unclosed_directives(closed, Some(&valid)),
+                Vec::<String>::new(),
+                "{closed}"
+            );
+        }
+    }
+
     #[test]
     fn only_an_import_macro_directive_is_an_import_comment() {
         assert!(is_macro_import_comment(
@@ -358,5 +439,35 @@ mod adjacency_tests {
         assert!(!is_macro_import_comment(
             "\n * Parses import macro comments like `import macro { A } from \"pkg\"`.\n "
         ));
+    }
+}
+
+#[cfg(test)]
+mod properties {
+    use proptest::collection::vec;
+    use proptest::{prop_assert_eq, proptest};
+
+    use super::{parse_all_macro_directives, unclosed_directives};
+    use crate::strategies::{js_value, property_config};
+
+    proptest! {
+        #![proptest_config(property_config())]
+
+        /// A directive's arguments are read whole, over as many lines as they
+        /// are written on, and ones that never close are named.
+        #[test]
+        fn a_directive_is_given_its_arguments_as_written(items in vec(js_value(), 1..4)) {
+            let written = items.join(", ");
+            let over_lines = format!(" * @default({})\n ", items.join(",\n * "));
+            prop_assert_eq!(
+                parse_all_macro_directives(&over_lines, None),
+                vec![("default".to_string(), written)]
+            );
+            prop_assert_eq!(unclosed_directives(&over_lines, None), Vec::<String>::new());
+
+            let unclosed = format!(" * @default({}\n ", items.join(",\n * "));
+            prop_assert_eq!(parse_all_macro_directives(&unclosed, None), Vec::new());
+            prop_assert_eq!(unclosed_directives(&unclosed, None), vec!["default".to_string()]);
+        }
     }
 }

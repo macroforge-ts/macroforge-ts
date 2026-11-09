@@ -1,0 +1,292 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_readonly_array.ts
+---
+## Input
+
+/** A clone that spreads its value reads it. */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type Tags = readonly string[];
+
+/** @derive(Clone) */
+export type Counts = number[];
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** A clone that spreads its value reads it. */
+
+export type Tags = readonly string[];
+
+export function tagsToString(value: Tags): string {
+    return "Tags(" + __mf_structuralDebug(value) + ")";
+}
+
+export function tagsClone(value: Tags): Tags {
+    return [...value];
+}
+
+export function tagsEquals(a: Tags, b: Tags): boolean {
+    if (a === b) return true;
+    return (a.length === b.length && a.every((__item0, __index0) => { const __other0 = b[__index0]; return __other0 === undefined ? __item0 === undefined : __item0 === __other0; }));
+}
+
+export function tagsHashCode(value: Tags): number {
+    return value.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1);
+}
+
+export function tagsDefaultValue(): Tags {
+    return ([] as readonly string[]) as Tags;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function tagsEncode(value: Tags, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = tagsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function tagsEncodeWithContext(value: Tags, ctx: __mf_EncodeContext): unknown;
+export function tagsEncodeWithContext(value: Tags): unknown {
+    return ((value: { value: readonly string[] }): unknown => {
+        const result: Record<string, unknown> = {};
+        result["value"] = value.value;
+        return result["value"];
+    })({ value });
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tagsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tags } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const result = tagsDecodeWithContext(input, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function tagsIs(value: unknown): value is Tags {
+    return tagsHasShape(value) && tagsDecode(value).success;
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function tagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tags {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Tags.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Tags;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: { "_root"?: readonly string[] | undefined } = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as readonly string[];
+        if (Array.isArray(__raw__root)) {
+            ctx.pushScope("_root");
+            try {
+                instance._root = __mf_decodeArray(__raw__root, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "_root", message: __raw__root == null ? "Tags._root is required" : "expected readonly string[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as Tags;
+}
+
+export function tagsHasShape(value: unknown): boolean {
+    return Array.isArray(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tagsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tags } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tagsDecode(value, opts));
+}
+
+export const Tags: {
+  readonly toString: typeof tagsToString;
+  readonly clone: typeof tagsClone;
+  readonly equals: typeof tagsEquals;
+  readonly hashCode: typeof tagsHashCode;
+  readonly defaultValue: typeof tagsDefaultValue;
+  readonly encode: typeof tagsEncode;
+  readonly encodeWithContext: typeof tagsEncodeWithContext;
+  readonly decode: typeof tagsDecode;
+  readonly is: typeof tagsIs;
+  readonly decodeWithContext: typeof tagsDecodeWithContext;
+  readonly hasShape: typeof tagsHasShape;
+  readonly fromString: typeof tagsFromString;
+} = {
+  toString: tagsToString,
+  clone: tagsClone,
+  equals: tagsEquals,
+  hashCode: tagsHashCode,
+  defaultValue: tagsDefaultValue,
+  encode: tagsEncode,
+  encodeWithContext: tagsEncodeWithContext,
+  decode: tagsDecode,
+  is: tagsIs,
+  decodeWithContext: tagsDecodeWithContext,
+  hasShape: tagsHasShape,
+  fromString: tagsFromString
+};
+
+
+export type Counts = number[];
+
+export function countsClone(value: Counts): Counts {
+    return [...value];
+}
+
+export const Counts: {
+  readonly clone: typeof countsClone;
+} = {
+  clone: countsClone
+};
+
+## DTS
+
+/** A clone that spreads its value reads it. */
+export type Tags = readonly string[];
+export declare function tagsToString(value: Tags): string;
+export declare function tagsClone(value: Tags): Tags;
+export declare function tagsEquals(a: Tags, b: Tags): boolean;
+export declare function tagsHashCode(value: Tags): number;
+export declare function tagsDefaultValue(): Tags;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function tagsEncode(value: Tags, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function tagsEncodeWithContext(value: Tags, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tagsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tags;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function tagsIs(value: unknown): value is Tags;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function tagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tags;
+export declare function tagsHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tagsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tags;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare const Tags: {
+	readonly toString: typeof tagsToString;
+	readonly clone: typeof tagsClone;
+	readonly equals: typeof tagsEquals;
+	readonly hashCode: typeof tagsHashCode;
+	readonly defaultValue: typeof tagsDefaultValue;
+	readonly encode: typeof tagsEncode;
+	readonly encodeWithContext: typeof tagsEncodeWithContext;
+	readonly decode: typeof tagsDecode;
+	readonly is: typeof tagsIs;
+	readonly decodeWithContext: typeof tagsDecodeWithContext;
+	readonly hasShape: typeof tagsHasShape;
+	readonly fromString: typeof tagsFromString;
+};
+export type Counts = number[];
+export declare function countsClone(value: Counts): Counts;
+export declare const Counts: {
+	readonly clone: typeof countsClone;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..48 -> expanded 515..563
+original 118..156 -> expanded 563..601
+original 156..158 -> expanded 6742..6744
+original 179..210 -> expanded 6744..6775
+original 210..211 -> expanded 6946..6947
+generated 0..515 <- imports
+generated 601..712 <- Debug
+generated 712..785 <- Clone
+generated 785..1057 <- PartialEq
+generated 1057..1274 <- Hash
+generated 1274..1366 <- Default
+generated 1366..2334 <- Encode
+generated 2334..5860 <- Decode
+generated 5860..6742 <- __convenience_const
+generated 6775..6854 <- Clone
+generated 6854..6946 <- __convenience_const
+
+## Metadata
+
+type Tags: {"body":{"Alias":"readonly string[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":119,"start":49}}],"name":"Tags","span":{"end":157,"start":127},"type_params":[]}
+type Counts: {"body":{"Alias":"number[]"},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":180,"start":159}}],"name":"Counts","span":{"end":211,"start":188},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

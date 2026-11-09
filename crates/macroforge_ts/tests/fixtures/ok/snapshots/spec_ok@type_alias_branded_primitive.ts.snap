@@ -20,7 +20,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const MetersBrand: unique symbol;
 
@@ -41,13 +41,11 @@ export function metersEncodeWithContext(value: Meters): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = metersDecodeWithContext(data, ctx);
+        const result = metersDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -85,7 +83,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -95,11 +93,15 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => metersDecode(value, opts));
 }
 
 export function metersDefaultValue(): Meters {
@@ -113,6 +115,7 @@ const Meters: {
   readonly decodeWithContext: typeof metersDecodeWithContext;
   readonly hasShape: typeof metersHasShape;
   readonly is: typeof metersIs;
+  readonly fromString: typeof metersFromString;
   readonly defaultValue: typeof metersDefaultValue;
 } = {
   encode: metersEncode,
@@ -121,6 +124,7 @@ const Meters: {
   decodeWithContext: metersDecodeWithContext,
   hasShape: metersHasShape,
   is: metersIs,
+  fromString: metersFromString,
   defaultValue: metersDefaultValue
 };
 
@@ -134,7 +138,7 @@ type Meters = number & {
 export declare function metersEncode(value: Meters, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function metersEncodeWithContext(value: Meters, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Meters;
@@ -149,6 +153,17 @@ export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions):
 export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
 export declare function metersHasShape(value: unknown): boolean;
 export declare function metersIs(value: unknown): value is Meters;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metersFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare function metersDefaultValue(): Meters;
 export {};
 
@@ -158,14 +173,14 @@ export {};
 
 ## Mapping
 
-original 0..43 -> expanded 264..307
-original 128..188 -> expanded 307..367
-original 188..189 -> expanded 3733..3734
-generated 0..264 <- imports
-generated 367..1075 <- Encode
-generated 1075..3082 <- Decode
-generated 3082..3156 <- Default
-generated 3156..3733 <- __convenience_const
+original 0..43 -> expanded 297..340
+original 128..188 -> expanded 340..400
+original 188..189 -> expanded 4395..4396
+generated 0..297 <- imports
+generated 400..1108 <- Encode
+generated 1108..3664 <- Decode
+generated 3664..3738 <- Default
+generated 3738..4395 <- __convenience_const
 
 ## Metadata
 

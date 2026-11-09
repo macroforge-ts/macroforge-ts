@@ -46,7 +46,7 @@ fn partial_ord_and_ord_on_a_class_emit_distinct_methods() {
 fn numbers_leave_nan_unordered() {
     assert_eq!(
         compare("id", "number"),
-        "(a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null)"
+        "(a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null)"
     );
 }
 

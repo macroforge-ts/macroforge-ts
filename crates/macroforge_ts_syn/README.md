@@ -41,7 +41,7 @@ The crate is organized into several modules:
 - [`stream`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=stream) - Parsing
   stream abstraction similar to `syn::parse::ParseBuffer`
 - [`type_normalize`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=type_normalize) -
-  Helpers for splitting TS type-string snippets into structural pieces
+  Classifies the base names of TS type-string snippets
 
 ## Architecture
 

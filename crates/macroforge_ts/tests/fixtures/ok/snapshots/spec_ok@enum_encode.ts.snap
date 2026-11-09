@@ -77,7 +77,7 @@ generated 645..833 <- __convenience_const
 
 ## Metadata
 
-enum Direction: {"body_span":{"end":83,"start":39},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"name":"Direction","span":{"end":83,"start":24},"variants":[{"decorators":[],"name":"North","span":{"end":50,"start":45},"value":{"Number":0.0}},{"decorators":[],"name":"South","span":{"end":61,"start":56},"value":{"Number":1.0}},{"decorators":[],"name":"East","span":{"end":71,"start":67},"value":{"Number":2.0}},{"decorators":[],"name":"West","span":{"end":81,"start":77},"value":{"Number":3.0}}]}
+enum Direction: {"body_span":{"end":83,"start":39},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"is_declare":false,"name":"Direction","span":{"end":83,"start":24},"variants":[{"decorators":[],"name":"North","span":{"end":50,"start":45},"value":{"Number":0.0}},{"decorators":[],"name":"South","span":{"end":61,"start":56},"value":{"Number":1.0}},{"decorators":[],"name":"East","span":{"end":71,"start":67},"value":{"Number":2.0}},{"decorators":[],"name":"West","span":{"end":81,"start":77},"value":{"Number":3.0}}]}
 
 ## Registry reads
 

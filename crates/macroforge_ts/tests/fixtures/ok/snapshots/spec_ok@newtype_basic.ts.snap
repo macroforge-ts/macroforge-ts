@@ -29,7 +29,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -51,13 +51,11 @@ export function metersEncodeWithContext(value: Meters): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = metersDecodeWithContext(data, ctx);
+        const result = metersDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -95,7 +93,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!(typeof __decoded === "number")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -106,11 +104,15 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => metersDecode(value, opts));
 }
 
 export const Meters: {
@@ -120,13 +122,15 @@ export const Meters: {
   readonly decodeWithContext: typeof metersDecodeWithContext;
   readonly hasShape: typeof metersHasShape;
   readonly is: typeof metersIs;
+  readonly fromString: typeof metersFromString;
 } = {
   encode: metersEncode,
   encodeWithContext: metersEncodeWithContext,
   decode: metersDecode,
   decodeWithContext: metersDecodeWithContext,
   hasShape: metersHasShape,
-  is: metersIs
+  is: metersIs,
+  fromString: metersFromString
 };
 
 
@@ -144,13 +148,11 @@ export function usernameEncodeWithContext(value: Username): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = usernameDecodeWithContext(data, ctx);
+        const result = usernameDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -188,7 +190,7 @@ export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function usernameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Username {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Username.decodeWithContext: expected string" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -205,6 +207,10 @@ export function usernameHasShape(value: unknown): boolean {
 export function usernameIs(value: unknown): value is Username {
     return typeof value === "string" && usernameDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function usernameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => usernameDecode(value, opts));
+}
 
 export function usernameDefaultValue(): Username {
     return "guest" as Username;
@@ -217,6 +223,7 @@ export const Username: {
   readonly decodeWithContext: typeof usernameDecodeWithContext;
   readonly hasShape: typeof usernameHasShape;
   readonly is: typeof usernameIs;
+  readonly fromString: typeof usernameFromString;
   readonly defaultValue: typeof usernameDefaultValue;
 } = {
   encode: usernameEncode,
@@ -225,19 +232,18 @@ export const Username: {
   decodeWithContext: usernameDecodeWithContext,
   hasShape: usernameHasShape,
   is: usernameIs,
+  fromString: usernameFromString,
   defaultValue: usernameDefaultValue
 };
 
 
 export type Flag = boolean & { readonly [__mf_newtype_3]: true };
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function flagDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Flag } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = flagDecodeWithContext(data, ctx);
+        const result = flagDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -275,7 +281,7 @@ export function flagDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function flagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Flag {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "boolean") {
+    if (!(typeof __decoded === "boolean")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Flag.decodeWithContext: expected boolean" }]);
     }
     return __decoded as Flag;
@@ -286,7 +292,11 @@ export function flagHasShape(value: unknown): boolean {
 }
 
 export function flagIs(value: unknown): value is Flag {
-    return typeof value === "boolean";
+    return typeof value === "boolean" && flagDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function flagFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Flag } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => flagDecode(value, opts));
 }
 
 export const Flag: {
@@ -294,11 +304,13 @@ export const Flag: {
   readonly decodeWithContext: typeof flagDecodeWithContext;
   readonly hasShape: typeof flagHasShape;
   readonly is: typeof flagIs;
+  readonly fromString: typeof flagFromString;
 } = {
   decode: flagDecode,
   decodeWithContext: flagDecodeWithContext,
   hasShape: flagHasShape,
-  is: flagIs
+  is: flagIs,
+  fromString: flagFromString
 };
 
 export type Either = (string | number) & { readonly [__mf_newtype_4]: true };
@@ -318,13 +330,11 @@ export function centsEncodeWithContext(value: Cents): unknown {
     return ((v) => String(v))(value);
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = centsDecodeWithContext(data, ctx);
+        const result = centsDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -364,12 +374,18 @@ export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     let __decoded: unknown = value;
     if (typeof value !== "bigint") {
         try {
-            __decoded = ((v) => BigInt(v as string))(value);
+            __decoded = ((v) => {
+	const raw: unknown = v;
+	if (typeof raw === "bigint") return raw;
+	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+	return BigInt(raw);
+})(value);
         } catch (__error) {
             throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
         }
     }
-    if (typeof __decoded !== "bigint") {
+    if (!(typeof __decoded === "bigint")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -385,9 +401,13 @@ export function centsHasShape(value: unknown): boolean {
 export function centsIs(value: unknown): value is Cents {
     return typeof value === "bigint" && centsDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function centsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => centsDecode(value, opts));
+}
 
 export function centsHashCode(value: Cents): number {
-    return value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function centsToString(value: Cents): string {
@@ -401,6 +421,7 @@ export const Cents: {
   readonly decodeWithContext: typeof centsDecodeWithContext;
   readonly hasShape: typeof centsHasShape;
   readonly is: typeof centsIs;
+  readonly fromString: typeof centsFromString;
   readonly hashCode: typeof centsHashCode;
   readonly toString: typeof centsToString;
 } = {
@@ -410,6 +431,7 @@ export const Cents: {
   decodeWithContext: centsDecodeWithContext,
   hasShape: centsHasShape,
   is: centsIs,
+  fromString: centsFromString,
   hashCode: centsHashCode,
   toString: centsToString
 };
@@ -428,7 +450,7 @@ export type Meters = number & {
 export declare function metersEncode(value: Meters, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function metersEncodeWithContext(value: Meters, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Meters;
@@ -443,6 +465,17 @@ export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions):
 export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
 export declare function metersHasShape(value: unknown): boolean;
 export declare function metersIs(value: unknown): value is Meters;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metersFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const Meters: {
 	readonly encode: typeof metersEncode;
 	readonly encodeWithContext: typeof metersEncodeWithContext;
@@ -450,6 +483,7 @@ export declare const Meters: {
 	readonly decodeWithContext: typeof metersDecodeWithContext;
 	readonly hasShape: typeof metersHasShape;
 	readonly is: typeof metersIs;
+	readonly fromString: typeof metersFromString;
 };
 export type Username = string & {
 	readonly [__mf_newtype_2]: true;
@@ -458,7 +492,7 @@ export type Username = string & {
 export declare function usernameEncode(value: Username, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function usernameEncodeWithContext(value: Username, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Username;
@@ -473,6 +507,17 @@ export declare function usernameDecode(input: unknown, opts?: __mf_DecodeOptions
 export declare function usernameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Username;
 export declare function usernameHasShape(value: unknown): boolean;
 export declare function usernameIs(value: unknown): value is Username;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function usernameFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Username;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare function usernameDefaultValue(): Username;
 export declare const Username: {
 	readonly encode: typeof usernameEncode;
@@ -481,12 +526,13 @@ export declare const Username: {
 	readonly decodeWithContext: typeof usernameDecodeWithContext;
 	readonly hasShape: typeof usernameHasShape;
 	readonly is: typeof usernameIs;
+	readonly fromString: typeof usernameFromString;
 	readonly defaultValue: typeof usernameDefaultValue;
 };
 export type Flag = boolean & {
 	readonly [__mf_newtype_3]: true;
 };
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function flagDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Flag;
@@ -501,11 +547,23 @@ export declare function flagDecode(input: unknown, opts?: __mf_DecodeOptions): {
 export declare function flagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Flag;
 export declare function flagHasShape(value: unknown): boolean;
 export declare function flagIs(value: unknown): value is Flag;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function flagFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Flag;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const Flag: {
 	readonly decode: typeof flagDecode;
 	readonly decodeWithContext: typeof flagDecodeWithContext;
 	readonly hasShape: typeof flagHasShape;
 	readonly is: typeof flagIs;
+	readonly fromString: typeof flagFromString;
 };
 export type Either = (string | number) & {
 	readonly [__mf_newtype_4]: true;
@@ -517,7 +575,7 @@ export type Cents = bigint & {
 export declare function centsEncode(value: Cents, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function centsEncodeWithContext(value: Cents, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function centsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Cents;
@@ -532,6 +590,17 @@ export declare function centsDecode(input: unknown, opts?: __mf_DecodeOptions): 
 export declare function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cents;
 export declare function centsHasShape(value: unknown): boolean;
 export declare function centsIs(value: unknown): value is Cents;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function centsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Cents;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare function centsHashCode(value: Cents): number;
 export declare function centsToString(value: Cents): string;
 export declare const Cents: {
@@ -541,6 +610,7 @@ export declare const Cents: {
 	readonly decodeWithContext: typeof centsDecodeWithContext;
 	readonly hasShape: typeof centsHasShape;
 	readonly is: typeof centsIs;
+	readonly fromString: typeof centsFromString;
 	readonly hashCode: typeof centsHashCode;
 	readonly toString: typeof centsToString;
 };
@@ -552,44 +622,44 @@ export {};
 
 ## Mapping
 
-original 65..87 -> expanded 489..511
-original 103..104 -> expanded 555..556
-original 104..106 -> expanded 3875..3877
-original 209..233 -> expanded 3877..3901
-original 249..250 -> expanded 3945..3946
-original 250..252 -> expanded 7480..7482
-original 274..294 -> expanded 7482..7502
-original 311..312 -> expanded 7547..7548
-original 312..335 -> expanded 9621..9644
-original 360..363 -> expanded 9699..9702
-original 439..460 -> expanded 9702..9723
-original 476..477 -> expanded 9767..9768
-original 477..478 -> expanded 13643..13644
-generated 0..264 <- imports
-generated 264..309 <- $Newtype
-generated 309..354 <- $Newtype
-generated 354..399 <- $Newtype
-generated 399..444 <- $Newtype
-generated 444..489 <- $Newtype
-generated 511..555 <- $Newtype
-generated 556..1264 <- Encode
-generated 1264..3379 <- Decode
-generated 3379..3875 <- __convenience_const
-generated 3901..3945 <- $Newtype
-generated 3946..4670 <- Encode
-generated 4670..6780 <- Decode
-generated 6780..6866 <- Default
-generated 6866..7480 <- __convenience_const
-generated 7502..7547 <- $Newtype
-generated 7548..9315 <- Decode
-generated 9315..9621 <- __convenience_const
-generated 9644..9699 <- $Newtype
-generated 9723..9767 <- $Newtype
-generated 9768..10508 <- Encode
-generated 10508..12774 <- Decode
-generated 12774..12920 <- Hash
-generated 12920..13020 <- Debug
-generated 13020..13643 <- __convenience_const
+original 65..87 -> expanded 522..544
+original 103..104 -> expanded 588..589
+original 104..106 -> expanded 4494..4496
+original 209..233 -> expanded 4496..4520
+original 249..250 -> expanded 4564..4565
+original 250..252 -> expanded 8665..8667
+original 274..294 -> expanded 8667..8687
+original 311..312 -> expanded 8732..8733
+original 312..335 -> expanded 11333..11356
+original 360..363 -> expanded 11411..11414
+original 439..460 -> expanded 11414..11435
+original 476..477 -> expanded 11479..11480
+original 477..478 -> expanded 16175..16176
+generated 0..297 <- imports
+generated 297..342 <- $Newtype
+generated 342..387 <- $Newtype
+generated 387..432 <- $Newtype
+generated 432..477 <- $Newtype
+generated 477..522 <- $Newtype
+generated 544..588 <- $Newtype
+generated 589..1297 <- Encode
+generated 1297..3918 <- Decode
+generated 3918..4494 <- __convenience_const
+generated 4520..4564 <- $Newtype
+generated 4565..5289 <- Encode
+generated 5289..7881 <- Decode
+generated 7881..7967 <- Default
+generated 7967..8665 <- __convenience_const
+generated 8687..8732 <- $Newtype
+generated 8733..10951 <- Decode
+generated 10951..11333 <- __convenience_const
+generated 11356..11411 <- $Newtype
+generated 11435..11479 <- $Newtype
+generated 11480..12220 <- Encode
+generated 12220..15220 <- Decode
+generated 15220..15374 <- Hash
+generated 15374..15474 <- Debug
+generated 15474..16175 <- __convenience_const
 
 ## Metadata
 

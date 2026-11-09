@@ -1,12 +1,12 @@
 //! `Default` for a union type alias: the member marked `@default`, the first
 //! member of an object union, or `@default(expression)` on the alias.
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
     DefaultFieldOptions, TypeNames, flatten_intersection_fields, get_type_default_with_registry,
-    rendered,
+    property_key, rendered, undefaultable,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::TypeMember;
@@ -59,6 +59,19 @@ pub(super) fn union_default(
         ));
     }
 
+    let marked = members
+        .iter()
+        .filter(|member| member.has_decorator("default"))
+        .count();
+    if marked > 1 {
+        return Err(MacroforgeError::new(
+            input.decorator_span(),
+            format!(
+                "@derive(Default): {marked} members of '{type_name}' are marked @default, and a union has one default: mark one of them"
+            ),
+        ));
+    }
+
     // First, look for a variant with @default decorator
     let default_variant_from_member = members.iter().find_map(|member| {
         if member.has_decorator("default") {
@@ -82,7 +95,7 @@ pub(super) fn union_default(
                 }
                 // Fallback: full flattening with registry
                 if let Some(fields) =
-                    flatten_intersection_fields(intersection_members, sources.registry)
+                    flatten_intersection_fields(intersection_members, sources.declared())
                 {
                     return Some(UnionDefault::Value(build_object_default(&fields, sources)));
                 }
@@ -119,7 +132,7 @@ pub(super) fn union_default(
                         Some(build_object_default(fields, sources))
                     } else if let Some(intersection_members) = m.as_intersection_members() {
                         build_intersection_default(intersection_members, sources).or_else(|| {
-                            flatten_intersection_fields(intersection_members, sources.registry)
+                            flatten_intersection_fields(intersection_members, sources.declared())
                                 .or_else(|| {
                                     let inline: Vec<_> = intersection_members
                                         .iter()
@@ -171,12 +184,22 @@ pub(super) fn union_default(
         let default_expr = match default_variant {
             // A literal member is its own default; a named one, foreign types
             // and generic aliases included, takes its type's.
-            UnionDefault::Member(member) => get_type_default_with_registry(
-                &member,
-                sources.registry,
-                sources.caller_file_path,
-                sources.file_imports,
-            ),
+            UnionDefault::Member(member) => {
+                if let Some(reason) = undefaultable(&member, sources.declared()) {
+                    return Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default) on '{type_name}': the member marked @default {reason}; mark another member, or write the default on the type with @default(value)"
+                        ),
+                    ));
+                }
+                get_type_default_with_registry(
+                    &member,
+                    sources.registry,
+                    sources.caller_file_path,
+                    sources.file_imports,
+                )
+            }
             UnionDefault::Value(value) => value,
         };
 
@@ -185,12 +208,12 @@ pub(super) fn union_default(
         let return_type_ident = names.full_type_ident();
         let generic_params_ident = ts_ident!(names.generic_decl.as_str());
 
-        let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+        let fn_name_ident = ts_ident!("{}DefaultValue", function_prefix(type_name));
         let return_expr = Expr::parse(&default_expr).map_err(|err| {
             MacroforgeError::new(
                 input.decorator_span(),
                 format!(
-                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                    "@derive(Default): invalid default expression for '{}': {err}",
                     type_name
                 ),
             )
@@ -222,7 +245,7 @@ fn build_object_default(
         .map(|f| {
             let opts = DefaultFieldOptions::from_decorators(&f.decorators);
             let value = resolve_default_value(opts.value, &f.ts_type, sources);
-            rendered(ts_template! { @{&f.name}: @{value} })
+            rendered(ts_template! { @{property_key(&f.name)}: @{value} })
         })
         .collect();
     let props = props.join(", ");
@@ -242,13 +265,15 @@ fn build_intersection_default(
     let mut parts: Vec<String> = Vec::new();
     for member in intersection_members {
         if let Some(type_name) = member.as_type_ref() {
-            let default_fn = ts_ident!("{}DefaultValue", type_name.trim().to_case(Case::Camel));
+            let default_fn = ts_ident!("{}DefaultValue", function_prefix(type_name.trim()));
             parts.push(rendered(ts_template! { ...@{default_fn}() }));
         } else if let Some(fields) = member.as_object() {
             for f in fields {
                 let opts = DefaultFieldOptions::from_decorators(&f.decorators);
                 let value = resolve_default_value(opts.value, &f.ts_type, sources);
-                parts.push(rendered(ts_template! { @{&f.name}: @{value} }));
+                parts.push(rendered(
+                    ts_template! { @{property_key(&f.name)}: @{value} },
+                ));
             }
         }
         // Literals and nested intersections fall through :

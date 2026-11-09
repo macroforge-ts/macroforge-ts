@@ -21,28 +21,28 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('GreaterThanBigInt', () => {
         test('accepts value greater than threshold', () => {
-            const result = mod.GreaterThanBigIntValidator.decode(
+            const result = mod.GreaterThanBigIntValidator.fromString(
                 JSON.stringify({ value: '1' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts large value', () => {
-            const result = mod.GreaterThanBigIntValidator.decode(
+            const result = mod.GreaterThanBigIntValidator.fromString(
                 JSON.stringify({ value: '999999999999' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects value equal to threshold', () => {
-            const result = mod.GreaterThanBigIntValidator.decode(
+            const result = mod.GreaterThanBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationError(result, 'value', 'must be greater than');
         });
 
         test('rejects value below threshold', () => {
-            const result = mod.GreaterThanBigIntValidator.decode(
+            const result = mod.GreaterThanBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationError(result, 'value', 'must be greater than');
@@ -54,21 +54,21 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('GreaterThanOrEqualToBigInt', () => {
         test('accepts value equal to threshold', () => {
-            const result = mod.GreaterThanOrEqualToBigIntValidator.decode(
+            const result = mod.GreaterThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts value greater than threshold', () => {
-            const result = mod.GreaterThanOrEqualToBigIntValidator.decode(
+            const result = mod.GreaterThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '1' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects value below threshold', () => {
-            const result = mod.GreaterThanOrEqualToBigIntValidator.decode(
+            const result = mod.GreaterThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationError(
@@ -84,28 +84,28 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('LessThanBigInt', () => {
         test('accepts value less than threshold', () => {
-            const result = mod.LessThanBigIntValidator.decode(
+            const result = mod.LessThanBigIntValidator.fromString(
                 JSON.stringify({ value: '999' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts negative value', () => {
-            const result = mod.LessThanBigIntValidator.decode(
+            const result = mod.LessThanBigIntValidator.fromString(
                 JSON.stringify({ value: '-100' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects value equal to threshold', () => {
-            const result = mod.LessThanBigIntValidator.decode(
+            const result = mod.LessThanBigIntValidator.fromString(
                 JSON.stringify({ value: '1000' })
             );
             assertValidationError(result, 'value', 'must be less than');
         });
 
         test('rejects value above threshold', () => {
-            const result = mod.LessThanBigIntValidator.decode(
+            const result = mod.LessThanBigIntValidator.fromString(
                 JSON.stringify({ value: '1001' })
             );
             assertValidationError(result, 'value', 'must be less than');
@@ -117,21 +117,21 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('LessThanOrEqualToBigInt', () => {
         test('accepts value equal to threshold', () => {
-            const result = mod.LessThanOrEqualToBigIntValidator.decode(
+            const result = mod.LessThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '1000' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts value less than threshold', () => {
-            const result = mod.LessThanOrEqualToBigIntValidator.decode(
+            const result = mod.LessThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '50' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects value above threshold', () => {
-            const result = mod.LessThanOrEqualToBigIntValidator.decode(
+            const result = mod.LessThanOrEqualToBigIntValidator.fromString(
                 JSON.stringify({ value: '1001' })
             );
             assertValidationError(result, 'value', 'must be less than or equal to');
@@ -143,35 +143,35 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('BetweenBigInt', () => {
         test('accepts value at min boundary', () => {
-            const result = mod.BetweenBigIntValidator.decode(
+            const result = mod.BetweenBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts value at max boundary', () => {
-            const result = mod.BetweenBigIntValidator.decode(
+            const result = mod.BetweenBigIntValidator.fromString(
                 JSON.stringify({ value: '1000' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts value in middle', () => {
-            const result = mod.BetweenBigIntValidator.decode(
+            const result = mod.BetweenBigIntValidator.fromString(
                 JSON.stringify({ value: '500' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects value below min', () => {
-            const result = mod.BetweenBigIntValidator.decode(
+            const result = mod.BetweenBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationError(result, 'value', 'must be between');
         });
 
         test('rejects value above max', () => {
-            const result = mod.BetweenBigIntValidator.decode(
+            const result = mod.BetweenBigIntValidator.fromString(
                 JSON.stringify({ value: '1001' })
             );
             assertValidationError(result, 'value', 'must be between');
@@ -183,28 +183,28 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('PositiveBigInt', () => {
         test('accepts positive value', () => {
-            const result = mod.PositiveBigIntValidator.decode(
+            const result = mod.PositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '1' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts large positive value', () => {
-            const result = mod.PositiveBigIntValidator.decode(
+            const result = mod.PositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '999999999999999999' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects zero', () => {
-            const result = mod.PositiveBigIntValidator.decode(
+            const result = mod.PositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationError(result, 'value', 'must be positive');
         });
 
         test('rejects negative value', () => {
-            const result = mod.PositiveBigIntValidator.decode(
+            const result = mod.PositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationError(result, 'value', 'must be positive');
@@ -216,21 +216,21 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('NonNegativeBigInt', () => {
         test('accepts zero', () => {
-            const result = mod.NonNegativeBigIntValidator.decode(
+            const result = mod.NonNegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts positive value', () => {
-            const result = mod.NonNegativeBigIntValidator.decode(
+            const result = mod.NonNegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '100' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects negative value', () => {
-            const result = mod.NonNegativeBigIntValidator.decode(
+            const result = mod.NonNegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationError(result, 'value', 'must be non-negative');
@@ -242,28 +242,28 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('NegativeBigInt', () => {
         test('accepts negative value', () => {
-            const result = mod.NegativeBigIntValidator.decode(
+            const result = mod.NegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '-1' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts large negative value', () => {
-            const result = mod.NegativeBigIntValidator.decode(
+            const result = mod.NegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '-999999999999999999' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects zero', () => {
-            const result = mod.NegativeBigIntValidator.decode(
+            const result = mod.NegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationError(result, 'value', 'must be negative');
         });
 
         test('rejects positive value', () => {
-            const result = mod.NegativeBigIntValidator.decode(
+            const result = mod.NegativeBigIntValidator.fromString(
                 JSON.stringify({ value: '1' })
             );
             assertValidationError(result, 'value', 'must be negative');
@@ -275,21 +275,21 @@ describe('BigInt Validators', () => {
     // ============================================================================
     describe('NonPositiveBigInt', () => {
         test('accepts zero', () => {
-            const result = mod.NonPositiveBigIntValidator.decode(
+            const result = mod.NonPositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '0' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('accepts negative value', () => {
-            const result = mod.NonPositiveBigIntValidator.decode(
+            const result = mod.NonPositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '-100' })
             );
             assertValidationSuccess(result, 'value');
         });
 
         test('rejects positive value', () => {
-            const result = mod.NonPositiveBigIntValidator.decode(
+            const result = mod.NonPositiveBigIntValidator.fromString(
                 JSON.stringify({ value: '1' })
             );
             assertValidationError(result, 'value', 'must be non-positive');

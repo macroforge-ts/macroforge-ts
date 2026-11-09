@@ -1,0 +1,214 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/unattached_derive.ts
+---
+## Input
+
+/** @derive(Debug) */
+export const value = 1;
+
+/** @derive(Debug) */
+export namespace Space {
+    export const inside = 1;
+}
+
+/** @derive(Debug) */
+// a note between the two
+export interface Commented {
+    a: string;
+}
+
+export interface Member {
+    /** @derive(Debug) */
+    field: string;
+}
+
+/** @derive(Debug) */
+
+export interface Spaced {
+    a: string;
+}
+
+/** @derive(Debug) */
+/** A description. */
+export interface Stacked {
+    a: string;
+}
+
+export namespace Outer {
+    /** @derive(Debug) */
+    export interface Inside {
+        a: string;
+    }
+}
+
+export function local(): string {
+    /** @derive(Debug, Clone) */
+    class Local {
+        a: string = 'local';
+    }
+    return new Local().a;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+/** @derive(Debug) */
+export const value = 1;
+
+/** @derive(Debug) */
+export namespace Space {
+    export const inside = 1;
+}
+
+/** @derive(Debug) */
+// a note between the two
+export interface Commented {
+    a: string;
+}
+
+export interface Member {
+    /** @derive(Debug) */
+    field: string;
+}
+
+
+
+export interface Spaced {
+    a: string;
+}
+
+export function spacedToString(value: Spaced): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("a: " + String(value.a));
+        return "Spaced { " + parts.join(", ") + " }";
+    });
+}
+
+export const Spaced: {
+  readonly toString: typeof spacedToString;
+} = {
+  toString: spacedToString
+};
+
+
+/** A description. */
+export interface Stacked {
+    a: string;
+}
+
+export function stackedToString(value: Stacked): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("a: " + String(value.a));
+        return "Stacked { " + parts.join(", ") + " }";
+    });
+}
+
+export const Stacked: {
+  readonly toString: typeof stackedToString;
+} = {
+  toString: stackedToString
+};
+
+export namespace Outer {
+    /** @derive(Debug) */
+    export interface Inside {
+        a: string;
+    }
+}
+
+export function local(): string {
+    /** @derive(Debug, Clone) */
+    class Local {
+        a: string = 'local';
+    }
+    return new Local().a;
+}
+
+## DTS
+
+/** @derive(Debug) */
+export declare const value = 1;
+/** @derive(Debug) */
+export declare namespace Space {
+	const inside = 1;
+}
+/** @derive(Debug) */
+export interface Commented {
+	a: string;
+}
+export interface Member {
+	/** @derive(Debug) */
+	field: string;
+}
+export interface Spaced {
+	a: string;
+}
+export declare function spacedToString(value: Spaced): string;
+export declare const Spaced: {
+	readonly toString: typeof spacedToString;
+};
+/** A description. */
+export interface Stacked {
+	a: string;
+}
+export declare function stackedToString(value: Stacked): string;
+export declare const Stacked: {
+	readonly toString: typeof stackedToString;
+};
+export declare namespace Outer {
+	interface Inside {
+		a: string;
+	}
+}
+export declare function local(): string;
+
+## Diagnostics
+
+Error [5..19]: this `@derive` is attached to nothing a derive expands, so it would generate nothing
+  help: write it directly above a class, an interface, an enum or a type alias, with only other JSDoc comments in between
+Error [52..66]: this `@derive` is attached to nothing a derive expands, so it would generate nothing
+  help: write it directly above a class, an interface, an enum or a type alias, with only other JSDoc comments in between
+Error [131..145]: this `@derive` is attached to nothing a derive expands, so it would generate nothing
+  help: write it directly above a class, an interface, an enum or a type alias, with only other JSDoc comments in between
+Error [256..270]: this `@derive` is attached to nothing a derive expands, so it would generate nothing
+  help: write it directly above a class, an interface, an enum or a type alias, with only other JSDoc comments in between
+Error [485..499]: this `@derive` is on a type declared inside a namespace or a block, where a derive does not reach, so it would generate nothing
+  help: declare the type at the top level of its module
+Error [603..624]: this `@derive` is on a type declared inside a namespace or a block, where a derive does not reach, so it would generate nothing
+  help: declare the type at the top level of its module
+
+## Mapping
+
+original 0..295 -> expanded 85..380
+original 316..360 -> expanded 380..424
+original 360..362 -> expanded 772..774
+original 383..449 -> expanded 774..840
+original 449..708 -> expanded 1194..1453
+generated 0..85 <- imports
+generated 424..668 <- Debug
+generated 668..772 <- __convenience_const
+generated 840..1087 <- Debug
+generated 1087..1194 <- __convenience_const
+
+## Metadata
+
+interface Commented: {"body_span":{"end":220,"start":202},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":218,"start":208},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commented","span":{"end":220,"start":182},"type_params":[]}
+interface Member: {"body_span":{"end":294,"start":246},"decorators":[],"fields":[{"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":273,"start":252}}],"key":"Named","name":"field","optional":false,"readonly":false,"span":{"end":292,"start":278},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Member","span":{"end":294,"start":229},"type_params":[]}
+interface Spaced: {"body_span":{"end":361,"start":343},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":317,"start":296}}],"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":359,"start":349},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Spaced","span":{"end":361,"start":326},"type_params":[]}
+interface Stacked: {"body_span":{"end":450,"start":432},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":384,"start":363}}],"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":448,"start":438},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Stacked","span":{"end":450,"start":414},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

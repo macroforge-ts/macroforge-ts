@@ -488,8 +488,9 @@ pub(crate) fn inject_log_comments(
         });
     }
     if !header.is_empty() {
+        let top = crate::ts_syn::preamble_end(code) as u32 + 1;
         patches.push(Patch::Insert {
-            at: SpanIR::new(1, 1),
+            at: SpanIR::new(top, top),
             code: format!("/*\n * MF_LOG output\n{header} */\n"),
             source_macro: None,
         });

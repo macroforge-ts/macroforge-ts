@@ -270,12 +270,101 @@
         "use_cases": "partialCompare, partial ordering, sorting, nullable comparison"
     },
     {
+        "id": "encode/overview",
+        "title": "Encode: Overview",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/encode/overview.md",
+        "use_cases": "toJSON, encoding, encode",
+        "parent_id": "encode"
+    },
+    {
+        "id": "encode/cycle-detection-protocol",
+        "title": "Encode: Cycle Detection Protocol",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/encode/cycle-detection-protocol.md",
+        "use_cases": "toJSON, encoding, __id, __ref",
+        "parent_id": "encode"
+    },
+    {
+        "id": "encode/type-specific-encoding",
+        "title": "Encode: Type-Specific Encoding",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/encode/type-specific-encoding.md",
+        "use_cases": "toJSON, encoding, date, toisostring(), set<t>, readonlyset<t>",
+        "parent_id": "encode"
+    },
+    {
+        "id": "encode/generic-types",
+        "title": "Encode: Generic Types",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/encode/generic-types.md",
+        "use_cases": "toJSON, encoding, nameencodewithcontext, nameencodepartialwithcontext, encoder",
+        "parent_id": "encode"
+    },
+    {
+        "id": "encode/example",
+        "title": "Encode: Example",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/encode/example.md",
+        "use_cases": "toJSON, encoding",
+        "parent_id": "encode"
+    },
+    {
         "id": "encode",
         "title": "Encode",
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/encode.md",
-        "use_cases": "toJSON, encoding, json, api, data transfer"
+        "use_cases": "toJSON, encoding, json, api, data transfer",
+        "is_chunked": true,
+        "chunk_ids": [
+            "encode/overview",
+            "encode/cycle-detection-protocol",
+            "encode/type-specific-encoding",
+            "encode/generic-types",
+            "encode/example"
+        ]
+    },
+    {
+        "id": "decode/overview",
+        "title": "Decode: Overview",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/decode/overview.md",
+        "use_cases": "fromJSON, decoding, decode, class_handler, namedecode, namefromstring",
+        "parent_id": "decode"
+    },
+    {
+        "id": "decode/field-types",
+        "title": "Decode: Field Types",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/decode/field-types.md",
+        "use_cases": "fromJSON, decoding, string, number, boolean, bigint",
+        "parent_id": "decode"
+    },
+    {
+        "id": "decode/generic-types",
+        "title": "Decode: Generic Types",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/decode/generic-types.md",
+        "use_cases": "fromJSON, decoding, namedecodewithcontext, namedecodepartialwithcontext, decoder, box<date>",
+        "parent_id": "decode"
+    },
+    {
+        "id": "decode/references",
+        "title": "Decode: References",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/decode/references.md",
+        "use_cases": "fromJSON, decoding, namedecodepartialwithcontext, validation, errors",
+        "parent_id": "decode"
     },
     {
         "id": "decode",
@@ -283,7 +372,14 @@
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/decode.md",
-        "use_cases": "fromJSON, decoding, parsing, validation, json"
+        "use_cases": "fromJSON, decoding, parsing, validation, json",
+        "is_chunked": true,
+        "chunk_ids": [
+            "decode/overview",
+            "decode/field-types",
+            "decode/generic-types",
+            "decode/references"
+        ]
     },
     {
         "id": "newtype",

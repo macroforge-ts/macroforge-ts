@@ -24,18 +24,22 @@ class User {
 After (Generated)
 
 ```
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
 class User {
   name: string;
 
     static toString(value: User): string {
-        return userToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("name: " + String(value.name));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 ```
 

@@ -3,9 +3,10 @@
  *
  * Re-exports the real `node:fs` (the `export *` / `import *` here resolve to the
  * real builtin because the wrapper's resolve hook passes through imports whose parentURL
- * is this shim), overriding only `readFileSync` so that svelte-package's JS-emit
- * reads of macro-annotated `.ts`/`.svelte.ts` modules return expanded source,
- * and its reads of the project manifest leave out `#macroforge/config`.
+ * is this shim), overriding `readFileSync` and `copyFileSync`: svelte-package
+ * reads the `.ts` modules it compiles and copies the `.tsx`, `.mts` and `.cts`
+ * ones, and each of a macro-annotated module returns or writes its expanded
+ * source, while its reads of the project manifest leave out `#macroforge/config`.
  *
  * Both come from hooks the wrapper entrypoint installs before svelte-package
  * is imported: `globalThis.__macroforgeExpanded` and
@@ -28,4 +29,16 @@ export const readFileSync = function (path, options) {
     return real.readFileSync(path, options);
 };
 
-export default real.default ?? real;
+export const copyFileSync = function (source, destination, mode) {
+    const expanded = globalThis.__macroforgeExpanded;
+    const text = typeof expanded === 'function' ? expanded(source) : undefined;
+    if (text === undefined) return real.copyFileSync(source, destination, mode);
+    real.writeFileSync(destination, text);
+};
+
+// A default import (`import fs from 'node:fs'`) reads the same overrides, and
+// everything else from the real module.
+export default Object.assign(Object.create(real.default ?? real), {
+    readFileSync,
+    copyFileSync
+});

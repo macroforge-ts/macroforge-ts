@@ -32,6 +32,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::abi::ir::TypeParamIR;
+use crate::abi::ir::interface::InterfaceFieldIR;
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript class declaration.
@@ -84,6 +85,11 @@ pub struct ClassIR {
     /// Whether this is an `abstract class`.
     pub is_abstract: bool,
 
+    /// Whether this is a `declare class`, which describes a class the
+    /// module does not hold and has no body for generated code.
+    #[serde(default)]
+    pub is_declare: bool,
+
     /// Generic type parameters as declared (`T extends Shape` for
     /// `class Foo<T extends Shape>`).
     pub type_params: Vec<TypeParamIR>,
@@ -91,6 +97,12 @@ pub struct ClassIR {
     /// Heritage clauses - extended classes and implemented interfaces.
     /// For `class Foo extends Bar implements IBaz`, this would be `["Bar", "IBaz"]`.
     pub heritage: Vec<String>,
+
+    /// The class this one extends, when it extends one named by an
+    /// identifier: `Bar` for `class Foo extends Bar implements IBaz`. Its
+    /// instances hold that class's fields as well as their own.
+    #[serde(default)]
+    pub superclass: Option<String>,
 
     /// Macro directives from the JSDoc comment above the class.
     pub decorators: Vec<DecoratorIR>,
@@ -113,6 +125,22 @@ impl ClassIR {
         self.fields.iter_mut().for_each(FieldIR::clear_spans);
         self.methods.iter_mut().for_each(MethodSigIR::clear_spans);
     }
+}
+
+/// How a member's key is written, which decides whether its `name` is one a
+/// macro can read the member by.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum MemberKey {
+    /// A name: an identifier, or a string or whole-number literal.
+    #[default]
+    Named,
+    /// A `#private` name, which only the class's own body reaches. The
+    /// member's `name` keeps the `#`.
+    Private,
+    /// A key worked out as the code runs, or an index signature. The member's
+    /// `name` is the key as written, brackets included: `[KEY]`,
+    /// `[key: string]`.
+    Unnamed,
 }
 
 /// Intermediate representation of a class field/property.
@@ -141,11 +169,16 @@ pub struct FieldIR {
     /// The field name (identifier).
     pub name: String,
 
+    /// How the field's key is written.
+    #[serde(default)]
+    pub key: MemberKey,
+
     /// Source span of the field declaration.
     pub span: SpanIR,
 
-    /// The type annotation as a string (e.g., `"string"`, `"number[]"`, `"Map<K, V>"`).
-    /// Stored as a string for simplicity in v0.
+    /// The field's type as a string (e.g., `"string"`, `"number[]"`, `"Map<K, V>"`):
+    /// its annotation as written, else the type its initializer makes plain
+    /// (`number` for `count = 0`), else `any`.
     pub ts_type: String,
 
     /// Whether the field is optional (`?`).
@@ -163,9 +196,35 @@ pub struct FieldIR {
     /// The initializer expression as written (`"dark"` for `theme = "dark"`).
     #[serde(default)]
     pub initializer: Option<String>,
+
+    /// Whether the field is declared with `accessor`: its value is kept in a
+    /// private slot behind a getter and a setter, which the class's
+    /// constructor sets up.
+    #[serde(default)]
+    pub accessor: bool,
+
+    /// Whether the declaration leaves the field's type unsaid: it has no
+    /// annotation and no initializer whose type is plain, and `ts_type` is
+    /// `any` for want of one.
+    #[serde(default)]
+    pub untyped: bool,
 }
 
 impl FieldIR {
+    /// The field as the member an interface would declare for it, dropping
+    /// what only a class says: visibility, initializer and accessor storage.
+    pub fn as_interface_field(&self) -> InterfaceFieldIR {
+        InterfaceFieldIR {
+            name: self.name.clone(),
+            key: self.key,
+            span: self.span,
+            ts_type: self.ts_type.clone(),
+            optional: self.optional,
+            readonly: self.readonly,
+            decorators: self.decorators.clone(),
+        }
+    }
+
     /// Resets every source span, for comparing declarations by content.
     pub(crate) fn clear_spans(&mut self) {
         self.span = SpanIR::default();

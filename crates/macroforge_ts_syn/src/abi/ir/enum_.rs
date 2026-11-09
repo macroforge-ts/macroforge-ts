@@ -165,6 +165,11 @@ pub struct EnumIR {
     /// Whether this is a `const enum`.
     /// Const enums are inlined at compile time.
     pub is_const: bool,
+
+    /// Whether this is a `declare enum`: it describes an enum some other
+    /// code provides, and the module it is written in has no value for it.
+    #[serde(default)]
+    pub is_declare: bool,
 }
 
 impl EnumIR {

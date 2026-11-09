@@ -138,15 +138,21 @@ export interface DecodeContext {
    * Registers an object with a known ID.
    * @param id - The object's ID from the `__id` field
    * @param instance - The decoded object instance
+   * @param kind - The type the object was decoded as, which a reference to
+   *   it has to expect
    */
-  register(id: number, instance: any): void;
+  register(id: number, instance: any, kind?: string): void;
 
   /**
    * Gets an object by ID, or returns a `PendingRef` if not yet available.
    * @param refId - The ID from the `__ref` field
+   * @param kind - The type the reference stands for
    * @returns The object if already registered, or a `PendingRef` marker
+   * @throws DecodeError if the object was registered as another type: a
+   *   reference is input, and may not stand an object in for one of a type
+   *   it was never checked against
    */
-  getOrDefer(refId: number): any;
+  getOrDefer(refId: number, kind?: string): any;
 
   /**
    * Assigns a value to a property, deferring if it's a `PendingRef`.
@@ -167,6 +173,15 @@ export interface DecodeContext {
   addPatch(target: any, prop: string | number, refId: number): void;
 
   /**
+   * Hands the object a reference names to `settle` once it is known, for a
+   * place a property assignment cannot reach, such as a `Set` or a `Map`.
+   * @param refId - The ID of the referenced object
+   * @param settle - Receives the object when patches are applied
+   * @param kind - The type the reference stands for
+   */
+  defer(refId: number, settle: (value: any) => void, kind?: string): void;
+
+  /**
    * Tracks an object for optional freezing after decoding.
    * @param obj - The object to track
    */
@@ -180,7 +195,8 @@ export interface DecodeContext {
   applyPatches(): void;
 
   /**
-   * Freezes all tracked objects for immutability.
+   * Freezes all tracked objects for immutability: every object, array,
+   * tuple and record decoded. A `Map` and a `Set` have no frozen form.
    * Call this after `applyPatches()` if immutable objects are desired.
    */
   freezeAll(): void;
@@ -245,37 +261,68 @@ export namespace DecodeContext {
    * ```
    */
   export function create(): DecodeContext {
-    const registry = new Map<number, any>();
+    const registry = new Map<number, { instance: any; kind: string | undefined }>();
     const patches: Array<
-      { target: any; prop: string | number; refId: number }
+      { refId: number; settle: (value: any) => void; kind: string | undefined }
     > = [];
+    // The object a reference of `kind` to `refId` stands for, once it is
+    // registered. The two kinds have to agree where both are known.
+    const referenced = (refId: number, kind: string | undefined): any => {
+      const entry = registry.get(refId);
+      if (entry === undefined) {
+        throw new Error(`Unresolved reference: __ref ${refId}`);
+      }
+      if (kind !== undefined && entry.kind !== undefined && entry.kind !== kind) {
+        throw new DecodeError([{
+          field: "_root",
+          message: `__ref ${refId} refers to a ${entry.kind}, where a ${kind} is expected`,
+        }]);
+      }
+      return entry.instance;
+    };
     const toFreeze: object[] = [];
     const errors: FieldError[] = [];
     const scopes: string[] = [];
 
     return {
-      register: (id, instance) => {
-        registry.set(id, instance);
+      register: (id, instance, kind) => {
+        registry.set(id, { instance, kind });
       },
 
-      getOrDefer: (refId) => {
+      getOrDefer: (refId, kind) => {
         if (registry.has(refId)) {
-          return registry.get(refId);
+          return referenced(refId, kind);
         }
-        return PendingRef.create(refId);
+        return PendingRef.create(refId, kind);
       },
 
       assignOrDefer: (target, prop, value) => {
         if (PendingRef.is(value)) {
           target[prop] = null;
-          patches.push({ target, prop, refId: value.id });
+          patches.push({
+            refId: value.id,
+            settle: (resolved) => {
+              target[prop] = resolved;
+            },
+            kind: value.kind,
+          });
         } else {
           target[prop] = value;
         }
       },
 
       addPatch: (target, prop, refId) => {
-        patches.push({ target, prop, refId });
+        patches.push({
+          refId,
+          settle: (resolved) => {
+            target[prop] = resolved;
+          },
+          kind: undefined,
+        });
+      },
+
+      defer: (refId, settle, kind) => {
+        patches.push({ refId, settle, kind });
       },
 
       trackForFreeze: (obj) => {
@@ -283,11 +330,8 @@ export namespace DecodeContext {
       },
 
       applyPatches: () => {
-        for (const { target, prop, refId } of patches) {
-          if (!registry.has(refId)) {
-            throw new Error(`Unresolved reference: __ref ${refId}`);
-          }
-          target[prop] = registry.get(refId);
+        for (const { refId, settle, kind } of patches) {
+          settle(referenced(refId, kind));
         }
       },
 
@@ -306,7 +350,17 @@ export namespace DecodeContext {
       },
 
       pushErrors: (errs) => {
-        const prefix = scopes.length > 0 ? scopes.join(".") : "";
+        // An index follows its collection directly: `tags[0]`, not `tags.[0]`.
+        // A value decoded as the root of its own type is `_root` there, and
+        // has no name of its own inside another value.
+        const prefix = scopes.reduce(
+          (path, scope) => {
+            if (path === "") return scope;
+            if (scope === "_root") return path;
+            return scope.startsWith("[") ? path + scope : `${path}.${scope}`;
+          },
+          "",
+        );
         for (const e of errs) {
           const field = e.field === "_root"
             ? (prefix || "_root")
@@ -336,7 +390,13 @@ export interface PendingRef {
   readonly __pendingRef: true;
   /** The ID of the referenced object */
   readonly id: number;
+  /** The type the reference stands for, when its decoder says */
+  readonly kind?: string | undefined;
 }
+
+// The markers `PendingRef.create` made. A decoded value is input: one that
+// merely has a marker's shape must not pass for one.
+const pendingRefs = new WeakSet<object>();
 
 /**
  * Factory and type guard functions for `PendingRef`.
@@ -345,24 +405,23 @@ export namespace PendingRef {
   /**
    * Creates a new pending reference marker.
    * @param id - The ID of the referenced object
+   * @param kind - The type the reference stands for
    * @returns A `PendingRef` marker
    */
-  export function create(id: number): PendingRef {
-    return { __pendingRef: true, id };
+  export function create(id: number, kind?: string): PendingRef {
+    const marker: PendingRef = { __pendingRef: true, id, kind };
+    pendingRefs.add(marker);
+    return marker;
   }
 
   /**
-   * Type guard to check if a value is a `PendingRef`.
+   * Type guard to check if a value is a `PendingRef`: a marker `create`
+   * made, not a value that looks like one.
    * @param value - The value to check
    * @returns `true` if the value is a `PendingRef`
    */
-  export function is(value: any): value is PendingRef {
-    return (
-      value !== null &&
-      typeof value === "object" &&
-      value.__pendingRef === true &&
-      typeof value.id === "number"
-    );
+  export function is(value: unknown): value is PendingRef {
+    return typeof value === "object" && value !== null && pendingRefs.has(value);
   }
 }
 
@@ -458,6 +517,517 @@ export function decodedLiteral<T>(
 }
 
 /**
+ * Decodes one raw value with a context. A reference to an object not read
+ * yet comes back pending.
+ */
+export type Decoder<Value> = (raw: unknown, ctx: DecodeContext) => Value | PendingRef;
+
+/**
+ * Text that may hold a number literal too large for a number: one of at
+ * least 1e308 has an exponent of three digits or two hundred digits in a row.
+ */
+const MAY_OVERFLOW = /[eE]\+?\d{3}|\d{200}/;
+
+/**
+ * The value JSON text spells. A number literal too large to hold, such as
+ * `1e999`, parses to `Infinity`, which no encoding writes back.
+ * @throws {DecodeError} For such a literal.
+ */
+export function parsedText(text: string): unknown {
+  if (!MAY_OVERFLOW.test(text)) return JSON.parse(text);
+  return JSON.parse(text, (_key, member: unknown) => {
+    if (typeof member === "number" && !Number.isFinite(member)) {
+      throw new DecodeError([
+        { field: "_root", message: "the text holds a number too large to represent" },
+      ]);
+    }
+    return member;
+  });
+}
+
+/** What a type's `decode` returns: the value, or every error found. */
+export type Decoded<Value> =
+  | { success: true; value: Value }
+  | { success: false; errors: FieldError[] };
+
+/**
+ * Decodes the value JSON text spells, as a type's `fromString` does: `decode`
+ * takes a value and never reads a string as text. Text that is not JSON fails
+ * the way a value of the wrong kind does.
+ */
+export function decodedText<Value>(
+  text: string,
+  decode: (value: unknown) => Decoded<Value>,
+): Decoded<Value> {
+  let value: unknown;
+  try {
+    value = parsedText(text);
+  } catch (error) {
+    if (error instanceof DecodeError) return { success: false, errors: error.errors };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, errors: [{ field: "_root", message: `not JSON text: ${message}` }] };
+  }
+  return decode(value);
+}
+
+/**
+ * Encodes one value with a context: what a generic type is handed for each
+ * of its type parameters, to encode the values it holds of that type.
+ */
+export type Encoder<Value> = (value: Value, ctx: EncodeContext) => unknown;
+
+function mismatch(expected: string): DecodeError {
+  return new DecodeError([{ field: "_root", message: `expected ${expected}` }]);
+}
+
+/**
+ * A decoder of the values `is` says are of a type, refusing every other as
+ * not `expected`: what checks a value of a type parameter, which only a
+ * guard can say anything of.
+ */
+export function guardedDecoder<Value>(
+  is: (value: unknown) => value is Value,
+  expected: string,
+): Decoder<Value> {
+  return (raw) => {
+    if (is(raw)) return raw;
+    throw mismatch(expected);
+  };
+}
+
+/**
+ * What the text at a hole of a template literal type has to be: any text,
+ * a decimal number, a whole number, or one of the texts listed.
+ */
+export type TemplateHole = "string" | "number" | "bigint" | readonly string[];
+
+const DECIMAL_TEXT = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+const WHOLE_TEXT = /^-?\d+$/;
+
+function fillsHole(text: string, hole: TemplateHole): boolean {
+  if (hole === "string") return true;
+  // A number is spelled in decimal, as `encode` and `String` write one:
+  // the spaces and the `0x` forms a coercion would also take are refused.
+  if (hole === "number") return DECIMAL_TEXT.test(text) && Number.isFinite(Number(text));
+  if (hole === "bigint") return WHOLE_TEXT.test(text);
+  return hole.includes(text);
+}
+
+/**
+ * Whether `raw` is text a template literal type holds: `texts` are the
+ * type's fixed parts in order, and `holes` what stands between each two.
+ * A hole runs to where the text after it first occurs, as TypeScript reads
+ * one, so the text is walked once.
+ */
+export function spellsTemplate(
+  raw: unknown,
+  texts: readonly string[],
+  holes: readonly TemplateHole[],
+): raw is string {
+  if (typeof raw !== "string") return false;
+  const first = texts[0] ?? "";
+  if (!raw.startsWith(first)) return false;
+  let at = first.length;
+  for (let index = 1; index < texts.length; index++) {
+    const text = texts[index] ?? "";
+    const hole = holes[index - 1];
+    if (hole === undefined) return false;
+    const last = index === texts.length - 1;
+    const found = last ? raw.length - text.length : raw.indexOf(text, at);
+    if (found < at || (last && !raw.endsWith(text))) return false;
+    if (!fillsHole(raw.slice(at, found), hole)) return false;
+    at = found + text.length;
+  }
+  return at === raw.length;
+}
+
+/** Decodes a string held in a collection. */
+export function decodeString(raw: unknown): string {
+  if (typeof raw !== "string") throw mismatch("string");
+  return raw;
+}
+
+/** Decodes a number held in a collection. */
+export function decodeNumber(raw: unknown): number {
+  // `NaN` and the infinities are numbers no encoding writes back.
+  if (typeof raw !== "number" || !Number.isFinite(raw)) throw mismatch("number");
+  return raw;
+}
+
+/** Decodes a boolean held in a collection. */
+export function decodeBoolean(raw: unknown): boolean {
+  if (typeof raw !== "boolean") throw mismatch("boolean");
+  return raw;
+}
+
+/** Decodes a bigint held in a collection. JSON has none, so only a parsed value carries one. */
+export function decodeBigInt(raw: unknown): bigint {
+  if (typeof raw !== "bigint") throw mismatch("bigint");
+  return raw;
+}
+
+/** Decodes a date held in a collection: a `Date`, or the ISO text of one. */
+export function decodeDate(raw: unknown): Date {
+  const date = raw instanceof Date ? raw : typeof raw === "string" ? new Date(raw) : undefined;
+  if (date === undefined || Number.isNaN(date.getTime())) throw mismatch("an ISO date string");
+  return date;
+}
+
+/**
+ * The number a `Map`'s JSON key spells. Only the spelling a number is
+ * written out as counts, so no two keys of one object spell one number.
+ */
+export function decodeNumberKey(key: string): number {
+  const decoded = Number(key);
+  if (Number.isNaN(decoded) || String(decoded) !== key) throw mismatch("a number key");
+  return decoded;
+}
+
+/**
+ * A value held in a collection whose type is a literal, a primitive or a
+ * union of those, checked by `accepted`, which the caller works out from the
+ * type. `expected` names the type in the error.
+ */
+export function decodeChecked(raw: unknown, accepted: boolean, expected: string): unknown {
+  if (!accepted) throw mismatch(expected);
+  return raw;
+}
+
+/** The bigint a `Map`'s JSON key spells. */
+export function decodeBigIntKey(key: string): bigint {
+  if (!/^-?\d+$/.test(key)) throw mismatch("a bigint key");
+  return BigInt(key);
+}
+
+/** The boolean a `Map`'s JSON key spells. */
+export function decodeBooleanKey(key: string): boolean {
+  if (key === "true") return true;
+  if (key === "false") return false;
+  throw mismatch("a boolean key");
+}
+
+/**
+ * Runs `decode` for one member of a collection under `scope`. A member that
+ * fails to decode reports its errors and is left out. Whatever a decoder
+ * throws is the member's failure, as the top-level `decode` takes it.
+ */
+function inScope(ctx: DecodeContext, scope: string, decode: () => void): void {
+  ctx.pushScope(scope);
+  try {
+    decode();
+  } catch (error) {
+    ctx.pushErrors(
+      error instanceof DecodeError
+        ? error.errors
+        : [{ field: "_root", message: error instanceof Error ? error.message : String(error) }],
+    );
+  } finally {
+    ctx.popScope();
+  }
+}
+
+/**
+ * Hands a decoded member to `place`: at once, or when the object it refers
+ * to has been read.
+ */
+function settle<Value>(
+  ctx: DecodeContext,
+  decoded: Value | PendingRef,
+  place: (value: Value) => void,
+): void {
+  if (PendingRef.is(decoded)) ctx.defer(decoded.id, place, decoded.kind);
+  else place(decoded);
+}
+
+/**
+ * Whether `raw` holds `key` itself. Every object answers to `constructor`,
+ * `toString` and the rest of `Object.prototype`, which are no part of what
+ * it was decoded from.
+ */
+export function holds(raw: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(raw, key);
+}
+
+/** Whether `raw` holds each of `keys` itself, as {@link holds} asks of one. */
+export function holdsAll(raw: object, keys: ReadonlyArray<string>): boolean {
+  return keys.every((key) => holds(raw, key));
+}
+
+/**
+ * What `raw` gives for `key`, and `undefined` for a value that is no object.
+ * A member it inherits counts: the tag of a class may be a getter of it.
+ */
+export function member(raw: unknown, key: string): unknown {
+  return isKeyed(raw) ? raw[key] : undefined;
+}
+
+/** Whether `raw` is a value members can be read off by their keys. */
+function isKeyed(raw: unknown): raw is Record<string, unknown> {
+  return typeof raw === "object" && raw !== null;
+}
+
+/**
+ * The members `raw` holds itself, as an object that has no others: a key is
+ * then there only when the input has it.
+ */
+export function ownMembers(raw: object): Record<string, unknown> {
+  if (keepsItsMembers(raw)) throw mismatch("an object");
+  const members: Record<string, unknown> = Object.create(null);
+  for (const [key, member] of Object.entries(raw)) members[key] = member;
+  return members;
+}
+
+/**
+ * Whether `raw` keeps what it holds where its own members do not show: a
+ * `Map` or a `Set`. Read by its members, one would decode as an empty
+ * object, and everything in it would be lost without a word.
+ */
+function keepsItsMembers(raw: object): boolean {
+  return raw instanceof Map || raw instanceof Set;
+}
+
+function isRawObject(raw: unknown): raw is Record<string, unknown> {
+  return typeof raw === "object" && raw !== null && !Array.isArray(raw) && !keepsItsMembers(raw);
+}
+
+/** Decodes an array, each element with `item`. */
+export function decodeArray<Item>(
+  raw: unknown,
+  ctx: DecodeContext,
+  item: Decoder<Item>,
+): Item[] {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  const items: Item[] = [];
+  items.length = raw.length;
+  ctx.trackForFreeze(items);
+  // By index, so that a hole in the array is an element too, and refused as
+  // the `undefined` it is.
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, item(element, ctx), (value) => {
+        items[index] = value;
+      });
+    });
+  }
+  return items;
+}
+
+/** Decodes a `Set` from the array it is encoded as, each element with `item`. */
+export function decodeSet<Item>(
+  raw: unknown,
+  ctx: DecodeContext,
+  item: Decoder<Item>,
+): Set<Item> {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  const items = new Set<Item>();
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, item(element, ctx), (value) => {
+        items.add(value);
+      });
+    });
+  }
+  return items;
+}
+
+/**
+ * Decodes a `Map` from the object it is encoded as: each key with `key`,
+ * each value with `value`. An entry whose value is a reference ahead of its
+ * object is added once that object has been read.
+ */
+export function decodeMap<Key, Value>(
+  raw: unknown,
+  ctx: DecodeContext,
+  key: (text: string) => Key,
+  value: Decoder<Value>,
+): Map<Key, Value> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const entries = new Map<Key, Value>();
+  for (const [text, member] of Object.entries(raw)) {
+    inScope(ctx, text, () => {
+      const decodedKey = key(text);
+      settle(ctx, value(member, ctx), (decoded) => {
+        entries.set(decodedKey, decoded);
+      });
+    });
+  }
+  return entries;
+}
+
+/** Sets `key` on `target` by defining it, so a `__proto__` key stays a key. */
+function defineMember<Value>(target: Record<string, Value>, key: string, value: Value): void {
+  Object.defineProperty(target, key, {
+    value,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+/**
+ * Decodes a `Record`, each value with `value`. `key` checks each key where
+ * the record's key type is narrower than `string`, throwing for one that is
+ * not of it, and `required` names the keys a record over a finite set of
+ * keys has to have.
+ */
+export function decodeRecord<Value>(
+  raw: unknown,
+  ctx: DecodeContext,
+  value: Decoder<Value>,
+  key?: (text: string) => unknown,
+  required: ReadonlyArray<string> = [],
+): Record<string, Value> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const members: Record<string, Value> = {};
+  ctx.trackForFreeze(members);
+  for (const [text, member] of Object.entries(raw)) {
+    inScope(ctx, text, () => {
+      key?.(text);
+      settle(ctx, value(member, ctx), (decoded) => {
+        defineMember(members, text, decoded);
+      });
+    });
+  }
+  for (const name of required) {
+    if (holds(raw, name)) continue;
+    inScope(ctx, name, () => {
+      throw new DecodeError([{ field: "_root", message: "missing required field" }]);
+    });
+  }
+  return members;
+}
+
+/**
+ * Decodes an object whose type is written out member by member: each with
+ * its decoder in `members`, those named in `optional` only when they are
+ * there. A member the type does not declare is left behind.
+ */
+export function decodeObject(
+  raw: unknown,
+  ctx: DecodeContext,
+  members: Readonly<Record<string, Decoder<unknown>>>,
+  optional: ReadonlyArray<string> = [],
+): Record<string, unknown> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const decoded: Record<string, unknown> = {};
+  ctx.trackForFreeze(decoded);
+  for (const [key, decode] of Object.entries(members)) {
+    const member = holds(raw, key) ? raw[key] : undefined;
+    inScope(ctx, key, () => {
+      if (member === undefined) {
+        if (optional.includes(key)) return;
+        throw new DecodeError([{ field: "_root", message: "missing required field" }]);
+      }
+      settle(ctx, decode(member, ctx), (value) => {
+        defineMember(decoded, key, value);
+      });
+    });
+  }
+  return decoded;
+}
+
+/**
+ * Decodes a tuple: its leading elements with `items`, of which the first
+ * `required` have to be there, and any beyond them with `rest`. The caller
+ * knows which tuple type its decoders build.
+ */
+export function decodeTuple(
+  raw: unknown,
+  ctx: DecodeContext,
+  items: ReadonlyArray<Decoder<unknown>>,
+  required: number,
+  rest?: Decoder<unknown>,
+): unknown[] {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  if (raw.length < required || (rest === undefined && raw.length > items.length)) {
+    throw mismatch(`a tuple of ${tupleLength(items.length, required, rest !== undefined)} elements`);
+  }
+  const elements: unknown[] = [];
+  elements.length = raw.length;
+  ctx.trackForFreeze(elements);
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
+    const decode = items[index] ?? rest;
+    if (decode === undefined) continue;
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, decode(element, ctx), (value) => {
+        elements[index] = value;
+      });
+    });
+  }
+  return elements;
+}
+
+/**
+ * Reports each of the `demanded` fields that `raw` lacks as missing, and
+ * gives `raw` back to be decoded. These are the fields a `Required` of a
+ * type makes a value have where the type itself lets them be left out, each
+ * as its JSON key and the property it is decoded to.
+ *
+ * A reference stands for a value read elsewhere as its type, which may lack
+ * them, so the value it names is held to them once it has been read.
+ */
+export function requireKeys(
+  raw: unknown,
+  ctx: DecodeContext,
+  demanded: ReadonlyArray<readonly [key: string, property: string]>,
+): unknown {
+  if (!isRawObject(raw)) return raw;
+  const report = (has: (key: string, property: string) => boolean) => {
+    const missing = demanded.filter(([key, property]) => !has(key, property));
+    if (missing.length > 0) {
+      ctx.pushErrors(missing.map(([field]) => ({ field, message: "missing required field" })));
+    }
+  };
+  if (typeof raw.__ref === "number") {
+    settle<unknown>(ctx, ctx.getOrDefer(raw.__ref), (value) => {
+      report(
+        (_key, property) =>
+          typeof value === "object" && value !== null && Reflect.get(value, property) !== undefined,
+      );
+    });
+  } else {
+    report((key) => holds(raw, key) && raw[key] !== undefined);
+  }
+  return raw;
+}
+
+function tupleLength(declared: number, required: number, open: boolean): string {
+  if (open) return `at least ${required}`;
+  return required === declared ? `${required}` : `${required} to ${declared}`;
+}
+
+/**
+ * Runs `encode` for `value`, a value holding only some of its type's fields.
+ * Such a value is written out wherever it is held, so one that holds itself
+ * has no end.
+ * @throws {TypeError} If `value` is already being encoded.
+ */
+export function encodeSelection<Encoded>(
+  ctx: EncodeContext,
+  value: object,
+  encode: () => Encoded,
+): Encoded {
+  const encoding = selectionsBeingEncoded.get(ctx) ?? new Set<object>();
+  selectionsBeingEncoded.set(ctx, encoding);
+  if (encoding.has(value)) {
+    throw new TypeError(
+      "a Partial, Pick or Omit of a value that holds itself has no encoding",
+    );
+  }
+  encoding.add(value);
+  try {
+    return encode();
+  } finally {
+    encoding.delete(value);
+  }
+}
+
+const selectionsBeingEncoded = new WeakMap<EncodeContext, Set<object>>();
+
+/**
  * The static `encodeWithContext` of the class `value` is an instance of, when
  * that class derives `Encode`. Only the class's own static counts, so a
  * subclass that does not derive `Encode` is not encoded as its parent.
@@ -474,6 +1044,60 @@ export function derivedEncoder(
   const encoder: unknown = Reflect.get(constructor, "encodeWithContext");
   if (typeof encoder !== "function") return undefined;
   return (item, ctx) => encoder(item, ctx);
+}
+
+/** What a member coder of a union gives back for a value of another member. */
+export const notTheMember: unique symbol = Symbol("notTheMember");
+
+/**
+ * A member coder of a union: `encode` for a value `is` says is of the member,
+ * and {@link notTheMember} for any other.
+ */
+export function memberCoder<Union, Member extends Union>(
+  is: (value: Union) => value is Member,
+  encode: (value: Member) => unknown,
+): (value: Union) => unknown {
+  return (value) => (is(value) ? encode(value) : notTheMember);
+}
+
+/**
+ * What the first of `decoders` whose member `raw` is decodes it to, or
+ * {@link notTheMember} when it is of none of them.
+ */
+export function decodedMember<Raw>(
+  raw: Raw,
+  decoders: ReadonlyArray<(raw: Raw) => unknown>,
+): unknown {
+  for (const decoder of decoders) {
+    const decoded = decoder(raw);
+    if (decoded !== notTheMember) return decoded;
+  }
+  return notTheMember;
+}
+
+/**
+ * `encoded` with `tag` naming the member of a union it encodes, as a member
+ * tagged in place (`{ tag: 'name' } & Type`) carries it: the encoder of the
+ * type it names writes no tag of the union's.
+ */
+export function withTag(encoded: unknown, tag: string, name: string): unknown {
+  if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return encoded;
+  return { [tag]: name, ...encoded };
+}
+
+/**
+ * `value` as the first of `coders` whose member it is encodes it, or as it
+ * is when it is of none of them.
+ */
+export function encodedMember<Union>(
+  value: Union,
+  coders: ReadonlyArray<(value: Union) => unknown>,
+): unknown {
+  for (const coder of coders) {
+    const encoded = coder(value);
+    if (encoded !== notTheMember) return encoded;
+  }
+  return value;
 }
 
 /**
@@ -518,22 +1142,139 @@ export function fieldRequirement(
  * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
  */
 export function encodedText(encoded: unknown): string {
-  return jsonText(JSON.stringify(encoded));
+  return jsonText(JSON.stringify(encoded, (_key, member: unknown) => replacerMember(member)));
 }
 
 /**
  * The JSON text of an encoded value without its `tagField` and `__id`
- * members, at every depth.
- * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
+ * members, at every depth. Nothing is left for a reference to name, so a
+ * value held in several places is written out at each of them.
+ * @throws {TypeError} If the value has no JSON text, as `undefined` has none,
+ * or holds itself, which only a reference can write.
  */
 export function encodedTextWithoutMetadata(encoded: unknown, tagField: string): string {
+  const written = holdsReference(encoded)
+    ? writtenOut(encoded, { open: new Set(), copying: 0, copies: 0 })
+    : encoded;
   return jsonText(
     JSON.stringify(
-      encoded,
+      written,
       (key, member: unknown) =>
         key === tagField || key === "__id" ? undefined : replacerMember(member),
     ),
   );
+}
+
+/**
+ * The references the encoders wrote, each with the encoding it stands for.
+ * Kept apart from the encoded values, so that data shaped like a reference
+ * is never taken for one.
+ */
+const encodedReferences = new WeakMap<object, object>();
+
+/** The encodings the encoders registered, by context and id. */
+const encodedById = new WeakMap<EncodeContext, Map<number, object>>();
+
+/**
+ * Starts the encoding of a value registered as `id` in `ctx`: `encoded` with
+ * its `__id`, known as what a reference to `id` stands for.
+ */
+export function encodedAs(
+  ctx: EncodeContext,
+  id: number,
+  encoded: Record<string, unknown>,
+): Record<string, unknown> {
+  encoded.__id = id;
+  const byId = encodedById.get(ctx) ?? new Map<number, object>();
+  encodedById.set(ctx, byId);
+  byId.set(id, encoded);
+  return encoded;
+}
+
+/** The reference written for a value already encoded as `id` in `ctx`. */
+export function encodedReference(ctx: EncodeContext, id: number): { __ref: number } {
+  const reference = { __ref: id };
+  const encoded = encodedById.get(ctx)?.get(id);
+  if (encoded !== undefined) encodedReferences.set(reference, encoded);
+  return reference;
+}
+
+/** Whether `encoded` is an object the encoders built, whose members are its encoding. */
+function isEncodedObject(encoded: unknown): encoded is Record<string, unknown> {
+  if (typeof encoded !== "object" || encoded === null) return false;
+  const prototype: unknown = Object.getPrototypeOf(encoded);
+  return prototype === Object.prototype || prototype === null;
+}
+
+/** Whether a reference the encoders wrote is anywhere in `encoded`. */
+function holdsReference(encoded: unknown): boolean {
+  if (Array.isArray(encoded)) return encoded.some(holdsReference);
+  if (!isEncodedObject(encoded)) return false;
+  return encodedReferences.has(encoded) || Object.values(encoded).some(holdsReference);
+}
+
+/**
+ * How much may be written out in place of references, over one text: a unit
+ * for each member and element copied, and one for each character of a key or
+ * a string. A value shared at every level of a deep graph is written out
+ * once for every path to it, and a large one held in many places once for
+ * each, so what is copied grows without bound in the size of the graph.
+ */
+const WRITTEN_OUT_LIMIT = 16_000_000;
+
+/** Counts `units` copied in place of a reference against the limit. */
+function copied(writing: WritingOut, units: number): void {
+  if (writing.copying === 0) return;
+  writing.copies += units;
+  if (writing.copies > WRITTEN_OUT_LIMIT) {
+    throw new TypeError(
+      "a value held in many places is too large to write out at each of them: encode it with keepMetadata",
+    );
+  }
+}
+
+/**
+ * What is being written out: the encodings around this one, how many of
+ * them stand in for a reference, and how much those have copied.
+ */
+interface WritingOut {
+  readonly open: Set<object>;
+  copying: number;
+  copies: number;
+}
+
+/** `encoded` with each reference replaced by the encoding it stands for. */
+function writtenOut(encoded: unknown, writing: WritingOut): unknown {
+  if (typeof encoded === "string") {
+    copied(writing, encoded.length);
+    return encoded;
+  }
+  if (Array.isArray(encoded)) {
+    copied(writing, encoded.length);
+    return encoded.map((element: unknown) => writtenOut(element, writing));
+  }
+  if (!isEncodedObject(encoded)) return encoded;
+  const referenced = encodedReferences.get(encoded);
+  const source = referenced ?? encoded;
+  if (!isEncodedObject(source)) return source;
+  if (writing.open.has(source)) {
+    throw new TypeError(
+      "a value that holds itself has no JSON text without its metadata: encode it with keepMetadata",
+    );
+  }
+  writing.open.add(source);
+  if (referenced !== undefined) writing.copying += 1;
+  try {
+    const members: Record<string, unknown> = {};
+    for (const [key, member] of Object.entries(source)) {
+      copied(writing, 1 + key.length);
+      defineMember(members, key, writtenOut(member, writing));
+    }
+    return members;
+  } finally {
+    writing.open.delete(source);
+    if (referenced !== undefined) writing.copying -= 1;
+  }
 }
 
 function jsonText(text: string | undefined): string {
@@ -551,9 +1292,14 @@ function jsonText(text: string | undefined): string {
 function replacerMember(
   member: unknown,
 ): string | number | boolean | null | Record<string, unknown> | unknown[] | undefined {
-  if (typeof member === "string" || typeof member === "number" || typeof member === "boolean") {
+  if (typeof member === "number") {
+    // JSON writes `NaN` and the infinities as `null`, which reads back as no number.
+    if (!Number.isFinite(member)) {
+      throw new TypeError(`JSON cannot represent the number ${member}`);
+    }
     return member;
   }
+  if (typeof member === "string" || typeof member === "boolean") return member;
   if (Array.isArray(member) || isJsonObject(member)) return member;
   if (typeof member === "bigint") throw new TypeError("Do not know how to serialize a BigInt");
   return member === null ? null : undefined;

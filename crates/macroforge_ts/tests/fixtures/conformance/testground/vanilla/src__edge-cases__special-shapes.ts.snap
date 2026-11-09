@@ -1,0 +1,2531 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/special-shapes.ts
+sha256 90dbb37049776765a722076743c7e2e23f75c4173691a412c21f628a64ff434b
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Values at the edges of their types: numbers that are not ordinary numbers,
+ * dates that are no date, collections whose order says nothing, and
+ * collections that hold `undefined`, which JSON has no word for.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export interface SpecialScalars {
+    value: number;
+    at: Date;
+    big: bigint;
+    text: string;
+    flag: boolean;
+    list: number[];
+}
+
+export function specialScalarsToString(value: SpecialScalars): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("value: " + String(value.value));
+    parts.push("at: " + String(value.at));
+    parts.push("big: " + String(value.big));
+    parts.push("text: " + String(value.text));
+    parts.push("flag: " + String(value.flag));
+    parts.push("list: " + __mf_structuralDebug(value.list));
+        return "SpecialScalars { " + parts.join(", ") + " }";
+    });
+}
+
+export function specialScalarsClone(value: SpecialScalars): SpecialScalars {
+    return __mf_clonedWith(value, (): SpecialScalars => ({
+	value: value.value,
+	at: new Date(value.at.getTime()),
+	big: value.big,
+	text: value.text,
+	flag: value.flag,
+	list: [...value.list]
+}));
+}
+
+export function specialScalarsEquals(a: SpecialScalars, b: SpecialScalars): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.value === b.value || a.value !== a.value && b.value !== b.value,
+            () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+            () => a.big === b.big,
+            () => a.text === b.text,
+            () => a.flag === b.flag,
+            () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+            	const __other0 = b.list[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+            }),
+        ].every((same) => same());
+    });
+}
+
+export function specialScalarsHashCode(value: SpecialScalars): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.value) ? value.value | 0 : value.value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
+    hash = (hash * 31 + (value.big.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.text ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.flag ? 1231 : 1237)) | 0;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+        return hash;
+    });
+}
+
+export function specialScalarsPartialCompare(a: SpecialScalars, b: SpecialScalars): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.value < b.value ? -1 : a.value > b.value ? 1 : a.value === b.value || (a.value !== a.value && b.value !== b.value) ? 0 : null),
+        () => (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null),
+        () => (a.big < b.big ? -1 : a.big > b.big ? 1 : 0),
+        () => (a.text < b.text ? -1 : a.text > b.text ? 1 : 0),
+        () => (a.flag === b.flag ? 0 : a.flag ? 1 : -1),
+        () => (() => {
+            const __left0 = a.list;
+            const __right0 = b.list;
+            const __shared0 = Math.min(__left0.length, __right0.length);
+            for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                const __item0 = __left0[__index0];
+                const __other0 = __right0[__index0];
+                const __order0 = __item0 === undefined || __other0 === undefined
+                    ? __mf_structuralCompare(__item0, __other0)
+                    : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0) ? 0 : null);
+                if (__order0 !== 0) return __order0;
+            }
+            return __left0.length < __right0.length ? -1
+                : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function specialScalarsCompare(a: SpecialScalars, b: SpecialScalars): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => a.value < b.value ? -1 : a.value > b.value ? 1 : a.value === b.value ? 0 : a.value !== a.value ? b.value !== b.value ? 0 : 1 : -1,
+        () => a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1,
+        () => a.big < b.big ? -1 : a.big > b.big ? 1 : 0,
+        () => a.text < b.text ? -1 : a.text > b.text ? 1 : 0,
+        () => a.flag === b.flag ? 0 : a.flag ? 1 : -1,
+        () => (() => {
+        	const __left0 = a.list;
+        	const __right0 = b.list;
+        	const __shared0 = Math.min(__left0.length, __right0.length);
+        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+        		const __item0 = __left0[__index0];
+        		const __other0 = __right0[__index0];
+        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : __item0 !== __item0 ? __other0 !== __other0 ? 0 : 1 : -1;
+        		if (__order0 !== 0) return __order0;
+        	}
+        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function specialScalarsDefaultValue(): SpecialScalars {
+    return {
+        value: 0,
+        at: new Date(),
+        big: 0n,
+        text: "",
+        flag: false,
+        list: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialScalarsEncode(value: SpecialScalars, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialScalarsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialScalarsEncodeWithContext(value: SpecialScalars, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SpecialScalars" });
+    specialScalarsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function specialScalarsEncodePartialWithContext(value: Partial<SpecialScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialScalars>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SpecialScalars" };
+        specialScalarsEncodeFields(value as SpecialScalars, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function specialScalarsEncodeFields(value: SpecialScalars, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("value")) {
+                if (value.value !== undefined) {
+                    result["value"] = value.value;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = ((v) => String(v))(value.big);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("text")) {
+                if (value.text !== undefined) {
+                    result["text"] = value.text;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flag")) {
+                if (value.flag !== undefined) {
+                    result["flag"] = value.flag;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialScalarsDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialScalars.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialScalarsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialScalarsDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialScalars | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialScalars> | __mf_PendingRef;
+export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<SpecialScalars> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialScalars.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialScalars.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "SpecialScalars") as SpecialScalars | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialScalars.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"], ["at", "at"], ["big", "big"], ["text", "text"], ["flag", "flag"], ["list", "list"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "value"?: number | undefined; "at"?: Date | undefined; "big"?: bigint | undefined; "text"?: string | undefined; "flag"?: boolean | undefined; "list"?: number[] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialScalars");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
+                const __raw_value = obj["value"] as number;
+
+                if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
+                    errors.push({ field: "value", message: __raw_value == null ? "SpecialScalars.value is required" : "expected number" });
+                } else {
+                    instance.value = __raw_value;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "SpecialScalars.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                try {
+                    instance.big = ((__raw: unknown) => ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(__raw) as bigint)(obj["big"]);
+                } catch (__error) {
+                    errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+                const __raw_text = obj["text"] as string;
+
+                if (!(typeof __raw_text === "string")) {
+                    errors.push({ field: "text", message: __raw_text == null ? "SpecialScalars.text is required" : "expected string" });
+                } else {
+                    instance.text = __raw_text;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+                const __raw_flag = obj["flag"] as boolean;
+
+                if (!(typeof __raw_flag === "boolean")) {
+                    errors.push({ field: "flag", message: __raw_flag == null ? "SpecialScalars.flag is required" : "expected boolean" });
+                } else {
+                    instance.flag = __raw_flag;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as number[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "list", message: __raw_list == null ? "SpecialScalars.list is required" : "expected number[]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as SpecialScalars;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function specialScalarsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialScalars>): Partial<SpecialScalars> | __mf_PendingRef {
+    return specialScalarsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function specialScalarsValidateField<K extends keyof SpecialScalars>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function specialScalarsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function specialScalarsValidateFields(partial: { readonly [K in keyof SpecialScalars]?: unknown }): Array<{ field: string; message: string }>;
+export function specialScalarsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function specialScalarsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["value", "at", "big", "text", "flag", "list"]);
+}
+
+export function specialScalarsIs(obj: unknown): obj is SpecialScalars {
+    return specialScalarsHasShape(obj) && specialScalarsDecode(obj).success;
+}
+
+export const SpecialScalars: {
+  readonly toString: typeof specialScalarsToString;
+  readonly clone: typeof specialScalarsClone;
+  readonly equals: typeof specialScalarsEquals;
+  readonly hashCode: typeof specialScalarsHashCode;
+  readonly partialCompare: typeof specialScalarsPartialCompare;
+  readonly compare: typeof specialScalarsCompare;
+  readonly defaultValue: typeof specialScalarsDefaultValue;
+  readonly encode: typeof specialScalarsEncode;
+  readonly encodeWithContext: typeof specialScalarsEncodeWithContext;
+  readonly encodePartialWithContext: typeof specialScalarsEncodePartialWithContext;
+  readonly decode: typeof specialScalarsDecode;
+  readonly fromString: typeof specialScalarsFromString;
+  readonly decodeWithContext: typeof specialScalarsDecodeWithContext;
+  readonly decodePartialWithContext: typeof specialScalarsDecodePartialWithContext;
+  readonly validateField: typeof specialScalarsValidateField;
+  readonly validateFields: typeof specialScalarsValidateFields;
+  readonly hasShape: typeof specialScalarsHasShape;
+  readonly is: typeof specialScalarsIs;
+} = {
+  toString: specialScalarsToString,
+  clone: specialScalarsClone,
+  equals: specialScalarsEquals,
+  hashCode: specialScalarsHashCode,
+  partialCompare: specialScalarsPartialCompare,
+  compare: specialScalarsCompare,
+  defaultValue: specialScalarsDefaultValue,
+  encode: specialScalarsEncode,
+  encodeWithContext: specialScalarsEncodeWithContext,
+  encodePartialWithContext: specialScalarsEncodePartialWithContext,
+  decode: specialScalarsDecode,
+  fromString: specialScalarsFromString,
+  decodeWithContext: specialScalarsDecodeWithContext,
+  decodePartialWithContext: specialScalarsDecodePartialWithContext,
+  validateField: specialScalarsValidateField,
+  validateFields: specialScalarsValidateFields,
+  hasShape: specialScalarsHasShape,
+  is: specialScalarsIs
+};
+
+/** @derive(Encode, Decode) */
+export type SpecialNumber = number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function specialNumberEncode(value: SpecialNumber, keepMetadata?: boolean): string;
+export function specialNumberEncode(value: SpecialNumber): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function specialNumberEncodeWithContext(value: SpecialNumber, ctx: __mf_EncodeContext): unknown;
+export function specialNumberEncodeWithContext(value: SpecialNumber): unknown {
+    return value;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const result = specialNumberDecodeWithContext(input, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialNumberDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): SpecialNumber {
+    const __decoded: unknown = value;
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialNumber.decodeWithContext: expected number" }]);
+    }
+    return __decoded as SpecialNumber;
+}
+
+export function specialNumberHasShape(value: unknown): boolean {
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
+}
+
+export function specialNumberIs(value: unknown): value is SpecialNumber {
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && specialNumberDecode(value).success;
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialNumberFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialNumberDecode(value, opts));
+}
+
+export const SpecialNumber: {
+  readonly encode: typeof specialNumberEncode;
+  readonly encodeWithContext: typeof specialNumberEncodeWithContext;
+  readonly decode: typeof specialNumberDecode;
+  readonly decodeWithContext: typeof specialNumberDecodeWithContext;
+  readonly hasShape: typeof specialNumberHasShape;
+  readonly is: typeof specialNumberIs;
+  readonly fromString: typeof specialNumberFromString;
+} = {
+  encode: specialNumberEncode,
+  encodeWithContext: specialNumberEncodeWithContext,
+  decode: specialNumberDecode,
+  decodeWithContext: specialNumberDecodeWithContext,
+  hasShape: specialNumberHasShape,
+  is: specialNumberIs,
+  fromString: specialNumberFromString
+};
+
+/** @derive(Encode, Decode) */
+export type SpecialEither = number | SpecialCarried;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialEitherEncode(value: SpecialEither, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialEitherEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: SpecialEither): member is SpecialCarried => __mf_member(member, "__type") === "SpecialCarried", (member) => specialCarriedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: SpecialEither): member is SpecialCarried => typeof member === "object" && member !== null && !Array.isArray(member) && "data" in member && "amounts" in member && "pair" in member && "mixed" in member, (member) => specialCarriedEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialEitherDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialEither } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialEitherDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialEither.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialEitherFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialEither } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialEitherDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialEitherDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialEither | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialEither.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as SpecialEither | __mf_PendingRef;
+    }
+
+    
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
+        return value as SpecialEither;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "__type");
+        if (typeof __typeName === "string") {
+            if (__typeName === "SpecialCarried") {
+                return specialCarriedDecodeWithContext(value, ctx) as SpecialEither;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (specialCarriedHasShape(value)) __shapeMatches.push("SpecialCarried");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "SpecialCarried") {
+                    return specialCarriedDecodeWithContext(value, ctx) as SpecialEither;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (specialCarriedHasShape(value)) __shapeMatches.push("SpecialCarried");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "SpecialCarried") {
+                return specialCarriedDecodeWithContext(value, ctx) as SpecialEither;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "SpecialEither.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function specialEitherHasShape(value: unknown): boolean {
+                if ((typeof value === "number" && globalThis.Number.isFinite(value))) return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "__type");
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "SpecialCarried") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (specialCarriedHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (specialCarriedHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function specialEitherIs(value: unknown): value is SpecialEither {
+    return specialEitherHasShape(value) && specialEitherDecode(value).success;
+}
+
+export const SpecialEither: {
+  readonly encode: typeof specialEitherEncode;
+  readonly encodeWithContext: typeof specialEitherEncodeWithContext;
+  readonly decode: typeof specialEitherDecode;
+  readonly fromString: typeof specialEitherFromString;
+  readonly decodeWithContext: typeof specialEitherDecodeWithContext;
+  readonly hasShape: typeof specialEitherHasShape;
+  readonly is: typeof specialEitherIs;
+} = {
+  encode: specialEitherEncode,
+  encodeWithContext: specialEitherEncodeWithContext,
+  decode: specialEitherDecode,
+  fromString: specialEitherFromString,
+  decodeWithContext: specialEitherDecodeWithContext,
+  hasShape: specialEitherHasShape,
+  is: specialEitherIs
+};
+
+/** @derive(Encode, Decode) */
+export interface SpecialCarried {
+    data: unknown;
+    amounts: Record<string, number>;
+    pair: [number, string];
+    mixed: string | number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialCarriedEncode(value: SpecialCarried, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialCarriedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialCarriedEncodeWithContext(value: SpecialCarried, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SpecialCarried" });
+    specialCarriedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function specialCarriedEncodePartialWithContext(value: Partial<SpecialCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCarried>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SpecialCarried" };
+        specialCarriedEncodeFields(value as SpecialCarried, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function specialCarriedEncodeFields(value: SpecialCarried, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("data")) {
+                if (value.data !== undefined) {
+                    result["data"] = value.data;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("amounts")) {
+                if (value.amounts !== undefined) {
+                    result["amounts"] = value.amounts;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("mixed")) {
+                if (value.mixed !== undefined) {
+                    result["mixed"] = value.mixed;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialCarriedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialCarried.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCarriedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialCarriedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCarried | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialCarried> | __mf_PendingRef;
+export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<SpecialCarried> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialCarried.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialCarried.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "SpecialCarried") as SpecialCarried | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialCarried.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["data", "data"], ["amounts", "amounts"], ["pair", "pair"], ["mixed", "mixed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "data"?: unknown | undefined; "amounts"?: Record<string, number> | undefined; "pair"?: [number, string] | undefined; "mixed"?: string | number | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialCarried");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("data")) ? "data" in obj : (__fields.keeps("data") && obj["data"] !== undefined)) {
+                const __raw_data = obj["data"] as unknown;
+
+                instance.data = __raw_data;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("amounts")) ? "amounts" in obj : (__fields.keeps("amounts") && obj["amounts"] !== undefined)) {
+                const __raw_amounts = obj["amounts"] as Record<string, number>;
+                if (typeof __raw_amounts === "object" && __raw_amounts !== null) {
+                    ctx.pushScope("amounts");
+                    try {
+                        instance.amounts = (__mf_decodeRecord(__raw_amounts, ctx, __mf_decodeNumber) as Record<string, number>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "amounts" : "amounts." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "amounts", message: __raw_amounts == null ? "SpecialCarried.amounts is required" : "expected Record<string, number>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [number, string];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeNumber, __mf_decodeString], 2) as [number, string]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "SpecialCarried.pair is required" : "expected [number, string]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+                const __raw_mixed = obj["mixed"] as string | number;
+
+                if (!(typeof __raw_mixed === "string" || typeof __raw_mixed === "number" && globalThis.Number.isFinite(__raw_mixed))) {
+                    errors.push({ field: "mixed", message: __raw_mixed == null ? "SpecialCarried.mixed is required" : "expected string | number" });
+                } else {
+                    instance.mixed = __raw_mixed;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as SpecialCarried;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function specialCarriedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialCarried>): Partial<SpecialCarried> | __mf_PendingRef {
+    return specialCarriedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function specialCarriedValidateField<K extends keyof SpecialCarried>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function specialCarriedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function specialCarriedValidateFields(partial: { readonly [K in keyof SpecialCarried]?: unknown }): Array<{ field: string; message: string }>;
+export function specialCarriedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function specialCarriedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["data", "amounts", "pair", "mixed"]);
+}
+
+export function specialCarriedIs(obj: unknown): obj is SpecialCarried {
+    return specialCarriedHasShape(obj) && specialCarriedDecode(obj).success;
+}
+
+export const SpecialCarried: {
+  readonly encode: typeof specialCarriedEncode;
+  readonly encodeWithContext: typeof specialCarriedEncodeWithContext;
+  readonly encodePartialWithContext: typeof specialCarriedEncodePartialWithContext;
+  readonly decode: typeof specialCarriedDecode;
+  readonly fromString: typeof specialCarriedFromString;
+  readonly decodeWithContext: typeof specialCarriedDecodeWithContext;
+  readonly decodePartialWithContext: typeof specialCarriedDecodePartialWithContext;
+  readonly validateField: typeof specialCarriedValidateField;
+  readonly validateFields: typeof specialCarriedValidateFields;
+  readonly hasShape: typeof specialCarriedHasShape;
+  readonly is: typeof specialCarriedIs;
+} = {
+  encode: specialCarriedEncode,
+  encodeWithContext: specialCarriedEncodeWithContext,
+  encodePartialWithContext: specialCarriedEncodePartialWithContext,
+  decode: specialCarriedDecode,
+  fromString: specialCarriedFromString,
+  decodeWithContext: specialCarriedDecodeWithContext,
+  decodePartialWithContext: specialCarriedDecodePartialWithContext,
+  validateField: specialCarriedValidateField,
+  validateFields: specialCarriedValidateFields,
+  hasShape: specialCarriedHasShape,
+  is: specialCarriedIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface SpecialCollections {
+    set: Set<number>;
+    map: Map<string, number[]>;
+    record: Record<string, Date>;
+    nested: Map<string, Set<string>>;
+    optional?: number;
+    nullable: number | null;
+}
+
+export function specialCollectionsToString(value: SpecialCollections): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("map: " + __mf_structuralDebug(value.map));
+    parts.push("record: " + __mf_structuralDebug(value.record));
+    parts.push("nested: " + __mf_structuralDebug(value.nested));
+    parts.push("optional: " + String(value.optional));
+    parts.push("nullable: " + String(value.nullable));
+        return "SpecialCollections { " + parts.join(", ") + " }";
+    });
+}
+
+export function specialCollectionsClone(value: SpecialCollections): SpecialCollections {
+    return __mf_clonedWith(value, (): SpecialCollections => ({
+	set: new Set(value.set),
+	map: (() => {
+		const __copy0 = new Map(value.map);
+		for (const [__key0, __item0] of value.map) __copy0.set(__key0, [...__item0]);
+		return __copy0;
+	})(),
+	record: __mf_structuralClone(value.record),
+	nested: (() => {
+		const __copy0 = new Map(value.nested);
+		for (const [__key0, __item0] of value.nested) __copy0.set(__key0, new Set(__item0));
+		return __copy0;
+	})(),
+	..."optional" in value ? { optional: value.optional } : {},
+	nullable: value.nullable
+}));
+}
+
+export function specialCollectionsEquals(a: SpecialCollections, b: SpecialCollections): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0)),
+            () => a.map.size === b.map.size && Array.from(a.map).every(([__key0, __item0]) => {
+            	const __other0 = b.map.get(__key0);
+            	return b.map.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
+            		const __other1 = __other0[__index1];
+            		return __other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1;
+            	}));
+            }),
+            () => __mf_structuralEquals(a.record, b.record),
+            () => a.nested.size === b.nested.size && Array.from(a.nested).every(([__key0, __item0]) => {
+            	const __other0 = b.nested.get(__key0);
+            	return b.nested.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every((__item1) => __other0.has(__item1) || Array.from(__other0).some((__other1) => __item1 === __other1)));
+            }),
+            () => a.optional === b.optional || a.optional !== a.optional && b.optional !== b.optional,
+            () => a.nullable === b.nullable || a.nullable !== a.nullable && b.nullable !== b.nullable,
+        ].every((same) => same());
+    });
+}
+
+export function specialCollectionsHashCode(value: SpecialCollections): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.map).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + __item0.reduce<number>((__hash1, __item1) => __hash1 * 31 + (Number.isInteger(__item1) ? __item1 | 0 : __item1.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
+    hash = (hash * 31 + (Array.from(value.nested).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + Array.from(__item0).reduce<number>((__hash1, __item1) => __hash1 + (__item1 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.optional == null ? 0 : Number.isInteger(value.optional) ? value.optional | 0 : value.optional.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.nullable == null ? 0 : Number.isInteger(value.nullable) ? value.nullable | 0 : value.nullable.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function specialCollectionsDefaultValue(): SpecialCollections {
+    return {
+        set: new Set(),
+        map: new Map(),
+        record: ({}),
+        nested: new Map(),
+        nullable: null,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialCollectionsEncode(value: SpecialCollections, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialCollectionsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialCollectionsEncodeWithContext(value: SpecialCollections, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SpecialCollections" });
+    specialCollectionsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function specialCollectionsEncodePartialWithContext(value: Partial<SpecialCollections>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCollections>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SpecialCollections" };
+        specialCollectionsEncodeFields(value as SpecialCollections, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function specialCollectionsEncodeFields(value: SpecialCollections, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("map")) {
+                if (value.map !== undefined) {
+                    result["map"] = Object.fromEntries(value.map.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = Object.fromEntries((Object.entries(value.record) as [string, Date][]).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = Object.fromEntries(Array.from(value.nested, ([__key0, __item0]) => [__key0, Array.from(__item0)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optional")) {
+                if (value.optional !== undefined) {
+                    result["optional"] = value.optional;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nullable")) {
+                if (value.nullable !== undefined) {
+                    result["nullable"] = value.nullable;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCollectionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialCollections } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialCollectionsDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialCollections.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCollectionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialCollections } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialCollectionsDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCollections | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialCollections> | __mf_PendingRef;
+export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<SpecialCollections> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialCollections.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialCollections.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "SpecialCollections") as SpecialCollections | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialCollections.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["set", "set"], ["map", "map"], ["record", "record"], ["nested", "nested"], ["nullable", "nullable"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "set"?: Set<number> | undefined; "map"?: Map<string, number[]> | undefined; "record"?: Record<string, Date> | undefined; "nested"?: Map<string, Set<string>> | undefined; "optional"?: number | undefined; "nullable"?: number | null | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialCollections");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<number>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "set", message: __raw_set == null ? "SpecialCollections.set is required" : "expected Set<number>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
+                const __raw_map = obj["map"] as Record<string, number[]>;
+                if (typeof __raw_map === "object" && __raw_map !== null) {
+                    ctx.pushScope("map");
+                    try {
+                        instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeNumber));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "map" : "map." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "map", message: __raw_map == null ? "SpecialCollections.map is required" : "expected Map<string, number[]>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, Date>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, __mf_decodeDate) as Record<string, Date>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "record", message: __raw_record == null ? "SpecialCollections.record is required" : "expected Record<string, Date>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as Record<string, Array<string>>;
+                if (typeof __raw_nested === "object" && __raw_nested !== null) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = __mf_decodeMap(__raw_nested, ctx, (__key0) => __key0, (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "nested", message: __raw_nested == null ? "SpecialCollections.nested is required" : "expected Map<string, Set<string>>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optional"))) {
+                if (("optional" in obj && obj["optional"] !== undefined)) {
+                    const __raw_optional = obj["optional"] as number;
+
+                    if (!(typeof __raw_optional === "number" && globalThis.Number.isFinite(__raw_optional))) {
+                        errors.push({ field: "optional", message: "expected number" });
+                    } else {
+                        instance.optional = __raw_optional;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nullable")) ? "nullable" in obj : (__fields.keeps("nullable") && obj["nullable"] !== undefined)) {
+                const __raw_nullable = obj["nullable"] as number | null;
+
+                if (!(typeof __raw_nullable === "number" && globalThis.Number.isFinite(__raw_nullable) || __raw_nullable === null)) {
+                    errors.push({ field: "nullable", message: "expected number | null" });
+                } else {
+                    instance.nullable = __raw_nullable;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as SpecialCollections;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function specialCollectionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialCollections>): Partial<SpecialCollections> | __mf_PendingRef {
+    return specialCollectionsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function specialCollectionsValidateField<K extends keyof SpecialCollections>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function specialCollectionsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function specialCollectionsValidateFields(partial: { readonly [K in keyof SpecialCollections]?: unknown }): Array<{ field: string; message: string }>;
+export function specialCollectionsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function specialCollectionsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["set", "map", "record", "nested", "nullable"]);
+}
+
+export function specialCollectionsIs(obj: unknown): obj is SpecialCollections {
+    return specialCollectionsHasShape(obj) && specialCollectionsDecode(obj).success;
+}
+
+export const SpecialCollections: {
+  readonly toString: typeof specialCollectionsToString;
+  readonly clone: typeof specialCollectionsClone;
+  readonly equals: typeof specialCollectionsEquals;
+  readonly hashCode: typeof specialCollectionsHashCode;
+  readonly defaultValue: typeof specialCollectionsDefaultValue;
+  readonly encode: typeof specialCollectionsEncode;
+  readonly encodeWithContext: typeof specialCollectionsEncodeWithContext;
+  readonly encodePartialWithContext: typeof specialCollectionsEncodePartialWithContext;
+  readonly decode: typeof specialCollectionsDecode;
+  readonly fromString: typeof specialCollectionsFromString;
+  readonly decodeWithContext: typeof specialCollectionsDecodeWithContext;
+  readonly decodePartialWithContext: typeof specialCollectionsDecodePartialWithContext;
+  readonly validateField: typeof specialCollectionsValidateField;
+  readonly validateFields: typeof specialCollectionsValidateFields;
+  readonly hasShape: typeof specialCollectionsHasShape;
+  readonly is: typeof specialCollectionsIs;
+} = {
+  toString: specialCollectionsToString,
+  clone: specialCollectionsClone,
+  equals: specialCollectionsEquals,
+  hashCode: specialCollectionsHashCode,
+  defaultValue: specialCollectionsDefaultValue,
+  encode: specialCollectionsEncode,
+  encodeWithContext: specialCollectionsEncodeWithContext,
+  encodePartialWithContext: specialCollectionsEncodePartialWithContext,
+  decode: specialCollectionsDecode,
+  fromString: specialCollectionsFromString,
+  decodeWithContext: specialCollectionsDecodeWithContext,
+  decodePartialWithContext: specialCollectionsDecodePartialWithContext,
+  validateField: specialCollectionsValidateField,
+  validateFields: specialCollectionsValidateFields,
+  hasShape: specialCollectionsHasShape,
+  is: specialCollectionsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface SpecialHoles {
+    list: (number | undefined)[];
+    pair: [number | undefined, string?];
+    record: Record<string, number | undefined>;
+    finite: Record<'a' | 'b', Date | undefined>;
+    set: Set<number | undefined>;
+    held: Map<string, number | undefined>;
+    either: (number | null | undefined)[];
+    plain: string | undefined;
+    grouped: string | undefined;
+}
+
+export function specialHolesToString(value: SpecialHoles): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("list: " + __mf_structuralDebug(value.list));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("record: " + __mf_structuralDebug(value.record));
+    parts.push("finite: " + __mf_structuralDebug(value.finite));
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("either: " + __mf_structuralDebug(value.either));
+    parts.push("plain: " + String(value.plain));
+    parts.push("grouped: " + String(value.grouped));
+        return "SpecialHoles { " + parts.join(", ") + " }";
+    });
+}
+
+export function specialHolesClone(value: SpecialHoles): SpecialHoles {
+    return __mf_clonedWith(value, (): SpecialHoles => ({
+	list: [...value.list],
+	pair: __mf_structuralClone(value.pair),
+	record: __mf_structuralClone(value.record),
+	finite: __mf_structuralClone(value.finite),
+	set: new Set(value.set),
+	held: new Map(value.held),
+	either: [...value.either],
+	plain: value.plain,
+	grouped: value.grouped
+}));
+}
+
+export function specialHolesEquals(a: SpecialHoles, b: SpecialHoles): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+            	const __other0 = b.list[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+            }),
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => __mf_structuralEquals(a.record, b.record),
+            () => __mf_structuralEquals(a.finite, b.finite),
+            () => a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0)),
+            () => a.held.size === b.held.size && Array.from(a.held).every(([__key0, __item0]) => {
+            	const __other0 = b.held.get(__key0);
+            	return b.held.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => a.either.length === b.either.length && a.either.every((__item0, __index0) => {
+            	const __other0 = b.either[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+            }),
+            () => a.plain === b.plain,
+            () => a.grouped === b.grouped,
+        ].every((same) => same());
+    });
+}
+
+export function specialHolesHashCode(value: SpecialHoles): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.finite))) | 0;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.held).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.either.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.plain == null ? 0 : (value.plain ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.grouped == null ? 0 : (value.grouped ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialHolesEncode(value: SpecialHoles, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialHolesEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialHolesEncodeWithContext(value: SpecialHoles, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SpecialHoles" });
+    specialHolesEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function specialHolesEncodePartialWithContext(value: Partial<SpecialHoles>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SpecialHoles" };
+        specialHolesEncodeFields(value as SpecialHoles, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function specialHolesEncodeFields(value: SpecialHoles, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = Object.fromEntries((Object.entries(value.record) as [string, number | undefined][]).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("finite")) {
+                if (value.finite !== undefined) {
+                    result["finite"] = Object.fromEntries((Object.entries(value.finite) as [string, Date | undefined][]).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : (__item0 === undefined ? undefined : __item0.toISOString()))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("held")) {
+                if (value.held !== undefined) {
+                    result["held"] = Object.fromEntries(Array.from(value.held, ([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("either")) {
+                if (value.either !== undefined) {
+                    result["either"] = value.either;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("plain")) {
+                if (value.plain !== undefined) {
+                    result["plain"] = value.plain;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("grouped")) {
+                if (value.grouped !== undefined) {
+                    result["grouped"] = value.grouped;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialHoles } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialHolesDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialHoles.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialHolesFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialHoles } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialHolesDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialHoles | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef;
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialHoles.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialHoles.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "SpecialHoles") as SpecialHoles | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialHoles.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["list", "list"], ["pair", "pair"], ["record", "record"], ["finite", "finite"], ["set", "set"], ["held", "held"], ["either", "either"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "list"?: (number | undefined)[] | undefined; "pair"?: [number | undefined, string?] | undefined; "record"?: Record<string, number | undefined> | undefined; "finite"?: Record<'a' | 'b', Date | undefined> | undefined; "set"?: Set<number | undefined> | undefined; "held"?: Map<string, number | undefined> | undefined; "either"?: (number | null | undefined)[] | undefined; "plain"?: string | undefined | undefined; "grouped"?: string | undefined | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialHoles");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as (number | undefined)[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "list", message: __raw_list == null ? "SpecialHoles.list is required" : "expected (number | undefined)[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [number | undefined, string?];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                }, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, typeof __read0 === "string" || __read0 === undefined, "string | undefined") as string | undefined);
+                }], 1) as [number | undefined, string?]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "SpecialHoles.pair is required" : "expected [number | undefined, string?]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, number | undefined>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                }) as Record<string, number | undefined>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "record", message: __raw_record == null ? "SpecialHoles.record is required" : "expected Record<string, number | undefined>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
+                const __raw_finite = obj["finite"] as Record<'a' | 'b', Date | undefined>;
+                if (typeof __raw_finite === "object" && __raw_finite !== null) {
+                    ctx.pushScope("finite");
+                    try {
+                        instance.finite = (__mf_decodeRecord(__raw_finite, ctx, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__read0 === undefined ? undefined : __mf_decodeDate(__read0));
+                }, (__key0) => __mf_decodeChecked(__key0, __key0 === 'a' || __key0 === 'b', "'a' | 'b'") as 'a' | 'b', [String('a'), String('b')]) as Record<'a' | 'b', Date | undefined>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "finite" : "finite." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "finite", message: __raw_finite == null ? "SpecialHoles.finite is required" : "expected Record<'a' | 'b', Date | undefined>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<number | undefined>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "set", message: __raw_set == null ? "SpecialHoles.set is required" : "expected Set<number | undefined>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+                const __raw_held = obj["held"] as Record<string, number | undefined>;
+                if (typeof __raw_held === "object" && __raw_held !== null) {
+                    ctx.pushScope("held");
+                    try {
+                        instance.held = __mf_decodeMap(__raw_held, ctx, (__key0) => __key0, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "held" : "held." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "held", message: __raw_held == null ? "SpecialHoles.held is required" : "expected Map<string, number | undefined>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("either")) ? "either" in obj : (__fields.keeps("either") && obj["either"] !== undefined)) {
+                const __raw_either = obj["either"] as (number | null | undefined)[];
+                if (Array.isArray(__raw_either)) {
+                    ctx.pushScope("either");
+                    try {
+                        instance.either = __mf_decodeArray(__raw_either, ctx, (__raw0) => (__mf_decodeChecked(__raw0, (typeof __raw0 === "number" && globalThis.Number.isFinite(__raw0)) || __raw0 === null || __raw0 === undefined, "number | null | undefined") as number | null | undefined));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "either" : "either." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "either", message: __raw_either == null ? "SpecialHoles.either is required" : "expected (number | null | undefined)[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("plain")) || (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+                const __raw_plain = obj["plain"] as string | undefined;
+
+                if (!(typeof __raw_plain === "string" || __raw_plain === undefined)) {
+                    errors.push({ field: "plain", message: "expected string | undefined" });
+                } else {
+                    instance.plain = __raw_plain;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("grouped")) || (__fields.keeps("grouped") && obj["grouped"] !== undefined)) {
+                const __raw_grouped = obj["grouped"] as string | undefined;
+
+                if (!(typeof __raw_grouped === "string" || __raw_grouped === undefined)) {
+                    errors.push({ field: "grouped", message: "expected string | undefined" });
+                } else {
+                    instance.grouped = __raw_grouped;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as SpecialHoles;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function specialHolesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Partial<SpecialHoles> | __mf_PendingRef {
+    return specialHolesDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function specialHolesValidateField<K extends keyof SpecialHoles>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function specialHolesValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function specialHolesValidateFields(partial: { readonly [K in keyof SpecialHoles]?: unknown }): Array<{ field: string; message: string }>;
+export function specialHolesValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function specialHolesHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["list", "pair", "record", "finite", "set", "held", "either"]);
+}
+
+export function specialHolesIs(obj: unknown): obj is SpecialHoles {
+    return specialHolesHasShape(obj) && specialHolesDecode(obj).success;
+}
+
+export const SpecialHoles: {
+  readonly toString: typeof specialHolesToString;
+  readonly clone: typeof specialHolesClone;
+  readonly equals: typeof specialHolesEquals;
+  readonly hashCode: typeof specialHolesHashCode;
+  readonly encode: typeof specialHolesEncode;
+  readonly encodeWithContext: typeof specialHolesEncodeWithContext;
+  readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
+  readonly decode: typeof specialHolesDecode;
+  readonly fromString: typeof specialHolesFromString;
+  readonly decodeWithContext: typeof specialHolesDecodeWithContext;
+  readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
+  readonly validateField: typeof specialHolesValidateField;
+  readonly validateFields: typeof specialHolesValidateFields;
+  readonly hasShape: typeof specialHolesHasShape;
+  readonly is: typeof specialHolesIs;
+} = {
+  toString: specialHolesToString,
+  clone: specialHolesClone,
+  equals: specialHolesEquals,
+  hashCode: specialHolesHashCode,
+  encode: specialHolesEncode,
+  encodeWithContext: specialHolesEncodeWithContext,
+  encodePartialWithContext: specialHolesEncodePartialWithContext,
+  decode: specialHolesDecode,
+  fromString: specialHolesFromString,
+  decodeWithContext: specialHolesDecodeWithContext,
+  decodePartialWithContext: specialHolesDecodePartialWithContext,
+  validateField: specialHolesValidateField,
+  validateFields: specialHolesValidateFields,
+  hasShape: specialHolesHasShape,
+  is: specialHolesIs
+};
+
+## DTS
+
+/**
+* Values at the edges of their types: numbers that are not ordinary numbers,
+* dates that are no date, collections whose order says nothing, and
+* collections that hold `undefined`, which JSON has no word for.
+*/
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export interface SpecialScalars {
+	value: number;
+	at: Date;
+	big: bigint;
+	text: string;
+	flag: boolean;
+	list: number[];
+}
+export declare function specialScalarsToString(value: SpecialScalars): string;
+export declare function specialScalarsClone(value: SpecialScalars): SpecialScalars;
+export declare function specialScalarsEquals(a: SpecialScalars, b: SpecialScalars): boolean;
+export declare function specialScalarsHashCode(value: SpecialScalars): number;
+export declare function specialScalarsPartialCompare(a: SpecialScalars, b: SpecialScalars): number | null;
+export declare function specialScalarsCompare(a: SpecialScalars, b: SpecialScalars): number;
+export declare function specialScalarsDefaultValue(): SpecialScalars;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialScalarsEncode(value: SpecialScalars, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialScalarsEncodeWithContext(value: SpecialScalars, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function specialScalarsEncodePartialWithContext(value: Partial<SpecialScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialScalars>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialScalars;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialScalarsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialScalars;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialScalars | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialScalars> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function specialScalarsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialScalars>): Partial<SpecialScalars> | __mf_PendingRef;
+export declare function specialScalarsValidateField<K extends keyof SpecialScalars>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialScalarsValidateFields(partial: { readonly [K in keyof SpecialScalars]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialScalarsHasShape(obj: unknown): boolean;
+export declare function specialScalarsIs(obj: unknown): obj is SpecialScalars;
+export declare const SpecialScalars: {
+	readonly toString: typeof specialScalarsToString;
+	readonly clone: typeof specialScalarsClone;
+	readonly equals: typeof specialScalarsEquals;
+	readonly hashCode: typeof specialScalarsHashCode;
+	readonly partialCompare: typeof specialScalarsPartialCompare;
+	readonly compare: typeof specialScalarsCompare;
+	readonly defaultValue: typeof specialScalarsDefaultValue;
+	readonly encode: typeof specialScalarsEncode;
+	readonly encodeWithContext: typeof specialScalarsEncodeWithContext;
+	readonly encodePartialWithContext: typeof specialScalarsEncodePartialWithContext;
+	readonly decode: typeof specialScalarsDecode;
+	readonly fromString: typeof specialScalarsFromString;
+	readonly decodeWithContext: typeof specialScalarsDecodeWithContext;
+	readonly decodePartialWithContext: typeof specialScalarsDecodePartialWithContext;
+	readonly validateField: typeof specialScalarsValidateField;
+	readonly validateFields: typeof specialScalarsValidateFields;
+	readonly hasShape: typeof specialScalarsHasShape;
+	readonly is: typeof specialScalarsIs;
+};
+/** @derive(Encode, Decode) */
+export type SpecialNumber = number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function specialNumberEncode(value: SpecialNumber, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function specialNumberEncodeWithContext(value: SpecialNumber, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialNumberDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialNumber;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialNumberDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): SpecialNumber;
+export declare function specialNumberHasShape(value: unknown): boolean;
+export declare function specialNumberIs(value: unknown): value is SpecialNumber;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialNumberFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialNumber;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare const SpecialNumber: {
+	readonly encode: typeof specialNumberEncode;
+	readonly encodeWithContext: typeof specialNumberEncodeWithContext;
+	readonly decode: typeof specialNumberDecode;
+	readonly decodeWithContext: typeof specialNumberDecodeWithContext;
+	readonly hasShape: typeof specialNumberHasShape;
+	readonly is: typeof specialNumberIs;
+	readonly fromString: typeof specialNumberFromString;
+};
+/** @derive(Encode, Decode) */
+export type SpecialEither = number | SpecialCarried;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialEitherEncode(value: SpecialEither, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialEitherDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialEither;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialEitherFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialEither;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialEitherDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialEither | __mf_PendingRef;
+export declare function specialEitherHasShape(value: unknown): boolean;
+export declare function specialEitherIs(value: unknown): value is SpecialEither;
+export declare const SpecialEither: {
+	readonly encode: typeof specialEitherEncode;
+	readonly encodeWithContext: typeof specialEitherEncodeWithContext;
+	readonly decode: typeof specialEitherDecode;
+	readonly fromString: typeof specialEitherFromString;
+	readonly decodeWithContext: typeof specialEitherDecodeWithContext;
+	readonly hasShape: typeof specialEitherHasShape;
+	readonly is: typeof specialEitherIs;
+};
+/** @derive(Encode, Decode) */
+export interface SpecialCarried {
+	data: unknown;
+	amounts: Record<string, number>;
+	pair: [number, string];
+	mixed: string | number;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialCarriedEncode(value: SpecialCarried, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialCarriedEncodeWithContext(value: SpecialCarried, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function specialCarriedEncodePartialWithContext(value: Partial<SpecialCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCarried>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCarried;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCarriedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCarried;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCarried | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialCarried> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function specialCarriedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialCarried>): Partial<SpecialCarried> | __mf_PendingRef;
+export declare function specialCarriedValidateField<K extends keyof SpecialCarried>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialCarriedValidateFields(partial: { readonly [K in keyof SpecialCarried]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialCarriedHasShape(obj: unknown): boolean;
+export declare function specialCarriedIs(obj: unknown): obj is SpecialCarried;
+export declare const SpecialCarried: {
+	readonly encode: typeof specialCarriedEncode;
+	readonly encodeWithContext: typeof specialCarriedEncodeWithContext;
+	readonly encodePartialWithContext: typeof specialCarriedEncodePartialWithContext;
+	readonly decode: typeof specialCarriedDecode;
+	readonly fromString: typeof specialCarriedFromString;
+	readonly decodeWithContext: typeof specialCarriedDecodeWithContext;
+	readonly decodePartialWithContext: typeof specialCarriedDecodePartialWithContext;
+	readonly validateField: typeof specialCarriedValidateField;
+	readonly validateFields: typeof specialCarriedValidateFields;
+	readonly hasShape: typeof specialCarriedHasShape;
+	readonly is: typeof specialCarriedIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface SpecialCollections {
+	set: Set<number>;
+	map: Map<string, number[]>;
+	record: Record<string, Date>;
+	nested: Map<string, Set<string>>;
+	optional?: number;
+	nullable: number | null;
+}
+export declare function specialCollectionsToString(value: SpecialCollections): string;
+export declare function specialCollectionsClone(value: SpecialCollections): SpecialCollections;
+export declare function specialCollectionsEquals(a: SpecialCollections, b: SpecialCollections): boolean;
+export declare function specialCollectionsHashCode(value: SpecialCollections): number;
+export declare function specialCollectionsDefaultValue(): SpecialCollections;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialCollectionsEncode(value: SpecialCollections, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialCollectionsEncodeWithContext(value: SpecialCollections, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function specialCollectionsEncodePartialWithContext(value: Partial<SpecialCollections>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCollections>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCollectionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCollections;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCollectionsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCollections;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCollections | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialCollections> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function specialCollectionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialCollections>): Partial<SpecialCollections> | __mf_PendingRef;
+export declare function specialCollectionsValidateField<K extends keyof SpecialCollections>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialCollectionsValidateFields(partial: { readonly [K in keyof SpecialCollections]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialCollectionsHasShape(obj: unknown): boolean;
+export declare function specialCollectionsIs(obj: unknown): obj is SpecialCollections;
+export declare const SpecialCollections: {
+	readonly toString: typeof specialCollectionsToString;
+	readonly clone: typeof specialCollectionsClone;
+	readonly equals: typeof specialCollectionsEquals;
+	readonly hashCode: typeof specialCollectionsHashCode;
+	readonly defaultValue: typeof specialCollectionsDefaultValue;
+	readonly encode: typeof specialCollectionsEncode;
+	readonly encodeWithContext: typeof specialCollectionsEncodeWithContext;
+	readonly encodePartialWithContext: typeof specialCollectionsEncodePartialWithContext;
+	readonly decode: typeof specialCollectionsDecode;
+	readonly fromString: typeof specialCollectionsFromString;
+	readonly decodeWithContext: typeof specialCollectionsDecodeWithContext;
+	readonly decodePartialWithContext: typeof specialCollectionsDecodePartialWithContext;
+	readonly validateField: typeof specialCollectionsValidateField;
+	readonly validateFields: typeof specialCollectionsValidateFields;
+	readonly hasShape: typeof specialCollectionsHasShape;
+	readonly is: typeof specialCollectionsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface SpecialHoles {
+	list: (number | undefined)[];
+	pair: [number | undefined, string?];
+	record: Record<string, number | undefined>;
+	finite: Record<"a" | "b", Date | undefined>;
+	set: Set<number | undefined>;
+	held: Map<string, number | undefined>;
+	either: (number | null | undefined)[];
+	plain: string | undefined;
+	grouped: string | undefined;
+}
+export declare function specialHolesToString(value: SpecialHoles): string;
+export declare function specialHolesClone(value: SpecialHoles): SpecialHoles;
+export declare function specialHolesEquals(a: SpecialHoles, b: SpecialHoles): boolean;
+export declare function specialHolesHashCode(value: SpecialHoles): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialHolesEncode(value: SpecialHoles, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialHolesEncodeWithContext(value: SpecialHoles, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function specialHolesEncodePartialWithContext(value: Partial<SpecialHoles>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialHoles;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialHolesFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialHoles;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialHoles | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function specialHolesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Partial<SpecialHoles> | __mf_PendingRef;
+export declare function specialHolesValidateField<K extends keyof SpecialHoles>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialHolesValidateFields(partial: { readonly [K in keyof SpecialHoles]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialHolesHasShape(obj: unknown): boolean;
+export declare function specialHolesIs(obj: unknown): obj is SpecialHoles;
+export declare const SpecialHoles: {
+	readonly toString: typeof specialHolesToString;
+	readonly clone: typeof specialHolesClone;
+	readonly equals: typeof specialHolesEquals;
+	readonly hashCode: typeof specialHolesHashCode;
+	readonly encode: typeof specialHolesEncode;
+	readonly encodeWithContext: typeof specialHolesEncodeWithContext;
+	readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
+	readonly decode: typeof specialHolesDecode;
+	readonly fromString: typeof specialHolesFromString;
+	readonly decodeWithContext: typeof specialHolesDecodeWithContext;
+	readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
+	readonly validateField: typeof specialHolesValidateField;
+	readonly validateFields: typeof specialHolesValidateFields;
+	readonly hasShape: typeof specialHolesHasShape;
+	readonly is: typeof specialHolesIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..456 -> expanded 1548..2004
+original 456..524 -> expanded 23845..23913
+original 524..609 -> expanded 27819..27904
+original 609..789 -> expanded 35281..35461
+original 789..1079 -> expanded 49238..49528
+original 1079..1532 -> expanded 72721..73174
+original 1532..1533 -> expanded 102626..102627
+generated 0..1548 <- imports
+generated 2004..2523 <- Debug
+generated 2523..2801 <- Clone
+generated 2801..3637 <- PartialEq
+generated 3637..4567 <- Hash
+generated 4567..6274 <- PartialOrd
+generated 6274..7863 <- Ord
+generated 7863..8065 <- Default
+generated 8065..11557 <- Encode
+generated 11557..21993 <- Decode
+generated 21993..23845 <- __convenience_const
+generated 23913..24677 <- Encode
+generated 24677..27138 <- Decode
+generated 27138..27819 <- __convenience_const
+generated 27904..29737 <- Encode
+generated 29737..34600 <- Decode
+generated 34600..35281 <- __convenience_const
+generated 35461..38495 <- Encode
+generated 38495..48018 <- Decode
+generated 48018..49238 <- __convenience_const
+generated 49528..50125 <- Debug
+generated 50125..50772 <- Clone
+generated 50772..52455 <- PartialEq
+generated 52455..54153 <- Hash
+generated 54153..54368 <- Default
+generated 54368..58180 <- Encode
+generated 58180..70933 <- Decode
+generated 70933..72721 <- __convenience_const
+generated 73174..73934 <- Debug
+generated 73934..74352 <- Clone
+generated 74352..75967 <- PartialEq
+generated 75967..77771 <- Hash
+generated 77771..82386 <- Encode
+generated 82386..101136 <- Decode
+generated 101136..102626 <- __convenience_const
+
+## Metadata
+
+interface SpecialScalars: {"body_span":{"end":457,"start":347},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":314,"start":223}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":367,"start":353},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":381,"start":372},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":398,"start":386},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":416,"start":403},"ts_type":"string"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":435,"start":421},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":455,"start":440},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"SpecialScalars","span":{"end":457,"start":322},"type_params":[]}
+interface SpecialCarried: {"body_span":{"end":790,"start":675},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":642,"start":612}}],"fields":[{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":695,"start":681},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"amounts","optional":false,"readonly":false,"span":{"end":732,"start":700},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":760,"start":737},"ts_type":"[number, string]"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":788,"start":765},"ts_type":"string | number"}],"heritage":[],"methods":[],"name":"SpecialCarried","span":{"end":790,"start":650},"type_params":[]}
+interface SpecialCollections: {"body_span":{"end":1080,"start":899},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":862,"start":792}}],"fields":[{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":922,"start":905},"ts_type":"Set<number>"},{"decorators":[],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":954,"start":927},"ts_type":"Map<string, number[]>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":988,"start":959},"ts_type":"Record<string, Date>"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1026,"start":993},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1049,"start":1031},"ts_type":"number"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1078,"start":1054},"ts_type":"number | null"}],"heritage":[],"methods":[],"name":"SpecialCollections","span":{"end":1080,"start":870},"type_params":[]}
+interface SpecialHoles: {"body_span":{"end":1533,"start":1174},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1143,"start":1082}}],"fields":[{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1209,"start":1180},"ts_type":"(number | undefined)[]"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1250,"start":1214},"ts_type":"[number | undefined, string?]"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":1298,"start":1255},"ts_type":"Record<string, number | undefined>"},{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1347,"start":1303},"ts_type":"Record<'a' | 'b', Date | undefined>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1381,"start":1352},"ts_type":"Set<number | undefined>"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1424,"start":1386},"ts_type":"Map<string, number | undefined>"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1467,"start":1429},"ts_type":"(number | null | undefined)[]"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1498,"start":1472},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"grouped","optional":false,"readonly":false,"span":{"end":1531,"start":1503},"ts_type":"string | undefined"}],"heritage":[],"methods":[],"name":"SpecialHoles","span":{"end":1533,"start":1151},"type_params":[]}
+type SpecialNumber: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":489,"start":459}}],"name":"SpecialNumber","span":{"end":525,"start":497},"type_params":[]}
+type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"SpecialCarried"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":557,"start":527}}],"name":"SpecialEither","span":{"end":610,"start":565},"type_params":[]}
+
+## Registry reads
+
+Name("'a' | 'b'")
+Name("(number | null | undefined)")
+Name("(number | undefined)")
+Name("Date")
+Name("Map")
+Name("Record")
+Name("Set")
+Name("SpecialCarried")
+Name("SpecialEither")
+Name("SpecialNumber")
+Name("[number | undefined, string?]")
+Name("[number, string]")
+Name("bigint")
+Name("boolean")
+Name("number")
+Name("string")
+Name("string | number")
+Name("unknown")
+
+## Buildtime dependencies
+
+(none)

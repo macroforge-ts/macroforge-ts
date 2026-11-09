@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -44,51 +44,50 @@ export function columnConfigEncode(value: ColumnConfig, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return columnConfigEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ColumnConfig>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "ColumnConfig",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("heading")) {
-
-        if (value.heading !== undefined) {
-            result.heading = value.heading;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dataPath")) {
-
-        if (value.dataPath !== undefined) {
-            result.dataPath = dataPathEncodeWithContext(value.dataPath, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ColumnConfig" });
+    columnConfigEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ColumnConfig>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ColumnConfig" };
+        columnConfigEncodeFields(value as ColumnConfig, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("heading")) {
+                if (value.heading !== undefined) {
+                    result["heading"] = value.heading;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dataPath")) {
+                if (value.dataPath !== undefined) {
+                    result["dataPath"] = dataPathEncodeWithContext(value.dataPath, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = columnConfigDecodeWithContext(data, ctx);
+        const resultOrRef = columnConfigDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -134,6 +133,10 @@ export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function columnConfigFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => columnConfigDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ColumnConfig | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -146,63 +149,73 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ColumnConfig.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ColumnConfig | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ColumnConfig") as ColumnConfig | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ColumnConfig.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("heading")) && !("heading" in obj)) {
-        errors.push({ field: "heading", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dataPath")) && !("dataPath" in obj)) {
-        errors.push({ field: "dataPath", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["heading", "heading"], ["dataPath", "dataPath"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "heading"?: string | undefined; "dataPath"?: DataPath | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ColumnConfig");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("heading")) || (__fields.keeps("heading") && obj["heading"] !== undefined)) {
-        const __raw_heading = obj["heading"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("heading")) ? "heading" in obj : (__fields.keeps("heading") && obj["heading"] !== undefined)) {
+                const __raw_heading = obj["heading"] as string;
 
-        if (!(typeof __raw_heading === "string")) {
-            errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
-        } else {
-            if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
-                if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
-            }
-            instance.heading = __raw_heading;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dataPath")) || (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
-        const __raw_dataPath = obj["dataPath"] as DataPath;
-
-        ctx.pushScope("dataPath");
-        try {
-            const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
-            ctx.assignOrDefer(instance, "dataPath", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_heading === "string")) {
+                    errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
+                } else {
+                    if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
+                        if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
+                    }
+                    instance.heading = __raw_heading;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dataPath")) ? "dataPath" in obj : (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
+                const __raw_dataPath = obj["dataPath"] as DataPath;
+
+                ctx.pushScope("dataPath");
+                try {
+                    const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
+                    ctx.assignOrDefer(instance, "dataPath", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "dataPath", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -239,8 +252,7 @@ export function columnConfigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "heading" in o && "dataPath" in o;
+    return __mf_holdsAll(obj, ["heading", "dataPath"]);
 }
 
 export function columnConfigIs(obj: unknown): obj is ColumnConfig {
@@ -398,6 +410,7 @@ export const ColumnConfig: {
   readonly encodeWithContext: typeof columnConfigEncodeWithContext;
   readonly encodePartialWithContext: typeof columnConfigEncodePartialWithContext;
   readonly decode: typeof columnConfigDecode;
+  readonly fromString: typeof columnConfigFromString;
   readonly decodeWithContext: typeof columnConfigDecodeWithContext;
   readonly decodePartialWithContext: typeof columnConfigDecodePartialWithContext;
   readonly validateField: typeof columnConfigValidateField;
@@ -412,6 +425,7 @@ export const ColumnConfig: {
   encodeWithContext: columnConfigEncodeWithContext,
   encodePartialWithContext: columnConfigEncodePartialWithContext,
   decode: columnConfigDecode,
+  fromString: columnConfigFromString,
   decodeWithContext: columnConfigDecodeWithContext,
   decodePartialWithContext: columnConfigDecodePartialWithContext,
   validateField: columnConfigValidateField,
@@ -435,10 +449,21 @@ export declare function columnConfigDefaultValue(): ColumnConfig;
 export declare function columnConfigEncode(value: ColumnConfig, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ColumnConfig>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ColumnConfig;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function columnConfigFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ColumnConfig;
 } | {
@@ -505,6 +530,7 @@ export declare const ColumnConfig: {
 	readonly encodeWithContext: typeof columnConfigEncodeWithContext;
 	readonly encodePartialWithContext: typeof columnConfigEncodePartialWithContext;
 	readonly decode: typeof columnConfigDecode;
+	readonly fromString: typeof columnConfigFromString;
 	readonly decodeWithContext: typeof columnConfigDecodeWithContext;
 	readonly decodePartialWithContext: typeof columnConfigDecodePartialWithContext;
 	readonly validateField: typeof columnConfigValidateField;
@@ -521,25 +547,28 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 755..865
-original 159..196 -> expanded 865..902
-original 237..284 -> expanded 902..949
-original 284..285 -> expanded 17248..17249
-generated 0..755 <- imports
-generated 949..1094 <- Default
-generated 1094..3150 <- Encode
-generated 3150..10594 <- Decode
-generated 10594..15874 <- Gigaform
-generated 15874..17248 <- __convenience_const
+original 0..110 -> expanded 959..1069
+original 159..196 -> expanded 1069..1106
+original 237..284 -> expanded 1106..1153
+original 284..285 -> expanded 19002..19003
+generated 0..959 <- imports
+generated 1153..1298 <- Default
+generated 1298..3897 <- Encode
+generated 3897..12256 <- Decode
+generated 12256..17536 <- Gigaform
+generated 17536..19002 <- __convenience_const
 
 ## Metadata
 
-interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":238,"start":197}}],"name":"heading","optional":false,"readonly":false,"span":{"end":259,"start":243},"ts_type":"string"},{"decorators":[],"name":"dataPath","optional":false,"readonly":false,"span":{"end":283,"start":264},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":285,"start":168},"type_params":[]}
+interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":238,"start":197}}],"key":"Named","name":"heading","optional":false,"readonly":false,"span":{"end":259,"start":243},"ts_type":"string"},{"decorators":[],"key":"Named","name":"dataPath","optional":false,"readonly":false,"span":{"end":283,"start":264},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":285,"start":168},"type_params":[]}
 
 ## Registry reads
 
+Name("Array")
 Name("DataPath")
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

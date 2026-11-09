@@ -3,6 +3,8 @@
 
 use crate::ts_syn::TsStream;
 
+use crate::builtin::derive::common::each_on_its_own;
+
 use super::flatten::encode_flattened_field;
 use super::value::encode_field;
 use crate::builtin::derive::endec::encode::types::EncodeField;
@@ -21,5 +23,5 @@ pub(in crate::builtin::derive::endec::encode) fn encode_fields(
         .iter()
         .filter(|field| field.flatten)
         .map(|field| encode_flattened_field(field, tag_field));
-    TsStream::merge_all(regular.chain(flattened))
+    each_on_its_own(regular.chain(flattened))
 }

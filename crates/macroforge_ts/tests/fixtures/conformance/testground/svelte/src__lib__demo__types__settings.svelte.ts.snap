@@ -17,7 +17,7 @@ import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./co
 import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,119 +73,120 @@ export function settingsEncode(value: Settings, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return settingsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Settings",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("appointmentNotifications")) {
-        if (value.appointmentNotifications !== undefined) {
-
-            if (value.appointmentNotifications !== null) {
-                result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
-            } else {
-                result.appointmentNotifications = null;
-            }
-        }
-    }
-    if (__fields === undefined || __fields.keeps("commissions")) {
-        if (value.commissions !== undefined) {
-
-            if (value.commissions !== null) {
-                result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
-            } else {
-                result.commissions = null;
-            }
-        }
-    }
-    if (__fields === undefined || __fields.keeps("scheduleSettings")) {
-
-        if (value.scheduleSettings !== undefined) {
-            result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("accountOverviewSettings")) {
-
-        if (value.accountOverviewSettings !== undefined) {
-            result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("serviceOverviewSettings")) {
-
-        if (value.serviceOverviewSettings !== undefined) {
-            result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("appointmentOverviewSettings")) {
-
-        if (value.appointmentOverviewSettings !== undefined) {
-            result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("leadOverviewSettings")) {
-
-        if (value.leadOverviewSettings !== undefined) {
-            result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("packageOverviewSettings")) {
-
-        if (value.packageOverviewSettings !== undefined) {
-            result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("productOverviewSettings")) {
-
-        if (value.productOverviewSettings !== undefined) {
-            result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("orderOverviewSettings")) {
-
-        if (value.orderOverviewSettings !== undefined) {
-            result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxRateOverviewSettings")) {
-
-        if (value.taxRateOverviewSettings !== undefined) {
-            result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("homePage")) {
-
-        if (value.homePage !== undefined) {
-            result.homePage = pageEncodeWithContext(value.homePage, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Settings" });
+    settingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Settings" };
+        settingsEncodeFields(value as Settings, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function settingsEncodeFields(value: Settings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("appointmentNotifications")) {
+                if (value.appointmentNotifications !== undefined) {
+                    result["appointmentNotifications"] = value.appointmentNotifications === null ? null : appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("commissions")) {
+                if (value.commissions !== undefined) {
+                    result["commissions"] = value.commissions === null ? null : commissionsEncodeWithContext(value.commissions, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("scheduleSettings")) {
+                if (value.scheduleSettings !== undefined) {
+                    result["scheduleSettings"] = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("accountOverviewSettings")) {
+                if (value.accountOverviewSettings !== undefined) {
+                    result["accountOverviewSettings"] = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("serviceOverviewSettings")) {
+                if (value.serviceOverviewSettings !== undefined) {
+                    result["serviceOverviewSettings"] = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("appointmentOverviewSettings")) {
+                if (value.appointmentOverviewSettings !== undefined) {
+                    result["appointmentOverviewSettings"] = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("leadOverviewSettings")) {
+                if (value.leadOverviewSettings !== undefined) {
+                    result["leadOverviewSettings"] = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("packageOverviewSettings")) {
+                if (value.packageOverviewSettings !== undefined) {
+                    result["packageOverviewSettings"] = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("productOverviewSettings")) {
+                if (value.productOverviewSettings !== undefined) {
+                    result["productOverviewSettings"] = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("orderOverviewSettings")) {
+                if (value.orderOverviewSettings !== undefined) {
+                    result["orderOverviewSettings"] = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxRateOverviewSettings")) {
+                if (value.taxRateOverviewSettings !== undefined) {
+                    result["taxRateOverviewSettings"] = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("homePage")) {
+                if (value.homePage !== undefined) {
+                    result["homePage"] = pageEncodeWithContext(value.homePage, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = settingsDecodeWithContext(data, ctx);
+        const resultOrRef = settingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -231,6 +232,10 @@ export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function settingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => settingsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -243,331 +248,342 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Settings") as Settings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("appointmentNotifications")) && !("appointmentNotifications" in obj)) {
-        errors.push({ field: "appointmentNotifications", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("commissions")) && !("commissions" in obj)) {
-        errors.push({ field: "commissions", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("scheduleSettings")) && !("scheduleSettings" in obj)) {
-        errors.push({ field: "scheduleSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) && !("accountOverviewSettings" in obj)) {
-        errors.push({ field: "accountOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) && !("serviceOverviewSettings" in obj)) {
-        errors.push({ field: "serviceOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) && !("appointmentOverviewSettings" in obj)) {
-        errors.push({ field: "appointmentOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) && !("leadOverviewSettings" in obj)) {
-        errors.push({ field: "leadOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) && !("packageOverviewSettings" in obj)) {
-        errors.push({ field: "packageOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("productOverviewSettings")) && !("productOverviewSettings" in obj)) {
-        errors.push({ field: "productOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) && !("orderOverviewSettings" in obj)) {
-        errors.push({ field: "orderOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) && !("taxRateOverviewSettings" in obj)) {
-        errors.push({ field: "taxRateOverviewSettings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("homePage")) && !("homePage" in obj)) {
-        errors.push({ field: "homePage", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["appointmentNotifications", "appointmentNotifications"], ["commissions", "commissions"], ["scheduleSettings", "scheduleSettings"], ["accountOverviewSettings", "accountOverviewSettings"], ["serviceOverviewSettings", "serviceOverviewSettings"], ["appointmentOverviewSettings", "appointmentOverviewSettings"], ["leadOverviewSettings", "leadOverviewSettings"], ["packageOverviewSettings", "packageOverviewSettings"], ["productOverviewSettings", "productOverviewSettings"], ["orderOverviewSettings", "orderOverviewSettings"], ["taxRateOverviewSettings", "taxRateOverviewSettings"], ["homePage", "homePage"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "appointmentNotifications"?: AppointmentNotifications | null | undefined; "commissions"?: Commissions | null | undefined; "scheduleSettings"?: ScheduleSettings | undefined; "accountOverviewSettings"?: OverviewSettings | undefined; "serviceOverviewSettings"?: OverviewSettings | undefined; "appointmentOverviewSettings"?: OverviewSettings | undefined; "leadOverviewSettings"?: OverviewSettings | undefined; "packageOverviewSettings"?: OverviewSettings | undefined; "productOverviewSettings"?: OverviewSettings | undefined; "orderOverviewSettings"?: OverviewSettings | undefined; "taxRateOverviewSettings"?: OverviewSettings | undefined; "homePage"?: Page | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Settings");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("appointmentNotifications")) || (__fields.keeps("appointmentNotifications") && obj["appointmentNotifications"] !== undefined)) {
-        const __raw_appointmentNotifications = obj["appointmentNotifications"] as AppointmentNotifications | null;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("appointmentNotifications")) ? "appointmentNotifications" in obj : (__fields.keeps("appointmentNotifications") && obj["appointmentNotifications"] !== undefined)) {
+                const __raw_appointmentNotifications = obj["appointmentNotifications"] as AppointmentNotifications | null;
 
-        if (__raw_appointmentNotifications === null) {
-            instance.appointmentNotifications = null;
-        } else {
-            ctx.pushScope("appointmentNotifications");
-            try {
-                const __result = appointmentNotificationsDecodeWithContext(__raw_appointmentNotifications, ctx);
-                ctx.assignOrDefer(instance, "appointmentNotifications", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "appointmentNotifications" : "appointmentNotifications." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_appointmentNotifications === null) {
+                    instance.appointmentNotifications = null;
                 } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("commissions")) || (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
-        const __raw_commissions = obj["commissions"] as Commissions | null;
+                    ctx.pushScope("appointmentNotifications");
+                    try {
+                        const __result = appointmentNotificationsDecodeWithContext(__raw_appointmentNotifications, ctx);
+                        ctx.assignOrDefer(instance, "appointmentNotifications", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "appointmentNotifications" : "appointmentNotifications." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (__raw_commissions === null) {
-            instance.commissions = null;
-        } else {
-            ctx.pushScope("commissions");
-            try {
-                const __result = commissionsDecodeWithContext(__raw_commissions, ctx);
-                ctx.assignOrDefer(instance, "commissions", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "appointmentNotifications", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("commissions")) ? "commissions" in obj : (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
+                const __raw_commissions = obj["commissions"] as Commissions | null;
+
+                if (__raw_commissions === null) {
+                    instance.commissions = null;
                 } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("scheduleSettings")) || (__fields.keeps("scheduleSettings") && obj["scheduleSettings"] !== undefined)) {
-        const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;
+                    ctx.pushScope("commissions");
+                    try {
+                        const __result = commissionsDecodeWithContext(__raw_commissions, ctx);
+                        ctx.assignOrDefer(instance, "commissions", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        ctx.pushScope("scheduleSettings");
-        try {
-            const __result = scheduleSettingsDecodeWithContext(__raw_scheduleSettings, ctx);
-            ctx.assignOrDefer(instance, "scheduleSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "scheduleSettings" : "scheduleSettings." + __err.field,
-                        message: __err.message
-                    });
+                            errors.push({ field: "commissions", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) || (__fields.keeps("accountOverviewSettings") && obj["accountOverviewSettings"] !== undefined)) {
-        const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("scheduleSettings")) ? "scheduleSettings" in obj : (__fields.keeps("scheduleSettings") && obj["scheduleSettings"] !== undefined)) {
+                const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;
 
-        ctx.pushScope("accountOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_accountOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "accountOverviewSettings" : "accountOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) || (__fields.keeps("serviceOverviewSettings") && obj["serviceOverviewSettings"] !== undefined)) {
-        const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;
+                ctx.pushScope("scheduleSettings");
+                try {
+                    const __result = scheduleSettingsDecodeWithContext(__raw_scheduleSettings, ctx);
+                    ctx.assignOrDefer(instance, "scheduleSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "scheduleSettings" : "scheduleSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("serviceOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_serviceOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "serviceOverviewSettings" : "serviceOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
+                        errors.push({ field: "scheduleSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) || (__fields.keeps("appointmentOverviewSettings") && obj["appointmentOverviewSettings"] !== undefined)) {
-        const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("accountOverviewSettings")) ? "accountOverviewSettings" in obj : (__fields.keeps("accountOverviewSettings") && obj["accountOverviewSettings"] !== undefined)) {
+                const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;
 
-        ctx.pushScope("appointmentOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_appointmentOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "appointmentOverviewSettings" : "appointmentOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) || (__fields.keeps("leadOverviewSettings") && obj["leadOverviewSettings"] !== undefined)) {
-        const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;
+                ctx.pushScope("accountOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_accountOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "accountOverviewSettings" : "accountOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("leadOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_leadOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "leadOverviewSettings" : "leadOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
+                        errors.push({ field: "accountOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) || (__fields.keeps("packageOverviewSettings") && obj["packageOverviewSettings"] !== undefined)) {
-        const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) ? "serviceOverviewSettings" in obj : (__fields.keeps("serviceOverviewSettings") && obj["serviceOverviewSettings"] !== undefined)) {
+                const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;
 
-        ctx.pushScope("packageOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_packageOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "packageOverviewSettings" : "packageOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("productOverviewSettings")) || (__fields.keeps("productOverviewSettings") && obj["productOverviewSettings"] !== undefined)) {
-        const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;
+                ctx.pushScope("serviceOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_serviceOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "serviceOverviewSettings" : "serviceOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("productOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_productOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "productOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "productOverviewSettings" : "productOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
+                        errors.push({ field: "serviceOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) || (__fields.keeps("orderOverviewSettings") && obj["orderOverviewSettings"] !== undefined)) {
-        const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) ? "appointmentOverviewSettings" in obj : (__fields.keeps("appointmentOverviewSettings") && obj["appointmentOverviewSettings"] !== undefined)) {
+                const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;
 
-        ctx.pushScope("orderOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_orderOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "orderOverviewSettings" : "orderOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) || (__fields.keeps("taxRateOverviewSettings") && obj["taxRateOverviewSettings"] !== undefined)) {
-        const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;
+                ctx.pushScope("appointmentOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_appointmentOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "appointmentOverviewSettings" : "appointmentOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("taxRateOverviewSettings");
-        try {
-            const __result = overviewSettingsDecodeWithContext(__raw_taxRateOverviewSettings, ctx);
-            ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "taxRateOverviewSettings" : "taxRateOverviewSettings." + __err.field,
-                        message: __err.message
-                    });
+                        errors.push({ field: "appointmentOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("homePage")) || (__fields.keeps("homePage") && obj["homePage"] !== undefined)) {
-        const __raw_homePage = obj["homePage"] as Page;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("leadOverviewSettings")) ? "leadOverviewSettings" in obj : (__fields.keeps("leadOverviewSettings") && obj["leadOverviewSettings"] !== undefined)) {
+                const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;
 
-        ctx.pushScope("homePage");
-        try {
-            const __result = pageDecodeWithContext(__raw_homePage, ctx);
-            ctx.assignOrDefer(instance, "homePage", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "homePage" : "homePage." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("leadOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_leadOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "leadOverviewSettings" : "leadOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "leadOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("packageOverviewSettings")) ? "packageOverviewSettings" in obj : (__fields.keeps("packageOverviewSettings") && obj["packageOverviewSettings"] !== undefined)) {
+                const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;
+
+                ctx.pushScope("packageOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_packageOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "packageOverviewSettings" : "packageOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "packageOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("productOverviewSettings")) ? "productOverviewSettings" in obj : (__fields.keeps("productOverviewSettings") && obj["productOverviewSettings"] !== undefined)) {
+                const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;
+
+                ctx.pushScope("productOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_productOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "productOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "productOverviewSettings" : "productOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "productOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("orderOverviewSettings")) ? "orderOverviewSettings" in obj : (__fields.keeps("orderOverviewSettings") && obj["orderOverviewSettings"] !== undefined)) {
+                const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;
+
+                ctx.pushScope("orderOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_orderOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "orderOverviewSettings" : "orderOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "orderOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) ? "taxRateOverviewSettings" in obj : (__fields.keeps("taxRateOverviewSettings") && obj["taxRateOverviewSettings"] !== undefined)) {
+                const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;
+
+                ctx.pushScope("taxRateOverviewSettings");
+                try {
+                    const __result = overviewSettingsDecodeWithContext(__raw_taxRateOverviewSettings, ctx);
+                    ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "taxRateOverviewSettings" : "taxRateOverviewSettings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "taxRateOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("homePage")) ? "homePage" in obj : (__fields.keeps("homePage") && obj["homePage"] !== undefined)) {
+                const __raw_homePage = obj["homePage"] as Page;
+
+                ctx.pushScope("homePage");
+                try {
+                    const __result = pageDecodeWithContext(__raw_homePage, ctx);
+                    ctx.assignOrDefer(instance, "homePage", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "homePage" : "homePage." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "homePage", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -592,8 +608,7 @@ export function settingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "appointmentNotifications" in o && "commissions" in o && "scheduleSettings" in o && "accountOverviewSettings" in o && "serviceOverviewSettings" in o && "appointmentOverviewSettings" in o && "leadOverviewSettings" in o && "packageOverviewSettings" in o && "productOverviewSettings" in o && "orderOverviewSettings" in o && "taxRateOverviewSettings" in o && "homePage" in o;
+    return __mf_holdsAll(obj, ["appointmentNotifications", "commissions", "scheduleSettings", "accountOverviewSettings", "serviceOverviewSettings", "appointmentOverviewSettings", "leadOverviewSettings", "packageOverviewSettings", "productOverviewSettings", "orderOverviewSettings", "taxRateOverviewSettings", "homePage"]);
 }
 
 export function settingsIs(obj: unknown): obj is Settings {
@@ -1261,6 +1276,7 @@ export const Settings: {
   readonly encodeWithContext: typeof settingsEncodeWithContext;
   readonly encodePartialWithContext: typeof settingsEncodePartialWithContext;
   readonly decode: typeof settingsDecode;
+  readonly fromString: typeof settingsFromString;
   readonly decodeWithContext: typeof settingsDecodeWithContext;
   readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
   readonly validateField: typeof settingsValidateField;
@@ -1275,6 +1291,7 @@ export const Settings: {
   encodeWithContext: settingsEncodeWithContext,
   encodePartialWithContext: settingsEncodePartialWithContext,
   decode: settingsDecode,
+  fromString: settingsFromString,
   decodeWithContext: settingsDecodeWithContext,
   decodePartialWithContext: settingsDecodePartialWithContext,
   validateField: settingsValidateField,
@@ -1312,10 +1329,21 @@ export declare function settingsDefaultValue(): Settings;
 export declare function settingsEncode(value: Settings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function settingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Settings;
 } | {
@@ -1412,6 +1440,7 @@ export declare const Settings: {
 	readonly encodeWithContext: typeof settingsEncodeWithContext;
 	readonly encodePartialWithContext: typeof settingsEncodePartialWithContext;
 	readonly decode: typeof settingsDecode;
+	readonly fromString: typeof settingsFromString;
 	readonly decodeWithContext: typeof settingsDecodeWithContext;
 	readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
 	readonly validateField: typeof settingsValidateField;
@@ -1428,28 +1457,31 @@ export declare const Settings: {
 
 ## Mapping
 
-original 0..379 -> expanded 1248..1627
-original 428..976 -> expanded 1627..2175
-original 1003..1025 -> expanded 2175..2197
-original 1025..1026 -> expanded 57542..57543
-generated 0..1248 <- imports
-generated 2197..2945 <- Default
-generated 2945..7980 <- Encode
-generated 7980..27901 <- Decode
-generated 27901..56276 <- Gigaform
-generated 56276..57542 <- __convenience_const
+original 0..379 -> expanded 1452..1831
+original 428..976 -> expanded 1831..2379
+original 1003..1025 -> expanded 2379..2401
+original 1025..1026 -> expanded 62116..62117
+generated 0..1452 <- imports
+generated 2401..3149 <- Default
+generated 3149..9200 <- Encode
+generated 9200..32391 <- Decode
+generated 32391..60766 <- Gigaform
+generated 60766..62116 <- __convenience_const
 
 ## Metadata
 
-interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
+interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"key":"Named","name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"key":"Named","name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"key":"Named","name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"key":"Named","name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"key":"Named","name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
 
 ## Registry reads
 
 Name("AppointmentNotifications")
+Name("Array")
 Name("Commissions")
+Name("Gigaform")
 Name("OverviewSettings")
 Name("Page")
 Name("ScheduleSettings")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

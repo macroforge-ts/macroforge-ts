@@ -23,6 +23,7 @@
 pub mod cache;
 mod config;
 mod core;
+mod re_exports;
 #[cfg(test)]
 mod tests;
 

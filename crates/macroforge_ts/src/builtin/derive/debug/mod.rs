@@ -5,11 +5,13 @@
 //!
 //! ## Generated Output
 //!
-//! **Classes**: Generates a standalone function `{className}ToString(value)` and a static wrapper
-//! method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
+//! **Classes**: Generates the static method `static toString(value)`, returning a string like
+//! `"ClassName { field1: value1, field2: value2 }"`, and a standalone function
+//! `{className}ToString(value)` that runs it.
 //!
-//! **Enums**: Generates a standalone function `{enumName}ToString(value)` that performs
-//! reverse lookup on numeric enums.
+//! **Enums**: Generates a standalone function `{enumName}ToString(value)` that names
+//! the member a value is, `Status.Active`, for an enum of numbers, of strings or of
+//! both, and for a `const enum`.
 //!
 //! **Interfaces**: Generates a standalone function `{ifaceName}ToString(value)`.
 //!
@@ -57,15 +59,15 @@
 //!     email: string;
 //!
 //!     static toString(value: User): string {
-//!         return userToString(value);
+//!         const parts: string[] = [];
+//!         parts.push('id: ' + value.userId);
+//!         parts.push('email: ' + value.email);
+//!         return 'User { ' + parts.join(', ') + ' }';
 //!     }
 //! }
 //!
 //! export function userToString(value: User): string {
-//!     const parts: string[] = [];
-//!     parts.push('id: ' + value.userId);
-//!     parts.push('email: ' + value.email);
-//!     return 'User { ' + parts.join(', ') + ' }';
+//!     return User.toString(value);
 //! }
 //! ```
 

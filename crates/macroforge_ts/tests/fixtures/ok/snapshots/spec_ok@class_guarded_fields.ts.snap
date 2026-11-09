@@ -1,0 +1,588 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_guarded_fields.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+class Guarded {
+    name: string = '';
+    protected level: number = 1;
+    private secret: boolean = true;
+    private readonly sealed: string = 'sealed';
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+class Guarded {
+    name: string = '';
+    protected level: number = 1;
+    private secret: boolean = true;
+    private readonly sealed: string = 'sealed';
+
+    static toString(value: Guarded): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        parts.push("level: " + String(value.level));
+        parts.push("secret: " + String(value.secret));
+        parts.push("sealed: " + String(value.sealed));
+            return "Guarded { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: Guarded): Guarded {
+        return __mf_clonedWith(value, () => ({
+        	name: value.name,
+        	level: value.level,
+        	secret: value.secret,
+        	sealed: value.sealed
+        }));
+    }
+
+    static equals(a: Guarded, b: Guarded): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.level === b.level || a.level !== a.level && b.level !== b.level,
+                    () => a.secret === b.secret,
+                    () => a.sealed === b.sealed,
+                ].every((same) => same());
+            });
+    }
+
+    static hashCode(value: Guarded): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.level) ? value.level | 0 : value.level.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.secret ? 1231 : 1237)) | 0;
+        hash = (hash * 31 + ((value.sealed ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+    static partialCompare(a: Guarded, b: Guarded): number | null {
+        if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
+        for (const __order of [
+            () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+            () => (a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level || (a.level !== a.level && b.level !== b.level) ? 0 : null),
+            () => (a.secret === b.secret ? 0 : a.secret ? 1 : -1),
+            () => (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
+        });
+    }
+
+    static compare(a: Guarded, b: Guarded): number {
+        if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
+        for (const __order of [
+            () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+            () => a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level ? 0 : a.level !== a.level ? b.level !== b.level ? 0 : 1 : -1,
+            () => a.secret === b.secret ? 0 : a.secret ? 1 : -1,
+            () => a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
+        });
+    }
+
+    static defaultValue(): Guarded {
+        const fields: { name: string; level: number; secret: boolean; sealed: string } = {
+            name: "",
+            level: 1,
+            secret: true,
+            sealed: "sealed",
+        };
+        return __mf_instanceOf(Guarded.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: Guarded, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Guarded" });
+    Guarded.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Guarded" };
+        Guarded.#encodeFields(value as Guarded, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: Guarded, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("level")) {
+                if (value.level !== undefined) {
+                    result["level"] = value.level;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secret")) {
+                if (value.secret !== undefined) {
+                    result["secret"] = value.secret;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sealed")) {
+                if (value.sealed !== undefined) {
+                    result["sealed"] = value.sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: Guarded, keepMetadata?: boolean): string {
+        return guardedEncode(value, keepMetadata);
+    }
+
+constructor(props: { name: string; level: number; secret: boolean; sealed: string }) {
+
+    this.name = props.name;
+    this.level = props.level;
+    this.secret = props.secret;
+    this.sealed = props.sealed;
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = Guarded.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Guarded.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Guarded.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Guarded | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Guarded> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Guarded> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Guarded.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Guarded.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Guarded") as Guarded | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Guarded.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["level", "level"], ["secret", "secret"], ["sealed", "sealed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(Guarded.prototype);
+    const instance: { "name"?: string | undefined; "level"?: number | undefined; "secret"?: boolean | undefined; "sealed"?: string | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Guarded");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Guarded.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
+                const __raw_level = obj["level"] as number;
+
+                if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
+                    errors.push({ field: "level", message: __raw_level == null ? "Guarded.level is required" : "expected number" });
+                } else {
+                    instance.level = __raw_level;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+                const __raw_secret = obj["secret"] as boolean;
+
+                if (!(typeof __raw_secret === "boolean")) {
+                    errors.push({ field: "secret", message: __raw_secret == null ? "Guarded.secret is required" : "expected boolean" });
+                } else {
+                    instance.secret = __raw_secret;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
+                const __raw_sealed = obj["sealed"] as string;
+
+                if (!(typeof __raw_sealed === "string")) {
+                    errors.push({ field: "sealed", message: __raw_sealed == null ? "Guarded.sealed is required" : "expected string" });
+                } else {
+                    instance.sealed = __raw_sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof Guarded)) {
+        throw new TypeError("Guarded.decodeWithContext: the value made is no Guarded");
+    }
+    return made;
+}
+static validateField<K extends keyof Guarded>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof Guarded]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name", "level", "secret", "sealed"]);
+}
+
+static is(obj: unknown): obj is Guarded {
+    if (obj instanceof Guarded) {
+        return true;
+    }
+    if (!Guarded.hasShape(obj)) {
+        return false;
+    }
+
+    const result = Guarded.decode(obj);
+    return result.success;
+}
+}
+
+export function guardedToString(value: Guarded): string {
+    return Guarded.toString(value);
+}
+
+export function guardedClone(value: Guarded): Guarded {
+    return Guarded.clone(value);
+}
+
+export function guardedEquals(a: Guarded, b: Guarded): boolean {
+    return Guarded.equals(a, b);
+}
+
+export function guardedHashCode(value: Guarded): number {
+    return Guarded.hashCode(value);
+}
+
+export function guardedPartialCompare(a: Guarded, b: Guarded): number | null {
+    return Guarded.partialCompare(a, b);
+}
+
+export function guardedCompare(a: Guarded, b: Guarded): number {
+    return Guarded.compare(a, b);
+}
+
+export function guardedDefaultValue(): Guarded {
+    return Guarded.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function guardedEncode(value: Guarded, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = guardedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function guardedEncodeWithContext(value: Guarded, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return Guarded.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function guardedEncodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Record<string, unknown> {
+    return Guarded.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function guardedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Guarded.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function guardedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Guarded.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function guardedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Guarded | __mf_PendingRef {
+    return Guarded.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function guardedHasShape(value: unknown): boolean {
+    return Guarded.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function guardedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Partial<Guarded> | __mf_PendingRef {
+    return Guarded.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function guardedIs(value: unknown): value is Guarded {
+    return Guarded.is(value);
+}
+
+## DTS
+
+declare class Guarded {
+	#private;
+	name: string;
+	protected level: number;
+	private secret;
+	private readonly sealed;
+	static toString(value: Guarded): string;
+	static clone(value: Guarded): Guarded;
+	static equals(a: Guarded, b: Guarded): boolean;
+	static hashCode(value: Guarded): number;
+	static partialCompare(a: Guarded, b: Guarded): number | null;
+	static compare(a: Guarded, b: Guarded): number;
+	static defaultValue(): Guarded;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: Guarded, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Guarded, keepMetadata?: boolean): string;
+	constructor(props: {
+		name: string;
+		level: number;
+		secret: boolean;
+		sealed: string;
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Guarded;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Guarded;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Guarded | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Guarded> | __mf_PendingRef;
+	static validateField<K extends keyof Guarded>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof Guarded]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is Guarded;
+}
+export declare function guardedToString(value: Guarded): string;
+export declare function guardedClone(value: Guarded): Guarded;
+export declare function guardedEquals(a: Guarded, b: Guarded): boolean;
+export declare function guardedHashCode(value: Guarded): number;
+export declare function guardedPartialCompare(a: Guarded, b: Guarded): number | null;
+export declare function guardedCompare(a: Guarded, b: Guarded): number;
+export declare function guardedDefaultValue(): Guarded;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function guardedEncode(value: Guarded, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function guardedEncodeWithContext(value: Guarded, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function guardedEncodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function guardedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Guarded;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function guardedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Guarded;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function guardedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Guarded | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function guardedHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function guardedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Partial<Guarded> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function guardedIs(value: unknown): value is Guarded;
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 91..248 -> expanded 941..1098
+original 248..249 -> expanded 14896..14897
+original 249..250 -> expanded 19092..19093
+generated 0..941 <- imports
+generated 1098..1526 <- Debug
+generated 1526..1754 <- Clone
+generated 1754..2214 <- PartialEq
+generated 2214..2867 <- Hash
+generated 2867..3555 <- PartialOrd
+generated 3555..4223 <- Ord
+generated 4223..4528 <- Default
+generated 4528..6879 <- Encode
+generated 6879..7200 <- Encode
+generated 7200..14896 <- Decode
+generated 14897..14994 <- Debug
+generated 14994..15086 <- Clone
+generated 15086..15187 <- PartialEq
+generated 15187..15284 <- Hash
+generated 15284..15407 <- PartialOrd
+generated 15407..15509 <- Ord
+generated 15509..15596 <- Default
+generated 15596..16926 <- Encode
+generated 16926..19092 <- Decode
+
+## Metadata
+
+class Guarded: {"body_span":{"end":250,"start":107},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":92,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":131,"start":113},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":164,"start":136},"ts_type":"number","untyped":false,"visibility":"Protected"},{"accessor":false,"decorators":[],"initializer":"true","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":200,"start":169},"ts_type":"boolean","untyped":false,"visibility":"Private"},{"accessor":false,"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":248,"start":205},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Guarded","span":{"end":250,"start":93},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

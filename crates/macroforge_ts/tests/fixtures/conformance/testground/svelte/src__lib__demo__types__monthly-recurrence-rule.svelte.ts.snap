@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -44,57 +44,57 @@ export function monthlyRecurrenceRuleEncode(value: MonthlyRecurrenceRule, keepMe
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function monthlyRecurrenceRuleEncodeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return monthlyRecurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function monthlyRecurrenceRuleEncodePartialWithContext(value: Partial<MonthlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MonthlyRecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "MonthlyRecurrenceRule",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("quantityOfMonths")) {
-
-        if (value.quantityOfMonths !== undefined) {
-            result.quantityOfMonths = value.quantityOfMonths;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("day")) {
-
-        if (value.day !== undefined) {
-            result.day = value.day;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "MonthlyRecurrenceRule" });
+    monthlyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function monthlyRecurrenceRuleEncodePartialWithContext(value: Partial<MonthlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MonthlyRecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "MonthlyRecurrenceRule" };
+        monthlyRecurrenceRuleEncodeFields(value as MonthlyRecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function monthlyRecurrenceRuleEncodeFields(value: MonthlyRecurrenceRule, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("quantityOfMonths")) {
+                if (value.quantityOfMonths !== undefined) {
+                    result["quantityOfMonths"] = value.quantityOfMonths;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("day")) {
+                if (value.day !== undefined) {
+                    result["day"] = value.day;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(data, ctx);
+        const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -140,6 +140,10 @@ export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOp
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function monthlyRecurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => monthlyRecurrenceRuleDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MonthlyRecurrenceRule | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -152,62 +156,70 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MonthlyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MonthlyRecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MonthlyRecurrenceRule") as MonthlyRecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "MonthlyRecurrenceRule.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("quantityOfMonths")) && !("quantityOfMonths" in obj)) {
-        errors.push({ field: "quantityOfMonths", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("day")) && !("day" in obj)) {
-        errors.push({ field: "day", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["quantityOfMonths", "quantityOfMonths"], ["day", "day"], ["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "quantityOfMonths"?: number | undefined; "day"?: number | undefined; "name"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MonthlyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("quantityOfMonths")) || (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
-        const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
+                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
 
-        if (!(typeof __raw_quantityOfMonths === "number")) {
-            errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
-        } else {
-            instance.quantityOfMonths = __raw_quantityOfMonths;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("day")) || (__fields.keeps("day") && obj["day"] !== undefined)) {
-        const __raw_day = obj["day"] as number;
-
-        if (!(typeof __raw_day === "number")) {
-            errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
-        } else {
-            instance.day = __raw_day;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
+                if (!(typeof __raw_quantityOfMonths === "number" && globalThis.Number.isFinite(__raw_quantityOfMonths))) {
+                    errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
+                } else {
+                    instance.quantityOfMonths = __raw_quantityOfMonths;
+                }
             }
-            instance.name = __raw_name;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
+                const __raw_day = obj["day"] as number;
+
+                if (!(typeof __raw_day === "number" && globalThis.Number.isFinite(__raw_day))) {
+                    errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
+                } else {
+                    instance.day = __raw_day;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -244,8 +256,7 @@ export function monthlyRecurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "quantityOfMonths" in o && "day" in o && "name" in o;
+    return __mf_holdsAll(obj, ["quantityOfMonths", "day", "name"]);
 }
 
 export function monthlyRecurrenceRuleIs(obj: unknown): obj is MonthlyRecurrenceRule {
@@ -420,6 +431,7 @@ export const MonthlyRecurrenceRule: {
   readonly encodeWithContext: typeof monthlyRecurrenceRuleEncodeWithContext;
   readonly encodePartialWithContext: typeof monthlyRecurrenceRuleEncodePartialWithContext;
   readonly decode: typeof monthlyRecurrenceRuleDecode;
+  readonly fromString: typeof monthlyRecurrenceRuleFromString;
   readonly decodeWithContext: typeof monthlyRecurrenceRuleDecodeWithContext;
   readonly decodePartialWithContext: typeof monthlyRecurrenceRuleDecodePartialWithContext;
   readonly validateField: typeof monthlyRecurrenceRuleValidateField;
@@ -434,6 +446,7 @@ export const MonthlyRecurrenceRule: {
   encodeWithContext: monthlyRecurrenceRuleEncodeWithContext,
   encodePartialWithContext: monthlyRecurrenceRuleEncodePartialWithContext,
   decode: monthlyRecurrenceRuleDecode,
+  fromString: monthlyRecurrenceRuleFromString,
   decodeWithContext: monthlyRecurrenceRuleDecodeWithContext,
   decodePartialWithContext: monthlyRecurrenceRuleDecodePartialWithContext,
   validateField: monthlyRecurrenceRuleValidateField,
@@ -457,10 +470,21 @@ export declare function monthlyRecurrenceRuleDefaultValue(): MonthlyRecurrenceRu
 export declare function monthlyRecurrenceRuleEncode(value: MonthlyRecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function monthlyRecurrenceRuleEncodeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function monthlyRecurrenceRuleEncodePartialWithContext(value: Partial<MonthlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MonthlyRecurrenceRule>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MonthlyRecurrenceRule;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function monthlyRecurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MonthlyRecurrenceRule;
 } | {
@@ -530,6 +554,7 @@ export declare const MonthlyRecurrenceRule: {
 	readonly encodeWithContext: typeof monthlyRecurrenceRuleEncodeWithContext;
 	readonly encodePartialWithContext: typeof monthlyRecurrenceRuleEncodePartialWithContext;
 	readonly decode: typeof monthlyRecurrenceRuleDecode;
+	readonly fromString: typeof monthlyRecurrenceRuleFromString;
 	readonly decodeWithContext: typeof monthlyRecurrenceRuleDecodeWithContext;
 	readonly decodePartialWithContext: typeof monthlyRecurrenceRuleDecodePartialWithContext;
 	readonly validateField: typeof monthlyRecurrenceRuleValidateField;
@@ -546,25 +571,27 @@ export declare const MonthlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..200 -> expanded 700..793
-original 241..261 -> expanded 793..813
-original 261..262 -> expanded 19188..19189
-generated 0..642 <- imports
-generated 813..976 <- Default
-generated 976..3261 <- Encode
-generated 3261..11258 <- Decode
-generated 11258..17571 <- Gigaform
-generated 17571..19188 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..200 -> expanded 904..997
+original 241..261 -> expanded 997..1017
+original 261..262 -> expanded 21008..21009
+generated 0..846 <- imports
+generated 1017..1180 <- Default
+generated 1180..4123 <- Encode
+generated 4123..12968 <- Decode
+generated 12968..19281 <- Gigaform
+generated 19281..21008 <- __convenience_const
 
 ## Metadata
 
-interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":179,"start":154},"ts_type":"number"},{"decorators":[],"name":"day","optional":false,"readonly":false,"span":{"end":196,"start":184},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":242,"start":201}}],"name":"name","optional":false,"readonly":false,"span":{"end":260,"start":247},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":262,"start":116},"type_params":[]}
+interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":179,"start":154},"ts_type":"number"},{"decorators":[],"key":"Named","name":"day","optional":false,"readonly":false,"span":{"end":196,"start":184},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":242,"start":201}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":260,"start":247},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":262,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

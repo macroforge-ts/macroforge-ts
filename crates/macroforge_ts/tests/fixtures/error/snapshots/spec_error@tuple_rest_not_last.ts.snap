@@ -1,0 +1,459 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/tuple_rest_not_last.ts
+---
+## Input
+
+/** A tuple whose rest element is not its last is an error, not a shorter tuple. */
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export interface Row {
+    middle: [string, ...number[], boolean];
+    held: Map<string, readonly [...string[], number]>;
+}
+
+/** @derive(Default, Decode) */
+export type Leading = [...first: string[], last: number];
+
+/** A rest that ends its tuple is read. */
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export interface Fine {
+    tail: [string, ...number[]];
+    nested: [[string, ...number[]], boolean];
+}
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeBoolean as __mf_decodeBoolean, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** A tuple whose rest element is not its last is an error, not a shorter tuple. */
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export interface Row {
+    middle: [string, ...number[], boolean];
+    held: Map<string, readonly [...string[], number]>;
+}
+
+/** @derive(Default, Decode) */
+export type Leading = [...first: string[], last: number];
+
+/** A rest that ends its tuple is read. */
+
+export interface Fine {
+    tail: [string, ...number[]];
+    nested: [[string, ...number[]], boolean];
+}
+
+export function fineToString(value: Fine): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("tail: " + __mf_structuralDebug(value.tail));
+    parts.push("nested: " + __mf_structuralDebug(value.nested));
+        return "Fine { " + parts.join(", ") + " }";
+    });
+}
+
+export function fineClone(value: Fine): Fine {
+    return __mf_clonedWith(value, (): Fine => ({
+	tail: __mf_structuralClone(value.tail),
+	nested: __mf_structuralClone(value.nested)
+}));
+}
+
+export function fineEquals(a: Fine, b: Fine): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.tail, b.tail),
+            () => __mf_structuralEquals(a.nested, b.nested),
+        ].every((same) => same());
+    });
+}
+
+export function fineDefaultValue(): Fine {
+    return {
+        tail: [""],
+        nested: [[""], false],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function fineEncode(value: Fine, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = fineEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function fineEncodeWithContext(value: Fine, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Fine" });
+    fineEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function fineEncodePartialWithContext(value: Partial<Fine>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Fine>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Fine" };
+        fineEncodeFields(value as Fine, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function fineEncodeFields(value: Fine, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("tail")) {
+                if (value.tail !== undefined) {
+                    result["tail"] = value.tail;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = value.nested;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fineDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Fine } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = fineDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Fine.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fineFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Fine } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => fineDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fine | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Fine> | __mf_PendingRef;
+export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Fine> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Fine.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Fine.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Fine") as Fine | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Fine.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["tail", "tail"], ["nested", "nested"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "tail"?: [string, ...number[]] | undefined; "nested"?: [[string, ...number[]], boolean] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Fine");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("tail")) ? "tail" in obj : (__fields.keeps("tail") && obj["tail"] !== undefined)) {
+                const __raw_tail = obj["tail"] as [string, ...number[]];
+                if (Array.isArray(__raw_tail)) {
+                    ctx.pushScope("tail");
+                    try {
+                        instance.tail = (__mf_decodeTuple(__raw_tail, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tail" : "tail." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "tail", message: __raw_tail == null ? "Fine.tail is required" : "expected [string, ...number[]]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as [[string, ...number[]], boolean];
+                if (Array.isArray(__raw_nested)) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]), __mf_decodeBoolean], 2) as [[string, ...number[]], boolean]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "nested", message: __raw_nested == null ? "Fine.nested is required" : "expected [[string, ...number[]], boolean]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Fine;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function fineDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Fine>): Partial<Fine> | __mf_PendingRef {
+    return fineDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function fineValidateField<K extends keyof Fine>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function fineValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function fineValidateFields(partial: { readonly [K in keyof Fine]?: unknown }): Array<{ field: string; message: string }>;
+export function fineValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function fineHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["tail", "nested"]);
+}
+
+export function fineIs(obj: unknown): obj is Fine {
+    return fineHasShape(obj) && fineDecode(obj).success;
+}
+
+export const Fine: {
+  readonly toString: typeof fineToString;
+  readonly clone: typeof fineClone;
+  readonly equals: typeof fineEquals;
+  readonly defaultValue: typeof fineDefaultValue;
+  readonly encode: typeof fineEncode;
+  readonly encodeWithContext: typeof fineEncodeWithContext;
+  readonly encodePartialWithContext: typeof fineEncodePartialWithContext;
+  readonly decode: typeof fineDecode;
+  readonly fromString: typeof fineFromString;
+  readonly decodeWithContext: typeof fineDecodeWithContext;
+  readonly decodePartialWithContext: typeof fineDecodePartialWithContext;
+  readonly validateField: typeof fineValidateField;
+  readonly validateFields: typeof fineValidateFields;
+  readonly hasShape: typeof fineHasShape;
+  readonly is: typeof fineIs;
+} = {
+  toString: fineToString,
+  clone: fineClone,
+  equals: fineEquals,
+  defaultValue: fineDefaultValue,
+  encode: fineEncode,
+  encodeWithContext: fineEncodeWithContext,
+  encodePartialWithContext: fineEncodePartialWithContext,
+  decode: fineDecode,
+  fromString: fineFromString,
+  decodeWithContext: fineDecodeWithContext,
+  decodePartialWithContext: fineDecodePartialWithContext,
+  validateField: fineValidateField,
+  validateFields: fineValidateFields,
+  hasShape: fineHasShape,
+  is: fineIs
+};
+
+## DTS
+
+/** A tuple whose rest element is not its last is an error, not a shorter tuple. */
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export interface Row {
+	middle: [string, ...number[], boolean];
+	held: Map<string, readonly [...string[], number]>;
+}
+/** @derive(Default, Decode) */
+export type Leading = [...first: string[], last: number];
+/** A rest that ends its tuple is read. */
+export interface Fine {
+	tail: [string, ...number[]];
+	nested: [[string, ...number[]], boolean];
+}
+export declare function fineToString(value: Fine): string;
+export declare function fineClone(value: Fine): Fine;
+export declare function fineEquals(a: Fine, b: Fine): boolean;
+export declare function fineDefaultValue(): Fine;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function fineEncode(value: Fine, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function fineEncodeWithContext(value: Fine, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function fineEncodePartialWithContext(value: Partial<Fine>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Fine>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fineDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Fine;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fineFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Fine;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fine | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Fine> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function fineDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Fine>): Partial<Fine> | __mf_PendingRef;
+export declare function fineValidateField<K extends keyof Fine>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function fineValidateFields(partial: { readonly [K in keyof Fine]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function fineHasShape(obj: unknown): boolean;
+export declare function fineIs(obj: unknown): obj is Fine;
+export declare const Fine: {
+	readonly toString: typeof fineToString;
+	readonly clone: typeof fineClone;
+	readonly equals: typeof fineEquals;
+	readonly defaultValue: typeof fineDefaultValue;
+	readonly encode: typeof fineEncode;
+	readonly encodeWithContext: typeof fineEncodeWithContext;
+	readonly encodePartialWithContext: typeof fineEncodePartialWithContext;
+	readonly decode: typeof fineDecode;
+	readonly fromString: typeof fineFromString;
+	readonly decodeWithContext: typeof fineDecodeWithContext;
+	readonly decodePartialWithContext: typeof fineDecodePartialWithContext;
+	readonly validateField: typeof fineValidateField;
+	readonly validateFields: typeof fineValidateFields;
+	readonly hasShape: typeof fineHasShape;
+	readonly is: typeof fineIs;
+};
+
+## Diagnostics
+
+Error [89..146]: field 'middle' of 'Row' holds the tuple `[string, ...number[], boolean]`, whose rest element is not its last, and a built-in derive reads a tuple's rest as all that follows the elements before it
+  help: put the rest element last, or hold what follows it in a field of its own
+Error [89..146]: field 'held' of 'Row' holds the tuple `[...string[], number]`, whose rest element is not its last, and a built-in derive reads a tuple's rest as all that follows the elements before it
+  help: put the rest element last, or hold what follows it in a field of its own
+Error [279..303]: type 'Leading' holds the tuple `[...first: string[], last: number]`, whose rest element is not its last, and a built-in derive reads a tuple's rest as all that follows the elements before it
+  help: put the rest element last, or hold what follows it in a field of its own
+
+## Mapping
+
+original 0..408 -> expanded 1101..1509
+original 472..577 -> expanded 1509..1614
+original 577..578 -> expanded 14467..14468
+generated 0..1101 <- imports
+generated 1614..1937 <- Debug
+generated 1937..2126 <- Clone
+generated 2126..2435 <- PartialEq
+generated 2435..2552 <- Default
+generated 2552..4980 <- Encode
+generated 4980..13209 <- Decode
+generated 13209..14467 <- __convenience_const
+
+## Metadata
+
+interface Row: {"body_span":{"end":273,"start":171},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":149,"start":85}}],"fields":[{"decorators":[],"key":"Named","name":"middle","optional":false,"readonly":false,"span":{"end":216,"start":177},"ts_type":"[string, ...number[], boolean]"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":271,"start":221},"ts_type":"Map<string, readonly [...string[], number]>"}],"heritage":[],"methods":[],"name":"Row","span":{"end":273,"start":157},"type_params":[]}
+interface Fine: {"body_span":{"end":578,"start":496},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":473,"start":409}}],"fields":[{"decorators":[],"key":"Named","name":"tail","optional":false,"readonly":false,"span":{"end":530,"start":502},"ts_type":"[string, ...number[]]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":576,"start":535},"ts_type":"[[string, ...number[]], boolean]"}],"heritage":[],"methods":[],"name":"Fine","span":{"end":578,"start":481},"type_params":[]}
+type Leading: {"body":{"Tuple":["...first: string[]","last: number"]},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":306,"start":275}}],"name":"Leading","span":{"end":364,"start":314},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

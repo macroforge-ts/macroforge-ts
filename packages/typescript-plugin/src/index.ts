@@ -24,6 +24,7 @@
  * - `.ts` - TypeScript files
  * - `.tsx` - TypeScript JSX files
  * - `.svelte` - Svelte components (with `<script lang="ts">`)
+ * - `.js`, `.jsx` - JavaScript files, read so a derive in one reports the error that refuses it
  *
  * ## Hook Categories
  *
@@ -96,7 +97,9 @@ import path from 'node:path';
 import {
     getExternalDecoratorInfo,
     getExternalMacroInfo,
-    loadMacroConfig
+    JAVASCRIPT_EXTENSIONS,
+    loadMacroConfig,
+    TYPESCRIPT_EXTENSIONS
 } from '@macroforge/shared';
 
 // Create require for external package loading
@@ -704,7 +707,9 @@ function getMacroHoverInfo(
  * File extensions that the plugin will process for macro expansion.
  * @internal
  */
-const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte'];
+// A JavaScript or declaration file is read so a derive in it reports the error
+// that refuses it.
+const FILE_EXTENSIONS = [...TYPESCRIPT_EXTENSIONS, '.svelte', ...JAVASCRIPT_EXTENSIONS];
 
 /**
  * Determines whether a file should be processed for macro expansion.
@@ -721,7 +726,7 @@ const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte'];
  * - Are in `node_modules` (dependencies should not be processed)
  * - Are in the `.macroforge` cache directory
  * - End with `.macroforge.d.ts` (generated type declaration files)
- * - Don't have a supported extension (`.ts`, `.tsx`, `.svelte`)
+ * - Don't have a supported extension: a TypeScript or JavaScript module, or `.svelte`
  *
  * @example
  * ```typescript
@@ -732,12 +737,11 @@ const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte'];
  * ```
  */
 function shouldProcess(fileName: string) {
-    const lower = fileName.toLowerCase();
-    if (lower.includes('node_modules')) return false;
+    if (fileName.toLowerCase().includes('node_modules')) return false;
     if (fileName.includes(`${path.sep}.macroforge${path.sep}`)) return false;
     // Skip generated .d.ts files
     if (fileName.endsWith('.macroforge.d.ts')) return false;
-    return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
+    return FILE_EXTENSIONS.some((extension) => fileName.endsWith(extension));
 }
 
 /**
@@ -1166,7 +1170,17 @@ function init(
 
                 // Update virtual .d.ts files
                 const virtualDtsFileName = fileName + '.macroforge.d.ts';
-                if (result.types) {
+                // The declarations of a file that is no module are global, and
+                // a companion holding them again would declare each twice.
+                const declaresModule = result.types !== undefined && result.types !== null &&
+                    tsModule.isExternalModule(
+                        tsModule.createSourceFile(
+                            virtualDtsFileName,
+                            result.types,
+                            tsModule.ScriptTarget.Latest
+                        )
+                    );
+                if (result.types && declaresModule) {
                     virtualDtsFiles.set(
                         virtualDtsFileName,
                         textSnapshot(result.types)
@@ -1660,12 +1674,9 @@ function init(
                             if (macro) {
                                 return { start: macro.start, length: macro.length };
                             }
-                            // If macro name is "macro" (generic fallback) and there's exactly one macro,
-                            // use that macro's position
-                            if (
-                                (macroName === 'macro' || macroName === '') &&
-                                nearestDecorator.macros.length === 1
-                            ) {
+                            // A region none of the decorator's macros names, such as the
+                            // import block they share, is its one macro's when it has one.
+                            if (nearestDecorator.macros.length === 1) {
                                 const onlyMacro = nearestDecorator.macros[0];
                                 return { start: onlyMacro.start, length: onlyMacro.length };
                             }

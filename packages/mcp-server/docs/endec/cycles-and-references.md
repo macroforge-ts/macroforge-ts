@@ -24,16 +24,36 @@ const json = Node.encode(root, true); // keepMetadata
 Cycle detection works by tagging objects with `__type` and `__id` as they're visited; a repeat visit
 emits a reference to the existing id instead of recursing.
 
-Those fields are **stripped from the output by default**. Pass `keepMetadata: true` to retain them:
-which you must do if you intend to decode a cyclic graph back, since the ids are what reconnect it.
+Those fields are **stripped from the output by default**, and with them goes what a reference would
+name. A value held in several places is then written out at each of them, and decodes as that many
+equal values. A value that holds itself has no end to write out, so `encode` throws a `TypeError`
+for it. Pass `keepMetadata: true` to keep the ids and the references that reconnect a graph.
 
 ```typescript
-Node.encode(root); // clean payload, cycles flattened
-Node.encode(root, true); // round-trippable, includes __type/__id
+const shared = new Node();
+const tree = new Node();
+tree.children = [shared, shared];
+
+Node.encode(tree); // clean payload, `shared` written out twice
+Node.encode(tree, true); // includes __type/__id, the second `shared` is a __ref
+Node.encode(root, true); // a cycle needs its metadata
+Node.encode(root); // TypeError: root holds itself
 ```
 
 For API responses you usually want the default. For persistence or transferring an object graph,
 keep the metadata.
+
+## What a reference stands for
+
+A reference stands for one whole value of one type. Three rules follow from that:
+
+- A value held more than once is one object after decoding, wherever it is held: in a field, an
+  array, a `Set`, a `Map` or a `Record`.
+- A `{ "__ref": n }` has to refer to an object that was decoded as the type the reference is read
+  as. Input that points a `User` field at a registered `Order` fails to decode.
+- A `Partial<T>`, `Pick<T, K>` or `Omit<T, K>` is written out in full wherever it is held, and is
+  never referred to: an object lacking fields cannot stand in for a whole `T`. One that holds itself
+  has no encoding, and `encode` throws a `TypeError`.
 
 ## The context object
 

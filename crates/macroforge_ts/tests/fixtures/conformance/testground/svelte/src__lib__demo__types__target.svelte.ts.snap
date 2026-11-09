@@ -12,24 +12,24 @@ true
 
 ## Output
 
-import { accountDecodeWithContext, accountHasShape, accountDefaultValue } from "./account.svelte";
-import { appointmentDecodeWithContext, appointmentHasShape, appointmentDefaultValue } from "./appointment.svelte";
-import { companyDecodeWithContext, companyHasShape, companyDefaultValue } from "./company.svelte";
-import { employeeDecodeWithContext, employeeHasShape, employeeDefaultValue } from "./employee.svelte";
-import { leadDecodeWithContext, leadHasShape, leadDefaultValue } from "./lead.svelte";
-import { orderDecodeWithContext, orderHasShape, orderDefaultValue } from "./order.svelte";
-import { orderedDecodeWithContext, orderedHasShape, orderedDefaultValue } from "./ordered.svelte";
-import { packageDecodeWithContext, packageHasShape, packageDefaultValue } from "./package.svelte";
-import { paymentDecodeWithContext, paymentHasShape, paymentDefaultValue } from "./payment.svelte";
-import { productDecodeWithContext, productHasShape, productDefaultValue } from "./product.svelte";
-import { promotionDecodeWithContext, promotionHasShape, promotionDefaultValue } from "./promotion.svelte";
-import { representsDecodeWithContext, representsHasShape, representsDefaultValue } from "./represents.svelte";
-import { routeDecodeWithContext, routeHasShape, routeDefaultValue } from "./route.svelte";
-import { serviceDecodeWithContext, serviceHasShape, serviceDefaultValue } from "./service.svelte";
-import { siteDecodeWithContext, siteHasShape, siteDefaultValue } from "./site.svelte";
-import { taxRateDecodeWithContext, taxRateHasShape, taxRateDefaultValue } from "./tax-rate.svelte";
-import { userDecodeWithContext, userHasShape, userDefaultValue } from "./user.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
+import { appointmentDecodeWithContext, appointmentHasShape, appointmentEncodeWithContext, appointmentDefaultValue } from "./appointment.svelte";
+import { companyDecodeWithContext, companyHasShape, companyEncodeWithContext, companyDefaultValue } from "./company.svelte";
+import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
+import { leadDecodeWithContext, leadHasShape, leadEncodeWithContext, leadDefaultValue } from "./lead.svelte";
+import { orderDecodeWithContext, orderHasShape, orderEncodeWithContext, orderDefaultValue } from "./order.svelte";
+import { orderedDecodeWithContext, orderedHasShape, orderedEncodeWithContext, orderedDefaultValue } from "./ordered.svelte";
+import { packageDecodeWithContext, packageHasShape, packageEncodeWithContext, packageDefaultValue } from "./package.svelte";
+import { paymentDecodeWithContext, paymentHasShape, paymentEncodeWithContext, paymentDefaultValue } from "./payment.svelte";
+import { productDecodeWithContext, productHasShape, productEncodeWithContext, productDefaultValue } from "./product.svelte";
+import { promotionDecodeWithContext, promotionHasShape, promotionEncodeWithContext, promotionDefaultValue } from "./promotion.svelte";
+import { representsDecodeWithContext, representsHasShape, representsEncodeWithContext, representsDefaultValue } from "./represents.svelte";
+import { routeDecodeWithContext, routeHasShape, routeEncodeWithContext, routeDefaultValue } from "./route.svelte";
+import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, serviceDefaultValue } from "./service.svelte";
+import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
+import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
+import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -87,32 +87,60 @@ export function targetEncode(value: Target, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Target): member is Account => __mf_member(member, "__type") === "Account", (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is User => __mf_member(member, "__type") === "User", (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Employee => __mf_member(member, "__type") === "Employee", (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Appointment => __mf_member(member, "__type") === "Appointment", (member) => appointmentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Lead => __mf_member(member, "__type") === "Lead", (member) => leadEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is TaxRate => __mf_member(member, "__type") === "TaxRate", (member) => taxRateEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Site => __mf_member(member, "__type") === "Site", (member) => siteEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Route => __mf_member(member, "__type") === "Route", (member) => routeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Company => __mf_member(member, "__type") === "Company", (member) => companyEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Product => __mf_member(member, "__type") === "Product", (member) => productEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Service => __mf_member(member, "__type") === "Service", (member) => serviceEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Order => __mf_member(member, "__type") === "Order", (member) => orderEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Payment => __mf_member(member, "__type") === "Payment", (member) => paymentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Package => __mf_member(member, "__type") === "Package", (member) => packageEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Promotion => __mf_member(member, "__type") === "Promotion", (member) => promotionEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Represents => __mf_member(member, "__type") === "Represents", (member) => representsEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Ordered => __mf_member(member, "__type") === "Ordered", (member) => orderedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Account => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "taxRate" in member && "site" in member && "salesRep" in member && "orders" in member && "activity" in member && "customFields" in member && "accountName" in member && "sector" in member && "memo" in member && "phones" in member && "email" in member && "leadSource" in member && "colors" in member && "needsReview" in member && "hasAlert" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "dateAdded" in member, (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is User => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "email" in member && "firstName" in member && "lastName" in member && "password" in member && "metadata" in member && "settings" in member && "role" in member && "emailVerified" in member && "verificationToken" in member && "verificationExpires" in member && "passwordResetToken" in member && "passwordResetExpires" in member && "permissions" in member && "createdAt" in member && "lastLoginAt" in member, (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Employee => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "imageUrl" in member && "name" in member && "phones" in member && "role" in member && "title" in member && "email" in member && "address" in member && "username" in member && "route" in member && "ratePerHour" in member && "active" in member && "isTechnician" in member && "isSalesRep" in member && "description" in member && "linkedinUrl" in member && "attendance" in member && "settings" in member, (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Appointment => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "title" in member && "status" in member && "begins" in member && "duration" in member && "timeZone" in member && "offsetMs" in member && "allDay" in member && "multiDay" in member && "employees" in member && "location" in member && "description" in member && "colors" in member && "recurrenceRule" in member, (member) => appointmentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Lead => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "number" in member && "accepted" in member && "probability" in member && "priority" in member && "dueDate" in member && "closeDate" in member && "value" in member && "stage" in member && "status" in member && "description" in member && "nextStep" in member && "favorite" in member && "dateAdded" in member && "taxRate" in member && "sector" in member && "leadName" in member && "phones" in member && "email" in member && "leadSource" in member && "site" in member && "memo" in member && "needsReview" in member && "hasAlert" in member && "salesRep" in member && "color" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "customFields" in member, (member) => leadEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is TaxRate => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "taxAgency" in member && "zip" in member && "city" in member && "county" in member && "state" in member && "isActive" in member && "description" in member && "taxComponents" in member, (member) => taxRateEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Site => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "addressLine1" in member && "addressLine2" in member && "sublocalityLevel1" in member && "locality" in member && "administrativeAreaLevel3" in member && "administrativeAreaLevel2" in member && "administrativeAreaLevel1" in member && "country" in member && "postalCode" in member && "postalCodeSuffix" in member && "coordinates" in member, (member) => siteEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Route => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "techs" in member && "active" in member && "name" in member && "phone" in member && "position" in member && "serviceRoute" in member && "defaultDurationHours" in member && "tags" in member && "icon" in member && "color" in member, (member) => routeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Company => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "legalName" in member && "headquarters" in member && "phones" in member && "fax" in member && "email" in member && "website" in member && "taxId" in member && "referenceNumber" in member && "postalCodeLookup" in member && "timeZone" in member && "defaultTax" in member && "defaultTaxLocation" in member && "defaultAreaCode" in member && "defaultAccountType" in member && "lookupFormatting" in member && "accountNameFormat" in member && "merchantServiceProvider" in member && "dateDisplayStyle" in member && "hasAutoCommission" in member && "hasAutoDaylightSavings" in member && "hasAutoFmsTracking" in member && "hasNotifications" in member && "hasRequiredLeadSource" in member && "hasRequiredEmail" in member && "hasSortServiceItemsAlphabetically" in member && "hasAttachOrderToAppointmentEmails" in member && "scheduleInterval" in member && "colorsConfig" in member, (member) => companyEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Product => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "quickCode" in member && "group" in member && "subgroup" in member && "unit" in member && "active" in member && "commission" in member && "favorite" in member && "defaults" in member, (member) => productEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Service => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "quickCode" in member && "group" in member && "subgroup" in member && "unit" in member && "active" in member && "commission" in member && "favorite" in member && "averageTime" in member && "defaults" in member, (member) => serviceEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Order => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "account" in member && "stage" in member && "number" in member && "payments" in member && "opportunity" in member && "reference" in member && "leadSource" in member && "salesRep" in member && "group" in member && "subgroup" in member && "isPosted" in member && "needsReview" in member && "actionItem" in member && "upsale" in member && "dateCreated" in member && "appointment" in member && "lastTechs" in member && "package" in member && "promotion" in member && "balance" in member && "due" in member && "total" in member && "site" in member && "billedItems" in member && "memo" in member && "discount" in member && "tip" in member && "commissions" in member, (member) => orderEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Payment => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => paymentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Package => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => packageEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Promotion => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => promotionEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Represents => typeof member === "object" && member !== null && !Array.isArray(member) && "in" in member && "out" in member && "id" in member && "dateStarted" in member, (member) => representsEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Ordered => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "in" in member && "out" in member && "date" in member, (member) => orderedEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = targetDecodeWithContext(data, ctx);
+        const resultOrRef = targetDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -158,6 +186,10 @@ export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function targetFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => targetDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Target | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -170,7 +202,7 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Account") {
                 return accountDecodeWithContext(value, ctx) as Target;
@@ -405,34 +437,32 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 export function targetHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered";
                     }
                 }
-
-                let __matchCount = 0;
-                if (accountHasShape(value)) __matchCount++;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (appointmentHasShape(value)) __matchCount++;
-                if (leadHasShape(value)) __matchCount++;
-                if (taxRateHasShape(value)) __matchCount++;
-                if (siteHasShape(value)) __matchCount++;
-                if (routeHasShape(value)) __matchCount++;
-                if (companyHasShape(value)) __matchCount++;
-                if (productHasShape(value)) __matchCount++;
-                if (serviceHasShape(value)) __matchCount++;
-                if (orderHasShape(value)) __matchCount++;
-                if (paymentHasShape(value)) __matchCount++;
-                if (packageHasShape(value)) __matchCount++;
-                if (promotionHasShape(value)) __matchCount++;
-                if (representsHasShape(value)) __matchCount++;
-                if (orderedHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (accountHasShape(value)) return true;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (appointmentHasShape(value)) return true;
+                if (leadHasShape(value)) return true;
+                if (taxRateHasShape(value)) return true;
+                if (siteHasShape(value)) return true;
+                if (routeHasShape(value)) return true;
+                if (companyHasShape(value)) return true;
+                if (productHasShape(value)) return true;
+                if (serviceHasShape(value)) return true;
+                if (orderHasShape(value)) return true;
+                if (paymentHasShape(value)) return true;
+                if (packageHasShape(value)) return true;
+                if (promotionHasShape(value)) return true;
+                if (representsHasShape(value)) return true;
+                if (orderedHasShape(value)) return true;
+                return false;
 }
 export function targetIs(value: unknown): value is Target {
-    return targetHasShape(value);
+    return targetHasShape(value) && targetDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -806,6 +836,7 @@ export const Target: {
   readonly encode: typeof targetEncode;
   readonly encodeWithContext: typeof targetEncodeWithContext;
   readonly decode: typeof targetDecode;
+  readonly fromString: typeof targetFromString;
   readonly decodeWithContext: typeof targetDecodeWithContext;
   readonly hasShape: typeof targetHasShape;
   readonly is: typeof targetIs;
@@ -816,6 +847,7 @@ export const Target: {
   encode: targetEncode,
   encodeWithContext: targetEncodeWithContext,
   decode: targetDecode,
+  fromString: targetFromString,
   decodeWithContext: targetDecodeWithContext,
   hasShape: targetHasShape,
   is: targetIs,
@@ -849,8 +881,19 @@ export declare function targetDefaultValue(): Target;
 export declare function targetEncode(value: Target, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function targetDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Target;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function targetFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Target;
 } | {
@@ -1104,6 +1147,7 @@ export declare const Target: {
 	readonly encode: typeof targetEncode;
 	readonly encodeWithContext: typeof targetEncodeWithContext;
 	readonly decode: typeof targetDecode;
+	readonly fromString: typeof targetFromString;
 	readonly decodeWithContext: typeof targetDecodeWithContext;
 	readonly hasShape: typeof targetHasShape;
 	readonly is: typeof targetIs;
@@ -1117,15 +1161,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2228..3115
-original 936..1209 -> expanded 3115..3388
-original 1209..1210 -> expanded 32988..32989
-generated 0..2228 <- imports
-generated 3388..3472 <- Default
-generated 3472..4718 <- Encode
-generated 4718..18606 <- Decode
-generated 18606..32236 <- Gigaform
-generated 32236..32988 <- __convenience_const
+original 0..887 -> expanded 2822..3709
+original 936..1209 -> expanded 3709..3982
+original 1209..1210 -> expanded 45629..45630
+generated 0..2822 <- imports
+generated 3982..4066 <- Default
+generated 4066..16917 <- Encode
+generated 16917..31167 <- Decode
+generated 31167..44797 <- Gigaform
+generated 44797..45629 <- __convenience_const
 
 ## Metadata
 
@@ -1137,6 +1181,7 @@ Name("Account")
 Name("Appointment")
 Name("Company")
 Name("Employee")
+Name("Gigaform")
 Name("Lead")
 Name("Order")
 Name("Ordered")
@@ -1151,6 +1196,7 @@ Name("Site")
 Name("Target")
 Name("TaxRate")
 Name("User")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

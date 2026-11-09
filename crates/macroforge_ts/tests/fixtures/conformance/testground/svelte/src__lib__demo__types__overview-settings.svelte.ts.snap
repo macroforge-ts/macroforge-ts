@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { columnConfigDecode, columnConfigEncodeWithContext } from "./column-config.svelte";
+import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -54,65 +54,64 @@ export function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: b
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return overviewSettingsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "OverviewSettings",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("rowHeight")) {
-
-        if (value.rowHeight !== undefined) {
-            result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("cardOrRow")) {
-
-        if (value.cardOrRow !== undefined) {
-            result.cardOrRow = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("perPage")) {
-
-        if (value.perPage !== undefined) {
-            result.perPage = value.perPage;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("columnConfigs")) {
-
-        if (value.columnConfigs !== undefined) {
-            result.columnConfigs = value.columnConfigs.map(
-                (item) => columnConfigEncodeWithContext(item, ctx)
-            );
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OverviewSettings" });
+    overviewSettingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OverviewSettings" };
+        overviewSettingsEncodeFields(value as OverviewSettings, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("rowHeight")) {
+                if (value.rowHeight !== undefined) {
+                    result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("cardOrRow")) {
+                if (value.cardOrRow !== undefined) {
+                    result["cardOrRow"] = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("perPage")) {
+                if (value.perPage !== undefined) {
+                    result["perPage"] = value.perPage;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("columnConfigs")) {
+                if (value.columnConfigs !== undefined) {
+                    result["columnConfigs"] = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
+        const resultOrRef = overviewSettingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -158,6 +157,10 @@ export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function overviewSettingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => overviewSettingsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OverviewSettings | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -170,123 +173,121 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "OverviewSettings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as OverviewSettings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "OverviewSettings") as OverviewSettings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "OverviewSettings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("rowHeight")) && !("rowHeight" in obj)) {
-        errors.push({ field: "rowHeight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("cardOrRow")) && !("cardOrRow" in obj)) {
-        errors.push({ field: "cardOrRow", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("perPage")) && !("perPage" in obj)) {
-        errors.push({ field: "perPage", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("columnConfigs")) && !("columnConfigs" in obj)) {
-        errors.push({ field: "columnConfigs", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["rowHeight", "rowHeight"], ["cardOrRow", "cardOrRow"], ["perPage", "perPage"], ["columnConfigs", "columnConfigs"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "rowHeight"?: RowHeight | undefined; "cardOrRow"?: OverviewDisplay | undefined; "perPage"?: number | undefined; "columnConfigs"?: Array<ColumnConfig> | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "OverviewSettings");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("rowHeight")) || (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
-        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+                const __raw_rowHeight = obj["rowHeight"] as RowHeight;
 
-        ctx.pushScope("rowHeight");
-        try {
-            const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, "rowHeight", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cardOrRow")) || (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
-        const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
+                ctx.pushScope("rowHeight");
+                try {
+                    const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
+                    ctx.assignOrDefer(instance, "rowHeight", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("cardOrRow");
-        try {
-            const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
-            ctx.assignOrDefer(instance, "cardOrRow", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("perPage")) || (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
-        const __raw_perPage = obj["perPage"] as number;
-
-        if (!(typeof __raw_perPage === "number")) {
-            errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
-        } else {
-            instance.perPage = __raw_perPage;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("columnConfigs")) || (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
-        const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
-
-        if (Array.isArray(__raw_columnConfigs)) {
-            const __arr = __raw_columnConfigs.map((item: ColumnConfig | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
+                        errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
                     }
-                    return result;
+                } finally {
+                    ctx.popScope();
                 }
-                const __elemResult = columnConfigDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
-                        errors.push({
-                            field: __err.field === "_root"
-                                ? "columnConfigs[" + idx + "]"
-                                : "columnConfigs[" + idx + "]." + __err.field,
-                            message: __err.message
-                        });
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cardOrRow")) ? "cardOrRow" in obj : (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
+                const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
+
+                ctx.pushScope("cardOrRow");
+                try {
+                    const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
+                    ctx.assignOrDefer(instance, "cardOrRow", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "cardOrRow", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.columnConfigs = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.columnConfigs, idx, (item as any).__refId);
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
+                const __raw_perPage = obj["perPage"] as number;
+
+                if (!(typeof __raw_perPage === "number" && globalThis.Number.isFinite(__raw_perPage))) {
+                    errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
+                } else {
+                    instance.perPage = __raw_perPage;
                 }
-            });
-        } else {
-            errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
-        }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("columnConfigs")) ? "columnConfigs" in obj : (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
+                const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
+                if (Array.isArray(__raw_columnConfigs)) {
+                    ctx.pushScope("columnConfigs");
+                    try {
+                        instance.columnConfigs = __mf_decodeArray(__raw_columnConfigs, ctx, (__raw0) => columnConfigDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "columnConfigs" : "columnConfigs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -311,8 +312,7 @@ export function overviewSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;
+    return __mf_holdsAll(obj, ["rowHeight", "cardOrRow", "perPage", "columnConfigs"]);
 }
 
 export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
@@ -586,6 +586,7 @@ export const OverviewSettings: {
   readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
   readonly encodePartialWithContext: typeof overviewSettingsEncodePartialWithContext;
   readonly decode: typeof overviewSettingsDecode;
+  readonly fromString: typeof overviewSettingsFromString;
   readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
   readonly decodePartialWithContext: typeof overviewSettingsDecodePartialWithContext;
   readonly validateField: typeof overviewSettingsValidateField;
@@ -600,6 +601,7 @@ export const OverviewSettings: {
   encodeWithContext: overviewSettingsEncodeWithContext,
   encodePartialWithContext: overviewSettingsEncodePartialWithContext,
   decode: overviewSettingsDecode,
+  fromString: overviewSettingsFromString,
   decodeWithContext: overviewSettingsDecodeWithContext,
   decodePartialWithContext: overviewSettingsDecodePartialWithContext,
   validateField: overviewSettingsValidateField,
@@ -627,10 +629,21 @@ export declare function overviewSettingsDefaultValue(): OverviewSettings;
 export declare function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OverviewSettings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function overviewSettingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: OverviewSettings;
 } | {
@@ -703,6 +716,7 @@ export declare const OverviewSettings: {
 	readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
 	readonly encodePartialWithContext: typeof overviewSettingsEncodePartialWithContext;
 	readonly decode: typeof overviewSettingsDecode;
+	readonly fromString: typeof overviewSettingsFromString;
 	readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
 	readonly decodePartialWithContext: typeof overviewSettingsDecodePartialWithContext;
 	readonly validateField: typeof overviewSettingsValidateField;
@@ -719,29 +733,31 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 962..1201
-original 288..329 -> expanded 1201..1242
-original 354..385 -> expanded 1242..1273
-original 409..504 -> expanded 1273..1368
-original 504..505 -> expanded 25769..25770
-generated 0..962 <- imports
-generated 1368..1562 <- Default
-generated 1562..4154 <- Encode
-generated 4154..13929 <- Decode
-generated 13929..24287 <- Gigaform
-generated 24287..25769 <- __convenience_const
+original 0..239 -> expanded 1210..1449
+original 288..329 -> expanded 1449..1490
+original 354..385 -> expanded 1490..1521
+original 409..504 -> expanded 1521..1616
+original 504..505 -> expanded 27442..27443
+generated 0..1210 <- imports
+generated 1616..1810 <- Default
+generated 1810..5079 <- Encode
+generated 5079..15502 <- Decode
+generated 15502..25860 <- Gigaform
+generated 25860..27442 <- __convenience_const
 
 ## Metadata
 
-interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":289,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":355,"start":330}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":381,"start":360},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":410,"start":386}}],"name":"cardOrRow","optional":false,"readonly":false,"span":{"end":442,"start":415},"ts_type":"OverviewDisplay"},{"decorators":[],"name":"perPage","optional":false,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"},{"decorators":[],"name":"columnConfigs","optional":false,"readonly":false,"span":{"end":503,"start":468},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":505,"start":297},"type_params":[]}
+interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":289,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":355,"start":330}}],"key":"Named","name":"rowHeight","optional":false,"readonly":false,"span":{"end":381,"start":360},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":410,"start":386}}],"key":"Named","name":"cardOrRow","optional":false,"readonly":false,"span":{"end":442,"start":415},"ts_type":"OverviewDisplay"},{"decorators":[],"key":"Named","name":"perPage","optional":false,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"},{"decorators":[],"key":"Named","name":"columnConfigs","optional":false,"readonly":false,"span":{"end":503,"start":468},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":505,"start":297},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
 Name("ColumnConfig")
+Name("Gigaform")
 Name("OverviewDisplay")
 Name("RowHeight")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

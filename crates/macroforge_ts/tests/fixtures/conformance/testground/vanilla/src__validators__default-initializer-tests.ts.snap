@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { instanceOf as __mf_instanceOf, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
 
@@ -30,33 +30,35 @@ export class Settings {
     static instances: number = 0;
 
     static defaultValue(): Settings {
-
-        const instance: Settings = Object.create(Settings.prototype);
-        instance.theme = "dark";
-        instance.retries = 3;
-        instance.tags = ["general"];
-        instance.limit = 7;
-        instance.createdAt = Date.now();
-        return instance;
+        const fields: { theme: string; retries: number; tags: string[]; limit: number; createdAt: number } = {
+            theme: "dark",
+            retries: 3,
+            tags: ["general"],
+            limit: 7,
+            createdAt: Date.now(),
+        };
+        return __mf_instanceOf(Settings.prototype, fields);
     }
 
 constructor(props: { theme: string; retries?: number; label?: string; tags: string[]; limit: number; createdAt: number }) {
+
     this.theme = props.theme;
-    this.retries = props.retries;
-    this.label = props.label;
+    if (props.retries !== undefined) {
+        this.retries = props.retries;
+    }
+    if (props.label !== undefined) {
+        this.label = props.label;
+    }
     this.tags = props.tags;
     this.limit = props.limit;
     this.createdAt = props.createdAt;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Settings.decodeWithContext(data, ctx);
+        const resultOrRef = Settings.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -103,6 +105,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Settings.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -115,97 +122,128 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Settings") as Settings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
-        errors.push({ field: "theme", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("limit")) && !("limit" in obj)) {
-        errors.push({ field: "limit", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
-    }
-    const instance = Object.create(Settings.prototype) as Settings;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["theme", "theme"], ["tags", "tags"], ["limit", "limit"], ["createdAt", "createdAt"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(Settings.prototype);
+    const instance: { "theme"?: string | undefined; "retries"?: number | undefined; "label"?: string | undefined; "tags"?: string[] | undefined; "limit"?: number | undefined; "createdAt"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Settings");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("theme")) || (__fields.keeps("theme") && obj["theme"] !== undefined)) {
-        const __raw_theme = obj["theme"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+                const __raw_theme = obj["theme"] as string;
 
-        if (!(typeof __raw_theme === "string")) {
-            errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
-        } else {
-            instance.theme = __raw_theme;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("retries"))) {
-        if (("retries" in obj && obj["retries"] !== undefined)) {
-            const __raw_retries = obj["retries"] as number;
-
-            if (!(typeof __raw_retries === "number")) {
-                errors.push({ field: "retries", message: "expected number" });
-            } else {
-                instance.retries = __raw_retries;
+                if (!(typeof __raw_theme === "string")) {
+                    errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+                } else {
+                    instance.theme = __raw_theme;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("label"))) {
-        if (("label" in obj && obj["label"] !== undefined)) {
-            const __raw_label = obj["label"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("retries"))) {
+                if (("retries" in obj && obj["retries"] !== undefined)) {
+                    const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_label === "string")) {
-                errors.push({ field: "label", message: "expected string" });
-            } else {
-                instance.label = __raw_label;
+                    if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+                        errors.push({ field: "retries", message: "expected number" });
+                    } else {
+                        instance.retries = __raw_retries;
+                    }
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("label"))) {
+                if (("label" in obj && obj["label"] !== undefined)) {
+                    const __raw_label = obj["label"] as string;
 
-        if (Array.isArray(__raw_tags)) {
-            instance.tags = __raw_tags as string[];
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("limit")) || (__fields.keeps("limit") && obj["limit"] !== undefined)) {
-        const __raw_limit = obj["limit"] as number;
+                    if (!(typeof __raw_label === "string")) {
+                        errors.push({ field: "label", message: "expected string" });
+                    } else {
+                        instance.label = __raw_label;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("limit")) ? "limit" in obj : (__fields.keeps("limit") && obj["limit"] !== undefined)) {
+                const __raw_limit = obj["limit"] as number;
 
-        if (!(typeof __raw_limit === "number")) {
-            errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
-        } else {
-            instance.limit = __raw_limit;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        const __raw_createdAt = obj["createdAt"] as number;
+                if (!(typeof __raw_limit === "number" && globalThis.Number.isFinite(__raw_limit))) {
+                    errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
+                } else {
+                    instance.limit = __raw_limit;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                const __raw_createdAt = obj["createdAt"] as number;
 
-        if (!(typeof __raw_createdAt === "number")) {
-            errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
-        } else {
-            instance.createdAt = __raw_createdAt;
-        }
+                if (!(typeof __raw_createdAt === "number" && globalThis.Number.isFinite(__raw_createdAt))) {
+                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
+                } else {
+                    instance.createdAt = __raw_createdAt;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Settings)) {
+        throw new TypeError("Settings.decodeWithContext: the value made is no Settings");
+    }
+    return made;
 }
 static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -221,8 +259,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "theme" in o && "tags" in o && "limit" in o && "createdAt" in o;
+    return __mf_holdsAll(obj, ["theme", "tags", "limit", "createdAt"]);
 }
 
 static is(obj: unknown): obj is Settings {
@@ -232,6 +269,7 @@ static is(obj: unknown): obj is Settings {
     if (!Settings.hasShape(obj)) {
         return false;
     }
+
     const result = Settings.decode(obj);
     return result.success;
 }
@@ -241,9 +279,14 @@ export function settingsDefaultValue(): Settings {
     return Settings.defaultValue();
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Settings.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function settingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Settings.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -274,13 +317,13 @@ export class Greeter {
     };
 
 static defaultValue(): Greeter {
-
-    const instance: Greeter = Object.create(Greeter.prototype);
-    instance.name = "world";
-    instance.greet = (function(this: Greeter): string {
-	return `hello ${this.name}`;
-});
-    return instance;
+    const fields: { name: string; greet: () => string } = {
+        name: "world",
+        greet: (function(this: Greeter): string {
+    	return `hello ${this.name}`;
+    }),
+    };
+    return __mf_instanceOf(Greeter.prototype, fields);
 }
 }
 
@@ -294,51 +337,89 @@ export class Counter {
     count: number = 1;
 
     static toString(value: Counter): string {
-        return counterToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("count: " + String(value.count));
+            return "Counter { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: Counter): Counter {
-        return counterClone(value);
+        return __mf_clonedWith(value, () => ({ count: value.count }));
     }
 
     static equals(a: Counter, b: Counter): boolean {
-        return counterEquals(a, b);
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return a.count === b.count || a.count !== a.count && b.count !== b.count;
+            });
     }
 
     static hashCode(value: Counter): number {
-        return counterHashCode(value);
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
     }
 
     static partialCompare(a: Counter, b: Counter): number | null {
-        return counterPartialCompare(a, b);
+        if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
+        return (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null);
+        });
     }
 
     static compare(a: Counter, b: Counter): number {
-        return counterCompare(a, b);
+        if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
+        return a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1;
+        });
     }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Counter" });
+    Counter.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Counter" };
+        Counter.#encodeFields(value as Counter, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: Counter, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result["count"] = value.count;
+        }
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: Counter, keepMetadata?: boolean): string {
         return counterEncode(value, keepMetadata);
     }
 
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return counterEncodeWithContext(value, ctx);
-    }
-
 constructor(props: { count: number }) {
+
     this.count = props.count;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Counter.decodeWithContext(data, ctx);
+        const resultOrRef = Counter.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -385,6 +466,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Counter.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -397,30 +483,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Counter.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Counter | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Counter") as Counter | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    const instance = Object.create(Counter.prototype) as Counter;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(Counter.prototype);
+    const instance: { "count"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Counter");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "Counter.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -429,7 +521,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Counter)) {
+        throw new TypeError("Counter.decodeWithContext: the value made is no Counter");
+    }
+    return made;
 }
 static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -445,8 +540,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "count" in o;
+    return __mf_holdsAll(obj, ["count"]);
 }
 
 static is(obj: unknown): obj is Counter {
@@ -456,52 +550,41 @@ static is(obj: unknown): obj is Counter {
     if (!Counter.hasShape(obj)) {
         return false;
     }
+
     const result = Counter.decode(obj);
     return result.success;
 }
 
     static defaultValue(): Counter {
-
-        const instance: Counter = Object.create(Counter.prototype);
-        instance.count = 1;
-        return instance;
+        const fields: { count: number } = {
+            count: 1,
+        };
+        return __mf_instanceOf(Counter.prototype, fields);
     }
 }
 
 export function counterToString(value: Counter): string {
-    const parts: string[] = [];
-    parts.push("count: " + String(value.count));
-    return "Counter { " + parts.join(", ") + " }";
+    return Counter.toString(value);
 }
 
 export function counterClone(value: Counter): Counter {
-    return __mf_instanceWith(value, ({ count: value.count }));
+    return Counter.clone(value);
 }
 
 export function counterEquals(a: Counter, b: Counter): boolean {
-    if (a === b) return true;
-    return a.count === b.count;
+    return Counter.equals(a, b);
 }
 
 export function counterHashCode(value: Counter): number {
-    let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+    return Counter.hashCode(value);
 }
 
 export function counterPartialCompare(a: Counter, b: Counter): number | null {
-    if (a === b) return 0;
-    const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return Counter.partialCompare(a, b);
 }
 
 export function counterCompare(a: Counter, b: Counter): number {
-    if (a === b) return 0;
-    const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return Counter.compare(a, b);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -510,43 +593,24 @@ export function counterEncode(value: Counter, keepMetadata?: boolean): string {
     const __raw = counterEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return counterEncodePartialWithContext(value, ctx);
+    return Counter.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function counterEncodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "Counter",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("count")) {
-
-        if (value.count !== undefined) {
-            result.count = value.count;
-        }
-    }
-
-    return result;
+    return Counter.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function counterDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Counter.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function counterFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Counter.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -594,8 +658,19 @@ export declare class Settings {
 		limit: number;
 		createdAt: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Settings;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Settings;
 	} | {
@@ -621,8 +696,19 @@ export declare class Settings {
 	static is(obj: unknown): obj is Settings;
 }
 export declare function settingsDefaultValue(): Settings;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function settingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Settings;
 } | {
@@ -649,6 +735,7 @@ export declare class Greeter {
 export declare function greeterDefaultValue(): Greeter;
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default) */
 export declare class Counter {
+	#private;
 	static created: number;
 	count: number;
 	static toString(value: Counter): string;
@@ -657,15 +744,28 @@ export declare class Counter {
 	static hashCode(value: Counter): number;
 	static partialCompare(a: Counter, b: Counter): number | null;
 	static compare(a: Counter, b: Counter): number;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: Counter, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Counter, keepMetadata?: boolean): string;
 	constructor(props: {
 		count: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Counter;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Counter;
 	} | {
@@ -701,10 +801,21 @@ export declare function counterCompare(a: Counter, b: Counter): number;
 export declare function counterEncode(value: Counter, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function counterEncodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function counterDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Counter;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function counterFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Counter;
 } | {
@@ -730,48 +841,50 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 564..960
-original 396..397 -> expanded 9128..9129
-original 397..579 -> expanded 11001..11183
-original 579..580 -> expanded 11424..11425
-original 580..752 -> expanded 11512..11684
-original 752..753 -> expanded 17929..17930
-original 753..754 -> expanded 22789..22790
-generated 0..564 <- imports
-generated 960..1270 <- Default
-generated 1270..9128 <- Decode
-generated 9129..9219 <- Default
-generated 9219..11001 <- Decode
-generated 11183..11424 <- Default
-generated 11425..11512 <- Default
-generated 11684..11776 <- Debug
-generated 11776..11863 <- Clone
-generated 11863..11959 <- PartialEq
-generated 11959..12051 <- Hash
-generated 12051..12169 <- PartialOrd
-generated 12169..12266 <- Ord
-generated 12266..12901 <- Encode
-generated 12901..17763 <- Decode
-generated 17763..17929 <- Default
-generated 17930..18123 <- Debug
-generated 18123..18245 <- Clone
-generated 18245..18375 <- PartialEq
-generated 18375..18637 <- Hash
-generated 18637..18929 <- PartialOrd
-generated 18929..19140 <- Ord
-generated 19140..20935 <- Encode
-generated 20935..22702 <- Decode
-generated 22702..22789 <- Default
+original 0..396 -> expanded 1009..1405
+original 396..397 -> expanded 11667..11668
+original 397..579 -> expanded 13942..14124
+original 579..580 -> expanded 14397..14398
+original 580..752 -> expanded 14485..14657
+original 752..753 -> expanded 23885..23886
+original 753..754 -> expanded 28081..28082
+generated 0..1009 <- imports
+generated 1405..1771 <- Default
+generated 1771..11667 <- Decode
+generated 11668..11758 <- Default
+generated 11758..13942 <- Decode
+generated 14124..14397 <- Default
+generated 14398..14485 <- Default
+generated 14657..14924 <- Debug
+generated 14924..15046 <- Clone
+generated 15046..15292 <- PartialEq
+generated 15292..15634 <- Hash
+generated 15634..15946 <- PartialOrd
+generated 15946..16244 <- Ord
+generated 16244..17780 <- Encode
+generated 17780..18101 <- Encode
+generated 18101..23705 <- Decode
+generated 23705..23885 <- Default
+generated 23886..23983 <- Debug
+generated 23983..24075 <- Clone
+generated 24075..24176 <- PartialEq
+generated 24176..24273 <- Hash
+generated 24273..24396 <- PartialOrd
+generated 24396..24498 <- Ord
+generated 24498..25828 <- Encode
+generated 25828..27994 <- Decode
+generated 27994..28081 <- Default
 
 ## Metadata
 
-class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"decorators":[],"initializer":"'dark'","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"3","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"['general']","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","visibility":"Public"},{"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"Date.now()","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"type_params":[]}
-class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"decorators":[],"initializer":"'world'","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"type_params":[]}
-class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"decorators":[],"initializer":"1","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"type_params":[]}
+class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"['general']","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","key":"Named","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"Date.now()","key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"superclass":null,"type_params":[]}
+class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'world'","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","key":"Named","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"superclass":null,"type_params":[]}
+class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"superclass":null,"type_params":[]}
 
 ## Registry reads
 
 Name("() => string")
+Name("number")
 
 ## Buildtime dependencies
 

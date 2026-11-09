@@ -52,7 +52,7 @@ mod node {
     use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen(inline_js = r#"
-import { readFileSync, realpathSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 export function readText(path) {
     return readFileSync(path, 'utf8');
 }
@@ -65,6 +65,15 @@ export function pathKind(path) {
 }
 export function realPath(path) {
     return realpathSync(path);
+}
+// Each entry of the directory as [name, 1 for a file or a link, 2 for a
+// directory, 0 for anything else], as JSON.
+export function listDirectory(path) {
+    const entries = readdirSync(path, { withFileTypes: true });
+    return JSON.stringify(entries.map((entry) => [
+        entry.name,
+        entry.isFile() || entry.isSymbolicLink() ? 1 : entry.isDirectory() ? 2 : 0,
+    ]));
 }
 // The modification time in nanoseconds and the length, as decimal strings
 // because a JS number cannot hold the nanoseconds exactly.
@@ -80,6 +89,8 @@ export function modifiedAndLen(path) {
         pub(super) fn path_kind(path: &str) -> u32;
         #[wasm_bindgen(catch, js_name = realPath)]
         pub(super) fn real_path(path: &str) -> Result<String, JsValue>;
+        #[wasm_bindgen(catch, js_name = listDirectory)]
+        pub(super) fn list_directory(path: &str) -> Result<String, JsValue>;
         #[wasm_bindgen(catch, js_name = modifiedAndLen)]
         pub(super) fn modified_and_len(path: &str) -> Result<Vec<String>, JsValue>;
     }
@@ -97,6 +108,28 @@ pub(crate) fn kind(path: &Path) -> io::Result<PathKind> {
         2 => PathKind::Directory,
         _ => PathKind::Absent,
     })
+}
+
+/// The entries of the directory `path`, each as its name and what it is. A
+/// symbolic link counts as a file, as the native walk lists one without
+/// following it.
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+pub(crate) fn list_directory(path: &Path) -> io::Result<Vec<(String, PathKind)>> {
+    let listed = node::list_directory(&path.to_string_lossy())
+        .map_err(|error| io::Error::other(format!("{error:?}")))?;
+    let entries: Vec<(String, u32)> = serde_json::from_str(&listed)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    Ok(entries
+        .into_iter()
+        .map(|(name, kind)| {
+            let kind = match kind {
+                1 => PathKind::File,
+                2 => PathKind::Directory,
+                _ => PathKind::Absent,
+            };
+            (name, kind)
+        })
+        .collect())
 }
 
 #[cfg(all(target_arch = "wasm32", feature = "wasm"))]

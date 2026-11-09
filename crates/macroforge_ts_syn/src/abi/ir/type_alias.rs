@@ -255,6 +255,20 @@ impl TypeBody {
         }
     }
 
+    /// The body a value has at runtime: the one under a newtype's brand,
+    /// which exists in the types alone, and any other body itself.
+    pub fn unbranded(&self) -> &TypeBody {
+        match self {
+            TypeBody::Newtype(inner) => inner.unbranded(),
+            TypeBody::Union(_)
+            | TypeBody::Intersection(_)
+            | TypeBody::Object { .. }
+            | TypeBody::Tuple(_)
+            | TypeBody::Alias(_)
+            | TypeBody::Other(_) => self,
+        }
+    }
+
     /// Returns the branded type if this is a newtype
     pub fn as_newtype(&self) -> Option<&TypeBody> {
         match self {
@@ -311,6 +325,57 @@ pub const NEWTYPE_BRAND_PREFIX: &str = "__mf_newtype_";
 pub fn typeof_primitive(name: &str) -> Option<&str> {
     let trimmed = name.trim();
     matches!(trimmed, "string" | "number" | "boolean" | "bigint").then_some(trimmed)
+}
+
+/// Which kind of number a literal type is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NumberLiteral {
+    Number,
+    BigInt,
+}
+
+/// Whether a letter is a digit of a radix.
+type DigitTest = fn(&char) -> bool;
+
+/// The kind of number `text` is as a literal type, written as TypeScript
+/// writes one: `-1`, `1_000`, `0x10`, `1e3`, and a bigint with an `n` behind
+/// it. `None` for anything else, the words a float parser takes for a
+/// number (`inf`, `nan`) among them, which name types.
+pub fn number_literal(text: &str) -> Option<NumberLiteral> {
+    let text = text.trim();
+    let unsigned = text.strip_prefix('-').map_or(text, str::trim_start);
+    let (digits, kind) = match unsigned.strip_suffix('n') {
+        Some(digits) => (digits, NumberLiteral::BigInt),
+        None => (unsigned, NumberLiteral::Number),
+    };
+    // A number starts with a digit or a point: `_1` is a name.
+    if !digits.starts_with(|first: char| first.is_ascii_digit() || first == '.') {
+        return None;
+    }
+    let written_in = |digits: &str, is_digit: DigitTest| {
+        digits.starts_with(|first: char| is_digit(&first))
+            && digits.chars().all(|digit| is_digit(&digit) || digit == '_')
+    };
+    let radixes: [(&str, DigitTest); 3] = [
+        ("0x", char::is_ascii_hexdigit),
+        ("0b", |digit| matches!(digit, '0' | '1')),
+        ("0o", |digit| matches!(digit, '0'..='7')),
+    ];
+    for (prefix, is_digit) in radixes {
+        let lowered = digits.get(..prefix.len()).map(str::to_ascii_lowercase);
+        if lowered.as_deref() == Some(prefix) {
+            let rest = digits.get(prefix.len()..).unwrap_or_default();
+            return written_in(rest, is_digit).then_some(kind);
+        }
+    }
+    let plain: String = digits.chars().filter(|digit| *digit != '_').collect();
+    let is_number = match kind {
+        NumberLiteral::BigInt => written_in(&plain, char::is_ascii_digit),
+        NumberLiteral::Number => {
+            plain.chars().any(|digit| digit.is_ascii_digit()) && plain.parse::<f64>().is_ok()
+        }
+    };
+    is_number.then_some(kind)
 }
 
 /// Whether `name` is a primitive keyword whose values are never objects: a
@@ -495,5 +560,102 @@ impl TypeMember {
         self.decorators
             .iter()
             .any(|d| d.name.eq_ignore_ascii_case(name))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{NumberLiteral, number_literal};
+
+    #[test]
+    fn a_number_literal_is_read_as_typescript_writes_one() {
+        for written in [
+            "0", "-1", "3.14", ".5", "1.", "1e3", "2.5e-1", "1_000", "0x10", "0XfF", "0b11", "0o17",
+        ] {
+            assert_eq!(
+                number_literal(written),
+                Some(NumberLiteral::Number),
+                "{written}"
+            );
+        }
+        for written in ["1n", "-2n", "1_000n", "0x10n"] {
+            assert_eq!(
+                number_literal(written),
+                Some(NumberLiteral::BigInt),
+                "{written}"
+            );
+        }
+        // The words a float parser takes for a number name types, and a
+        // literal starts with a digit.
+        for written in [
+            "inf", "Inf", "nan", "NaN", "infinity", "Infinity", "+1", "n", "-n", "_1", "0x", "0b2",
+            "1.5n", "number", "",
+        ] {
+            assert_eq!(number_literal(written), None, "{written}");
+        }
+    }
+
+    mod properties {
+        use oxc::allocator::Allocator;
+        use oxc::ast::ast::{Expression, Statement, TSLiteral, TSType};
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
+        use oxc::syntax::operator::UnaryOperator;
+        use proptest::strategy::Strategy;
+        use proptest::{prop_assert_eq, prop_assume, prop_oneof, proptest};
+
+        use super::super::{NumberLiteral, number_literal};
+        use crate::strategies::property_config;
+
+        /// Text that is a number literal, or nearly one.
+        fn numeric_text() -> impl Strategy<Value = String> {
+            prop_oneof![
+                "-?[ ]?(0|[1-9][0-9_]{0,4})?(\\.[0-9_]{0,3})?([eE][+-]?[0-9_]{1,3})?n?",
+                "-?[ ]?0[xXbBoO][0-9a-fA-F_]{0,4}n?",
+                "[-0-9a-zA-Z._+ ]{1,6}",
+            ]
+        }
+
+        /// The kind of number oxc reads `text` as, as a type, or `None` for a
+        /// type of another kind. Text that is no type at all is skipped.
+        fn read_by_oxc(text: &str) -> Option<Option<NumberLiteral>> {
+            let allocator = Allocator::default();
+            let source = format!("type Read = {text};");
+            let parsed = Parser::new(&allocator, &source, SourceType::ts()).parse();
+            if !parsed.diagnostics.is_empty() || parsed.program.body.len() != 1 {
+                return None;
+            }
+            let Some(Statement::TSTypeAliasDeclaration(alias)) = parsed.program.body.first() else {
+                return None;
+            };
+            let TSType::TSLiteralType(literal) = &alias.type_annotation else {
+                return Some(None);
+            };
+            Some(match &literal.literal {
+                TSLiteral::NumericLiteral(_) => Some(NumberLiteral::Number),
+                TSLiteral::BigIntLiteral(_) => Some(NumberLiteral::BigInt),
+                TSLiteral::UnaryExpression(unary)
+                    if unary.operator == UnaryOperator::UnaryNegation =>
+                {
+                    match &unary.argument {
+                        Expression::NumericLiteral(_) => Some(NumberLiteral::Number),
+                        Expression::BigIntLiteral(_) => Some(NumberLiteral::BigInt),
+                        _ => None,
+                    }
+                }
+                _ => None,
+            })
+        }
+
+        proptest! {
+            #![proptest_config(property_config())]
+
+            #[test]
+            fn a_number_literal_is_read_as_typescript_reads_it(text in numeric_text()) {
+                let read = read_by_oxc(&text);
+                prop_assume!(read.is_some());
+                prop_assert_eq!(Some(number_literal(&text)), read, "{}", text);
+            }
+        }
     }
 }

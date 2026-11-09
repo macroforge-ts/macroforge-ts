@@ -306,7 +306,9 @@ describe('Decoding E2E: complex nested type graph via SvelteKit', () => {
 
     test('decodes a raw string through a union whose foreign member accepts it', async () => {
         await withViteServer(svelteRoot, async (server) => {
-            const { momentDecode } = await server.ssrLoadModule('/src/lib/e2e/types.svelte.ts');
+            const { momentDecode, momentFromString } = await server.ssrLoadModule(
+                '/src/lib/e2e/types.svelte.ts'
+            );
             const { DateTime } = await server.ssrLoadModule('effect');
 
             const timestamp = momentDecode('2024-01-01T00:00:00.000Z');
@@ -317,7 +319,9 @@ describe('Decoding E2E: complex nested type graph via SvelteKit', () => {
             assert.ok(DateTime.isDateTime(timestamp.value), 'an ISO string decodes to a DateTime');
             assert.equal(DateTime.formatIso(timestamp.value), '2024-01-01T00:00:00.000Z');
 
-            const holiday = momentDecode(JSON.stringify({ __type: 'Holiday', name: 'New Year' }));
+            const holiday = momentFromString(
+                JSON.stringify({ __type: 'Holiday', name: 'New Year' })
+            );
             assert.ok(holiday.success, `Decoding failed: ${JSON.stringify(holiday.errors ?? [])}`);
             assert.equal(
                 holiday.value.name,

@@ -6,10 +6,9 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
-use crate::builtin::derive::common::primitive_keyword_test;
-use crate::builtin::derive::endec::decode::helpers::{
-    extract_base_type, nested_decode_fn_name, nested_has_shape_fn_name,
-};
+use crate::builtin::derive::endec::coder::endec_helper;
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
+use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 
 /// Tries literals, primitives, dates, member types, inline variants and
@@ -23,6 +22,8 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
         has_encodables,
         has_dates,
         has_generic_params,
+        param_decoder,
+        pending_ref_ident,
         has_object_variants,
         has_intersection_variants,
         has_literals,
@@ -44,14 +45,14 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
     ts_template! {
                             {#if *has_literals}
                                 const allowedLiterals = [@{literals.join(", ")}] as const;
-                                if (allowedLiterals.includes(value as any)) {
+                                if (allowedLiterals.some((allowed) => allowed === value)) {
                                     return value as @{full_type_ident};
                                 }
                             {/if}
 
                             {#if *has_primitives}
                                 {#for (prim, arm_validators) in primitive_arms}
-                                    {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                    {$let is_primitive: Expr = decoded_keyword_test(prim, "value").into()}
                                     if (@{is_primitive}) {
                                         {#if !arm_validators.is_empty()}
                                             const errors: Array<{ field: string; message: string }> = [];
@@ -83,7 +84,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         const __keys = Object.keys(value);
                                         const __variantName = __keys[0];
                                         if (__variantName !== undefined) {
-                                            const __inner = (value as any)[__variantName];
+                                            const __inner = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, __variantName);
                                             {#for ov in external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref decode_callee) = ov.inner_foreign_decode_callee}
@@ -99,7 +100,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             }
                                         {/for}
                                         {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__variantName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
                                                 }
@@ -116,7 +117,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     }
                                     if (typeof value === "string") {
                                         {#for type_ref in regular_encodables}
-                                            {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                             if (value === "@{type_ref.full_type}") {
                                                 return @{decode_with_context_fn}({}, ctx) as @{full_type_ident};
                                             }
@@ -125,11 +126,11 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                 {:else if *is_adjacently_tagged}
                                     // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                                     if (typeof value === "object" && value !== null) {
-                                        const __typeName = (value as any)["@{tag_field}"];
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                         if (typeof __typeName === "string") {
-                                            const __content = (value as any)["@{content_field}"];
+                                            const __content = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{content_field}");
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(__content != null && typeof __content === "object" ? __content : {}, ctx) as @{full_type_ident};
                                                 }
@@ -148,7 +149,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     // Untagged: shape matching only
                                     {#for type_ref in regular_encodables}
                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (@{has_shape_fn}(value)) {
                                             try {
                                                 return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
@@ -168,13 +169,28 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             {/if}
                                         {/if}
                                     {/for}
+                                {:else if regular_encodables.is_empty()}
+                                    // Internally tagged (default), with no member told by its shape
+                                    if (typeof value === "object" && value !== null) {
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
+                                        if (typeof __typeName === "string") {
+                                            {#for type_ref in foreign_encodables}
+                                                {#if let Some(ref decode_callee) = type_ref.foreign_decode_callee}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(decode_callee).expect("foreign decode expr should parse")}
+                                                    if (__typeName === "@{type_ref.full_type}") {
+                                                        return @{foreign_deser_expr}(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/for}
+                                        }
+                                    }
                                 {:else}
                                     // Internally tagged (default): tag-based + shape matching fallback
                                     if (typeof value === "object" && value !== null) {
-                                        const __typeName = (value as any)["@{tag_field}"];
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                         if (typeof __typeName === "string") {
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                 }
@@ -196,7 +212,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             {/for}
                                             if (__shapeMatches.length === 1) {
                                                 {#for type_ref in regular_encodables}
-                                                    {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                     if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                         return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                     }
@@ -212,7 +228,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         {/for}
                                         if (__shapeMatches.length === 1) {
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                 }
@@ -236,36 +252,33 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                             {/for}
 
                             {#if *has_generic_params}
+                                {#if let Some(decode_param) = param_decoder}
+                                    if (@{decode_param} !== undefined && value !== null && value !== undefined) {
+                                        return @{decode_param}(value, ctx) as @{full_type_ident} | @{pending_ref_ident};
+                                    }
+                                {/if}
                                 return value as @{full_type_ident};
-                            {/if}
+                            {:else}
 
                             {#if *has_object_variants || *has_intersection_variants}
                                 // Tagged variants with tag-based discrimination
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     if (typeof __typeName === "string") {
+                                        // Each member is told and decoded in a function of its own, so
+                                        // the checker reads each on its own however many there are.
+                                        const __tagged = @{endec_helper("decodedMember")}(value, [
                                         {#for ov in object_variants}
-                                            if (__typeName === "@{ov.tag_value}") {
-                                                const __result: Record<string, unknown> = { "@{tag_field}": "@{ov.tag_value}" };
-                                                {#for field in &ov.fields}
-                                                    {#if field.name != *tag_field}
-                                                        __result["@{field.name}"] = (value as any)["@{field.name}"] ?? null;
-                                                    {/if}
-                                                {/for}
-                                                return __result as @{full_type_ident};
-                                            }
+                                            (value: object): unknown => __typeName === "@{ov.tag_value}" ? { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } : @{endec_helper("notTheMember")},
                                         {/for}
                                         {#for iv in intersection_variants}
-                                            if (__typeName === "@{iv.tag_value}") {
-                                                {#if iv.is_encodable}
-                                                    {$let iv_deser_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&iv.type_ref))).into()}
-                                                    const __inner = @{iv_deser_fn}(value, ctx);
-                                                    return { ...(__inner as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {:else}
-                                                    return { ...(value as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {/if}
-                                            }
+                                            {$let iv_deser_fn: Expr = iv.decoder.clone()}
+                                            (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...@{iv_deser_fn}(value, ctx), "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
                                         {/for}
+                                        ]);
+                                        if (__tagged !== @{endec_helper("notTheMember")}) {
+                                            return __tagged as @{full_type_ident};
+                                        }
                                     }
                                 }
                             {/if}
@@ -279,7 +292,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     const __keys = Object.keys(value);
                                     const __variantName = __keys[0];
                                     if (__variantName !== undefined) {
-                                        const __inner = (value as any)[__variantName];
+                                        const __inner = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, __variantName);
                                         {#for ov in external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref decode_callee) = ov.inner_foreign_decode_callee}
@@ -298,22 +311,21 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                 }
                             {/if}
 
-                            {#for uv in untagged_object_variants}
-                                if (@{uv.shape_condition}) {
-                                    const __result: Record<string, unknown> = {};
-                                    {#for name in &uv.required_fields}
-                                        __result["@{name}"] = (value as any)["@{name}"];
-                                    {/for}
-                                    {#for name in &uv.optional_fields}
-                                        if ("@{name}" in value) __result["@{name}"] = (value as any)["@{name}"];
-                                    {/for}
-                                    return __result as @{full_type_ident};
+                            {#if !untagged_object_variants.is_empty()}
+                                const __shaped = @{endec_helper("decodedMember")}(value, [
+                                {#for uv in untagged_object_variants}
+                                    (value: unknown): unknown => (@{uv.shape_condition}) ? @{uv.decoded} : @{endec_helper("notTheMember")},
+                                {/for}
+                                ]);
+                                if (__shaped !== @{endec_helper("notTheMember")}) {
+                                    return __shaped as @{full_type_ident};
                                 }
-                            {/for}
+                            {/if}
 
                             throw new @{decode_error_expr}([{
                                 field: "_root",
                                 message: "@{type_name}.decodeWithContext: value does not match any union member"
                             }]);
+                            {/if}
     }
 }

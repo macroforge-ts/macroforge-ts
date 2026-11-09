@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,26 +60,20 @@ export function pageEncode(value: Page, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function pageDecode(input: unknown): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'SalesHomeDashboard':
@@ -185,6 +179,10 @@ export function pageHasShape(value: unknown): boolean {
 
 export function pageIs(value: unknown): value is Page {
     return pageHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function pageFromString(text: string): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pageDecode(value));
 }
 
 /** Per-variant error types  */
@@ -689,6 +687,7 @@ export const Page: {
   readonly decodeWithContext: typeof pageDecodeWithContext;
   readonly hasShape: typeof pageHasShape;
   readonly is: typeof pageIs;
+  readonly fromString: typeof pageFromString;
   readonly createForm: typeof pageCreateForm;
   readonly fromFormData: typeof pageFromFormData;
 } = {
@@ -699,6 +698,7 @@ export const Page: {
   decodeWithContext: pageDecodeWithContext,
   hasShape: pageHasShape,
   is: pageIs,
+  fromString: pageFromString,
   createForm: pageCreateForm,
   fromFormData: pageFromFormData
 };
@@ -712,7 +712,7 @@ export declare function pageDefaultValue(): Page;
 export declare function pageEncode(value: Page, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function pageDecode(input: unknown): {
 	success: true;
 	value: Page;
@@ -727,6 +727,17 @@ export declare function pageDecode(input: unknown): {
 export declare function pageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Page | __mf_PendingRef;
 export declare function pageHasShape(value: unknown): boolean;
 export declare function pageIs(value: unknown): value is Page;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function pageFromString(text: string): {
+	success: true;
+	value: Page;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type PageSalesHomeDashboardErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -1066,6 +1077,7 @@ export declare const Page: {
 	readonly decodeWithContext: typeof pageDecodeWithContext;
 	readonly hasShape: typeof pageHasShape;
 	readonly is: typeof pageIs;
+	readonly fromString: typeof pageFromString;
 	readonly createForm: typeof pageCreateForm;
 	readonly fromFormData: typeof pageFromFormData;
 };
@@ -1076,15 +1088,15 @@ export declare const Page: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..871 -> expanded 614..1378
-original 871..872 -> expanded 34097..34098
-generated 0..556 <- imports
-generated 1378..1457 <- Default
-generated 1457..2693 <- Encode
-generated 2693..8110 <- Decode
-generated 8110..33383 <- Gigaform
-generated 33383..34097 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..871 -> expanded 769..1533
+original 871..872 -> expanded 34764..34765
+generated 0..711 <- imports
+generated 1533..1612 <- Default
+generated 1612..2887 <- Encode
+generated 2887..8701 <- Decode
+generated 8701..33974 <- Gigaform
+generated 33974..34764 <- __convenience_const
 
 ## Metadata
 
@@ -1092,7 +1104,9 @@ type Page: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","spa
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Page")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

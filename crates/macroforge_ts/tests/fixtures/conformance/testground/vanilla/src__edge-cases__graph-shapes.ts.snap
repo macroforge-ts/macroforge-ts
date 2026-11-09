@@ -1,0 +1,2759 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/graph-shapes.ts
+sha256 7f303b141c4950c247e30dfc85d745becd6296c6f5cadf6ca3f7d3af0e348fac
+
+## Changed
+
+true
+
+## Output
+
+import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Object graphs rather than trees: a value held twice, a child pointing back
+ * at its parent through a collection, a value that holds itself, and a
+ * `Pick` or `Omit` standing in a cycle.
+ */
+
+import type { EdgeItem } from './edge-types';
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode) */
+export interface GraphTree {
+    name: string;
+    parent: GraphTree | null;
+    children: GraphTree[];
+}
+
+export function graphTreeToString(value: GraphTree): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    parts.push("parent: " + (value.parent == null ? String(value.parent) : graphTreeToString(value.parent)));
+    parts.push("children: " + "[" + value.children.map(graphTreeToString).join(", ") + "]");
+        return "GraphTree { " + parts.join(", ") + " }";
+    });
+}
+
+export function graphTreeClone(value: GraphTree): GraphTree {
+    return __mf_clonedWith(value, (): GraphTree => ({
+	name: value.name,
+	parent: value.parent == null ? value.parent : graphTreeClone(value.parent),
+	children: value.children.map((__item0) => graphTreeClone(__item0))
+}));
+}
+
+export function graphTreeEquals(a: GraphTree, b: GraphTree): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.name === b.name,
+            () => a.parent == null || b.parent == null ? a.parent === b.parent : graphTreeEquals(a.parent, b.parent),
+            () => a.children.length === b.children.length && a.children.every((__item0, __index0) => {
+            	const __other0 = b.children[__index0];
+            	return __other0 === undefined ? __item0 === undefined : graphTreeEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
+}
+
+export function graphTreeHashCode(value: GraphTree): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.parent == null ? 0 : graphTreeHashCode(value.parent))) | 0;
+    hash = (hash * 31 + (value.children.reduce<number>((__hash0, __item0) => __hash0 * 31 + graphTreeHashCode(__item0) | 0, 1))) | 0;
+        return hash;
+    });
+}
+
+export function graphTreePartialCompare(a: GraphTree, b: GraphTree): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+        () => (a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreePartialCompare(a.parent, b.parent)),
+        () => (() => {
+            const __left0 = a.children;
+            const __right0 = b.children;
+            const __shared0 = Math.min(__left0.length, __right0.length);
+            for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                const __item0 = __left0[__index0];
+                const __other0 = __right0[__index0];
+                const __order0 = __item0 === undefined || __other0 === undefined
+                    ? __mf_structuralCompare(__item0, __other0)
+                    : graphTreePartialCompare(__item0, __other0);
+                if (__order0 !== 0) return __order0;
+            }
+            return __left0.length < __right0.length ? -1
+                : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function graphTreeCompare(a: GraphTree, b: GraphTree): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+        () => a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreeCompare(a.parent, b.parent),
+        () => (() => {
+        	const __left0 = a.children;
+        	const __right0 = b.children;
+        	const __shared0 = Math.min(__left0.length, __right0.length);
+        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+        		const __item0 = __left0[__index0];
+        		const __other0 = __right0[__index0];
+        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : graphTreeCompare(__item0, __other0);
+        		if (__order0 !== 0) return __order0;
+        	}
+        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphTreeEncode(value: GraphTree, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphTreeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphTreeEncodeWithContext(value: GraphTree, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphTree" });
+    graphTreeEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphTreeEncodePartialWithContext(value: Partial<GraphTree>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphTree>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphTree" };
+        graphTreeEncodeFields(value as GraphTree, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function graphTreeEncodeFields(value: GraphTree, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("parent")) {
+                if (value.parent !== undefined) {
+                    result["parent"] = value.parent === null ? null : graphTreeEncodeWithContext(value.parent, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("children")) {
+                if (value.children !== undefined) {
+                    result["children"] = value.children.map((__item0) => graphTreeEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphTree } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = graphTreeDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphTree.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphTreeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphTree } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphTreeDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphTree | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphTree> | __mf_PendingRef;
+export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphTree> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphTree.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphTree.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphTree") as GraphTree | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphTree.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["parent", "parent"], ["children", "children"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "name"?: string | undefined; "parent"?: GraphTree | null | undefined; "children"?: GraphTree[] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphTree");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphTree.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("parent")) ? "parent" in obj : (__fields.keeps("parent") && obj["parent"] !== undefined)) {
+                const __raw_parent = obj["parent"] as GraphTree | null;
+
+                if (__raw_parent === null) {
+                    instance.parent = null;
+                } else {
+                    ctx.pushScope("parent");
+                    try {
+                        const __result = graphTreeDecodeWithContext(__raw_parent, ctx);
+                        ctx.assignOrDefer(instance, "parent", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "parent" : "parent." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "parent", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
+                const __raw_children = obj["children"] as GraphTree[];
+                if (Array.isArray(__raw_children)) {
+                    ctx.pushScope("children");
+                    try {
+                        instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => graphTreeDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "children" : "children." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "children", message: __raw_children == null ? "GraphTree.children is required" : "expected GraphTree[]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GraphTree;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphTreeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphTree>): Partial<GraphTree> | __mf_PendingRef {
+    return graphTreeDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function graphTreeValidateField<K extends keyof GraphTree>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function graphTreeValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function graphTreeValidateFields(partial: { readonly [K in keyof GraphTree]?: unknown }): Array<{ field: string; message: string }>;
+export function graphTreeValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function graphTreeHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name", "parent", "children"]);
+}
+
+export function graphTreeIs(obj: unknown): obj is GraphTree {
+    return graphTreeHasShape(obj) && graphTreeDecode(obj).success;
+}
+
+export const GraphTree: {
+  readonly toString: typeof graphTreeToString;
+  readonly clone: typeof graphTreeClone;
+  readonly equals: typeof graphTreeEquals;
+  readonly hashCode: typeof graphTreeHashCode;
+  readonly partialCompare: typeof graphTreePartialCompare;
+  readonly compare: typeof graphTreeCompare;
+  readonly encode: typeof graphTreeEncode;
+  readonly encodeWithContext: typeof graphTreeEncodeWithContext;
+  readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
+  readonly decode: typeof graphTreeDecode;
+  readonly fromString: typeof graphTreeFromString;
+  readonly decodeWithContext: typeof graphTreeDecodeWithContext;
+  readonly decodePartialWithContext: typeof graphTreeDecodePartialWithContext;
+  readonly validateField: typeof graphTreeValidateField;
+  readonly validateFields: typeof graphTreeValidateFields;
+  readonly hasShape: typeof graphTreeHasShape;
+  readonly is: typeof graphTreeIs;
+} = {
+  toString: graphTreeToString,
+  clone: graphTreeClone,
+  equals: graphTreeEquals,
+  hashCode: graphTreeHashCode,
+  partialCompare: graphTreePartialCompare,
+  compare: graphTreeCompare,
+  encode: graphTreeEncode,
+  encodeWithContext: graphTreeEncodeWithContext,
+  encodePartialWithContext: graphTreeEncodePartialWithContext,
+  decode: graphTreeDecode,
+  fromString: graphTreeFromString,
+  decodeWithContext: graphTreeDecodeWithContext,
+  decodePartialWithContext: graphTreeDecodePartialWithContext,
+  validateField: graphTreeValidateField,
+  validateFields: graphTreeValidateFields,
+  hasShape: graphTreeHasShape,
+  is: graphTreeIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export class GraphPerson {
+    name: string = '';
+    best: GraphPerson | null = null;
+    friends: GraphPerson[] = [];
+    circle: Set<GraphPerson> = new Set();
+    byName: Map<string, GraphPerson> = new Map();
+
+    static toString(value: GraphPerson): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        parts.push("best: " + (value.best == null ? String(value.best) : graphPersonToString(value.best)));
+        parts.push("friends: " + "[" + value.friends.map(graphPersonToString).join(", ") + "]");
+        parts.push("circle: " + __mf_structuralDebug(value.circle));
+        parts.push("byName: " + __mf_structuralDebug(value.byName));
+            return "GraphPerson { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: GraphPerson): GraphPerson {
+        return __mf_clonedWith(value, () => ({
+        	name: value.name,
+        	best: value.best == null ? value.best : graphPersonClone(value.best),
+        	friends: value.friends.map((__item0) => graphPersonClone(__item0)),
+        	circle: new Set(Array.from(value.circle, (__item0) => graphPersonClone(__item0))),
+        	byName: (() => {
+        		const __copy0 = new Map(value.byName);
+        		for (const [__key0, __item0] of value.byName) __copy0.set(__key0, graphPersonClone(__item0));
+        		return __copy0;
+        	})()
+        }));
+    }
+
+    static equals(a: GraphPerson, b: GraphPerson): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.best == null || b.best == null ? a.best === b.best : graphPersonEquals(a.best, b.best),
+                    () => a.friends.length === b.friends.length && a.friends.every((__item0, __index0) => {
+                    	const __other0 = b.friends[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0);
+                    }),
+                    () => a.circle.size === b.circle.size && Array.from(a.circle).every((__item0) => b.circle.has(__item0) || Array.from(b.circle).some((__other0) => graphPersonEquals(__item0, __other0))),
+                    () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+                    	const __other0 = b.byName.get(__key0);
+                    	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0));
+                    }),
+                ].every((same) => same());
+            });
+    }
+
+    static hashCode(value: GraphPerson): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.best == null ? 0 : graphPersonHashCode(value.best))) | 0;
+        hash = (hash * 31 + (value.friends.reduce<number>((__hash0, __item0) => __hash0 * 31 + graphPersonHashCode(__item0) | 0, 1))) | 0;
+        hash = (hash * 31 + (Array.from(value.circle).reduce<number>((__hash0, __item0) => __hash0 + graphPersonHashCode(__item0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + graphPersonHashCode(__item0) | 0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPerson" });
+    GraphPerson.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphPerson" };
+        GraphPerson.#encodeFields(value as GraphPerson, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: GraphPerson, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("best")) {
+                if (value.best !== undefined) {
+                    result["best"] = value.best === null ? null : graphPersonEncodeWithContext(value.best, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("friends")) {
+                if (value.friends !== undefined) {
+                    result["friends"] = value.friends.map((__item0) => graphPersonEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("circle")) {
+                if (value.circle !== undefined) {
+                    result["circle"] = Array.from(value.circle, (__item0) => graphPersonEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, graphPersonEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: GraphPerson, keepMetadata?: boolean): string {
+        return graphPersonEncode(value, keepMetadata);
+    }
+
+constructor(props: { name: string; best: GraphPerson | null; friends: GraphPerson[]; circle: Set<GraphPerson>; byName: Map<string, GraphPerson> }) {
+
+    this.name = props.name;
+    this.best = props.best;
+    this.friends = props.friends;
+    this.circle = props.circle;
+    this.byName = props.byName;
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = GraphPerson.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphPerson.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GraphPerson.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPerson | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPerson> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphPerson> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPerson.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphPerson.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphPerson") as GraphPerson | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPerson.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["best", "best"], ["friends", "friends"], ["circle", "circle"], ["byName", "byName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(GraphPerson.prototype);
+    const instance: { "name"?: string | undefined; "best"?: GraphPerson | null | undefined; "friends"?: GraphPerson[] | undefined; "circle"?: Set<GraphPerson> | undefined; "byName"?: Map<string, GraphPerson> | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPerson");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphPerson.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("best")) ? "best" in obj : (__fields.keeps("best") && obj["best"] !== undefined)) {
+                const __raw_best = obj["best"] as GraphPerson | null;
+
+                if (__raw_best === null) {
+                    instance.best = null;
+                } else {
+                    ctx.pushScope("best");
+                    try {
+                        const __result = graphPersonDecodeWithContext(__raw_best, ctx);
+                        ctx.assignOrDefer(instance, "best", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("friends")) ? "friends" in obj : (__fields.keeps("friends") && obj["friends"] !== undefined)) {
+                const __raw_friends = obj["friends"] as GraphPerson[];
+                if (Array.isArray(__raw_friends)) {
+                    ctx.pushScope("friends");
+                    try {
+                        instance.friends = __mf_decodeArray(__raw_friends, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "friends" : "friends." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "friends", message: __raw_friends == null ? "GraphPerson.friends is required" : "expected GraphPerson[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("circle")) ? "circle" in obj : (__fields.keeps("circle") && obj["circle"] !== undefined)) {
+                const __raw_circle = obj["circle"] as Array<GraphPerson>;
+                if (Array.isArray(__raw_circle)) {
+                    ctx.pushScope("circle");
+                    try {
+                        instance.circle = __mf_decodeSet(__raw_circle, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "circle" : "circle." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "circle", message: __raw_circle == null ? "GraphPerson.circle is required" : "expected Set<GraphPerson>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, GraphPerson>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byName", message: __raw_byName == null ? "GraphPerson.byName is required" : "expected Map<string, GraphPerson>" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof GraphPerson)) {
+        throw new TypeError("GraphPerson.decodeWithContext: the value made is no GraphPerson");
+    }
+    return made;
+}
+static validateField<K extends keyof GraphPerson>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof GraphPerson]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name", "best", "friends", "circle", "byName"]);
+}
+
+static is(obj: unknown): obj is GraphPerson {
+    if (obj instanceof GraphPerson) {
+        return true;
+    }
+    if (!GraphPerson.hasShape(obj)) {
+        return false;
+    }
+
+    const result = GraphPerson.decode(obj);
+    return result.success;
+}
+}
+
+export function graphPersonToString(value: GraphPerson): string {
+    return GraphPerson.toString(value);
+}
+
+export function graphPersonClone(value: GraphPerson): GraphPerson {
+    return GraphPerson.clone(value);
+}
+
+export function graphPersonEquals(a: GraphPerson, b: GraphPerson): boolean {
+    return GraphPerson.equals(a, b);
+}
+
+export function graphPersonHashCode(value: GraphPerson): number {
+    return GraphPerson.hashCode(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphPersonEncode(value: GraphPerson, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphPersonEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphPersonEncodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return GraphPerson.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphPersonEncodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Record<string, unknown> {
+    return GraphPerson.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function graphPersonDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GraphPerson.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function graphPersonFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GraphPerson.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphPersonDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPerson | __mf_PendingRef {
+    return GraphPerson.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function graphPersonHasShape(value: unknown): boolean {
+    return GraphPerson.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphPersonDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Partial<GraphPerson> | __mf_PendingRef {
+    return GraphPerson.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function graphPersonIs(value: unknown): value is GraphPerson {
+    return GraphPerson.is(value);
+}
+
+/** @derive(Encode, Decode) */
+export interface GraphShared {
+    first: EdgeItem;
+    again: EdgeItem;
+    maybe: EdgeItem | null;
+    list: EdgeItem[];
+    set: Set<EdgeItem>;
+    byName: Map<string, EdgeItem>;
+    record: Record<string, EdgeItem>;
+    pair: [EdgeItem, EdgeItem];
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphSharedEncode(value: GraphShared, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphSharedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphSharedEncodeWithContext(value: GraphShared, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphShared" });
+    graphSharedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphSharedEncodePartialWithContext(value: Partial<GraphShared>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphShared>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphShared" };
+        graphSharedEncodeFields(value as GraphShared, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("first")) {
+                if (value.first !== undefined) {
+                    result["first"] = edgeItemEncodeWithContext(value.first, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("again")) {
+                if (value.again !== undefined) {
+                    result["again"] = edgeItemEncodeWithContext(value.again, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set, (__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = Object.fromEntries((Object.entries(value.record) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [edgeItemEncodeWithContext(value.pair[0], ctx), edgeItemEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphShared } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = graphSharedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphShared.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphSharedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphShared } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphSharedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphShared | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphShared> | __mf_PendingRef;
+export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphShared> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphShared.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphShared.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphShared") as GraphShared | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphShared.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first", "first"], ["again", "again"], ["maybe", "maybe"], ["list", "list"], ["set", "set"], ["byName", "byName"], ["record", "record"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "first"?: EdgeItem | undefined; "again"?: EdgeItem | undefined; "maybe"?: EdgeItem | null | undefined; "list"?: EdgeItem[] | undefined; "set"?: Set<EdgeItem> | undefined; "byName"?: Map<string, EdgeItem> | undefined; "record"?: Record<string, EdgeItem> | undefined; "pair"?: [EdgeItem, EdgeItem] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphShared");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+                const __raw_first = obj["first"] as EdgeItem;
+
+                ctx.pushScope("first");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_first, ctx);
+                    ctx.assignOrDefer(instance, "first", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "first" : "first." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("again")) ? "again" in obj : (__fields.keeps("again") && obj["again"] !== undefined)) {
+                const __raw_again = obj["again"] as EdgeItem;
+
+                ctx.pushScope("again");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_again, ctx);
+                    ctx.assignOrDefer(instance, "again", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "again" : "again." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "again", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as EdgeItem | null;
+
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as EdgeItem[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "list", message: __raw_list == null ? "GraphShared.list is required" : "expected EdgeItem[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<EdgeItem>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "set", message: __raw_set == null ? "GraphShared.set is required" : "expected Set<EdgeItem>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, EdgeItem>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byName", message: __raw_byName == null ? "GraphShared.byName is required" : "expected Map<string, EdgeItem>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, EdgeItem>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)) as Record<string, EdgeItem>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "record", message: __raw_record == null ? "GraphShared.record is required" : "expected Record<string, EdgeItem>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [EdgeItem, EdgeItem];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 2) as [EdgeItem, EdgeItem]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "GraphShared.pair is required" : "expected [EdgeItem, EdgeItem]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GraphShared;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphSharedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphShared>): Partial<GraphShared> | __mf_PendingRef {
+    return graphSharedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function graphSharedValidateField<K extends keyof GraphShared>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function graphSharedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function graphSharedValidateFields(partial: { readonly [K in keyof GraphShared]?: unknown }): Array<{ field: string; message: string }>;
+export function graphSharedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function graphSharedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["first", "again", "maybe", "list", "set", "byName", "record", "pair"]);
+}
+
+export function graphSharedIs(obj: unknown): obj is GraphShared {
+    return graphSharedHasShape(obj) && graphSharedDecode(obj).success;
+}
+
+export const GraphShared: {
+  readonly encode: typeof graphSharedEncode;
+  readonly encodeWithContext: typeof graphSharedEncodeWithContext;
+  readonly encodePartialWithContext: typeof graphSharedEncodePartialWithContext;
+  readonly decode: typeof graphSharedDecode;
+  readonly fromString: typeof graphSharedFromString;
+  readonly decodeWithContext: typeof graphSharedDecodeWithContext;
+  readonly decodePartialWithContext: typeof graphSharedDecodePartialWithContext;
+  readonly validateField: typeof graphSharedValidateField;
+  readonly validateFields: typeof graphSharedValidateFields;
+  readonly hasShape: typeof graphSharedHasShape;
+  readonly is: typeof graphSharedIs;
+} = {
+  encode: graphSharedEncode,
+  encodeWithContext: graphSharedEncodeWithContext,
+  encodePartialWithContext: graphSharedEncodePartialWithContext,
+  decode: graphSharedDecode,
+  fromString: graphSharedFromString,
+  decodeWithContext: graphSharedDecodeWithContext,
+  decodePartialWithContext: graphSharedDecodePartialWithContext,
+  validateField: graphSharedValidateField,
+  validateFields: graphSharedValidateFields,
+  hasShape: graphSharedHasShape,
+  is: graphSharedIs
+};
+
+/** @derive(Encode, Decode) */
+export interface GraphLoop {
+    name: string;
+    self: GraphLoop | null;
+    view: Pick<GraphLoop, 'name' | 'view'> | null;
+    rest: Omit<GraphLoop, 'name'> | null;
+    patch: Partial<GraphLoop> | null;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphLoopEncode(value: GraphLoop, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphLoopEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphLoopEncodeWithContext(value: GraphLoop, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphLoop" });
+    graphLoopEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphLoopEncodePartialWithContext(value: Partial<GraphLoop>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphLoop>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphLoop" };
+        graphLoopEncodeFields(value as GraphLoop, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function graphLoopEncodeFields(value: GraphLoop, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("self")) {
+                if (value.self !== undefined) {
+                    result["self"] = value.self === null ? null : graphLoopEncodeWithContext(value.self, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("view")) {
+                if (value.view !== undefined) {
+                    result["view"] = value.view === null ? null : graphLoopEncodePartialWithContext(value.view, ctx, { only: ["name", "view"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rest")) {
+                if (value.rest !== undefined) {
+                    result["rest"] = value.rest === null ? null : graphLoopEncodePartialWithContext(value.rest, ctx, { except: ["name"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = value.patch === null ? null : graphLoopEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphLoop } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = graphLoopDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphLoop.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphLoopFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphLoop } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphLoopDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphLoop | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphLoop> | __mf_PendingRef;
+export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphLoop> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphLoop.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphLoop.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphLoop") as GraphLoop | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphLoop.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["self", "self"], ["view", "view"], ["rest", "rest"], ["patch", "patch"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "name"?: string | undefined; "self"?: GraphLoop | null | undefined; "view"?: Pick<GraphLoop, 'name' | 'view'> | null | undefined; "rest"?: Omit<GraphLoop, 'name'> | null | undefined; "patch"?: Partial<GraphLoop> | null | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphLoop");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphLoop.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("self")) ? "self" in obj : (__fields.keeps("self") && obj["self"] !== undefined)) {
+                const __raw_self = obj["self"] as GraphLoop | null;
+
+                if (__raw_self === null) {
+                    instance.self = null;
+                } else {
+                    ctx.pushScope("self");
+                    try {
+                        const __result = graphLoopDecodeWithContext(__raw_self, ctx);
+                        ctx.assignOrDefer(instance, "self", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "self" : "self." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "self", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("view")) ? "view" in obj : (__fields.keeps("view") && obj["view"] !== undefined)) {
+                const __raw_view = obj["view"] as Pick<GraphLoop, 'name' | 'view'> | null;
+
+                if (__raw_view === null) {
+                    instance.view = null;
+                } else {
+
+                    ctx.pushScope("view");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_view, ctx, { only: ["name", "view"] });
+                        ctx.assignOrDefer(instance, "view", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "view" : "view." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "view", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+                const __raw_rest = obj["rest"] as Omit<GraphLoop, 'name'> | null;
+
+                if (__raw_rest === null) {
+                    instance.rest = null;
+                } else {
+
+                    ctx.pushScope("rest");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_rest, ctx, { except: ["name"] });
+                        ctx.assignOrDefer(instance, "rest", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<GraphLoop> | null;
+
+                if (__raw_patch === null) {
+                    instance.patch = null;
+                } else {
+
+                    ctx.pushScope("patch");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_patch, ctx);
+                        ctx.assignOrDefer(instance, "patch", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GraphLoop;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphLoopDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphLoop>): Partial<GraphLoop> | __mf_PendingRef {
+    return graphLoopDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function graphLoopValidateField<K extends keyof GraphLoop>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function graphLoopValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function graphLoopValidateFields(partial: { readonly [K in keyof GraphLoop]?: unknown }): Array<{ field: string; message: string }>;
+export function graphLoopValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function graphLoopHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name", "self", "view", "rest", "patch"]);
+}
+
+export function graphLoopIs(obj: unknown): obj is GraphLoop {
+    return graphLoopHasShape(obj) && graphLoopDecode(obj).success;
+}
+
+export const GraphLoop: {
+  readonly encode: typeof graphLoopEncode;
+  readonly encodeWithContext: typeof graphLoopEncodeWithContext;
+  readonly encodePartialWithContext: typeof graphLoopEncodePartialWithContext;
+  readonly decode: typeof graphLoopDecode;
+  readonly fromString: typeof graphLoopFromString;
+  readonly decodeWithContext: typeof graphLoopDecodeWithContext;
+  readonly decodePartialWithContext: typeof graphLoopDecodePartialWithContext;
+  readonly validateField: typeof graphLoopValidateField;
+  readonly validateFields: typeof graphLoopValidateFields;
+  readonly hasShape: typeof graphLoopHasShape;
+  readonly is: typeof graphLoopIs;
+} = {
+  encode: graphLoopEncode,
+  encodeWithContext: graphLoopEncodeWithContext,
+  encodePartialWithContext: graphLoopEncodePartialWithContext,
+  decode: graphLoopDecode,
+  fromString: graphLoopFromString,
+  decodeWithContext: graphLoopDecodeWithContext,
+  decodePartialWithContext: graphLoopDecodePartialWithContext,
+  validateField: graphLoopValidateField,
+  validateFields: graphLoopValidateFields,
+  hasShape: graphLoopHasShape,
+  is: graphLoopIs
+};
+
+/** @derive(Encode, Decode) */
+export interface GraphPatched {
+    whole: EdgeItem;
+    patch: Partial<EdgeItem>;
+    patches: Partial<EdgeItem>[];
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphPatchedEncode(value: GraphPatched, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphPatchedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphPatchedEncodeWithContext(value: GraphPatched, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPatched" });
+    graphPatchedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphPatchedEncodePartialWithContext(value: Partial<GraphPatched>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatched>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphPatched" };
+        graphPatchedEncodeFields(value as GraphPatched, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function graphPatchedEncodeFields(value: GraphPatched, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("whole")) {
+                if (value.whole !== undefined) {
+                    result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patches")) {
+                if (value.patches !== undefined) {
+                    result["patches"] = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatched } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = graphPatchedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphPatched.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPatched } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphPatchedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatched | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPatched> | __mf_PendingRef;
+export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphPatched> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPatched.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphPatched.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphPatched") as GraphPatched | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPatched.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["whole", "whole"], ["patch", "patch"], ["patches", "patches"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "whole"?: EdgeItem | undefined; "patch"?: Partial<EdgeItem> | undefined; "patches"?: Partial<EdgeItem>[] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPatched");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+                const __raw_whole = obj["whole"] as EdgeItem;
+
+                ctx.pushScope("whole");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
+                    ctx.assignOrDefer(instance, "whole", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "whole" : "whole." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<EdgeItem>;
+
+                ctx.pushScope("patch");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
+                    ctx.assignOrDefer(instance, "patch", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+                const __raw_patches = obj["patches"] as Partial<EdgeItem>[];
+                if (Array.isArray(__raw_patches)) {
+                    ctx.pushScope("patches");
+                    try {
+                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx) as Partial<EdgeItem> | __mf_PendingRef));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "patches" : "patches." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "patches", message: __raw_patches == null ? "GraphPatched.patches is required" : "expected Partial<EdgeItem>[]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GraphPatched;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphPatchedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPatched>): Partial<GraphPatched> | __mf_PendingRef {
+    return graphPatchedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function graphPatchedValidateField<K extends keyof GraphPatched>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function graphPatchedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function graphPatchedValidateFields(partial: { readonly [K in keyof GraphPatched]?: unknown }): Array<{ field: string; message: string }>;
+export function graphPatchedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function graphPatchedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["whole", "patch", "patches"]);
+}
+
+export function graphPatchedIs(obj: unknown): obj is GraphPatched {
+    return graphPatchedHasShape(obj) && graphPatchedDecode(obj).success;
+}
+
+export const GraphPatched: {
+  readonly encode: typeof graphPatchedEncode;
+  readonly encodeWithContext: typeof graphPatchedEncodeWithContext;
+  readonly encodePartialWithContext: typeof graphPatchedEncodePartialWithContext;
+  readonly decode: typeof graphPatchedDecode;
+  readonly fromString: typeof graphPatchedFromString;
+  readonly decodeWithContext: typeof graphPatchedDecodeWithContext;
+  readonly decodePartialWithContext: typeof graphPatchedDecodePartialWithContext;
+  readonly validateField: typeof graphPatchedValidateField;
+  readonly validateFields: typeof graphPatchedValidateFields;
+  readonly hasShape: typeof graphPatchedHasShape;
+  readonly is: typeof graphPatchedIs;
+} = {
+  encode: graphPatchedEncode,
+  encodeWithContext: graphPatchedEncodeWithContext,
+  encodePartialWithContext: graphPatchedEncodePartialWithContext,
+  decode: graphPatchedDecode,
+  fromString: graphPatchedFromString,
+  decodeWithContext: graphPatchedDecodeWithContext,
+  decodePartialWithContext: graphPatchedDecodePartialWithContext,
+  validateField: graphPatchedValidateField,
+  validateFields: graphPatchedValidateFields,
+  hasShape: graphPatchedHasShape,
+  is: graphPatchedIs
+};
+
+/** @derive(Encode, Decode) */
+export interface GraphPatchedFirst {
+    patch: Partial<EdgeItem>;
+    whole: EdgeItem;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function graphPatchedFirstEncode(value: GraphPatchedFirst, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = graphPatchedFirstEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function graphPatchedFirstEncodeWithContext(value: GraphPatchedFirst, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPatchedFirst" });
+    graphPatchedFirstEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function graphPatchedFirstEncodePartialWithContext(value: Partial<GraphPatchedFirst>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatchedFirst>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GraphPatchedFirst" };
+        graphPatchedFirstEncodeFields(value as GraphPatchedFirst, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function graphPatchedFirstEncodeFields(value: GraphPatchedFirst, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("whole")) {
+                if (value.whole !== undefined) {
+                    result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatchedFirst } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = graphPatchedFirstDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GraphPatchedFirst.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedFirstFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPatchedFirst } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphPatchedFirstDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatchedFirst | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPatchedFirst> | __mf_PendingRef;
+export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GraphPatchedFirst> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPatchedFirst.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GraphPatchedFirst.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GraphPatchedFirst") as GraphPatchedFirst | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GraphPatchedFirst.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["patch", "patch"], ["whole", "whole"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "patch"?: Partial<EdgeItem> | undefined; "whole"?: EdgeItem | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPatchedFirst");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<EdgeItem>;
+
+                ctx.pushScope("patch");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
+                    ctx.assignOrDefer(instance, "patch", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+                const __raw_whole = obj["whole"] as EdgeItem;
+
+                ctx.pushScope("whole");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
+                    ctx.assignOrDefer(instance, "whole", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "whole" : "whole." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GraphPatchedFirst;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function graphPatchedFirstDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPatchedFirst>): Partial<GraphPatchedFirst> | __mf_PendingRef {
+    return graphPatchedFirstDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function graphPatchedFirstValidateField<K extends keyof GraphPatchedFirst>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function graphPatchedFirstValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function graphPatchedFirstValidateFields(partial: { readonly [K in keyof GraphPatchedFirst]?: unknown }): Array<{ field: string; message: string }>;
+export function graphPatchedFirstValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function graphPatchedFirstHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["patch", "whole"]);
+}
+
+export function graphPatchedFirstIs(obj: unknown): obj is GraphPatchedFirst {
+    return graphPatchedFirstHasShape(obj) && graphPatchedFirstDecode(obj).success;
+}
+
+export const GraphPatchedFirst: {
+  readonly encode: typeof graphPatchedFirstEncode;
+  readonly encodeWithContext: typeof graphPatchedFirstEncodeWithContext;
+  readonly encodePartialWithContext: typeof graphPatchedFirstEncodePartialWithContext;
+  readonly decode: typeof graphPatchedFirstDecode;
+  readonly fromString: typeof graphPatchedFirstFromString;
+  readonly decodeWithContext: typeof graphPatchedFirstDecodeWithContext;
+  readonly decodePartialWithContext: typeof graphPatchedFirstDecodePartialWithContext;
+  readonly validateField: typeof graphPatchedFirstValidateField;
+  readonly validateFields: typeof graphPatchedFirstValidateFields;
+  readonly hasShape: typeof graphPatchedFirstHasShape;
+  readonly is: typeof graphPatchedFirstIs;
+} = {
+  encode: graphPatchedFirstEncode,
+  encodeWithContext: graphPatchedFirstEncodeWithContext,
+  encodePartialWithContext: graphPatchedFirstEncodePartialWithContext,
+  decode: graphPatchedFirstDecode,
+  fromString: graphPatchedFirstFromString,
+  decodeWithContext: graphPatchedFirstDecodeWithContext,
+  decodePartialWithContext: graphPatchedFirstDecodePartialWithContext,
+  validateField: graphPatchedFirstValidateField,
+  validateFields: graphPatchedFirstValidateFields,
+  hasShape: graphPatchedFirstHasShape,
+  is: graphPatchedFirstIs
+};
+
+## DTS
+
+/**
+* Object graphs rather than trees: a value held twice, a child pointing back
+* at its parent through a collection, a value that holds itself, and a
+* `Pick` or `Omit` standing in a cycle.
+*/
+import type { EdgeItem } from "./edge-types";
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode) */
+export interface GraphTree {
+	name: string;
+	parent: GraphTree | null;
+	children: GraphTree[];
+}
+export declare function graphTreeToString(value: GraphTree): string;
+export declare function graphTreeClone(value: GraphTree): GraphTree;
+export declare function graphTreeEquals(a: GraphTree, b: GraphTree): boolean;
+export declare function graphTreeHashCode(value: GraphTree): number;
+export declare function graphTreePartialCompare(a: GraphTree, b: GraphTree): number | null;
+export declare function graphTreeCompare(a: GraphTree, b: GraphTree): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphTreeEncode(value: GraphTree, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphTreeEncodeWithContext(value: GraphTree, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphTreeEncodePartialWithContext(value: Partial<GraphTree>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphTree>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphTree;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphTreeFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphTree;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphTree | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphTree> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphTreeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphTree>): Partial<GraphTree> | __mf_PendingRef;
+export declare function graphTreeValidateField<K extends keyof GraphTree>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphTreeValidateFields(partial: { readonly [K in keyof GraphTree]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphTreeHasShape(obj: unknown): boolean;
+export declare function graphTreeIs(obj: unknown): obj is GraphTree;
+export declare const GraphTree: {
+	readonly toString: typeof graphTreeToString;
+	readonly clone: typeof graphTreeClone;
+	readonly equals: typeof graphTreeEquals;
+	readonly hashCode: typeof graphTreeHashCode;
+	readonly partialCompare: typeof graphTreePartialCompare;
+	readonly compare: typeof graphTreeCompare;
+	readonly encode: typeof graphTreeEncode;
+	readonly encodeWithContext: typeof graphTreeEncodeWithContext;
+	readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
+	readonly decode: typeof graphTreeDecode;
+	readonly fromString: typeof graphTreeFromString;
+	readonly decodeWithContext: typeof graphTreeDecodeWithContext;
+	readonly decodePartialWithContext: typeof graphTreeDecodePartialWithContext;
+	readonly validateField: typeof graphTreeValidateField;
+	readonly validateFields: typeof graphTreeValidateFields;
+	readonly hasShape: typeof graphTreeHasShape;
+	readonly is: typeof graphTreeIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export declare class GraphPerson {
+	#private;
+	name: string;
+	best: GraphPerson | null;
+	friends: GraphPerson[];
+	circle: Set<GraphPerson>;
+	byName: Map<string, GraphPerson>;
+	static toString(value: GraphPerson): string;
+	static clone(value: GraphPerson): GraphPerson;
+	static equals(a: GraphPerson, b: GraphPerson): boolean;
+	static hashCode(value: GraphPerson): number;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: GraphPerson, keepMetadata?: boolean): string;
+	constructor(props: {
+		name: string;
+		best: GraphPerson | null;
+		friends: GraphPerson[];
+		circle: Set<GraphPerson>;
+		byName: Map<string, GraphPerson>;
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GraphPerson;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GraphPerson;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPerson | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPerson> | __mf_PendingRef;
+	static validateField<K extends keyof GraphPerson>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof GraphPerson]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is GraphPerson;
+}
+export declare function graphPersonToString(value: GraphPerson): string;
+export declare function graphPersonClone(value: GraphPerson): GraphPerson;
+export declare function graphPersonEquals(a: GraphPerson, b: GraphPerson): boolean;
+export declare function graphPersonHashCode(value: GraphPerson): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphPersonEncode(value: GraphPerson, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphPersonEncodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphPersonEncodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function graphPersonDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPerson;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function graphPersonFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPerson;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphPersonDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPerson | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function graphPersonHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphPersonDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Partial<GraphPerson> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function graphPersonIs(value: unknown): value is GraphPerson;
+/** @derive(Encode, Decode) */
+export interface GraphShared {
+	first: EdgeItem;
+	again: EdgeItem;
+	maybe: EdgeItem | null;
+	list: EdgeItem[];
+	set: Set<EdgeItem>;
+	byName: Map<string, EdgeItem>;
+	record: Record<string, EdgeItem>;
+	pair: [EdgeItem, EdgeItem];
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphSharedEncode(value: GraphShared, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphSharedEncodeWithContext(value: GraphShared, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphSharedEncodePartialWithContext(value: Partial<GraphShared>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphShared>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphShared;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphSharedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphShared;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphShared | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphShared> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphSharedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphShared>): Partial<GraphShared> | __mf_PendingRef;
+export declare function graphSharedValidateField<K extends keyof GraphShared>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphSharedValidateFields(partial: { readonly [K in keyof GraphShared]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphSharedHasShape(obj: unknown): boolean;
+export declare function graphSharedIs(obj: unknown): obj is GraphShared;
+export declare const GraphShared: {
+	readonly encode: typeof graphSharedEncode;
+	readonly encodeWithContext: typeof graphSharedEncodeWithContext;
+	readonly encodePartialWithContext: typeof graphSharedEncodePartialWithContext;
+	readonly decode: typeof graphSharedDecode;
+	readonly fromString: typeof graphSharedFromString;
+	readonly decodeWithContext: typeof graphSharedDecodeWithContext;
+	readonly decodePartialWithContext: typeof graphSharedDecodePartialWithContext;
+	readonly validateField: typeof graphSharedValidateField;
+	readonly validateFields: typeof graphSharedValidateFields;
+	readonly hasShape: typeof graphSharedHasShape;
+	readonly is: typeof graphSharedIs;
+};
+/** @derive(Encode, Decode) */
+export interface GraphLoop {
+	name: string;
+	self: GraphLoop | null;
+	view: Pick<GraphLoop, "name" | "view"> | null;
+	rest: Omit<GraphLoop, "name"> | null;
+	patch: Partial<GraphLoop> | null;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphLoopEncode(value: GraphLoop, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphLoopEncodeWithContext(value: GraphLoop, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphLoopEncodePartialWithContext(value: Partial<GraphLoop>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphLoop>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphLoop;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphLoopFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphLoop;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphLoop | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphLoop> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphLoopDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphLoop>): Partial<GraphLoop> | __mf_PendingRef;
+export declare function graphLoopValidateField<K extends keyof GraphLoop>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphLoopValidateFields(partial: { readonly [K in keyof GraphLoop]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphLoopHasShape(obj: unknown): boolean;
+export declare function graphLoopIs(obj: unknown): obj is GraphLoop;
+export declare const GraphLoop: {
+	readonly encode: typeof graphLoopEncode;
+	readonly encodeWithContext: typeof graphLoopEncodeWithContext;
+	readonly encodePartialWithContext: typeof graphLoopEncodePartialWithContext;
+	readonly decode: typeof graphLoopDecode;
+	readonly fromString: typeof graphLoopFromString;
+	readonly decodeWithContext: typeof graphLoopDecodeWithContext;
+	readonly decodePartialWithContext: typeof graphLoopDecodePartialWithContext;
+	readonly validateField: typeof graphLoopValidateField;
+	readonly validateFields: typeof graphLoopValidateFields;
+	readonly hasShape: typeof graphLoopHasShape;
+	readonly is: typeof graphLoopIs;
+};
+/** @derive(Encode, Decode) */
+export interface GraphPatched {
+	whole: EdgeItem;
+	patch: Partial<EdgeItem>;
+	patches: Partial<EdgeItem>[];
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphPatchedEncode(value: GraphPatched, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphPatchedEncodeWithContext(value: GraphPatched, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphPatchedEncodePartialWithContext(value: Partial<GraphPatched>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatched>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatched;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatched;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatched | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPatched> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphPatchedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPatched>): Partial<GraphPatched> | __mf_PendingRef;
+export declare function graphPatchedValidateField<K extends keyof GraphPatched>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphPatchedValidateFields(partial: { readonly [K in keyof GraphPatched]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphPatchedHasShape(obj: unknown): boolean;
+export declare function graphPatchedIs(obj: unknown): obj is GraphPatched;
+export declare const GraphPatched: {
+	readonly encode: typeof graphPatchedEncode;
+	readonly encodeWithContext: typeof graphPatchedEncodeWithContext;
+	readonly encodePartialWithContext: typeof graphPatchedEncodePartialWithContext;
+	readonly decode: typeof graphPatchedDecode;
+	readonly fromString: typeof graphPatchedFromString;
+	readonly decodeWithContext: typeof graphPatchedDecodeWithContext;
+	readonly decodePartialWithContext: typeof graphPatchedDecodePartialWithContext;
+	readonly validateField: typeof graphPatchedValidateField;
+	readonly validateFields: typeof graphPatchedValidateFields;
+	readonly hasShape: typeof graphPatchedHasShape;
+	readonly is: typeof graphPatchedIs;
+};
+/** @derive(Encode, Decode) */
+export interface GraphPatchedFirst {
+	patch: Partial<EdgeItem>;
+	whole: EdgeItem;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function graphPatchedFirstEncode(value: GraphPatchedFirst, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function graphPatchedFirstEncodeWithContext(value: GraphPatchedFirst, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function graphPatchedFirstEncodePartialWithContext(value: Partial<GraphPatchedFirst>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatchedFirst>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatchedFirst;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedFirstFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatchedFirst;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatchedFirst | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GraphPatchedFirst> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function graphPatchedFirstDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GraphPatchedFirst>): Partial<GraphPatchedFirst> | __mf_PendingRef;
+export declare function graphPatchedFirstValidateField<K extends keyof GraphPatchedFirst>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphPatchedFirstValidateFields(partial: { readonly [K in keyof GraphPatchedFirst]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function graphPatchedFirstHasShape(obj: unknown): boolean;
+export declare function graphPatchedFirstIs(obj: unknown): obj is GraphPatchedFirst;
+export declare const GraphPatchedFirst: {
+	readonly encode: typeof graphPatchedFirstEncode;
+	readonly encodeWithContext: typeof graphPatchedFirstEncodeWithContext;
+	readonly encodePartialWithContext: typeof graphPatchedFirstEncodePartialWithContext;
+	readonly decode: typeof graphPatchedFirstDecode;
+	readonly fromString: typeof graphPatchedFirstFromString;
+	readonly decodeWithContext: typeof graphPatchedFirstDecodeWithContext;
+	readonly decodePartialWithContext: typeof graphPatchedFirstDecodePartialWithContext;
+	readonly validateField: typeof graphPatchedFirstValidateField;
+	readonly validateFields: typeof graphPatchedFirstValidateFields;
+	readonly hasShape: typeof graphPatchedFirstHasShape;
+	readonly is: typeof graphPatchedFirstIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..435 -> expanded 1308..1743
+original 435..711 -> expanded 19350..19626
+original 711..712 -> expanded 38019..38020
+original 712..998 -> expanded 42071..42357
+original 998..1238 -> expanded 64382..64622
+original 1238..1389 -> expanded 80924..81075
+original 1389..1511 -> expanded 94570..94692
+original 1511..1512 -> expanded 106760..106761
+generated 0..1308 <- imports
+generated 1743..2205 <- Debug
+generated 2205..2493 <- Clone
+generated 2493..3130 <- PartialEq
+generated 3130..3635 <- Hash
+generated 3635..4911 <- PartialOrd
+generated 4911..6057 <- Ord
+generated 6057..8922 <- Encode
+generated 8922..17777 <- Decode
+generated 17777..19350 <- __convenience_const
+generated 19626..20242 <- Debug
+generated 20242..20855 <- Clone
+generated 20855..22098 <- PartialEq
+generated 22098..23018 <- Hash
+generated 23018..25939 <- Encode
+generated 25939..26268 <- Encode
+generated 26268..38019 <- Decode
+generated 38020..38129 <- Debug
+generated 38129..38237 <- Clone
+generated 38237..38354 <- PartialEq
+generated 38354..38463 <- Hash
+generated 38463..39833 <- Encode
+generated 39833..42071 <- Decode
+generated 42357..46829 <- Encode
+generated 46829..63231 <- Decode
+generated 63231..64382 <- __convenience_const
+generated 64622..68112 <- Encode
+generated 68112..79819 <- Decode
+generated 79819..80924 <- __convenience_const
+generated 81075..83994 <- Encode
+generated 83994..93396 <- Decode
+generated 93396..94570 <- __convenience_const
+generated 94692..97385 <- Encode
+generated 97385..105471 <- Decode
+generated 105471..106760 <- __convenience_const
+
+## Metadata
+
+class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
+interface GraphTree: {"body_span":{"end":436,"start":358},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":330,"start":248}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":377,"start":364},"ts_type":"string"},{"decorators":[],"key":"Named","name":"parent","optional":false,"readonly":false,"span":{"end":407,"start":382},"ts_type":"GraphTree | null"},{"decorators":[],"key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":434,"start":412},"ts_type":"GraphTree[]"}],"heritage":[],"methods":[],"name":"GraphTree","span":{"end":436,"start":338},"type_params":[]}
+interface GraphShared: {"body_span":{"end":999,"start":775},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":745,"start":715}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":797,"start":781},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":818,"start":802},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":846,"start":823},"ts_type":"EdgeItem | null"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":868,"start":851},"ts_type":"EdgeItem[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":892,"start":873},"ts_type":"Set<EdgeItem>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":927,"start":897},"ts_type":"Map<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":965,"start":932},"ts_type":"Record<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":997,"start":970},"ts_type":"[EdgeItem, EdgeItem]"}],"heritage":[],"methods":[],"name":"GraphShared","span":{"end":999,"start":753},"type_params":[]}
+interface GraphLoop: {"body_span":{"end":1239,"start":1059},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1031,"start":1001}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1078,"start":1065},"ts_type":"string"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":1106,"start":1083},"ts_type":"GraphLoop | null"},{"decorators":[],"key":"Named","name":"view","optional":false,"readonly":false,"span":{"end":1157,"start":1111},"ts_type":"Pick<GraphLoop, 'name' | 'view'> | null"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1199,"start":1162},"ts_type":"Omit<GraphLoop, 'name'> | null"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1237,"start":1204},"ts_type":"Partial<GraphLoop> | null"}],"heritage":[],"methods":[],"name":"GraphLoop","span":{"end":1239,"start":1039},"type_params":[]}
+interface GraphPatched: {"body_span":{"end":1390,"start":1302},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1271,"start":1241}}],"fields":[{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1324,"start":1308},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1354,"start":1329},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":1388,"start":1359},"ts_type":"Partial<EdgeItem>[]"}],"heritage":[],"methods":[],"name":"GraphPatched","span":{"end":1390,"start":1279},"type_params":[]}
+interface GraphPatchedFirst: {"body_span":{"end":1512,"start":1458},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1422,"start":1392}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1489,"start":1464},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1510,"start":1494},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"GraphPatchedFirst","span":{"end":1512,"start":1430},"type_params":[]}
+
+## Registry reads
+
+Name("'name'")
+Name("'name' | 'view'")
+Name("EdgeItem")
+Name("GraphLoop")
+Name("GraphPerson")
+Name("GraphTree")
+Name("Map")
+Name("Omit")
+Name("Partial")
+Name("Pick")
+Name("Record")
+Name("Set")
+Name("[EdgeItem, EdgeItem]")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

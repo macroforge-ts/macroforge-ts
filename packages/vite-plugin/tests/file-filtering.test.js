@@ -56,6 +56,22 @@ export { PlainComponent };
     }
 });
 
+test('expands .mts and .cts modules', async () => {
+    const plugin = await macroforge();
+    initializePlugin(plugin, FIXTURES_DIR);
+
+    for (const id of ['/project/src/user.mts', '/project/src/user.cts']) {
+        const { result, error } = await invokeTransform(plugin, loadFixture('simple-macro'), id);
+
+        assert.equal(error, null, id);
+        assert.notEqual(result, null, id);
+        assert.ok(
+            result.code.includes('static toString('),
+            `${id} was not expanded: ${result.code}`
+        );
+    }
+});
+
 test('skips .js files (returns null)', async () => {
     const plugin = await macroforge();
     initializePlugin(plugin, FIXTURES_DIR);

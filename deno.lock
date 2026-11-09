@@ -20,8 +20,8 @@
     "jsr:@ts-morph/bootstrap@0.29": "0.29.0",
     "jsr:@ts-morph/common@0.29": "0.29.0",
     "npm:@biomejs/biome@^2.5.14": "2.5.14",
-    "npm:@jridgewell/sourcemap-codec@^1.6.0": "1.6.0",
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
+    "npm:@jridgewell/trace-mapping@~0.3.31": "0.3.31",
     "npm:@lucide/svelte@^1.48.0": "1.48.0_svelte@5.57.1",
     "npm:@modelcontextprotocol/sdk@^1.30.0": "1.30.0_zod@4.6.5",
     "npm:@sveltejs/adapter-static@^3.0.10": "3.0.10_@sveltejs+kit@2.70.3_typescript@6.0.3",
@@ -3308,6 +3308,7 @@
         ],
         "packageJson": {
           "dependencies": [
+            "npm:@jridgewell/trace-mapping@~0.3.31",
             "npm:@macroforge/core@0.6.0",
             "npm:@macroforge/shared@0.6.0",
             "npm:@types/node@^26.6.2",
@@ -3337,7 +3338,7 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@jridgewell/sourcemap-codec@^1.6.0",
+            "npm:@jridgewell/trace-mapping@~0.3.31",
             "npm:@macroforge/core@0.6.0",
             "npm:@macroforge/shared@0.6.0",
             "npm:@types/node@^26.6.2"

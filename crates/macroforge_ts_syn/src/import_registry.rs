@@ -125,6 +125,11 @@ pub struct ImportRegistry {
     /// generated import, and resolves like a source import.
     #[serde(default)]
     borrowed: HashMap<String, SourceImport>,
+
+    /// The source imports that name macros, from `import macro` comments. A
+    /// macro is no value or type of the module.
+    #[serde(default)]
+    macro_imports: std::collections::HashSet<String>,
 }
 
 impl Default for ImportRegistry {
@@ -140,6 +145,7 @@ impl ImportRegistry {
             source_imports: HashMap::new(),
             generated: IndexMap::new(),
             borrowed: HashMap::new(),
+            macro_imports: std::collections::HashSet::new(),
         }
     }
 
@@ -148,26 +154,28 @@ impl ImportRegistry {
         use oxc::ast::ast::*;
         let mut source_imports = HashMap::new();
 
-        source_imports.extend(
-            macro_imports_in_comments(&program.comments, source)
-                .into_iter()
-                .map(|(name, module_src)| {
-                    (
-                        name,
-                        SourceImport {
-                            source_module: module_src,
-                            original_name: None,
-                            is_type_only: false,
-                        },
-                    )
-                }),
-        );
+        let macro_imports = macro_imports_in_comments(&program.comments, source);
+        let mut macro_names: std::collections::HashSet<String> =
+            macro_imports.keys().cloned().collect();
+        source_imports.extend(macro_imports.into_iter().map(|(name, module_src)| {
+            (
+                name,
+                SourceImport {
+                    source_module: module_src,
+                    original_name: None,
+                    is_type_only: false,
+                },
+            )
+        }));
 
         for stmt in &program.body {
             if let Statement::ImportDeclaration(import) = stmt {
                 let source_module = import.source.value.to_string();
                 if let Some(specifiers) = &import.specifiers {
                     for specifier in specifiers {
+                        // An import statement binds its name whatever a
+                        // comment says of it.
+                        macro_names.remove(specifier.local().name.as_str());
                         match specifier {
                             ImportDeclarationSpecifier::ImportSpecifier(s) => {
                                 let local_name = s.local.name.to_string();
@@ -216,7 +224,14 @@ impl ImportRegistry {
             source_imports,
             generated: IndexMap::new(),
             borrowed: HashMap::new(),
+            macro_imports: macro_names,
         }
+    }
+
+    /// Whether the source import `name` names a macro, brought in by an
+    /// `import macro` comment.
+    pub fn is_macro_import(&self, name: &str) -> bool {
+        self.macro_imports.contains(name)
     }
 
     /// Check if an identifier is available (in source OR already generated).
@@ -270,6 +285,16 @@ impl ImportRegistry {
                 is_type_only,
             },
         );
+    }
+
+    /// The module of each type an expansion [borrowed](Self::borrow_import)
+    /// under its own name, which is the name its generated functions carry.
+    pub fn borrowed_modules(&self) -> HashMap<String, String> {
+        self.borrowed
+            .iter()
+            .filter(|(_, import)| import.original_name.is_none())
+            .map(|(name, import)| (name.clone(), import.source_module.clone()))
+            .collect()
     }
 
     /// Get all source imports as a reference to the internal HashMap.

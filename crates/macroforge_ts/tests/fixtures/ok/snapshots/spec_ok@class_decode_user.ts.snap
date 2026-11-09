@@ -19,7 +19,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -29,18 +29,16 @@ class User {
     age: number;
 
 constructor(props: { name: string; age: number }) {
+
     this.name = props.name;
     this.age = props.age;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = User.decodeWithContext(data, ctx);
+        const resultOrRef = User.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -87,6 +85,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => User.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -99,51 +102,65 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
-    }
-    const instance = Object.create(User.prototype) as User;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["age", "age"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(User.prototype);
+    const instance: { "name"?: string | undefined; "age"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
-            errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof User)) {
+        throw new TypeError("User.decodeWithContext: the value made is no User");
+    }
+    return made;
 }
 static validateField<K extends keyof User>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -159,8 +176,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o;
+    return __mf_holdsAll(obj, ["name", "age"]);
 }
 
 static is(obj: unknown): obj is User {
@@ -170,14 +186,20 @@ static is(obj: unknown): obj is User {
     if (!User.hasShape(obj)) {
         return false;
     }
+
     const result = User.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     return User.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function userFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return User.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -209,8 +231,19 @@ declare class User {
 		name: string;
 		age: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: User;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: User;
 	} | {
@@ -235,8 +268,19 @@ declare class User {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is User;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function userFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: User;
 } | {
@@ -262,17 +306,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 350..391
-original 63..112 -> expanded 391..440
-original 112..113 -> expanded 5846..5847
-original 113..114 -> expanded 7569..7570
-generated 0..350 <- imports
-generated 440..5846 <- Decode
-generated 5847..7569 <- Decode
+original 0..41 -> expanded 441..482
+original 63..112 -> expanded 482..531
+original 112..113 -> expanded 6788..6789
+original 113..114 -> expanded 8901..8902
+generated 0..441 <- imports
+generated 531..6788 <- Decode
+generated 6789..8901 <- Decode
 
 ## Metadata
 
-class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"type_params":[]}
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

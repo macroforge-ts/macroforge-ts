@@ -19,7 +19,7 @@ true
 ## Output
 
 import { metadataDecodeWithContext, metadataEncodeWithContext, metadataDefaultValue } from "./metadata.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Metadata } from './metadata.svelte';
 
@@ -43,45 +43,37 @@ export function userEncode(value: User, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return userEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "User",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("metadata")) {
-
-        if (value.metadata !== undefined) {
-            result.metadata = metadataEncodeWithContext(value.metadata, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "User" });
+    userEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "User" };
+        userEncodeFields(value as User, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("metadata")) {
+        if (value.metadata !== undefined) {
+            result["metadata"] = metadataEncodeWithContext(value.metadata, ctx);
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userDecodeWithContext(data, ctx);
+        const resultOrRef = userDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -127,6 +119,10 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -139,28 +135,32 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("metadata")) && !("metadata" in obj)) {
-        errors.push({ field: "metadata", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["metadata", "metadata"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "metadata"?: Metadata | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         const __raw_metadata = obj["metadata"] as Metadata;
 
         ctx.pushScope("metadata");
@@ -176,7 +176,8 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "metadata", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -205,8 +206,7 @@ export function userHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "metadata" in o;
+    return __mf_holdsAll(obj, ["metadata"]);
 }
 
 export function userIs(obj: unknown): obj is User {
@@ -219,6 +219,7 @@ export const User: {
   readonly encodeWithContext: typeof userEncodeWithContext;
   readonly encodePartialWithContext: typeof userEncodePartialWithContext;
   readonly decode: typeof userDecode;
+  readonly fromString: typeof userFromString;
   readonly decodeWithContext: typeof userDecodeWithContext;
   readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
@@ -231,6 +232,7 @@ export const User: {
   encodeWithContext: userEncodeWithContext,
   encodePartialWithContext: userEncodePartialWithContext,
   decode: userDecode,
+  fromString: userFromString,
   decodeWithContext: userDecodeWithContext,
   decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
@@ -250,10 +252,21 @@ export declare function userDefaultValue(): User;
 export declare function userEncode(value: User, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: User;
 } | {
@@ -285,6 +298,7 @@ export declare const User: {
 	readonly encodeWithContext: typeof userEncodeWithContext;
 	readonly encodePartialWithContext: typeof userEncodePartialWithContext;
 	readonly decode: typeof userDecode;
+	readonly fromString: typeof userFromString;
 	readonly decodeWithContext: typeof userDecodeWithContext;
 	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
@@ -299,18 +313,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..47 -> expanded 595..642
-original 86..136 -> expanded 642..692
-original 136..137 -> expanded 9214..9215
-generated 0..595 <- imports
-generated 692..800 <- Default
-generated 800..2609 <- Encode
-generated 2609..8216 <- Decode
-generated 8216..9214 <- __convenience_const
+original 0..47 -> expanded 799..846
+original 86..136 -> expanded 846..896
+original 136..137 -> expanded 10414..10415
+generated 0..799 <- imports
+generated 896..1004 <- Default
+generated 1004..3120 <- Encode
+generated 3120..9340 <- Decode
+generated 9340..10414 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":137,"start":110},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":87,"start":48}}],"fields":[{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":135,"start":116},"ts_type":"Metadata"}],"heritage":[],"methods":[],"name":"User","span":{"end":137,"start":95},"type_params":[]}
+interface User: {"body_span":{"end":137,"start":110},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":87,"start":48}}],"fields":[{"decorators":[],"key":"Named","name":"metadata","optional":false,"readonly":false,"span":{"end":135,"start":116},"ts_type":"Metadata"}],"heritage":[],"methods":[],"name":"User","span":{"end":137,"start":95},"type_params":[]}
 
 ## Registry reads
 

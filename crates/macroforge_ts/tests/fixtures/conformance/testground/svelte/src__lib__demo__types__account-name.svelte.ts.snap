@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { companyNameDecodeWithContext, companyNameHasShape, companyNameDefaultValue } from "./company-name.svelte";
-import { personNameDecodeWithContext, personNameHasShape, personNameDefaultValue } from "./person-name.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { companyNameDecodeWithContext, companyNameHasShape, companyNameEncodeWithContext, companyNameDefaultValue } from "./company-name.svelte";
+import { personNameDecodeWithContext, personNameHasShape, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,32 +40,30 @@ export function accountNameEncode(value: AccountName, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AccountName): member is CompanyName => __mf_member(member, "__type") === "CompanyName", (member) => companyNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is PersonName => __mf_member(member, "__type") === "PersonName", (member) => personNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is CompanyName => typeof member === "object" && member !== null && !Array.isArray(member) && "companyName" in member, (member) => companyNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is PersonName => typeof member === "object" && member !== null && !Array.isArray(member) && "firstName" in member && "lastName" in member, (member) => personNameEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = accountNameDecodeWithContext(data, ctx);
+        const resultOrRef = accountNameDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -111,6 +109,10 @@ export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function accountNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => accountNameDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AccountName | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -123,7 +125,7 @@ export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "CompanyName") {
                 return companyNameDecodeWithContext(value, ctx) as AccountName;
@@ -178,19 +180,17 @@ export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 export function accountNameHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "CompanyName" || __typeName === "PersonName";
                     }
                 }
-
-                let __matchCount = 0;
-                if (companyNameHasShape(value)) __matchCount++;
-                if (personNameHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (companyNameHasShape(value)) return true;
+                if (personNameHasShape(value)) return true;
+                return false;
 }
 export function accountNameIs(value: unknown): value is AccountName {
-    return accountNameHasShape(value);
+    return accountNameHasShape(value) && accountNameDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -324,6 +324,7 @@ export const AccountName: {
   readonly encode: typeof accountNameEncode;
   readonly encodeWithContext: typeof accountNameEncodeWithContext;
   readonly decode: typeof accountNameDecode;
+  readonly fromString: typeof accountNameFromString;
   readonly decodeWithContext: typeof accountNameDecodeWithContext;
   readonly hasShape: typeof accountNameHasShape;
   readonly is: typeof accountNameIs;
@@ -334,6 +335,7 @@ export const AccountName: {
   encode: accountNameEncode,
   encodeWithContext: accountNameEncodeWithContext,
   decode: accountNameDecode,
+  fromString: accountNameFromString,
   decodeWithContext: accountNameDecodeWithContext,
   hasShape: accountNameHasShape,
   is: accountNameIs,
@@ -352,8 +354,19 @@ export declare function accountNameDefaultValue(): AccountName;
 export declare function accountNameEncode(value: AccountName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AccountName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function accountNameFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AccountName;
 } | {
@@ -427,6 +440,7 @@ export declare const AccountName: {
 	readonly encode: typeof accountNameEncode;
 	readonly encodeWithContext: typeof accountNameEncodeWithContext;
 	readonly decode: typeof accountNameDecode;
+	readonly fromString: typeof accountNameFromString;
 	readonly decodeWithContext: typeof accountNameDecodeWithContext;
 	readonly hasShape: typeof accountNameHasShape;
 	readonly is: typeof accountNameIs;
@@ -440,15 +454,15 @@ export declare const AccountName: {
 
 ## Mapping
 
-original 0..173 -> expanded 784..957
-original 355..423 -> expanded 957..1025
-original 423..424 -> expanded 12622..12623
-generated 0..784 <- imports
-generated 1025..1123 <- Default
-generated 1123..2394 <- Encode
-generated 2394..7222 <- Decode
-generated 7222..11775 <- Gigaform
-generated 11775..12622 <- __convenience_const
+original 0..173 -> expanded 998..1171
+original 355..423 -> expanded 1171..1239
+original 423..424 -> expanded 14253..14254
+generated 0..998 <- imports
+generated 1239..1337 <- Default
+generated 1337..3508 <- Encode
+generated 3508..8763 <- Decode
+generated 8763..13316 <- Gigaform
+generated 13316..14253 <- __convenience_const
 
 ## Metadata
 
@@ -458,7 +472,9 @@ type AccountName: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defaul
 
 Name("AccountName")
 Name("CompanyName")
+Name("Gigaform")
 Name("PersonName")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

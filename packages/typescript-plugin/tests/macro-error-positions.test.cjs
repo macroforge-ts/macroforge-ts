@@ -19,7 +19,7 @@ function findMarker(source, marker) {
     return { offset: index };
 }
 
-function createEnv(files) {
+function createEnv(files, options = {}) {
     const snapshots = new Map();
     const versions = new Map();
 
@@ -38,7 +38,8 @@ function createEnv(files) {
             strict: true,
             noEmit: true,
             experimentalDecorators: true,
-            emitDecoratorMetadata: false
+            emitDecoratorMetadata: false,
+            ...options
         }),
         getDefaultLibFileName: () => '/virtual/lib.d.ts',
         fileExists: (path) => snapshots.has(path),
@@ -715,4 +716,95 @@ class Second {
             `diagnostic length should be 5 (length of "Debug"), got ${diag.length}`
         );
     }
+});
+
+test('a failed derive in a file that is no module adds no error of its own', () => {
+    const source = `/** @derive(Bogus) */\nclass A { id: string = ''; }\n`;
+    const env = createEnv({
+        '/virtual/script.ts': source,
+        '/virtual/macros.ts': MACROS_DTS,
+        '/virtual/lib.d.ts': LIB_DTS
+    });
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/script.ts');
+    assert(diagnostics.some((d) => d.source === 'macroforge'), 'the derive is refused');
+    assert.deepEqual(
+        diagnostics.filter((d) => d.source !== 'macroforge').map((d) => d.messageText),
+        [],
+        'no declaration is made twice'
+    );
+});
+
+test('a derive in a JavaScript file reports the error that refuses it', () => {
+    const source = `/** @derive(Debug) */\nclass E { id = ''; }\n`;
+    const env = createEnv(
+        {
+            '/virtual/plain.js': source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { allowJs: true }
+    );
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/plain.js');
+    const refused = diagnostics.find((d) => d.source === 'macroforge');
+    assert(refused, 'the derive is refused');
+    assert.match(refused.messageText, /JavaScript file/);
+    assert.equal(refused.start, source.indexOf('@derive'));
+});
+
+test('a derive in a .mts or .cts module is expanded, and one in a .mjs file refused', () => {
+    // Unexpanded, `E.clone` would be no member of `E`.
+    const source =
+        `/** @derive(Clone) */\nexport class E { id: string = ''; }\nexport const copy: E = E.clone(new E());\n`;
+    const messagesOf = (file) =>
+        createEnv({
+            [file]: source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        })
+            .pluginService.getSemanticDiagnostics(file)
+            .map((d) => d.messageText);
+    const asTypeScript = messagesOf('/virtual/plain.ts');
+    assert(
+        !asTypeScript.some((message) => String(message).includes("'clone'")),
+        asTypeScript.join('\n')
+    );
+    for (const file of ['/virtual/esm.mts', '/virtual/common.cts']) {
+        assert.deepEqual(messagesOf(file), asTypeScript, `${file} is expanded as a .ts module is`);
+    }
+
+    const script = `/** @derive(Debug) */\nclass E { id = ''; }\n`;
+    const env = createEnv(
+        {
+            '/virtual/plain.mjs': script,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { allowJs: true }
+    );
+    const refused = env.pluginService
+        .getSemanticDiagnostics('/virtual/plain.mjs')
+        .find((d) => d.source === 'macroforge');
+    assert(refused, 'the derive is refused');
+    assert.match(refused.messageText, /JavaScript file/);
+});
+
+test('a subclass overrides the statics a base in its file derives', () => {
+    const source = `/** @derive(Clone, PartialEq, Hash, Default) */
+export class Base { id: string = ''; }
+/** @derive(Clone, PartialEq, Hash, Default) */
+export class Sub extends Base { name: string = ''; }
+`;
+    const env = createEnv(
+        {
+            '/virtual/classes.ts': source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { noImplicitOverride: true }
+    );
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/classes.ts');
+    const overrides = diagnostics
+        .map((d) => (typeof d.messageText === 'string' ? d.messageText : d.messageText.messageText))
+        .filter((message) => message.includes('override'));
+    assert.deepEqual(overrides, []);
 });

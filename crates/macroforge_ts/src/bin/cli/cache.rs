@@ -1,12 +1,13 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result, anyhow, bail};
 use ignore::WalkBuilder;
 use macroforge_ts::host::declarative::ProjectDeclarativeRegistry;
 use macroforge_ts::host::file_stamp::FileStamp;
 use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
+use macroforge_ts::ts_syn::source_path::is_typescript_source;
 use sha2::{Digest, Sha256};
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet},
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -37,9 +38,10 @@ pub(crate) struct CacheManifest {
     /// under `cli`, the Vite plugin's wasm under `wasm`. Each writer compares
     /// and updates only its own key, so neither discards the other's entries.
     #[serde(default)]
-    pub(crate) engine_hashes: HashMap<String, String>,
-    /// Per-file entries keyed by path relative to project root.
-    pub(crate) entries: HashMap<String, CacheEntry>,
+    pub(crate) engine_hashes: BTreeMap<String, String>,
+    /// Per-file entries keyed by path relative to project root. Ordered, so
+    /// the same project writes the same manifest.
+    pub(crate) entries: BTreeMap<String, CacheEntry>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -263,8 +265,8 @@ impl CacheManifest {
             version,
             config_hash,
             external_macro_hash,
-            engine_hashes: HashMap::from([(CLI_ENGINE_KEY.to_string(), engine_hash)]),
-            entries: HashMap::new(),
+            engine_hashes: BTreeMap::from([(CLI_ENGINE_KEY.to_string(), engine_hash)]),
+            entries: BTreeMap::new(),
         }
     }
 
@@ -301,14 +303,10 @@ pub(crate) fn write_cache_file(
     )
 }
 
-/// Returns true if `path` is a `.ts` or `.tsx` file that should be processed.
+/// Returns true if `path` is a TypeScript module that should be processed.
 pub(crate) fn is_watchable_ts_file(path: &Path, root: &Path) -> bool {
-    let ext = path.extension().and_then(|e| e.to_str());
-    if !matches!(ext, Some("ts" | "tsx")) {
-        return false;
-    }
     let name = path.file_name().unwrap_or_default().to_string_lossy();
-    if name.ends_with(".d.ts") || name.contains(".expanded.") {
+    if !is_typescript_source(&name) || name.contains(".expanded.") {
         return false;
     }
     let rel = path.strip_prefix(root).unwrap_or(path).to_string_lossy();
@@ -484,13 +482,14 @@ pub(crate) fn expand_for_cache(
     }))
 }
 
-/// Warm the cache: expand all files and save the manifest. Returns the manifest for reuse.
+/// Warm the cache: expand all files and save the manifest. Returns how many
+/// files failed to expand.
 pub(crate) fn warm_cache(
     label: &str,
     root: &Path,
     cache_dir: &Path,
     manifest: &mut CacheManifest,
-) -> Result<()> {
+) -> Result<usize> {
     use rayon::prelude::*;
 
     eprintln!("[macroforge {label}] Warming cache for {}", root.display());
@@ -517,9 +516,11 @@ pub(crate) fn warm_cache(
         };
         let source_hash = content_hash(source.as_bytes());
 
-        // Skip if already cached with matching hash
+        // Skip if already cached with matching hash, and with its code there
+        // when it has some: an entry whose code is gone is expanded again.
         if let Some(entry) = manifest.entries.get(&rel_path)
             && entry.source_hash == source_hash
+            && (!entry.has_macros || cache_dir.join(format!("{rel_path}.cache")).is_file())
         {
             // Backfill normalized_hash for entries from older manifests
             if entry.normalized_hash.is_empty() {
@@ -559,52 +560,104 @@ pub(crate) fn warm_cache(
     });
 
     // Phase 3: Apply results to manifest (sequential)
+    let mut failed = 0usize;
     for (rel_path, source_hash, norm_hash, result) in results {
-        match result {
-            Ok(Some(expansion)) => {
-                for error in &expansion.errors {
-                    eprintln!("  [!] {rel_path}: {error}");
-                }
-                if let Err(e) = write_cache_file(cache_dir, &rel_path, &expansion.code) {
-                    eprintln!("  [!] {}: write failed: {}", rel_path, e);
-                    continue;
-                }
-                manifest.entries.insert(
-                    rel_path.clone(),
-                    CacheEntry {
-                        source_hash,
-                        has_macros: true,
-                        normalized_hash: norm_hash,
-                    },
-                );
+        match record_expansion(
+            cache_dir,
+            manifest,
+            &rel_path,
+            source_hash,
+            norm_hash,
+            result,
+        ) {
+            Cached::Expanded => {
                 expanded_count += 1;
-                eprintln!("  [+] {}", rel_path);
+                eprintln!("  [+] {rel_path}");
             }
-            Ok(None) => {
-                manifest.entries.insert(
-                    rel_path,
-                    CacheEntry {
-                        source_hash,
-                        has_macros: false,
-                        normalized_hash: norm_hash,
-                    },
-                );
-            }
-            Err(e) => {
-                eprintln!("  [!] {}: {}", rel_path, e);
-            }
+            Cached::Untouched => {}
+            Cached::Failed => failed += 1,
         }
     }
 
     manifest.save(cache_dir)?;
     let elapsed = start.elapsed();
     eprintln!(
-        "[macroforge {label}] Cache warm: {} files expanded in {:.1}s ({} total files)",
+        "[macroforge {label}] Cache warm: {} files expanded, {failed} failed, in {:.1}s ({} total files)",
         expanded_count,
         elapsed.as_secs_f64(),
         files.len()
     );
-    Ok(())
+    Ok(failed)
+}
+
+/// What became of a file in the cache.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Cached {
+    /// Its expansion was written to the cache.
+    Expanded,
+    /// It has no macros, or expanding it changed nothing.
+    Untouched,
+    /// Its expansion failed, and it is left out of the cache.
+    Failed,
+}
+
+/// Records `expansion`, the expansion of the file at `rel_path`, in the cache
+/// and prints what failed. A failed expansion gets no entry: a cached one would
+/// be served as the file's code without the errors that make it incomplete, so
+/// whatever reads the cache expands the file itself and meets them.
+pub(crate) fn record_expansion(
+    cache_dir: &Path,
+    manifest: &mut CacheManifest,
+    rel_path: &str,
+    source_hash: String,
+    normalized_hash: String,
+    expansion: Result<Option<CacheExpansion>>,
+) -> Cached {
+    let has_macros = match expansion {
+        Ok(Some(expansion)) if expansion.errors.is_empty() => {
+            write_cache_file(cache_dir, rel_path, &expansion.code)
+                .map(|()| true)
+                .map_err(|error| vec![format!("{error:#}")])
+        }
+        Ok(Some(expansion)) => Err(expansion.errors),
+        Ok(None) => Ok(false),
+        Err(error) => Err(vec![format!("{error:#}")]),
+    };
+    match has_macros {
+        Ok(has_macros) => {
+            manifest.entries.insert(
+                rel_path.to_string(),
+                CacheEntry {
+                    source_hash,
+                    has_macros,
+                    normalized_hash,
+                },
+            );
+            if has_macros {
+                Cached::Expanded
+            } else {
+                Cached::Untouched
+            }
+        }
+        Err(errors) => {
+            for error in errors {
+                eprintln!("  [!] {rel_path}: {error}");
+            }
+            forget_cached_file(cache_dir, manifest, rel_path);
+            Cached::Failed
+        }
+    }
+}
+
+/// Takes the file at `rel_path` out of the cache: its entry and its code.
+pub(crate) fn forget_cached_file(cache_dir: &Path, manifest: &mut CacheManifest, rel_path: &str) {
+    manifest.entries.remove(rel_path);
+    let cache_path = cache_dir.join(format!("{rel_path}.cache"));
+    match fs::remove_file(&cache_path) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => eprintln!("  [!] failed to remove {}: {error}", cache_path.display()),
+    }
 }
 
 /// Derives the cache directory for `root` and loads (or creates) its manifest.
@@ -667,7 +720,15 @@ pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheMani
 /// Build the .macroforge/cache once and exit.
 pub fn run_cache(root: &Path) -> Result<()> {
     let (cache_dir, mut manifest) = init_cache(root, "cache")?;
-    warm_cache("cache", root, &cache_dir, &mut manifest)?;
+    fail_on_failed_files(warm_cache("cache", root, &cache_dir, &mut manifest)?)
+}
+
+/// A one-shot cache build fails when a file in it did: its errors were printed,
+/// and a build reading the cache would expand the file to meet them again.
+fn fail_on_failed_files(failed: usize) -> Result<()> {
+    if failed > 0 {
+        bail!("macro expansion failed for {failed} file(s)");
+    }
     Ok(())
 }
 
@@ -693,6 +754,5 @@ pub fn run_refresh(root: &Path) -> Result<()> {
     }
 
     let (cache_dir, mut manifest) = init_cache(root, "refresh")?;
-    warm_cache("refresh", root, &cache_dir, &mut manifest)?;
-    Ok(())
+    fail_on_failed_files(warm_cache("refresh", root, &cache_dir, &mut manifest)?)
 }

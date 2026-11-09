@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,87 +53,92 @@ export function ordinalEncode(value: Ordinal, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function ordinalEncodeWithContext(value: Ordinal, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return ordinalEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function ordinalEncodePartialWithContext(value: Partial<Ordinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordinal>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Ordinal",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("north")) {
-
-        if (value.north !== undefined) {
-            result.north = value.north;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("northeast")) {
-
-        if (value.northeast !== undefined) {
-            result.northeast = value.northeast;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("east")) {
-
-        if (value.east !== undefined) {
-            result.east = value.east;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("southeast")) {
-
-        if (value.southeast !== undefined) {
-            result.southeast = value.southeast;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("south")) {
-
-        if (value.south !== undefined) {
-            result.south = value.south;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("southwest")) {
-
-        if (value.southwest !== undefined) {
-            result.southwest = value.southwest;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("west")) {
-
-        if (value.west !== undefined) {
-            result.west = value.west;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("northwest")) {
-
-        if (value.northwest !== undefined) {
-            result.northwest = value.northwest;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Ordinal" });
+    ordinalEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function ordinalEncodePartialWithContext(value: Partial<Ordinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordinal>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Ordinal" };
+        ordinalEncodeFields(value as Ordinal, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function ordinalEncodeFields(value: Ordinal, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("north")) {
+                if (value.north !== undefined) {
+                    result["north"] = value.north;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("northeast")) {
+                if (value.northeast !== undefined) {
+                    result["northeast"] = value.northeast;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("east")) {
+                if (value.east !== undefined) {
+                    result["east"] = value.east;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("southeast")) {
+                if (value.southeast !== undefined) {
+                    result["southeast"] = value.southeast;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("south")) {
+                if (value.south !== undefined) {
+                    result["south"] = value.south;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("southwest")) {
+                if (value.southwest !== undefined) {
+                    result["southwest"] = value.southwest;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("west")) {
+                if (value.west !== undefined) {
+                    result["west"] = value.west;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("northwest")) {
+                if (value.northwest !== undefined) {
+                    result["northwest"] = value.northwest;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function ordinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ordinalDecodeWithContext(data, ctx);
+        const resultOrRef = ordinalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -179,6 +184,10 @@ export function ordinalDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function ordinalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Ordinal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ordinalDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ordinal | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -191,119 +200,122 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Ordinal.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Ordinal | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Ordinal") as Ordinal | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Ordinal.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("north")) && !("north" in obj)) {
-        errors.push({ field: "north", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("northeast")) && !("northeast" in obj)) {
-        errors.push({ field: "northeast", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("east")) && !("east" in obj)) {
-        errors.push({ field: "east", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("southeast")) && !("southeast" in obj)) {
-        errors.push({ field: "southeast", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("south")) && !("south" in obj)) {
-        errors.push({ field: "south", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("southwest")) && !("southwest" in obj)) {
-        errors.push({ field: "southwest", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("west")) && !("west" in obj)) {
-        errors.push({ field: "west", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("northwest")) && !("northwest" in obj)) {
-        errors.push({ field: "northwest", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["north", "north"], ["northeast", "northeast"], ["east", "east"], ["southeast", "southeast"], ["south", "south"], ["southwest", "southwest"], ["west", "west"], ["northwest", "northwest"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "north"?: number | undefined; "northeast"?: number | undefined; "east"?: number | undefined; "southeast"?: number | undefined; "south"?: number | undefined; "southwest"?: number | undefined; "west"?: number | undefined; "northwest"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Ordinal");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("north")) || (__fields.keeps("north") && obj["north"] !== undefined)) {
-        const __raw_north = obj["north"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
+                const __raw_north = obj["north"] as number;
 
-        if (!(typeof __raw_north === "number")) {
-            errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
-        } else {
-            instance.north = __raw_north;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("northeast")) || (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
-        const __raw_northeast = obj["northeast"] as number;
+                if (!(typeof __raw_north === "number" && globalThis.Number.isFinite(__raw_north))) {
+                    errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
+                } else {
+                    instance.north = __raw_north;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("northeast")) ? "northeast" in obj : (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
+                const __raw_northeast = obj["northeast"] as number;
 
-        if (!(typeof __raw_northeast === "number")) {
-            errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
-        } else {
-            instance.northeast = __raw_northeast;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("east")) || (__fields.keeps("east") && obj["east"] !== undefined)) {
-        const __raw_east = obj["east"] as number;
+                if (!(typeof __raw_northeast === "number" && globalThis.Number.isFinite(__raw_northeast))) {
+                    errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
+                } else {
+                    instance.northeast = __raw_northeast;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
+                const __raw_east = obj["east"] as number;
 
-        if (!(typeof __raw_east === "number")) {
-            errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
-        } else {
-            instance.east = __raw_east;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("southeast")) || (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
-        const __raw_southeast = obj["southeast"] as number;
+                if (!(typeof __raw_east === "number" && globalThis.Number.isFinite(__raw_east))) {
+                    errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
+                } else {
+                    instance.east = __raw_east;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("southeast")) ? "southeast" in obj : (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
+                const __raw_southeast = obj["southeast"] as number;
 
-        if (!(typeof __raw_southeast === "number")) {
-            errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
-        } else {
-            instance.southeast = __raw_southeast;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("south")) || (__fields.keeps("south") && obj["south"] !== undefined)) {
-        const __raw_south = obj["south"] as number;
+                if (!(typeof __raw_southeast === "number" && globalThis.Number.isFinite(__raw_southeast))) {
+                    errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
+                } else {
+                    instance.southeast = __raw_southeast;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
+                const __raw_south = obj["south"] as number;
 
-        if (!(typeof __raw_south === "number")) {
-            errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
-        } else {
-            instance.south = __raw_south;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("southwest")) || (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
-        const __raw_southwest = obj["southwest"] as number;
+                if (!(typeof __raw_south === "number" && globalThis.Number.isFinite(__raw_south))) {
+                    errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
+                } else {
+                    instance.south = __raw_south;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("southwest")) ? "southwest" in obj : (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
+                const __raw_southwest = obj["southwest"] as number;
 
-        if (!(typeof __raw_southwest === "number")) {
-            errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
-        } else {
-            instance.southwest = __raw_southwest;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("west")) || (__fields.keeps("west") && obj["west"] !== undefined)) {
-        const __raw_west = obj["west"] as number;
+                if (!(typeof __raw_southwest === "number" && globalThis.Number.isFinite(__raw_southwest))) {
+                    errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
+                } else {
+                    instance.southwest = __raw_southwest;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
+                const __raw_west = obj["west"] as number;
 
-        if (!(typeof __raw_west === "number")) {
-            errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
-        } else {
-            instance.west = __raw_west;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("northwest")) || (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
-        const __raw_northwest = obj["northwest"] as number;
+                if (!(typeof __raw_west === "number" && globalThis.Number.isFinite(__raw_west))) {
+                    errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
+                } else {
+                    instance.west = __raw_west;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("northwest")) ? "northwest" in obj : (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
+                const __raw_northwest = obj["northwest"] as number;
 
-        if (!(typeof __raw_northwest === "number")) {
-            errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
-        } else {
-            instance.northwest = __raw_northwest;
-        }
+                if (!(typeof __raw_northwest === "number" && globalThis.Number.isFinite(__raw_northwest))) {
+                    errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
+                } else {
+                    instance.northwest = __raw_northwest;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -328,8 +340,7 @@ export function ordinalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "north" in o && "northeast" in o && "east" in o && "southeast" in o && "south" in o && "southwest" in o && "west" in o && "northwest" in o;
+    return __mf_holdsAll(obj, ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"]);
 }
 
 export function ordinalIs(obj: unknown): obj is Ordinal {
@@ -673,6 +684,7 @@ export const Ordinal: {
   readonly encodeWithContext: typeof ordinalEncodeWithContext;
   readonly encodePartialWithContext: typeof ordinalEncodePartialWithContext;
   readonly decode: typeof ordinalDecode;
+  readonly fromString: typeof ordinalFromString;
   readonly decodeWithContext: typeof ordinalDecodeWithContext;
   readonly decodePartialWithContext: typeof ordinalDecodePartialWithContext;
   readonly validateField: typeof ordinalValidateField;
@@ -687,6 +699,7 @@ export const Ordinal: {
   encodeWithContext: ordinalEncodeWithContext,
   encodePartialWithContext: ordinalEncodePartialWithContext,
   decode: ordinalDecode,
+  fromString: ordinalFromString,
   decodeWithContext: ordinalDecodeWithContext,
   decodePartialWithContext: ordinalDecodePartialWithContext,
   validateField: ordinalValidateField,
@@ -715,10 +728,21 @@ export declare function ordinalDefaultValue(): Ordinal;
 export declare function ordinalEncode(value: Ordinal, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function ordinalEncodeWithContext(value: Ordinal, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function ordinalEncodePartialWithContext(value: Partial<Ordinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordinal>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function ordinalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Ordinal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function ordinalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Ordinal;
 } | {
@@ -803,6 +827,7 @@ export declare const Ordinal: {
 	readonly encodeWithContext: typeof ordinalEncodeWithContext;
 	readonly encodePartialWithContext: typeof ordinalEncodePartialWithContext;
 	readonly decode: typeof ordinalDecode;
+	readonly fromString: typeof ordinalFromString;
 	readonly decodeWithContext: typeof ordinalDecodeWithContext;
 	readonly decodePartialWithContext: typeof ordinalDecodePartialWithContext;
 	readonly validateField: typeof ordinalValidateField;
@@ -819,23 +844,25 @@ export declare const Ordinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..302 -> expanded 700..895
-original 302..303 -> expanded 27504..27505
-generated 0..642 <- imports
-generated 895..1125 <- Default
-generated 1125..4089 <- Encode
-generated 4089..13848 <- Decode
-generated 13848..26265 <- Gigaform
-generated 26265..27504 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..302 -> expanded 904..1099
+original 302..303 -> expanded 29651..29652
+generated 0..846 <- imports
+generated 1099..1329 <- Default
+generated 1329..5226 <- Encode
+generated 5226..15913 <- Decode
+generated 15913..28330 <- Gigaform
+generated 28330..29651 <- __convenience_const
 
 ## Metadata
 
-interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"north","optional":false,"readonly":false,"span":{"end":154,"start":140},"ts_type":"number"},{"decorators":[],"name":"northeast","optional":false,"readonly":false,"span":{"end":177,"start":159},"ts_type":"number"},{"decorators":[],"name":"east","optional":false,"readonly":false,"span":{"end":195,"start":182},"ts_type":"number"},{"decorators":[],"name":"southeast","optional":false,"readonly":false,"span":{"end":218,"start":200},"ts_type":"number"},{"decorators":[],"name":"south","optional":false,"readonly":false,"span":{"end":237,"start":223},"ts_type":"number"},{"decorators":[],"name":"southwest","optional":false,"readonly":false,"span":{"end":260,"start":242},"ts_type":"number"},{"decorators":[],"name":"west","optional":false,"readonly":false,"span":{"end":278,"start":265},"ts_type":"number"},{"decorators":[],"name":"northwest","optional":false,"readonly":false,"span":{"end":301,"start":283},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Ordinal","span":{"end":303,"start":116},"type_params":[]}
+interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"north","optional":false,"readonly":false,"span":{"end":154,"start":140},"ts_type":"number"},{"decorators":[],"key":"Named","name":"northeast","optional":false,"readonly":false,"span":{"end":177,"start":159},"ts_type":"number"},{"decorators":[],"key":"Named","name":"east","optional":false,"readonly":false,"span":{"end":195,"start":182},"ts_type":"number"},{"decorators":[],"key":"Named","name":"southeast","optional":false,"readonly":false,"span":{"end":218,"start":200},"ts_type":"number"},{"decorators":[],"key":"Named","name":"south","optional":false,"readonly":false,"span":{"end":237,"start":223},"ts_type":"number"},{"decorators":[],"key":"Named","name":"southwest","optional":false,"readonly":false,"span":{"end":260,"start":242},"ts_type":"number"},{"decorators":[],"key":"Named","name":"west","optional":false,"readonly":false,"span":{"end":278,"start":265},"ts_type":"number"},{"decorators":[],"key":"Named","name":"northwest","optional":false,"readonly":false,"span":{"end":301,"start":283},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Ordinal","span":{"end":303,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

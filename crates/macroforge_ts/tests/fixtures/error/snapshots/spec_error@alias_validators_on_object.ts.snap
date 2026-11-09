@@ -37,7 +37,7 @@ original 43..83 -> expanded 0..40
 
 ## Metadata
 
-type Contact: {"body":{"Object":{"fields":[{"decorators":[],"name":"address","optional":false,"readonly":false,"span":{"end":80,"start":64},"ts_type":"string"}]}},"decorators":[{"args_src":"email","name":"endec","span":{"end":44,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Contact","span":{"end":83,"start":45},"type_params":[]}
+type Contact: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":80,"start":64},"ts_type":"string"}]}},"decorators":[{"args_src":"email","name":"endec","span":{"end":44,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Contact","span":{"end":83,"start":45},"type_params":[]}
 
 ## Registry reads
 

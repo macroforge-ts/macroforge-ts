@@ -16,29 +16,37 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+
 interface Status {
     active: boolean;
 }
 
 export function statusToString(value: Status): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("active: " + String(value.active));
-    return "Status { " + parts.join(", ") + " }";
+        return "Status { " + parts.join(", ") + " }";
+    });
 }
 
 export function statusClone(value: Status): Status {
-    return ({ active: value.active });
+    return __mf_clonedWith(value, (): Status => ({ active: value.active }));
 }
 
 export function statusEquals(a: Status, b: Status): boolean {
     if (a === b) return true;
-    return a.active === b.active;
+    return __mf_equalWithin(a, b, () => {
+        return a.active === b.active;
+    });
 }
 
 export function statusHashCode(value: Status): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.active ? 1231 : 1237)) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 const Status: {
@@ -70,17 +78,18 @@ export {};
 
 ## Mapping
 
-original 45..87 -> expanded 0..42
-original 87..88 -> expanded 905..906
-generated 42..234 <- Debug
-generated 234..329 <- Clone
-generated 329..458 <- PartialEq
-generated 458..612 <- Hash
-generated 612..905 <- __convenience_const
+original 45..87 -> expanded 184..226
+original 87..88 -> expanded 1303..1304
+generated 0..184 <- imports
+generated 226..480 <- Debug
+generated 480..613 <- Clone
+generated 613..796 <- PartialEq
+generated 796..1010 <- Hash
+generated 1010..1303 <- __convenience_const
 
 ## Metadata
 
-interface Status: {"body_span":{"end":88,"start":64},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":46,"start":1}}],"fields":[{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":86,"start":70},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Status","span":{"end":88,"start":47},"type_params":[]}
+interface Status: {"body_span":{"end":88,"start":64},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":46,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":86,"start":70},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Status","span":{"end":88,"start":47},"type_params":[]}
 
 ## Registry reads
 

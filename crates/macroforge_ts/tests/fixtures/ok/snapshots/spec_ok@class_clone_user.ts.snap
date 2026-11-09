@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -26,12 +26,12 @@ class User {
     name: string;
 
     static clone(value: User): User {
-        return userClone(value);
+        return __mf_clonedWith(value, () => ({ name: value.name }));
     }
 }
 
 export function userClone(value: User): User {
-    return __mf_instanceWith(value, ({ name: value.name }));
+    return User.clone(value);
 }
 
 ## DTS
@@ -49,17 +49,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 81..122
-original 62..94 -> expanded 122..154
-original 94..95 -> expanded 232..233
-original 95..96 -> expanded 344..345
-generated 0..81 <- imports
-generated 154..232 <- Clone
-generated 233..344 <- Clone
+original 0..41 -> expanded 77..118
+original 62..94 -> expanded 118..150
+original 94..95 -> expanded 264..265
+original 95..96 -> expanded 345..346
+generated 0..77 <- imports
+generated 150..264 <- Clone
+generated 265..345 <- Clone
 
 ## Metadata
 
-class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"type_params":[]}
+class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"User","span":{"end":96,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

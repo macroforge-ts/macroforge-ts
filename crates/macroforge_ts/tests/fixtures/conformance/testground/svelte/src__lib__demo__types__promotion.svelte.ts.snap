@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -41,51 +41,50 @@ export function promotionEncode(value: Promotion, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return promotionEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Promotion",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("date")) {
-
-        if (value.date !== undefined) {
-            result.date = value.date;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Promotion" });
+    promotionEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Promotion" };
+        promotionEncodeFields(value as Promotion, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function promotionEncodeFields(value: Promotion, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("date")) {
+                if (value.date !== undefined) {
+                    result["date"] = value.date;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Promotion } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = promotionDecodeWithContext(data, ctx);
+        const resultOrRef = promotionDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -131,6 +130,10 @@ export function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function promotionFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Promotion } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => promotionDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Promotion | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -143,47 +146,56 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Promotion.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Promotion | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Promotion") as Promotion | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Promotion.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "date"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Promotion");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Promotion.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
-        const __raw_date = obj["date"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Promotion.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
+                const __raw_date = obj["date"] as string;
 
-        if (!(typeof __raw_date === "string")) {
-            errors.push({ field: "date", message: __raw_date == null ? "Promotion.date is required" : "expected string" });
-        } else {
-            instance.date = __raw_date;
-        }
+                if (!(typeof __raw_date === "string")) {
+                    errors.push({ field: "date", message: __raw_date == null ? "Promotion.date is required" : "expected string" });
+                } else {
+                    instance.date = __raw_date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -208,8 +220,7 @@ export function promotionHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "date" in o;
+    return __mf_holdsAll(obj, ["id", "date"]);
 }
 
 export function promotionIs(obj: unknown): obj is Promotion {
@@ -347,6 +358,7 @@ export const Promotion: {
   readonly encodeWithContext: typeof promotionEncodeWithContext;
   readonly encodePartialWithContext: typeof promotionEncodePartialWithContext;
   readonly decode: typeof promotionDecode;
+  readonly fromString: typeof promotionFromString;
   readonly decodeWithContext: typeof promotionDecodeWithContext;
   readonly decodePartialWithContext: typeof promotionDecodePartialWithContext;
   readonly validateField: typeof promotionValidateField;
@@ -361,6 +373,7 @@ export const Promotion: {
   encodeWithContext: promotionEncodeWithContext,
   encodePartialWithContext: promotionEncodePartialWithContext,
   decode: promotionDecode,
+  fromString: promotionFromString,
   decodeWithContext: promotionDecodeWithContext,
   decodePartialWithContext: promotionDecodePartialWithContext,
   validateField: promotionValidateField,
@@ -383,10 +396,21 @@ export declare function promotionDefaultValue(): Promotion;
 export declare function promotionEncode(value: Promotion, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Promotion;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function promotionFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Promotion;
 } | {
@@ -453,6 +477,7 @@ export declare const Promotion: {
 	readonly encodeWithContext: typeof promotionEncodeWithContext;
 	readonly encodePartialWithContext: typeof promotionEncodePartialWithContext;
 	readonly decode: typeof promotionDecode;
+	readonly fromString: typeof promotionFromString;
 	readonly decodeWithContext: typeof promotionDecodeWithContext;
 	readonly decodePartialWithContext: typeof promotionDecodePartialWithContext;
 	readonly validateField: typeof promotionValidateField;
@@ -469,23 +494,25 @@ export declare const Promotion: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..172 -> expanded 700..765
-original 172..173 -> expanded 14284..14285
-generated 0..642 <- imports
-generated 765..875 <- Default
-generated 875..2833 <- Encode
-generated 2833..8708 <- Decode
-generated 8708..12991 <- Gigaform
-generated 12991..14284 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..172 -> expanded 904..969
+original 172..173 -> expanded 15779..15780
+generated 0..846 <- imports
+generated 969..1079 <- Default
+generated 1079..3566 <- Encode
+generated 3566..10117 <- Decode
+generated 10117..14400 <- Gigaform
+generated 14400..15779 <- __convenience_const
 
 ## Metadata
 
-interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":153,"start":142},"ts_type":"string"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":171,"start":158},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Promotion","span":{"end":173,"start":116},"type_params":[]}
+interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":153,"start":142},"ts_type":"string"},{"decorators":[],"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":171,"start":158},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Promotion","span":{"end":173,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

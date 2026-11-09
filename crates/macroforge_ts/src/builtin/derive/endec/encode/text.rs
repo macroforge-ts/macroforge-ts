@@ -7,26 +7,26 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use crate::builtin::return_types::ENCODE_CONTEXT;
 
-/// The local name of a `@macroforge/core/endec` helper, requesting its
-/// import for the file being expanded.
+/// A `@macroforge/core/endec` helper as a callee.
 fn endec_helper(name: &str) -> Expr {
-    let alias = format!("__mf_{name}");
-    crate::host::import_registry::with_registry_mut(|registry| {
-        registry.request_import(&alias, Some(name), crate::package::ENDEC, false);
-    });
-    ts_ident!(alias).into()
+    ts_ident!(crate::builtin::derive::endec::coder::endec_helper(name)).into()
 }
 
 /// The statements of a top-level `encode(value, keepMetadata)`: the JSON text
 /// of what `encode_with_context` returns for `value`, without `tag_field` and
-/// `__id` unless `keepMetadata` is set.
-pub(super) fn encode_text_body(encode_with_context: &Expr, tag_field: &str) -> TsStream {
+/// `__id` unless `keepMetadata` is set. `passed_coders` hands on the coders
+/// of a generic type's parameters.
+pub(super) fn encode_text_body(
+    encode_with_context: &Expr,
+    tag_field: &str,
+    passed_coders: &str,
+) -> TsStream {
     let encode_context: Expr = ts_ident!(ENCODE_CONTEXT).into();
     let encoded_text = encoded_text_helper();
     let encoded_text_without_metadata = endec_helper("encodedTextWithoutMetadata");
     ts_template! {
         const ctx = @{encode_context}.create();
-        const __raw = @{encode_with_context}(value, ctx);
+        const __raw = @{encode_with_context}(value, ctx@{passed_coders});
         return keepMetadata ? @{encoded_text}(__raw) : @{encoded_text_without_metadata}(__raw, "@{tag_field}");
     }
 }

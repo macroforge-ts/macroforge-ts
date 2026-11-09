@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -26,29 +27,38 @@ type Coordinate = {
 };
 
 export function coordinateToString(value: Coordinate): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("lat: " + String(value.lat));
     parts.push("lng: " + String(value.lng));
-    return "Coordinate { " + parts.join(", ") + " }";
+        return "Coordinate { " + parts.join(", ") + " }";
+    });
 }
 
 export function coordinateClone(value: Coordinate): Coordinate {
-    return ({
+    return __mf_clonedWith(value, (): Coordinate => ({
 	lat: value.lat,
 	lng: value.lng
-});
+}));
 }
 
 export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
     if (a === b) return true;
-    return a.lat === b.lat && a.lng === b.lng;
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.lat === b.lat || a.lat !== a.lat && b.lat !== b.lat,
+        () => a.lng === b.lng || a.lng !== a.lng && b.lng !== b.lng,
+    ].every((same) => same());
+});
 }
 
 export function coordinateHashCode(value: Coordinate): number {
-    let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -60,51 +70,50 @@ export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return coordinateEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function coordinateEncodePartialWithContext(value: Partial<Coordinate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinate>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Coordinate",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("lat")) {
-
-        if (value.lat !== undefined) {
-            result.lat = value.lat;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lng")) {
-
-        if (value.lng !== undefined) {
-            result.lng = value.lng;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Coordinate" });
+    coordinateEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function coordinateEncodePartialWithContext(value: Partial<Coordinate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinate>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Coordinate" };
+        coordinateEncodeFields(value as Coordinate, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function coordinateEncodeFields(value: Coordinate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("lat")) {
+                if (value.lat !== undefined) {
+                    result["lat"] = value.lat;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lng")) {
+                if (value.lng !== undefined) {
+                    result["lng"] = value.lng;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = coordinateDecodeWithContext(data, ctx);
+        const resultOrRef = coordinateDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -150,6 +159,10 @@ export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function coordinateFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => coordinateDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -162,47 +175,56 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Coordinate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Coordinate") as Coordinate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
-        errors.push({ field: "lat", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lng")) && !("lng" in obj)) {
-        errors.push({ field: "lng", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["lat", "lat"], ["lng", "lng"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "lat"?: number | undefined; "lng"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Coordinate");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lat")) || (__fields.keeps("lat") && obj["lat"] !== undefined)) {
-        const __raw_lat = obj["lat"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
+                const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number")) {
-            errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
-        } else {
-            instance.lat = __raw_lat;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lng")) || (__fields.keeps("lng") && obj["lng"] !== undefined)) {
-        const __raw_lng = obj["lng"] as number;
+                if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
+                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
+                } else {
+                    instance.lat = __raw_lat;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
+                const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number")) {
-            errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
-        } else {
-            instance.lng = __raw_lng;
-        }
+                if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
+                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
+                } else {
+                    instance.lng = __raw_lng;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -227,8 +249,7 @@ export function coordinateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "lat" in o && "lng" in o;
+    return __mf_holdsAll(obj, ["lat", "lng"]);
 }
 
 export function coordinateIs(obj: unknown): obj is Coordinate {
@@ -244,6 +265,7 @@ const Coordinate: {
   readonly encodeWithContext: typeof coordinateEncodeWithContext;
   readonly encodePartialWithContext: typeof coordinateEncodePartialWithContext;
   readonly decode: typeof coordinateDecode;
+  readonly fromString: typeof coordinateFromString;
   readonly decodeWithContext: typeof coordinateDecodeWithContext;
   readonly decodePartialWithContext: typeof coordinateDecodePartialWithContext;
   readonly validateField: typeof coordinateValidateField;
@@ -259,6 +281,7 @@ const Coordinate: {
   encodeWithContext: coordinateEncodeWithContext,
   encodePartialWithContext: coordinateEncodePartialWithContext,
   decode: coordinateDecode,
+  fromString: coordinateFromString,
   decodeWithContext: coordinateDecodeWithContext,
   decodePartialWithContext: coordinateDecodePartialWithContext,
   validateField: coordinateValidateField,
@@ -281,10 +304,21 @@ export declare function coordinateHashCode(value: Coordinate): number;
 export declare function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function coordinateEncodePartialWithContext(value: Partial<Coordinate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinate>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Coordinate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function coordinateFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Coordinate;
 } | {
@@ -318,20 +352,20 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 483..540
-original 118..119 -> expanded 10685..10686
-generated 0..483 <- imports
-generated 540..783 <- Debug
-generated 783..902 <- Clone
-generated 902..1056 <- PartialEq
-generated 1056..1477 <- Hash
-generated 1477..3445 <- Encode
-generated 3445..9352 <- Decode
-generated 9352..10685 <- __convenience_const
+original 61..118 -> expanded 871..928
+original 118..119 -> expanded 12819..12820
+generated 0..871 <- imports
+generated 928..1233 <- Debug
+generated 1233..1394 <- Clone
+generated 1394..1729 <- PartialEq
+generated 1729..2226 <- Hash
+generated 2226..4728 <- Encode
+generated 4728..11398 <- Decode
+generated 11398..12819 <- __convenience_const
 
 ## Metadata
 
-type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":116,"start":104},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"name":"Coordinate","span":{"end":119,"start":63},"type_params":[]}
+type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"lat","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number"},{"decorators":[],"key":"Named","name":"lng","optional":false,"readonly":false,"span":{"end":116,"start":104},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"name":"Coordinate","span":{"end":119,"start":63},"type_params":[]}
 
 ## Registry reads
 

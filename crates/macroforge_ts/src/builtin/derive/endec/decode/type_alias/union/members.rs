@@ -2,20 +2,20 @@
 
 use crate::ast::{Expr, Ident};
 use crate::ts_syn::config::ForeignHandler;
-use std::rc::Rc;
 
-use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered};
-use crate::host::ForeignTypeConfig;
+use crate::builtin::derive::common::{js_string, rendered};
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
-use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, ts_ident};
 
 use super::super::AliasDecode;
-use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_decode_fn_name};
+use crate::builtin::derive::endec::coder::{TypeScope, decode_members, raw_shape_test};
 use crate::builtin::derive::endec::decode::types::EncodableTypeRef;
+use crate::builtin::derive::endec::type_arguments::{member_decoder, param_coder};
+use crate::builtin::derive::endec::union_guard::{Direction, tagged_member};
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, decorator_validators, get_foreign_types,
@@ -25,7 +25,8 @@ use crate::builtin::derive::endec::{
 // These are tagged by a discriminant field (typically the endec tag field).
 pub(super) struct ObjectVariant {
     pub(super) tag_value: String,
-    pub(super) fields: Vec<InterfaceFieldIR>,
+    /// The call decoding `value` into the variant's fields other than its tag.
+    pub(super) decoded: String,
 }
 
 // Collect intersection variants (e.g., { variant: 'AppRoles' } & AppRoles)
@@ -33,7 +34,8 @@ pub(super) struct ObjectVariant {
 pub(super) struct IntersectionVariant {
     pub(super) tag_value: String,
     pub(super) type_ref: String,
-    pub(super) is_encodable: bool,
+    /// What decodes the referenced type's value, called as `(value, ctx)`.
+    pub(super) decoder: Expr,
 }
 
 // Inline object members without a tag field (e.g. `string | { id: string }`)
@@ -41,8 +43,8 @@ pub(super) struct IntersectionVariant {
 pub(super) struct UntaggedObjectVariant {
     /// JS condition that is true when `value` has this member's shape.
     pub(super) shape_condition: String,
-    pub(super) required_fields: Vec<String>,
-    pub(super) optional_fields: Vec<String>,
+    /// The call decoding `value` into the member's fields.
+    pub(super) decoded: String,
 }
 
 pub(super) struct ExternalObjectVariant {
@@ -56,7 +58,7 @@ pub(super) struct ExternalObjectVariant {
     /// Set when the payload is a generated type instead: without dispatching
     /// to its decoder the payload is kept verbatim, so decimals stay
     /// strings and dates stay ISO text inside the variant.
-    pub(super) payload_decode_fn: Option<crate::ast::Ident>,
+    pub(super) payload_decode_fn: Option<Expr>,
 }
 
 /// A union alias's members, sorted by how each decodes, with everything the
@@ -71,12 +73,12 @@ pub(super) struct Union<'a> {
     pub(super) decode_options_ident: Ident,
     pub(super) generic_decl: &'a str,
     pub(super) generic_args: &'a str,
+    /// The names of the alias's type parameters.
+    pub(super) param_names: Vec<String>,
+    pub(super) coders: &'a str,
+    pub(super) passed_coders: &'a str,
     pub(super) full_type_name: &'a str,
     pub(super) full_type_ident: Ident,
-    pub(super) type_registry: &'a TypeRegistry,
-    pub(super) caller_file_path: &'a str,
-    pub(super) file_imports: &'a [FileImportEntry],
-    pub(super) foreign_types_config: Rc<[ForeignTypeConfig]>,
     pub(super) tag_field: String,
     pub(super) content_field: String,
     pub(super) is_externally_tagged: bool,
@@ -85,12 +87,11 @@ pub(super) struct Union<'a> {
     pub(super) literals: Vec<String>,
     pub(super) primitive_types: Vec<String>,
     pub(super) primitive_arms: Vec<(String, Vec<ValidatorSpec>)>,
-    pub(super) has_arm_validators: bool,
-    pub(super) encodable_types: Vec<EncodableTypeRef>,
     pub(super) has_primitives: bool,
     pub(super) has_encodables: bool,
     pub(super) has_dates: bool,
     pub(super) has_generic_params: bool,
+    pub(super) param_decoder: Option<String>,
     pub(super) regular_encodables: Vec<EncodableTypeRef>,
     pub(super) foreign_encodables: Vec<EncodableTypeRef>,
     pub(super) object_variants: Vec<ObjectVariant>,
@@ -131,6 +132,18 @@ impl<'a> Union<'a> {
             matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
         let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
         let content_field = container_opts.content_field().unwrap_or("").to_string();
+
+        let type_param_names: Vec<String> = type_alias
+            .type_params()
+            .iter()
+            .map(|param| param.name.clone())
+            .collect();
+        let scope = TypeScope {
+            registry: alias.type_registry,
+            file_path: alias.caller_file_path,
+            file_imports: alias.file_imports,
+            type_params: &type_param_names,
+        };
 
         // Create a set of type parameter names for filtering
         let type_param_set: std::collections::HashSet<&str> = type_alias
@@ -185,12 +198,35 @@ impl<'a> Union<'a> {
                 ),
             }
         }
+        // A member is decoded by its own decoder, which only a named type has.
+        for member in &type_refs {
+            if type_param_set.contains(member.as_str()) {
+                continue;
+            }
+            if let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(member) {
+                arm_diagnostics.error(type_alias.inner.span, format!("@derive(Decode): {reason}"));
+                continue;
+            }
+            if matches!(
+                TypeCategory::from_ts_type(member),
+                TypeCategory::Array(_)
+                    | TypeCategory::Map(_, _)
+                    | TypeCategory::Set(_)
+                    | TypeCategory::Record(_, _)
+                    | TypeCategory::Wrapper(_)
+            ) || member.starts_with(['[', '('])
+            {
+                arm_diagnostics.error(
+                    type_alias.inner.span,
+                    format!(
+                        "@derive(Decode): member `{member}` of union '{type_name}' has no decoder of its own; give it a name, as in `type Items = {member}`, and derive Decode on that"
+                    ),
+                );
+            }
+        }
         if arm_diagnostics.has_errors() {
             return Err(MacroforgeErrors::new(arm_diagnostics.into_vec()).into());
         }
-        let has_arm_validators = primitive_arms
-            .iter()
-            .any(|(_, validators)| !validators.is_empty());
 
         // Generic type parameters (like T, U) - these are passed through as-is
         let generic_type_params: Vec<String> = type_refs
@@ -204,6 +240,7 @@ impl<'a> Union<'a> {
         // template can use their configured expressions instead of generating
         // broken `{camelCase}DecodeWithContext()` function calls.
         let foreign_types_config = get_foreign_types();
+        let mut member_failures: Vec<String> = Vec::new();
         let encodable_types: Vec<EncodableTypeRef> = type_refs
             .iter()
             .filter(|t| {
@@ -229,14 +266,25 @@ impl<'a> Union<'a> {
                 } else {
                     t.clone()
                 };
+                let decoder = member_decoder(&clean_type, &scope).unwrap_or_else(|message| {
+                    member_failures.push(message);
+                    String::new()
+                });
                 EncodableTypeRef {
                     full_type: clean_type,
                     is_foreign: ft_match.config.is_some(),
                     foreign_decode_callee,
                     foreign_has_shape_callee,
+                    decoder: Expr::Source(decoder),
                 }
             })
             .collect();
+        if let Some(message) = member_failures.into_iter().next() {
+            return Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): {message}"),
+            ));
+        }
 
         let date_types: Vec<String> = type_refs
             .iter()
@@ -248,6 +296,12 @@ impl<'a> Union<'a> {
         let has_encodables = !encodable_types.is_empty();
         let has_dates = !date_types.is_empty();
         let has_generic_params = !generic_type_params.is_empty();
+        // One parameter among the members is the member a value is when it
+        // is no other, so the coder handed in for it decodes that value.
+        let param_decoder = match generic_type_params.as_slice() {
+            [param] => Some(param_coder(Direction::Decode, param)),
+            _ => None,
+        };
 
         // Separate regular and foreign encodable types for different code generation
         let regular_encodables: Vec<&EncodableTypeRef> =
@@ -271,10 +325,17 @@ impl<'a> Union<'a> {
                             .and_then(|ft| ft.handler_callee(ForeignHandler::Decode));
                     let payload_decode_fn = if inner_foreign_decode_callee.is_some() {
                         None
-                    } else if let TypeCategory::Encodable(base) =
+                    } else if let TypeCategory::Encodable(_) =
                         TypeCategory::from_ts_type(payload_ts_type)
                     {
-                        Some(ts_ident!(nested_decode_fn_name(&extract_base_type(&base))))
+                        let decoder =
+                            member_decoder(payload_ts_type, &scope).map_err(|message| {
+                                MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                )
+                            })?;
+                        Some(Expr::Source(decoder))
                     } else {
                         None
                     };
@@ -293,79 +354,61 @@ impl<'a> Union<'a> {
                             None
                         }
                     }) {
-                        object_variants.push(ObjectVariant {
-                            tag_value,
-                            fields: fields.clone(),
-                        });
+                        let payload: Vec<InterfaceFieldIR> = fields
+                            .iter()
+                            .filter(|field| field.name != tag_field)
+                            .cloned()
+                            .collect();
+                        match decode_members(&payload, "value", &scope, 0) {
+                            Ok(decoded) => {
+                                object_variants.push(ObjectVariant { tag_value, decoded })
+                            }
+                            Err(message) => {
+                                return Err(MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                ));
+                            }
+                        }
                     } else {
-                        let (optional, required): (Vec<_>, Vec<_>) =
-                            fields.iter().partition(|f| f.optional);
-                        let required_fields: Vec<String> =
-                            required.iter().map(|f| f.name.clone()).collect();
-                        let shape_condition = std::iter::once(rendered(ts_template! {
-                            typeof value === "object" && value !== null && !Array.isArray(value)
-                        }))
-                        .chain(required_fields.iter().map(|name| {
-                            let key = js_string(name);
-                            rendered(ts_template! { @{key} in value })
-                        }))
-                        .collect::<Vec<_>>()
-                        .join(" && ");
+                        let decoded =
+                            decode_members(fields, "value", &scope, 0).map_err(|message| {
+                                MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                )
+                            })?;
                         untagged_object_variants.push(UntaggedObjectVariant {
-                            shape_condition,
-                            required_fields,
-                            optional_fields: optional.iter().map(|f| f.name.clone()).collect(),
+                            shape_condition: raw_shape_test(fields, "value"),
+                            decoded,
                         });
                     }
                 }
                 TypeMemberKind::Intersection(sub_members) => {
-                    // Look for { tag: 'Value' } & TypeRef pattern
-                    let mut tag_value = None;
-                    let mut ref_type = None;
-
-                    for sub in sub_members {
-                        match &sub.kind {
-                            TypeMemberKind::Object { fields } => {
-                                tag_value = fields.iter().find_map(|f| {
-                                    if f.name == tag_field {
-                                        let t =
-                                            f.ts_type.trim().trim_matches('\'').trim_matches('"');
-                                        Some(t.to_string())
-                                    } else {
-                                        None
-                                    }
-                                });
-                            }
-                            TypeMemberKind::TypeRef(t) => {
-                                ref_type = Some(t.clone());
-                            }
-                            _ => {}
-                        }
-                    }
-
-                    if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
-                        // A `{ tag: 'X' } & TypeRef` variant's payload must be decoded
-                        // through `TypeRef`'s own decoder so nested fields (dates,
-                        // records, links) are reconstructed: a shallow `{ ...value, tag }`
-                        // spread leaves them as raw JSON. `encodable_types` only holds
-                        // DIRECT type-ref union members, so an intersection's inner type is
-                        // absent from it; recognize any non-primitive / non-date /
-                        // non-type-param / non-foreign type ref (which has a generated
-                        // `*DecodeWithContext`) as encodable here.
-                        let is_ser = encodable_types.iter().any(|s| s.full_type == rt)
-                            || (!matches!(
-                                TypeCategory::from_ts_type(&rt),
-                                TypeCategory::Primitive | TypeCategory::Date
-                            ) && !type_param_set.contains(rt.as_str())
-                                && TypeCategory::match_foreign_type(&rt, &foreign_types_config)
-                                    .config
-                                    .is_none());
-                        intersection_variants.push(IntersectionVariant {
-                            tag_value: tv,
-                            type_ref: rt,
-                            is_encodable: is_ser,
-                        });
-                    }
+                    let (tag_value, type_ref) = tagged_member(sub_members, tag_field)
+                        .map(|(tag_value, type_ref)| (tag_value, type_ref.to_string()))
+                        .map_err(|message| {
+                            MacroforgeError::new(
+                                type_alias.inner.span,
+                                format!(
+                                    "@derive(Decode) on '{}': {message}",
+                                    type_alias.inner.name
+                                ),
+                            )
+                        })?;
+                    // The member's fields are decoded through its type's own
+                    // decoder, or a type parameter's coder handed in.
+                    let decoder = member_decoder(&type_ref, &scope).map_err(|message| {
+                        MacroforgeError::new(
+                            type_alias.inner.span,
+                            format!("@derive(Decode): {message}"),
+                        )
+                    })?;
+                    intersection_variants.push(IntersectionVariant {
+                        tag_value,
+                        type_ref,
+                        decoder: Expr::Source(decoder),
+                    });
                 }
                 _ => {}
             }
@@ -404,7 +447,7 @@ impl<'a> Union<'a> {
                 parts.push(format!("{{ {}: '{}' }}", tag_field, ov.tag_value));
             }
             for ov in &external_object_variants {
-                parts.push(format!("{{ {}: any }}", ov.name));
+                parts.push(format!("{{ {}: unknown }}", ov.name));
             }
             for iv in &intersection_variants {
                 parts.push(format!(
@@ -424,7 +467,7 @@ impl<'a> Union<'a> {
         } else {
             primitive_types
                 .iter()
-                .map(|prim| primitive_keyword_test(prim, "value"))
+                .map(|prim| decoded_keyword_test(prim, "value"))
                 .collect::<Vec<_>>()
                 .join(" || ")
         };
@@ -442,6 +485,7 @@ impl<'a> Union<'a> {
                 .join(" || ")
         };
         Ok(Self {
+            param_names: type_param_names.clone(),
             type_name,
             decode_context_ident: alias.decode_context_ident.clone(),
             decode_context_expr: alias.decode_context_expr.clone(),
@@ -451,12 +495,10 @@ impl<'a> Union<'a> {
             decode_options_ident: alias.decode_options_ident.clone(),
             generic_decl: &alias.generic_decl,
             generic_args: &alias.generic_args,
+            coders: &alias.coders,
+            passed_coders: &alias.passed_coders,
             full_type_name,
             full_type_ident: ts_ident!(full_type_name.as_str()),
-            type_registry: alias.type_registry,
-            caller_file_path: alias.caller_file_path,
-            file_imports: alias.file_imports,
-            foreign_types_config,
             tag_field: tag_field.to_string(),
             content_field,
             is_externally_tagged,
@@ -465,10 +507,9 @@ impl<'a> Union<'a> {
             literals,
             primitive_types,
             primitive_arms,
-            has_arm_validators,
+            param_decoder,
             regular_encodables: regular_encodables.into_iter().cloned().collect(),
             foreign_encodables: foreign_encodables.into_iter().cloned().collect(),
-            encodable_types,
             has_primitives,
             has_encodables,
             has_dates,

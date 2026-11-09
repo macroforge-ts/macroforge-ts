@@ -32,7 +32,7 @@ original 22..87 -> expanded 0..65
 
 ## Metadata
 
-type Shape: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":57,"start":37}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"address","optional":false,"readonly":false,"span":{"end":75,"start":60},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Shape","span":{"end":87,"start":24},"type_params":[]}
+type Shape: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":57,"start":37}}],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":75,"start":60},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Shape","span":{"end":87,"start":24},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,51 +42,50 @@ export function commentedEncode(value: Commented, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function commentedEncodeWithContext(value: Commented, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return commentedEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Commented",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("comment")) {
-
-        if (value.comment !== undefined) {
-            result.comment = value.comment;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("replyTo")) {
-        if (value.replyTo !== undefined) {
-
-            result.replyTo = value.replyTo;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Commented" });
+    commentedEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Commented" };
+        commentedEncodeFields(value as Commented, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function commentedEncodeFields(value: Commented, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("comment")) {
+                if (value.comment !== undefined) {
+                    result["comment"] = value.comment;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("replyTo")) {
+                if (value.replyTo !== undefined) {
+                    result["replyTo"] = value.replyTo;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function commentedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commented } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = commentedDecodeWithContext(data, ctx);
+        const resultOrRef = commentedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -132,6 +131,10 @@ export function commentedDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function commentedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Commented } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => commentedDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Commented | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -144,50 +147,59 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Commented.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Commented | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Commented") as Commented | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Commented.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("comment")) && !("comment" in obj)) {
-        errors.push({ field: "comment", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("replyTo")) && !("replyTo" in obj)) {
-        errors.push({ field: "replyTo", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["comment", "comment"], ["replyTo", "replyTo"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "comment"?: string | undefined; "replyTo"?: string | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Commented");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("comment")) || (__fields.keeps("comment") && obj["comment"] !== undefined)) {
-        const __raw_comment = obj["comment"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("comment")) ? "comment" in obj : (__fields.keeps("comment") && obj["comment"] !== undefined)) {
+                const __raw_comment = obj["comment"] as string;
 
-        if (!(typeof __raw_comment === "string")) {
-            errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
-        } else {
-            if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
-                if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
+                if (!(typeof __raw_comment === "string")) {
+                    errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
+                } else {
+                    if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
+                        if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
+                    }
+                    instance.comment = __raw_comment;
+                }
             }
-            instance.comment = __raw_comment;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("replyTo")) || (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
-        const __raw_replyTo = obj["replyTo"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("replyTo")) ? "replyTo" in obj : (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
+                const __raw_replyTo = obj["replyTo"] as string | null;
 
-        if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
-            errors.push({ field: "replyTo", message: "expected string | null" });
-        } else {
-            instance.replyTo = __raw_replyTo;
-        }
+                if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
+                    errors.push({ field: "replyTo", message: "expected string | null" });
+                } else {
+                    instance.replyTo = __raw_replyTo;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -224,8 +236,7 @@ export function commentedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "comment" in o && "replyTo" in o;
+    return __mf_holdsAll(obj, ["comment", "replyTo"]);
 }
 
 export function commentedIs(obj: unknown): obj is Commented {
@@ -363,6 +374,7 @@ export const Commented: {
   readonly encodeWithContext: typeof commentedEncodeWithContext;
   readonly encodePartialWithContext: typeof commentedEncodePartialWithContext;
   readonly decode: typeof commentedDecode;
+  readonly fromString: typeof commentedFromString;
   readonly decodeWithContext: typeof commentedDecodeWithContext;
   readonly decodePartialWithContext: typeof commentedDecodePartialWithContext;
   readonly validateField: typeof commentedValidateField;
@@ -377,6 +389,7 @@ export const Commented: {
   encodeWithContext: commentedEncodeWithContext,
   encodePartialWithContext: commentedEncodePartialWithContext,
   decode: commentedDecode,
+  fromString: commentedFromString,
   decodeWithContext: commentedDecodeWithContext,
   decodePartialWithContext: commentedDecodePartialWithContext,
   validateField: commentedValidateField,
@@ -399,10 +412,21 @@ export declare function commentedDefaultValue(): Commented;
 export declare function commentedEncode(value: Commented, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function commentedEncodeWithContext(value: Commented, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function commentedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Commented;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function commentedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Commented;
 } | {
@@ -469,6 +493,7 @@ export declare const Commented: {
 	readonly encodeWithContext: typeof commentedEncodeWithContext;
 	readonly encodePartialWithContext: typeof commentedEncodePartialWithContext;
 	readonly decode: typeof commentedDecode;
+	readonly fromString: typeof commentedFromString;
 	readonly decodeWithContext: typeof commentedDecodeWithContext;
 	readonly decodePartialWithContext: typeof commentedDecodePartialWithContext;
 	readonly validateField: typeof commentedValidateField;
@@ -485,24 +510,26 @@ export declare const Commented: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..141 -> expanded 700..734
-original 182..233 -> expanded 734..785
-original 233..234 -> expanded 15567..15568
-generated 0..642 <- imports
-generated 785..905 <- Default
-generated 905..2895 <- Encode
-generated 2895..9809 <- Decode
-generated 9809..14274 <- Gigaform
-generated 14274..15567 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..141 -> expanded 904..938
+original 182..233 -> expanded 938..989
+original 233..234 -> expanded 17101..17102
+generated 0..846 <- imports
+generated 989..1109 <- Default
+generated 1109..3628 <- Encode
+generated 3628..11257 <- Decode
+generated 11257..15722 <- Gigaform
+generated 15722..17101 <- __convenience_const
 
 ## Metadata
 
-interface Commented: {"body_span":{"end":234,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"name":"comment","optional":false,"readonly":false,"span":{"end":204,"start":188},"ts_type":"string"},{"decorators":[],"name":"replyTo","optional":false,"readonly":false,"span":{"end":232,"start":209},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Commented","span":{"end":234,"start":116},"type_params":[]}
+interface Commented: {"body_span":{"end":234,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"key":"Named","name":"comment","optional":false,"readonly":false,"span":{"end":204,"start":188},"ts_type":"string"},{"decorators":[],"key":"Named","name":"replyTo","optional":false,"readonly":false,"span":{"end":232,"start":209},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Commented","span":{"end":234,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -1,0 +1,409 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/module-kinds.mts
+sha256 8569c14f2d649b2318c2f2e3d5065032cb24d1cdaa40183ac45678d7beadc0dd
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * A type an ECMAScript module declares, derived on in place and held by a
+ * TypeScript module that imports it by the `.mjs` name it compiles to.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KindedPoint {
+    x: number;
+    y: number;
+}
+
+export function kindedPointToString(value: KindedPoint): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+        return "KindedPoint { " + parts.join(", ") + " }";
+    });
+}
+
+export function kindedPointClone(value: KindedPoint): KindedPoint {
+    return __mf_clonedWith(value, (): KindedPoint => ({
+	x: value.x,
+	y: value.y
+}));
+}
+
+export function kindedPointEquals(a: KindedPoint, b: KindedPoint): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
+}
+
+export function kindedPointHashCode(value: KindedPoint): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function kindedPointDefaultValue(): KindedPoint {
+    return {
+        x: 0,
+        y: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function kindedPointEncode(value: KindedPoint, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = kindedPointEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function kindedPointEncodeWithContext(value: KindedPoint, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "KindedPoint" });
+    kindedPointEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function kindedPointEncodePartialWithContext(value: Partial<KindedPoint>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KindedPoint>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "KindedPoint" };
+        kindedPointEncodeFields(value as KindedPoint, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function kindedPointEncodeFields(value: KindedPoint, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function kindedPointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KindedPoint } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = kindedPointDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "KindedPoint.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function kindedPointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: KindedPoint } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => kindedPointDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KindedPoint | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KindedPoint> | __mf_PendingRef;
+export function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<KindedPoint> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KindedPoint.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "KindedPoint.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "KindedPoint") as KindedPoint | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KindedPoint.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["y", "y"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "x"?: number | undefined; "y"?: number | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "KindedPoint");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
+
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "KindedPoint.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+                const __raw_y = obj["y"] as number;
+
+                if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+                    errors.push({ field: "y", message: __raw_y == null ? "KindedPoint.y is required" : "expected number" });
+                } else {
+                    instance.y = __raw_y;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as KindedPoint;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function kindedPointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KindedPoint>): Partial<KindedPoint> | __mf_PendingRef {
+    return kindedPointDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function kindedPointValidateField<K extends keyof KindedPoint>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function kindedPointValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function kindedPointValidateFields(partial: { readonly [K in keyof KindedPoint]?: unknown }): Array<{ field: string; message: string }>;
+export function kindedPointValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function kindedPointHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["x", "y"]);
+}
+
+export function kindedPointIs(obj: unknown): obj is KindedPoint {
+    return kindedPointHasShape(obj) && kindedPointDecode(obj).success;
+}
+
+export const KindedPoint: {
+  readonly toString: typeof kindedPointToString;
+  readonly clone: typeof kindedPointClone;
+  readonly equals: typeof kindedPointEquals;
+  readonly hashCode: typeof kindedPointHashCode;
+  readonly defaultValue: typeof kindedPointDefaultValue;
+  readonly encode: typeof kindedPointEncode;
+  readonly encodeWithContext: typeof kindedPointEncodeWithContext;
+  readonly encodePartialWithContext: typeof kindedPointEncodePartialWithContext;
+  readonly decode: typeof kindedPointDecode;
+  readonly fromString: typeof kindedPointFromString;
+  readonly decodeWithContext: typeof kindedPointDecodeWithContext;
+  readonly decodePartialWithContext: typeof kindedPointDecodePartialWithContext;
+  readonly validateField: typeof kindedPointValidateField;
+  readonly validateFields: typeof kindedPointValidateFields;
+  readonly hasShape: typeof kindedPointHasShape;
+  readonly is: typeof kindedPointIs;
+} = {
+  toString: kindedPointToString,
+  clone: kindedPointClone,
+  equals: kindedPointEquals,
+  hashCode: kindedPointHashCode,
+  defaultValue: kindedPointDefaultValue,
+  encode: kindedPointEncode,
+  encodeWithContext: kindedPointEncodeWithContext,
+  encodePartialWithContext: kindedPointEncodePartialWithContext,
+  decode: kindedPointDecode,
+  fromString: kindedPointFromString,
+  decodeWithContext: kindedPointDecodeWithContext,
+  decodePartialWithContext: kindedPointDecodePartialWithContext,
+  validateField: kindedPointValidateField,
+  validateFields: kindedPointValidateFields,
+  hasShape: kindedPointHasShape,
+  is: kindedPointIs
+};
+
+## DTS
+
+/**
+* A type an ECMAScript module declares, derived on in place and held by a
+* TypeScript module that imports it by the `.mjs` name it compiles to.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KindedPoint {
+	x: number;
+	y: number;
+}
+export declare function kindedPointToString(value: KindedPoint): string;
+export declare function kindedPointClone(value: KindedPoint): KindedPoint;
+export declare function kindedPointEquals(a: KindedPoint, b: KindedPoint): boolean;
+export declare function kindedPointHashCode(value: KindedPoint): number;
+export declare function kindedPointDefaultValue(): KindedPoint;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function kindedPointEncode(value: KindedPoint, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function kindedPointEncodeWithContext(value: KindedPoint, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function kindedPointEncodePartialWithContext(value: Partial<KindedPoint>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KindedPoint>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function kindedPointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KindedPoint;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function kindedPointFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KindedPoint;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KindedPoint | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KindedPoint> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function kindedPointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KindedPoint>): Partial<KindedPoint> | __mf_PendingRef;
+export declare function kindedPointValidateField<K extends keyof KindedPoint>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function kindedPointValidateFields(partial: { readonly [K in keyof KindedPoint]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function kindedPointHasShape(obj: unknown): boolean;
+export declare function kindedPointIs(obj: unknown): obj is KindedPoint;
+export declare const KindedPoint: {
+	readonly toString: typeof kindedPointToString;
+	readonly clone: typeof kindedPointClone;
+	readonly equals: typeof kindedPointEquals;
+	readonly hashCode: typeof kindedPointHashCode;
+	readonly defaultValue: typeof kindedPointDefaultValue;
+	readonly encode: typeof kindedPointEncode;
+	readonly encodeWithContext: typeof kindedPointEncodeWithContext;
+	readonly encodePartialWithContext: typeof kindedPointEncodePartialWithContext;
+	readonly decode: typeof kindedPointDecode;
+	readonly fromString: typeof kindedPointFromString;
+	readonly decodeWithContext: typeof kindedPointDecodeWithContext;
+	readonly decodePartialWithContext: typeof kindedPointDecodePartialWithContext;
+	readonly validateField: typeof kindedPointValidateField;
+	readonly validateFields: typeof kindedPointValidateFields;
+	readonly hasShape: typeof kindedPointHasShape;
+	readonly is: typeof kindedPointIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..289 -> expanded 871..1160
+original 289..290 -> expanded 13243..13244
+generated 0..871 <- imports
+generated 1160..1460 <- Debug
+generated 1460..1617 <- Clone
+generated 1617..1951 <- PartialEq
+generated 1951..2438 <- Hash
+generated 2438..2546 <- Default
+generated 2546..5047 <- Encode
+generated 5047..11686 <- Decode
+generated 11686..13243 <- __convenience_const
+
+## Metadata
+
+interface KindedPoint: {"body_span":{"end":290,"start":257},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":227,"start":157}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":273,"start":263},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":288,"start":278},"ts_type":"number"}],"heritage":[],"methods":[],"name":"KindedPoint","span":{"end":290,"start":235},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

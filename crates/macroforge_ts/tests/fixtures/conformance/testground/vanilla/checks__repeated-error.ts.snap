@@ -1,0 +1,342 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+checks/repeated-error.ts
+sha256 67c6f83647bb2f3a91bbdd88a10ed0ce1a29697a9c3483380e456878c9ccb9e8
+
+## Changed
+
+true
+
+## Output
+
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * A derive whose generated code does not type-check in several places for one
+ * reason: `Plain` derives no coder, and `Holder` calls for one at each field.
+ * The type checker's errors all map to the one `@derive`, and are read as one.
+ */
+
+export interface Plain {
+    id: string;
+}
+
+/** @derive(Decode) */
+export interface Holder {
+    first: Plain;
+    second: Plain;
+    third: Plain;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function holderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = holderDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Holder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function holderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => holderDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Holder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Holder") as Holder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first", "first"], ["second", "second"], ["third", "third"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "first"?: Plain | undefined; "second"?: Plain | undefined; "third"?: Plain | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Holder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+                const __raw_first = obj["first"] as Plain;
+
+                ctx.pushScope("first");
+                try {
+                    const __result = plainDecodeWithContext(__raw_first, ctx);
+                    ctx.assignOrDefer(instance, "first", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "first" : "first." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("second")) ? "second" in obj : (__fields.keeps("second") && obj["second"] !== undefined)) {
+                const __raw_second = obj["second"] as Plain;
+
+                ctx.pushScope("second");
+                try {
+                    const __result = plainDecodeWithContext(__raw_second, ctx);
+                    ctx.assignOrDefer(instance, "second", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "second" : "second." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "second", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("third")) ? "third" in obj : (__fields.keeps("third") && obj["third"] !== undefined)) {
+                const __raw_third = obj["third"] as Plain;
+
+                ctx.pushScope("third");
+                try {
+                    const __result = plainDecodeWithContext(__raw_third, ctx);
+                    ctx.assignOrDefer(instance, "third", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "third" : "third." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "third", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Holder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef {
+    return holderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function holderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{ field: string; message: string }>;
+export function holderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function holderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["first", "second", "third"]);
+}
+
+export function holderIs(obj: unknown): obj is Holder {
+    return holderHasShape(obj) && holderDecode(obj).success;
+}
+
+export const Holder: {
+  readonly decode: typeof holderDecode;
+  readonly fromString: typeof holderFromString;
+  readonly decodeWithContext: typeof holderDecodeWithContext;
+  readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+  readonly validateField: typeof holderValidateField;
+  readonly validateFields: typeof holderValidateFields;
+  readonly hasShape: typeof holderHasShape;
+  readonly is: typeof holderIs;
+} = {
+  decode: holderDecode,
+  fromString: holderFromString,
+  decodeWithContext: holderDecodeWithContext,
+  decodePartialWithContext: holderDecodePartialWithContext,
+  validateField: holderValidateField,
+  validateFields: holderValidateFields,
+  hasShape: holderHasShape,
+  is: holderIs
+};
+
+## DTS
+
+/**
+* A derive whose generated code does not type-check in several places for one
+* reason: `Plain` derives no coder, and `Holder` calls for one at each field.
+* The type checker's errors all map to the one `@derive`, and are read as one.
+*/
+export interface Plain {
+	id: string;
+}
+/** @derive(Decode) */
+export interface Holder {
+	first: Plain;
+	second: Plain;
+	third: Plain;
+}
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function holderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Holder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function holderFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Holder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef;
+export declare function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderHasShape(obj: unknown): boolean;
+export declare function holderIs(obj: unknown): obj is Holder;
+export declare const Holder: {
+	readonly decode: typeof holderDecode;
+	readonly fromString: typeof holderFromString;
+	readonly decodeWithContext: typeof holderDecodeWithContext;
+	readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+	readonly validateField: typeof holderValidateField;
+	readonly validateFields: typeof holderValidateFields;
+	readonly hasShape: typeof holderHasShape;
+	readonly is: typeof holderIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..396 -> expanded 441..837
+original 396..397 -> expanded 10409..10410
+generated 0..441 <- imports
+generated 837..9681 <- Decode
+generated 9681..10409 <- __convenience_const
+
+## Metadata
+
+interface Plain: {"body_span":{"end":290,"start":271},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":288,"start":277},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Plain","span":{"end":290,"start":255},"type_params":[]}
+interface Holder: {"body_span":{"end":397,"start":339},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":314,"start":292}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":358,"start":345},"ts_type":"Plain"},{"decorators":[],"key":"Named","name":"second","optional":false,"readonly":false,"span":{"end":377,"start":363},"ts_type":"Plain"},{"decorators":[],"key":"Named","name":"third","optional":false,"readonly":false,"span":{"end":395,"start":382},"ts_type":"Plain"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":397,"start":322},"type_params":[]}
+
+## Registry reads
+
+Name("Plain")
+
+## Buildtime dependencies
+
+(none)

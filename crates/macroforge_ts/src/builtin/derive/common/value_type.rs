@@ -8,8 +8,8 @@ use crate::ts_syn::abi::ir::{
 
 use crate::ts_syn::TsStream;
 
-use super::registry_helpers::{standalone_fn_name, type_has_derive};
-use super::type_utils::{array_element_type, parse_generic_type, tuple_element};
+use super::registry_helpers::{resolved_type_has_derive, standalone_fn_name};
+use super::type_utils::{array_element_type, is_function_type, parse_generic_type, tuple_element};
 
 /// How values of a type are compared, hashed and copied.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -96,6 +96,17 @@ fn strip_nullable(ts_type: &str) -> (&str, bool) {
 }
 
 fn value_kind(ts_type: &str) -> ValueType<'_> {
+    // A union is the primitive all of its members are, and has no single
+    // shape when they differ: `'a' | 3` starts with a quote and is no string.
+    if let Some(members) = split_top_level_union(ts_type) {
+        let mut keywords = members.iter().map(|member| primitive_keyword(member));
+        return match keywords.next().flatten() {
+            Some(first) if keywords.all(|keyword| keyword == Some(first)) => {
+                ValueType::Primitive(first)
+            }
+            _ => ValueType::Structural,
+        };
+    }
     if let Some(keyword) = primitive_keyword(ts_type) {
         return ValueType::Primitive(keyword);
     }
@@ -118,7 +129,7 @@ fn value_kind(ts_type: &str) -> ValueType<'_> {
     {
         return ValueType::Structural;
     }
-    if ts_type.contains("=>") {
+    if is_function_type(ts_type) {
         return ValueType::Opaque;
     }
     match parse_generic_type(ts_type) {
@@ -139,19 +150,17 @@ fn primitive_keyword(ts_type: &str) -> Option<&'static str> {
         "number" => Some("number"),
         "boolean" | "true" | "false" => Some("boolean"),
         "bigint" => Some("bigint"),
-        _ if ts_type.starts_with(['"', '\'', '`']) => Some("string"),
-        _ if ts_type.ends_with('n')
-            && ts_type
-                .trim_end_matches('n')
-                .trim_start_matches('-')
-                .chars()
-                .all(|c| c.is_ascii_digit())
-            && ts_type.len() > 1 =>
+        // A literal is quoted from end to end: `'a'[]` only starts as one.
+        _ if ['"', '\'', '`'].into_iter().any(|quote| {
+            ts_type.len() > 1 && ts_type.starts_with(quote) && ts_type.ends_with(quote)
+        }) =>
         {
-            Some("bigint")
+            Some("string")
         }
-        _ if ts_type.parse::<f64>().is_ok() => Some("number"),
-        _ => None,
+        _ => crate::ts_syn::abi::ir::number_literal(ts_type).map(|kind| match kind {
+            crate::ts_syn::abi::ir::NumberLiteral::Number => "number",
+            crate::ts_syn::abi::ir::NumberLiteral::BigInt => "bigint",
+        }),
     }
 }
 
@@ -195,6 +204,58 @@ pub fn rendered(stream: TsStream) -> String {
     stream.source().to_owned()
 }
 
+/// `parts` each in a function of its own, called in turn. The checker reads
+/// the flow of one body back from each use to its start, so a body holding a
+/// part a field outgrows what it reads with a few hundred fields; a function
+/// called where it is written is read as part of the body around it.
+pub fn each_on_its_own(parts: impl IntoIterator<Item = TsStream>) -> TsStream {
+    let parts: Vec<TsStream> = parts
+        .into_iter()
+        .filter(|part| !part.source().trim().is_empty())
+        .collect();
+    if parts.len() < 2 {
+        return TsStream::merge_all(parts);
+    }
+    let functions = TsStream::merge_all(parts.into_iter().map(|part| {
+        crate::macros::ts_template! {
+            () => {
+                {$typescript part}
+            },
+        }
+    }));
+    crate::macros::ts_template! {
+        for (const __part of [
+            {$typescript functions}
+        ]) {
+            __part();
+        }
+    }
+}
+
+/// Statements returning the first of `orders` that is not `0`, or `0`, each
+/// worked out in a function of its own as [`each_on_its_own`] runs its parts:
+/// a body comparing each field in turn outgrows what the checker reads.
+pub fn first_order(orders: Vec<crate::ast::Expr>) -> TsStream {
+    match orders.as_slice() {
+        [] => crate::macros::ts_template! { return 0; },
+        [order] => crate::macros::ts_template! { return @{order.clone()}; },
+        _ => {
+            let functions = TsStream::merge_all(orders.into_iter().map(|order| {
+                crate::macros::ts_template! { () => @{order}, }
+            }));
+            crate::macros::ts_template! {
+                for (const __order of [
+                    {$typescript functions}
+                ]) {
+                    const __result = __order();
+                    if (__result !== 0) return __result;
+                }
+                return 0;
+            }
+        }
+    }
+}
+
 /// A call of the `@macroforge/core/structural` helper `name` on `args`,
 /// requesting its import for the file being expanded.
 pub fn structural_call(name: &str, args: &str) -> String {
@@ -212,6 +273,12 @@ pub fn structural_helper(name: &str) -> String {
     alias
 }
 
+/// A `@macroforge/core/structural` helper as a callee, requesting its
+/// import for the file being expanded.
+pub fn structural_callee(name: &str) -> crate::ast::Expr {
+    crate::ts_syn::ts_ident!(structural_helper(name)).into()
+}
+
 /// The standalone function (`userEquals`, `userHashCode`) of the type
 /// `resolved` names, when the registry records it deriving `derive`.
 pub fn derived_function(
@@ -221,10 +288,8 @@ pub fn derived_function(
     suffix: &str,
 ) -> Option<String> {
     let resolved = resolved?;
-    (!resolved.is_collection
-        && resolved.registry_key.is_some()
-        && type_has_derive(registry, &resolved.base_type_name, derive))
-    .then(|| standalone_fn_name(&resolved.base_type_name, suffix))
+    (!resolved.is_collection && resolved_type_has_derive(registry, resolved, derive))
+        .then(|| standalone_fn_name(&resolved.base_type_name, suffix))
 }
 
 /// Whether every element of a tuple is fixed: no optional or rest elements,

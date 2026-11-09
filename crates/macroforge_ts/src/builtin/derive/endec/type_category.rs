@@ -2,7 +2,7 @@
 
 use super::foreign_types::{ForeignTypeMatch, register_foreign_type_import};
 use super::helpers::find_top_level_comma;
-use crate::builtin::derive::common::{array_element_type, parse_generic_type};
+use crate::builtin::derive::common::{array_element_type, parse_generic_type, ungrouped};
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::with_registry;
 use crate::ts_syn::abi::ir::is_primitive_keyword;
@@ -105,6 +105,30 @@ impl WrapperFields {
     }
 }
 
+/// Whether `ts_type` names a type, with or without type arguments: `User`,
+/// `ns.User` or `Box<User>`. An indexed access such as `User['id']`, a
+/// `keyof` or a template literal builds a type out of one and names none.
+fn is_type_reference(ts_type: &str) -> bool {
+    let name = match ts_type.find('<') {
+        Some(arguments) if ts_type.ends_with('>') => &ts_type[..arguments],
+        Some(_) => return false,
+        None => ts_type,
+    };
+    !name.is_empty()
+        && name
+            .chars()
+            .all(|letter| letter.is_alphanumeric() || matches!(letter, '_' | '$' | '.'))
+}
+
+/// Whether `name` is a type TypeScript spells itself: a keyword, or a
+/// literal that reads as a name (`true`, `1`, `1n`).
+fn is_keyword_type(name: &str) -> bool {
+    matches!(
+        name,
+        "any" | "unknown" | "never" | "void" | "object" | "symbol" | "true" | "false" | "this"
+    ) || name.starts_with(|first: char| first.is_ascii_digit())
+}
+
 /// How many classified types a thread keeps. A project's field types repeat
 /// across every derive that reads them; the bound keeps a long session from
 /// holding every type it ever saw.
@@ -144,11 +168,14 @@ impl TypeCategory {
     }
 
     fn classify(ts_type: &str) -> Self {
-        let trimmed = ts_type.trim();
+        // A type in parentheses is the type in them.
+        let trimmed = ungrouped(ts_type);
 
-        // Handle string literal types (e.g., "Zoned", 'foo') - these are primitive-like
+        // Handle string literal types (e.g., "Zoned", 'foo') and template
+        // literal types (`id-${number}`) - these are primitive-like
         if (trimmed.starts_with('"') && trimmed.ends_with('"'))
             || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+            || (trimmed.starts_with('`') && trimmed.ends_with('`'))
         {
             return Self::Primitive;
         }
@@ -177,57 +204,56 @@ impl TypeCategory {
         }
 
         // Handle Record<K, V>
-        if trimmed.starts_with("Record<") && trimmed.ends_with('>') {
-            let inner = &trimmed[7..trimmed.len() - 1];
-            if let Some(comma_pos) = find_top_level_comma(inner) {
-                let key = inner[..comma_pos].trim().to_string();
-                let value = inner[comma_pos + 1..].trim().to_string();
-                return Self::Record(key, value);
-            }
+        if let Some(("Record", inner)) = parse_generic_type(trimmed)
+            && let Some(comma_pos) = find_top_level_comma(inner)
+        {
+            let key = inner[..comma_pos].trim().to_string();
+            let value = inner[comma_pos + 1..].trim().to_string();
+            return Self::Record(key, value);
         }
 
         // Handle union types (T | undefined, T | null)
         // Only split on top-level `|`: pipes inside <>, (), [], or string
         // literals (e.g. Pick<User, 'a' | 'b'>) are ignored.
-        if let Some(parts) = split_top_level_union(trimmed) {
-            if parts.contains(&"undefined") {
-                let non_undefined: Vec<&str> = parts
-                    .iter()
-                    .filter(|p| *p != &"undefined")
-                    .copied()
-                    .collect();
-                return Self::Optional(non_undefined.join(" | "));
+        if split_top_level_union(trimmed).is_some() {
+            // A union grouped inside a union is of its members.
+            let parts = union_members(trimmed);
+            // The union without `absent`, as `category` holds it, or `absent`
+            // itself when the union holds nothing else, as `null | null` does.
+            let without = |absent: &str, category: fn(String) -> Self| {
+                parts.contains(&absent).then(|| {
+                    let present: Vec<&str> = parts
+                        .iter()
+                        .copied()
+                        .filter(|part| *part != absent)
+                        .collect();
+                    if present.is_empty() {
+                        Self::classify(absent)
+                    } else {
+                        category(present.join(" | "))
+                    }
+                })
+            };
+            if let Some(optional) = without("undefined", Self::Optional) {
+                return optional;
             }
-            if parts.contains(&"null") {
-                let non_null: Vec<&str> = parts.iter().filter(|p| *p != &"null").copied().collect();
-                return Self::Nullable(non_null.join(" | "));
+            if let Some(nullable) = without("null", Self::Nullable) {
+                return nullable;
             }
             // Remaining unions (e.g., Utc | number) are not a single encodable type
             return Self::Unknown;
         }
 
-        // Check if it looks like a class/interface name (starts with uppercase)
-        // Exclude built-in types and utility types
-        if let Some(first_char) = trimmed.chars().next()
-            && first_char.is_uppercase()
+        // A name that is no keyword of the language names a type, whatever
+        // letter it starts with. Built-in types are not the project's.
+        if is_type_reference(trimmed)
+            && !is_keyword_type(trimmed)
             && !matches!(
                 trimmed,
-                "String"
-                    | "Number"
-                    | "Boolean"
-                    | "Object"
-                    | "Function"
-                    | "Symbol"
-                    | "URL"
+                "URL"
                     | "URLSearchParams"
                     | "RegExp"
                     | "Error"
-                    | "EvalError"
-                    | "RangeError"
-                    | "ReferenceError"
-                    | "SyntaxError"
-                    | "TypeError"
-                    | "URIError"
                     | "Int8Array"
                     | "Uint8Array"
                     | "Uint8ClampedArray"
@@ -240,53 +266,28 @@ impl TypeCategory {
                     | "BigInt64Array"
                     | "BigUint64Array"
                     | "ArrayBuffer"
-                    | "DataView"
             )
         {
-            // Extract base type name (handle generics like Foo<T>)
-            let base_type = if let Some(idx) = trimmed.find('<') {
-                &trimmed[..idx]
-            } else {
-                trimmed
-            };
+            let generic = parse_generic_type(trimmed);
+            let base_type = generic.map_or(trimmed, |(base, _)| base);
 
-            // Handle TypeScript wrapper utility types that preserve the inner type's structure
-            // These don't change runtime values, so we encode based on the inner type
-            if matches!(
-                base_type,
-                "Partial" | "Required" | "Readonly" | "NonNullable"
-            ) {
-                // Single type argument: Partial<T>, Required<T>, Readonly<T>, NonNullable<T>
-                if let Some(start) = trimmed.find('<') {
-                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+            // A utility type that keeps its argument's structure is coded as
+            // that type is: `Partial<T>` and the like, and the `T` of
+            // `Pick<T, K>` and `Omit<T, K>`.
+            match generic {
+                Some(("Partial" | "Required" | "Readonly" | "NonNullable", inner)) => {
                     return Self::Wrapper(inner.to_string());
                 }
-            }
-
-            if matches!(base_type, "Pick" | "Omit") {
-                // Two type arguments: Pick<T, K>, Omit<T, K> - we care about T
-                if let Some(start) = trimmed.find('<') {
-                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+                Some(("Pick" | "Omit", inner)) => {
                     if let Some(comma_pos) = find_top_level_comma(inner) {
-                        let first_arg = inner[..comma_pos].trim();
-                        return Self::Wrapper(first_arg.to_string());
+                        return Self::Wrapper(inner[..comma_pos].trim().to_string());
                     }
                 }
+                _ => {}
             }
 
-            // These utility types don't have a meaningful encoding strategy
-            // (they operate on function types, unions, or async types)
-            if matches!(
-                base_type,
-                "Exclude"
-                    | "Extract"
-                    | "ReturnType"
-                    | "Parameters"
-                    | "InstanceType"
-                    | "ThisType"
-                    | "Awaited"
-                    | "Promise"
-            ) {
+            // A built-in type with no coding is no type of the project's.
+            if super::uncodable::builtin_reason(base_type, trimmed.contains('<')).is_some() {
                 return Self::Unknown;
             }
 
@@ -535,4 +536,13 @@ fn imported_from_configured_source(actual: &str, configured: &[String]) -> bool 
     configured.iter().any(|source| {
         actual == source || actual.ends_with(source.as_str()) || source.ends_with(actual)
     })
+}
+
+/// The members of the union `ts_type`, those of a union grouped inside it
+/// included, each without its grouping.
+fn union_members(ts_type: &str) -> Vec<&str> {
+    match split_top_level_union(ungrouped(ts_type)) {
+        Some(parts) => parts.into_iter().flat_map(union_members).collect(),
+        None => vec![ungrouped(ts_type)],
+    }
 }

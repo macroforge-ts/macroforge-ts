@@ -1,0 +1,1882 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/directive-shapes.ts
+sha256 7e375b8acb772689dc905b33248490d3a935c612d4a8d191d9bcb1a27754f387
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Directives whose arguments hold what a scan for brackets, commas and
+ * option names could trip on, derives spread over several directives, and
+ * fields a decoder never reads.
+ */
+
+/** @derive(Debug, Default, Encode, Decode) */
+export interface DirectiveTexts {
+    /** @endec({ rename: "skip" }) @debug({ rename: "flatten)" }) */
+    renamed: string;
+    /** @endec({ default: "\"(\"" }) @default(":(") */
+    open: string;
+    /** @endec({ default: "\"a, b]\"" }) @default("a, b]") */
+    listed: string;
+    /** @endec({ validate: ["pattern(\"^[(a-z, ]+$\")"] }) */
+    matched: string;
+    /** @endec({ default: "[\"skip\", \"flatten\"]" }) */
+    words: string[];
+}
+
+export function directiveTextsToString(value: DirectiveTexts): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("flatten): " + String(value.renamed));
+    parts.push("open: " + String(value.open));
+    parts.push("listed: " + String(value.listed));
+    parts.push("matched: " + String(value.matched));
+    parts.push("words: " + __mf_structuralDebug(value.words));
+        return "DirectiveTexts { " + parts.join(", ") + " }";
+    });
+}
+
+export function directiveTextsDefaultValue(): DirectiveTexts {
+    return {
+        renamed: "",
+        open: ":(",
+        listed: "a, b]",
+        matched: "",
+        words: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directiveTextsEncode(value: DirectiveTexts, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directiveTextsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directiveTextsEncodeWithContext(value: DirectiveTexts, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectiveTexts" });
+    directiveTextsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function directiveTextsEncodePartialWithContext(value: Partial<DirectiveTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveTexts>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DirectiveTexts" };
+        directiveTextsEncodeFields(value as DirectiveTexts, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function directiveTextsEncodeFields(value: DirectiveTexts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("renamed")) {
+                if (value.renamed !== undefined) {
+                    result["skip"] = value.renamed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("open")) {
+                if (value.open !== undefined) {
+                    result["open"] = value.open;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("matched")) {
+                if (value.matched !== undefined) {
+                    result["matched"] = value.matched;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("words")) {
+                if (value.words !== undefined) {
+                    result["words"] = value.words;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveTextsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = directiveTextsDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectiveTexts.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveTextsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveTextsDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveTexts | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveTexts> | __mf_PendingRef;
+export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DirectiveTexts> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveTexts.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectiveTexts.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "DirectiveTexts") as DirectiveTexts | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveTexts.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["renamed", "skip"], ["matched", "matched"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "renamed"?: string | undefined; "open"?: string | undefined; "listed"?: string | undefined; "matched"?: string | undefined; "words"?: string[] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveTexts");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("renamed")) ? "skip" in obj : (__fields.keeps("renamed") && obj["skip"] !== undefined)) {
+                const __raw_renamed = obj["skip"] as string;
+
+                if (!(typeof __raw_renamed === "string")) {
+                    errors.push({ field: "skip", message: __raw_renamed == null ? "DirectiveTexts.skip is required" : "expected string" });
+                } else {
+                    instance.renamed = __raw_renamed;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("open"))) {
+                if (("open" in obj && obj["open"] !== undefined)) {
+                    const __raw_open = obj["open"] as string;
+
+                    if (!(typeof __raw_open === "string")) {
+                        errors.push({ field: "open", message: "expected string" });
+                    } else {
+                        instance.open = __raw_open;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("open")) && !("open" in obj && obj["open"] !== undefined)) {
+                    instance.open = ("(") satisfies string;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("listed"))) {
+                if (("listed" in obj && obj["listed"] !== undefined)) {
+                    const __raw_listed = obj["listed"] as string;
+
+                    if (!(typeof __raw_listed === "string")) {
+                        errors.push({ field: "listed", message: "expected string" });
+                    } else {
+                        instance.listed = __raw_listed;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj && obj["listed"] !== undefined)) {
+                    instance.listed = ("a, b]") satisfies string;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("matched")) ? "matched" in obj : (__fields.keeps("matched") && obj["matched"] !== undefined)) {
+                const __raw_matched = obj["matched"] as string;
+
+                if (!(typeof __raw_matched === "string")) {
+                    errors.push({ field: "matched", message: __raw_matched == null ? "DirectiveTexts.matched is required" : "expected string" });
+                } else {
+                    if (__raw_matched == null) { errors.push({ field: "matched", message: "DirectiveTexts.matched is required" }); } else {
+                        if (!/^[(a-z, ]+$/.test(__raw_matched)) { errors.push({ field: "matched", message: "DirectiveTexts.matched must match pattern ^[(a-z, ]+$" }); }
+                    }
+                    instance.matched = __raw_matched;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("words"))) {
+                if (("words" in obj && obj["words"] !== undefined)) {
+                    const __raw_words = obj["words"] as string[];
+                    if (Array.isArray(__raw_words)) {
+                        ctx.pushScope("words");
+                        try {
+                            instance.words = __mf_decodeArray(__raw_words, ctx, __mf_decodeString);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "words" : "words." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    } else {
+                        errors.push({ field: "words", message: "expected string[]" });
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("words")) && !("words" in obj && obj["words"] !== undefined)) {
+                    instance.words = (["skip", "flatten"]) satisfies string[];
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DirectiveTexts;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function directiveTextsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveTexts>): Partial<DirectiveTexts> | __mf_PendingRef {
+    return directiveTextsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function directiveTextsValidateField<K extends keyof DirectiveTexts>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "matched") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "matched", message: "DirectiveTexts.matched is required" }); } else {
+            if (!/^[(a-z, ]+$/.test(__val)) { errors.push({ field: "matched", message: "DirectiveTexts.matched must match pattern ^[(a-z, ]+$" }); }
+        }
+    }
+    return errors;
+}
+
+export function directiveTextsValidateFields(partial: { readonly [K in keyof DirectiveTexts]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("matched" in partial && partial.matched !== undefined) {
+        const __val = partial.matched as string;
+        if (__val == null) { errors.push({ field: "matched", message: "DirectiveTexts.matched is required" }); } else {
+            if (!/^[(a-z, ]+$/.test(__val)) { errors.push({ field: "matched", message: "DirectiveTexts.matched must match pattern ^[(a-z, ]+$" }); }
+        }
+    }
+    return errors;
+}
+export function directiveTextsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["skip", "matched"]);
+}
+
+export function directiveTextsIs(obj: unknown): obj is DirectiveTexts {
+    return directiveTextsHasShape(obj) && directiveTextsDecode(obj).success;
+}
+
+export const DirectiveTexts: {
+  readonly toString: typeof directiveTextsToString;
+  readonly defaultValue: typeof directiveTextsDefaultValue;
+  readonly encode: typeof directiveTextsEncode;
+  readonly encodeWithContext: typeof directiveTextsEncodeWithContext;
+  readonly encodePartialWithContext: typeof directiveTextsEncodePartialWithContext;
+  readonly decode: typeof directiveTextsDecode;
+  readonly fromString: typeof directiveTextsFromString;
+  readonly decodeWithContext: typeof directiveTextsDecodeWithContext;
+  readonly decodePartialWithContext: typeof directiveTextsDecodePartialWithContext;
+  readonly validateField: typeof directiveTextsValidateField;
+  readonly validateFields: typeof directiveTextsValidateFields;
+  readonly hasShape: typeof directiveTextsHasShape;
+  readonly is: typeof directiveTextsIs;
+} = {
+  toString: directiveTextsToString,
+  defaultValue: directiveTextsDefaultValue,
+  encode: directiveTextsEncode,
+  encodeWithContext: directiveTextsEncodeWithContext,
+  encodePartialWithContext: directiveTextsEncodePartialWithContext,
+  decode: directiveTextsDecode,
+  fromString: directiveTextsFromString,
+  decodeWithContext: directiveTextsDecodeWithContext,
+  decodePartialWithContext: directiveTextsDecodePartialWithContext,
+  validateField: directiveTextsValidateField,
+  validateFields: directiveTextsValidateFields,
+  hasShape: directiveTextsHasShape,
+  is: directiveTextsIs
+};
+
+/** @derive(Debug) */
+/** @derive(Clone, PartialEq) */
+export interface DirectiveStacked {
+    name: string;
+}
+
+export function directiveStackedClone(value: DirectiveStacked): DirectiveStacked {
+    return __mf_clonedWith(value, (): DirectiveStacked => ({ name: value.name }));
+}
+
+export function directiveStackedEquals(a: DirectiveStacked, b: DirectiveStacked): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return a.name === b.name;
+    });
+}
+
+export function directiveStackedToString(value: DirectiveStacked): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+        return "DirectiveStacked { " + parts.join(", ") + " }";
+    });
+}
+
+export const DirectiveStacked: {
+  readonly clone: typeof directiveStackedClone;
+  readonly equals: typeof directiveStackedEquals;
+  readonly toString: typeof directiveStackedToString;
+} = {
+  clone: directiveStackedClone,
+  equals: directiveStackedEquals,
+  toString: directiveStackedToString
+};
+
+/**
+ * A point, whose derives are written on two lines.
+ * @derive(Debug, Clone)
+ * @derive(PartialEq, Clone)
+ */
+export interface DirectiveRepeated {
+    x: number;
+}
+
+export function directiveRepeatedToString(value: DirectiveRepeated): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+        return "DirectiveRepeated { " + parts.join(", ") + " }";
+    });
+}
+
+export function directiveRepeatedClone(value: DirectiveRepeated): DirectiveRepeated {
+    return __mf_clonedWith(value, (): DirectiveRepeated => ({ x: value.x }));
+}
+
+export function directiveRepeatedEquals(a: DirectiveRepeated, b: DirectiveRepeated): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return a.x === b.x || a.x !== a.x && b.x !== b.x;
+    });
+}
+
+export const DirectiveRepeated: {
+  readonly toString: typeof directiveRepeatedToString;
+  readonly clone: typeof directiveRepeatedClone;
+  readonly equals: typeof directiveRepeatedEquals;
+} = {
+  toString: directiveRepeatedToString,
+  clone: directiveRepeatedClone,
+  equals: directiveRepeatedEquals
+};
+
+/** @derive(Encode, Decode) */
+export interface DirectiveSkipped {
+    name: string;
+    /** @endec({ skip: true }) */
+    secret: string;
+    /** @endec({ skipDecoding: true }) */
+    count: number;
+    /** @endec({ skip: true }) */
+    tags: string[];
+    /** @endec({ skip: true, default: "\"none\"" }) */
+    note: string;
+    /** @endec({ skip: true }) */
+    optional?: string;
+    /** @endec({ skipDecoding: true }) */
+    maybe: string | null;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directiveSkippedEncode(value: DirectiveSkipped, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directiveSkippedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directiveSkippedEncodeWithContext(value: DirectiveSkipped, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectiveSkipped" });
+    directiveSkippedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function directiveSkippedEncodePartialWithContext(value: Partial<DirectiveSkipped>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkipped>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DirectiveSkipped" };
+        directiveSkippedEncodeFields(value as DirectiveSkipped, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function directiveSkippedEncodeFields(value: DirectiveSkipped, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveSkippedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkipped } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = directiveSkippedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectiveSkipped.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveSkippedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkipped } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveSkippedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkipped | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveSkipped> | __mf_PendingRef;
+export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DirectiveSkipped> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveSkipped.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectiveSkipped.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "DirectiveSkipped") as DirectiveSkipped | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveSkipped.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "name"?: string | undefined; "secret"?: string | undefined; "count"?: number | undefined; "tags"?: string[] | undefined; "note"?: string | undefined; "maybe"?: string | null | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveSkipped");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkipped.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret"))) {
+                instance.secret = ("") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count"))) {
+                instance.count = (0) satisfies number;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags"))) {
+                instance.tags = ([]) satisfies string[];
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note"))) {
+                instance.note = ("none") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe"))) {
+                instance.maybe = (null) satisfies string | null;
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DirectiveSkipped;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function directiveSkippedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkipped>): Partial<DirectiveSkipped> | __mf_PendingRef {
+    return directiveSkippedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function directiveSkippedValidateField<K extends keyof DirectiveSkipped>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function directiveSkippedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function directiveSkippedValidateFields(partial: { readonly [K in keyof DirectiveSkipped]?: unknown }): Array<{ field: string; message: string }>;
+export function directiveSkippedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function directiveSkippedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name"]);
+}
+
+export function directiveSkippedIs(obj: unknown): obj is DirectiveSkipped {
+    return directiveSkippedHasShape(obj) && directiveSkippedDecode(obj).success;
+}
+
+export const DirectiveSkipped: {
+  readonly encode: typeof directiveSkippedEncode;
+  readonly encodeWithContext: typeof directiveSkippedEncodeWithContext;
+  readonly encodePartialWithContext: typeof directiveSkippedEncodePartialWithContext;
+  readonly decode: typeof directiveSkippedDecode;
+  readonly fromString: typeof directiveSkippedFromString;
+  readonly decodeWithContext: typeof directiveSkippedDecodeWithContext;
+  readonly decodePartialWithContext: typeof directiveSkippedDecodePartialWithContext;
+  readonly validateField: typeof directiveSkippedValidateField;
+  readonly validateFields: typeof directiveSkippedValidateFields;
+  readonly hasShape: typeof directiveSkippedHasShape;
+  readonly is: typeof directiveSkippedIs;
+} = {
+  encode: directiveSkippedEncode,
+  encodeWithContext: directiveSkippedEncodeWithContext,
+  encodePartialWithContext: directiveSkippedEncodePartialWithContext,
+  decode: directiveSkippedDecode,
+  fromString: directiveSkippedFromString,
+  decodeWithContext: directiveSkippedDecodeWithContext,
+  decodePartialWithContext: directiveSkippedDecodePartialWithContext,
+  validateField: directiveSkippedValidateField,
+  validateFields: directiveSkippedValidateFields,
+  hasShape: directiveSkippedHasShape,
+  is: directiveSkippedIs
+};
+
+/** @derive(Encode, Decode) */
+export class DirectiveSkippedClass {
+    name: string = '';
+    /** @endec({ skip: true }) */
+    cache: Map<string, number> = new Map([['seed', 1]]);
+    /** @endec({ skipDecoding: true }) */
+    derived: number = 7;
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: DirectiveSkippedClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectiveSkippedClass" });
+    DirectiveSkippedClass.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DirectiveSkippedClass" };
+        DirectiveSkippedClass.#encodeFields(value as DirectiveSkippedClass, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: DirectiveSkippedClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("derived")) {
+                if (value.derived !== undefined) {
+                    result["derived"] = value.derived;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: DirectiveSkippedClass, keepMetadata?: boolean): string {
+        return directiveSkippedClassEncode(value, keepMetadata);
+    }
+
+constructor(props: { name: string; cache?: Map<string, number>; derived?: number }) {
+
+    this.name = props.name;
+    if (props.cache !== undefined) {
+        this.cache = props.cache;
+    }
+    if (props.derived !== undefined) {
+        this.derived = props.derived;
+    }
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = DirectiveSkippedClass.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectiveSkippedClass.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => DirectiveSkippedClass.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkippedClass | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveSkippedClass> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DirectiveSkippedClass> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveSkippedClass.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectiveSkippedClass.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "DirectiveSkippedClass") as DirectiveSkippedClass | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveSkippedClass.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(DirectiveSkippedClass.prototype);
+    const instance: { "name"?: string | undefined; "cache"?: Map<string, number> | undefined; "derived"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveSkippedClass");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkippedClass.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cache"))) {
+                instance.cache = (new Map()) satisfies Map<string, number>;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("derived"))) {
+                instance.derived = (0) satisfies number;
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof DirectiveSkippedClass)) {
+        throw new TypeError("DirectiveSkippedClass.decodeWithContext: the value made is no DirectiveSkippedClass");
+    }
+    return made;
+}
+static validateField<K extends keyof DirectiveSkippedClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof DirectiveSkippedClass]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["name"]);
+}
+
+static is(obj: unknown): obj is DirectiveSkippedClass {
+    if (obj instanceof DirectiveSkippedClass) {
+        return true;
+    }
+    if (!DirectiveSkippedClass.hasShape(obj)) {
+        return false;
+    }
+
+    const result = DirectiveSkippedClass.decode(obj);
+    return result.success;
+}
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directiveSkippedClassEncode(value: DirectiveSkippedClass, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directiveSkippedClassEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directiveSkippedClassEncodeWithContext(value: DirectiveSkippedClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return DirectiveSkippedClass.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function directiveSkippedClassEncodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Record<string, unknown> {
+    return DirectiveSkippedClass.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function directiveSkippedClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return DirectiveSkippedClass.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function directiveSkippedClassFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return DirectiveSkippedClass.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directiveSkippedClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkippedClass | __mf_PendingRef {
+    return DirectiveSkippedClass.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function directiveSkippedClassHasShape(value: unknown): boolean {
+    return DirectiveSkippedClass.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function directiveSkippedClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Partial<DirectiveSkippedClass> | __mf_PendingRef {
+    return DirectiveSkippedClass.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function directiveSkippedClassIs(value: unknown): value is DirectiveSkippedClass {
+    return DirectiveSkippedClass.is(value);
+}
+
+/** @derive(Encode, Decode) */
+export interface DirectiveInner {
+    depth: number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directiveInnerEncode(value: DirectiveInner, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directiveInnerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directiveInnerEncodeWithContext(value: DirectiveInner, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectiveInner" });
+    directiveInnerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function directiveInnerEncodePartialWithContext(value: Partial<DirectiveInner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveInner>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DirectiveInner" };
+        directiveInnerEncodeFields(value as DirectiveInner, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function directiveInnerEncodeFields(value: DirectiveInner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("depth")) {
+        if (value.depth !== undefined) {
+            result["depth"] = value.depth;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveInnerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveInner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = directiveInnerDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectiveInner.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveInnerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveInner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveInnerDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveInner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveInner> | __mf_PendingRef;
+export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DirectiveInner> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveInner.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectiveInner.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "DirectiveInner") as DirectiveInner | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveInner.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["depth", "depth"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "depth"?: number | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveInner");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("depth")) ? "depth" in obj : (__fields.keeps("depth") && obj["depth"] !== undefined)) {
+        const __raw_depth = obj["depth"] as number;
+
+        if (!(typeof __raw_depth === "number" && globalThis.Number.isFinite(__raw_depth))) {
+            errors.push({ field: "depth", message: __raw_depth == null ? "DirectiveInner.depth is required" : "expected number" });
+        } else {
+            instance.depth = __raw_depth;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DirectiveInner;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function directiveInnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveInner>): Partial<DirectiveInner> | __mf_PendingRef {
+    return directiveInnerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function directiveInnerValidateField<K extends keyof DirectiveInner>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function directiveInnerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function directiveInnerValidateFields(partial: { readonly [K in keyof DirectiveInner]?: unknown }): Array<{ field: string; message: string }>;
+export function directiveInnerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function directiveInnerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["depth"]);
+}
+
+export function directiveInnerIs(obj: unknown): obj is DirectiveInner {
+    return directiveInnerHasShape(obj) && directiveInnerDecode(obj).success;
+}
+
+export const DirectiveInner: {
+  readonly encode: typeof directiveInnerEncode;
+  readonly encodeWithContext: typeof directiveInnerEncodeWithContext;
+  readonly encodePartialWithContext: typeof directiveInnerEncodePartialWithContext;
+  readonly decode: typeof directiveInnerDecode;
+  readonly fromString: typeof directiveInnerFromString;
+  readonly decodeWithContext: typeof directiveInnerDecodeWithContext;
+  readonly decodePartialWithContext: typeof directiveInnerDecodePartialWithContext;
+  readonly validateField: typeof directiveInnerValidateField;
+  readonly validateFields: typeof directiveInnerValidateFields;
+  readonly hasShape: typeof directiveInnerHasShape;
+  readonly is: typeof directiveInnerIs;
+} = {
+  encode: directiveInnerEncode,
+  encodeWithContext: directiveInnerEncodeWithContext,
+  encodePartialWithContext: directiveInnerEncodePartialWithContext,
+  decode: directiveInnerDecode,
+  fromString: directiveInnerFromString,
+  decodeWithContext: directiveInnerDecodeWithContext,
+  decodePartialWithContext: directiveInnerDecodePartialWithContext,
+  validateField: directiveInnerValidateField,
+  validateFields: directiveInnerValidateFields,
+  hasShape: directiveInnerHasShape,
+  is: directiveInnerIs
+};
+
+/** @derive(Encode, Decode) */
+export interface DirectiveFlat {
+    title: string;
+    /** @endec(flatten) */
+    inner: DirectiveInner | null;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directiveFlatEncode(value: DirectiveFlat, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directiveFlatEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directiveFlatEncodeWithContext(value: DirectiveFlat, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectiveFlat" });
+    directiveFlatEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function directiveFlatEncodePartialWithContext(value: Partial<DirectiveFlat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveFlat>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DirectiveFlat" };
+        directiveFlatEncodeFields(value as DirectiveFlat, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function directiveFlatEncodeFields(value: DirectiveFlat, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inner")) {
+                if (value.inner !== undefined && value.inner !== null) {
+                    const __flattened = directiveInnerEncodePartialWithContext(value.inner, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveFlatDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveFlat } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = directiveFlatDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectiveFlat.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveFlatFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveFlat } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveFlatDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveFlat | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveFlat> | __mf_PendingRef;
+export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DirectiveFlat> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveFlat.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectiveFlat.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "DirectiveFlat") as DirectiveFlat | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectiveFlat.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "title"?: string | undefined; "inner"?: DirectiveInner | null | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveFlat");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
+
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "DirectiveFlat.title is required" : "expected string" });
+                } else {
+                    instance.title = __raw_title;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("inner"))) {
+                if (directiveInnerHasShape(obj)) {
+                    try {
+                        const __result = directiveInnerDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "inner", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                } else if ((__fields === undefined || __fields.requires("inner"))) {
+                    instance.inner = null;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DirectiveFlat;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function directiveFlatDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveFlat>): Partial<DirectiveFlat> | __mf_PendingRef {
+    return directiveFlatDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function directiveFlatValidateField<K extends keyof DirectiveFlat>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function directiveFlatValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function directiveFlatValidateFields(partial: { readonly [K in keyof DirectiveFlat]?: unknown }): Array<{ field: string; message: string }>;
+export function directiveFlatValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function directiveFlatHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["title"]);
+}
+
+export function directiveFlatIs(obj: unknown): obj is DirectiveFlat {
+    return directiveFlatHasShape(obj) && directiveFlatDecode(obj).success;
+}
+
+export const DirectiveFlat: {
+  readonly encode: typeof directiveFlatEncode;
+  readonly encodeWithContext: typeof directiveFlatEncodeWithContext;
+  readonly encodePartialWithContext: typeof directiveFlatEncodePartialWithContext;
+  readonly decode: typeof directiveFlatDecode;
+  readonly fromString: typeof directiveFlatFromString;
+  readonly decodeWithContext: typeof directiveFlatDecodeWithContext;
+  readonly decodePartialWithContext: typeof directiveFlatDecodePartialWithContext;
+  readonly validateField: typeof directiveFlatValidateField;
+  readonly validateFields: typeof directiveFlatValidateFields;
+  readonly hasShape: typeof directiveFlatHasShape;
+  readonly is: typeof directiveFlatIs;
+} = {
+  encode: directiveFlatEncode,
+  encodeWithContext: directiveFlatEncodeWithContext,
+  encodePartialWithContext: directiveFlatEncodePartialWithContext,
+  decode: directiveFlatDecode,
+  fromString: directiveFlatFromString,
+  decodeWithContext: directiveFlatDecodeWithContext,
+  decodePartialWithContext: directiveFlatDecodePartialWithContext,
+  validateField: directiveFlatValidateField,
+  validateFields: directiveFlatValidateFields,
+  hasShape: directiveFlatHasShape,
+  is: directiveFlatIs
+};
+
+## DTS
+
+/**
+* Directives whose arguments hold what a scan for brackets, commas and
+* option names could trip on, derives spread over several directives, and
+* fields a decoder never reads.
+*/
+/** @derive(Debug, Default, Encode, Decode) */
+export interface DirectiveTexts {
+	/** @endec({ rename: "skip" }) @debug({ rename: "flatten)" }) */
+	renamed: string;
+	/** @endec({ default: "\"(\"" }) @default(":(") */
+	open: string;
+	/** @endec({ default: "\"a, b]\"" }) @default("a, b]") */
+	listed: string;
+	/** @endec({ validate: ["pattern(\"^[(a-z, ]+$\")"] }) */
+	matched: string;
+	/** @endec({ default: "[\"skip\", \"flatten\"]" }) */
+	words: string[];
+}
+export declare function directiveTextsToString(value: DirectiveTexts): string;
+export declare function directiveTextsDefaultValue(): DirectiveTexts;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directiveTextsEncode(value: DirectiveTexts, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directiveTextsEncodeWithContext(value: DirectiveTexts, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function directiveTextsEncodePartialWithContext(value: Partial<DirectiveTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveTexts>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveTextsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveTexts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveTextsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveTexts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveTexts | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveTexts> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function directiveTextsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveTexts>): Partial<DirectiveTexts> | __mf_PendingRef;
+export declare function directiveTextsValidateField<K extends keyof DirectiveTexts>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveTextsValidateFields(partial: { readonly [K in keyof DirectiveTexts]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveTextsHasShape(obj: unknown): boolean;
+export declare function directiveTextsIs(obj: unknown): obj is DirectiveTexts;
+export declare const DirectiveTexts: {
+	readonly toString: typeof directiveTextsToString;
+	readonly defaultValue: typeof directiveTextsDefaultValue;
+	readonly encode: typeof directiveTextsEncode;
+	readonly encodeWithContext: typeof directiveTextsEncodeWithContext;
+	readonly encodePartialWithContext: typeof directiveTextsEncodePartialWithContext;
+	readonly decode: typeof directiveTextsDecode;
+	readonly fromString: typeof directiveTextsFromString;
+	readonly decodeWithContext: typeof directiveTextsDecodeWithContext;
+	readonly decodePartialWithContext: typeof directiveTextsDecodePartialWithContext;
+	readonly validateField: typeof directiveTextsValidateField;
+	readonly validateFields: typeof directiveTextsValidateFields;
+	readonly hasShape: typeof directiveTextsHasShape;
+	readonly is: typeof directiveTextsIs;
+};
+/** @derive(Debug) */
+/** @derive(Clone, PartialEq) */
+export interface DirectiveStacked {
+	name: string;
+}
+export declare function directiveStackedClone(value: DirectiveStacked): DirectiveStacked;
+export declare function directiveStackedEquals(a: DirectiveStacked, b: DirectiveStacked): boolean;
+export declare function directiveStackedToString(value: DirectiveStacked): string;
+export declare const DirectiveStacked: {
+	readonly clone: typeof directiveStackedClone;
+	readonly equals: typeof directiveStackedEquals;
+	readonly toString: typeof directiveStackedToString;
+};
+/**
+* A point, whose derives are written on two lines.
+* @derive(Debug, Clone)
+* @derive(PartialEq, Clone)
+*/
+export interface DirectiveRepeated {
+	x: number;
+}
+export declare function directiveRepeatedToString(value: DirectiveRepeated): string;
+export declare function directiveRepeatedClone(value: DirectiveRepeated): DirectiveRepeated;
+export declare function directiveRepeatedEquals(a: DirectiveRepeated, b: DirectiveRepeated): boolean;
+export declare const DirectiveRepeated: {
+	readonly toString: typeof directiveRepeatedToString;
+	readonly clone: typeof directiveRepeatedClone;
+	readonly equals: typeof directiveRepeatedEquals;
+};
+/** @derive(Encode, Decode) */
+export interface DirectiveSkipped {
+	name: string;
+	/** @endec({ skip: true }) */
+	secret: string;
+	/** @endec({ skipDecoding: true }) */
+	count: number;
+	/** @endec({ skip: true }) */
+	tags: string[];
+	/** @endec({ skip: true, default: "\"none\"" }) */
+	note: string;
+	/** @endec({ skip: true }) */
+	optional?: string;
+	/** @endec({ skipDecoding: true }) */
+	maybe: string | null;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directiveSkippedEncode(value: DirectiveSkipped, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directiveSkippedEncodeWithContext(value: DirectiveSkipped, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function directiveSkippedEncodePartialWithContext(value: Partial<DirectiveSkipped>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkipped>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveSkippedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkipped;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveSkippedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkipped;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkipped | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveSkipped> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function directiveSkippedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkipped>): Partial<DirectiveSkipped> | __mf_PendingRef;
+export declare function directiveSkippedValidateField<K extends keyof DirectiveSkipped>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveSkippedValidateFields(partial: { readonly [K in keyof DirectiveSkipped]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveSkippedHasShape(obj: unknown): boolean;
+export declare function directiveSkippedIs(obj: unknown): obj is DirectiveSkipped;
+export declare const DirectiveSkipped: {
+	readonly encode: typeof directiveSkippedEncode;
+	readonly encodeWithContext: typeof directiveSkippedEncodeWithContext;
+	readonly encodePartialWithContext: typeof directiveSkippedEncodePartialWithContext;
+	readonly decode: typeof directiveSkippedDecode;
+	readonly fromString: typeof directiveSkippedFromString;
+	readonly decodeWithContext: typeof directiveSkippedDecodeWithContext;
+	readonly decodePartialWithContext: typeof directiveSkippedDecodePartialWithContext;
+	readonly validateField: typeof directiveSkippedValidateField;
+	readonly validateFields: typeof directiveSkippedValidateFields;
+	readonly hasShape: typeof directiveSkippedHasShape;
+	readonly is: typeof directiveSkippedIs;
+};
+/** @derive(Encode, Decode) */
+export declare class DirectiveSkippedClass {
+	#private;
+	name: string;
+	/** @endec({ skip: true }) */
+	cache: Map<string, number>;
+	/** @endec({ skipDecoding: true }) */
+	derived: number;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: DirectiveSkippedClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: DirectiveSkippedClass, keepMetadata?: boolean): string;
+	constructor(props: {
+		name: string;
+		cache?: Map<string, number>;
+		derived?: number;
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: DirectiveSkippedClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: DirectiveSkippedClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkippedClass | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveSkippedClass> | __mf_PendingRef;
+	static validateField<K extends keyof DirectiveSkippedClass>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof DirectiveSkippedClass]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is DirectiveSkippedClass;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directiveSkippedClassEncode(value: DirectiveSkippedClass, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directiveSkippedClassEncodeWithContext(value: DirectiveSkippedClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function directiveSkippedClassEncodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function directiveSkippedClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkippedClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function directiveSkippedClassFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkippedClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directiveSkippedClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkippedClass | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function directiveSkippedClassHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function directiveSkippedClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Partial<DirectiveSkippedClass> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function directiveSkippedClassIs(value: unknown): value is DirectiveSkippedClass;
+/** @derive(Encode, Decode) */
+export interface DirectiveInner {
+	depth: number;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directiveInnerEncode(value: DirectiveInner, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directiveInnerEncodeWithContext(value: DirectiveInner, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function directiveInnerEncodePartialWithContext(value: Partial<DirectiveInner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveInner>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveInnerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveInner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveInnerFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveInner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveInner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveInner> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function directiveInnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveInner>): Partial<DirectiveInner> | __mf_PendingRef;
+export declare function directiveInnerValidateField<K extends keyof DirectiveInner>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveInnerValidateFields(partial: { readonly [K in keyof DirectiveInner]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveInnerHasShape(obj: unknown): boolean;
+export declare function directiveInnerIs(obj: unknown): obj is DirectiveInner;
+export declare const DirectiveInner: {
+	readonly encode: typeof directiveInnerEncode;
+	readonly encodeWithContext: typeof directiveInnerEncodeWithContext;
+	readonly encodePartialWithContext: typeof directiveInnerEncodePartialWithContext;
+	readonly decode: typeof directiveInnerDecode;
+	readonly fromString: typeof directiveInnerFromString;
+	readonly decodeWithContext: typeof directiveInnerDecodeWithContext;
+	readonly decodePartialWithContext: typeof directiveInnerDecodePartialWithContext;
+	readonly validateField: typeof directiveInnerValidateField;
+	readonly validateFields: typeof directiveInnerValidateFields;
+	readonly hasShape: typeof directiveInnerHasShape;
+	readonly is: typeof directiveInnerIs;
+};
+/** @derive(Encode, Decode) */
+export interface DirectiveFlat {
+	title: string;
+	/** @endec(flatten) */
+	inner: DirectiveInner | null;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directiveFlatEncode(value: DirectiveFlat, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directiveFlatEncodeWithContext(value: DirectiveFlat, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function directiveFlatEncodePartialWithContext(value: Partial<DirectiveFlat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveFlat>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveFlatDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveFlat;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveFlatFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveFlat;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveFlat | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DirectiveFlat> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function directiveFlatDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DirectiveFlat>): Partial<DirectiveFlat> | __mf_PendingRef;
+export declare function directiveFlatValidateField<K extends keyof DirectiveFlat>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveFlatValidateFields(partial: { readonly [K in keyof DirectiveFlat]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directiveFlatHasShape(obj: unknown): boolean;
+export declare function directiveFlatIs(obj: unknown): obj is DirectiveFlat;
+export declare const DirectiveFlat: {
+	readonly encode: typeof directiveFlatEncode;
+	readonly encodeWithContext: typeof directiveFlatEncodeWithContext;
+	readonly encodePartialWithContext: typeof directiveFlatEncodePartialWithContext;
+	readonly decode: typeof directiveFlatDecode;
+	readonly fromString: typeof directiveFlatFromString;
+	readonly decodeWithContext: typeof directiveFlatDecodeWithContext;
+	readonly decodePartialWithContext: typeof directiveFlatDecodePartialWithContext;
+	readonly validateField: typeof directiveFlatValidateField;
+	readonly validateFields: typeof directiveFlatValidateFields;
+	readonly hasShape: typeof directiveFlatHasShape;
+	readonly is: typeof directiveFlatIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..678 -> expanded 945..1623
+original 678..790 -> expanded 17975..18087
+original 790..959 -> expanded 19043..19212
+original 959..1414 -> expanded 20197..20652
+original 1414..1665 -> expanded 32030..32281
+original 1665..1666 -> expanded 41341..41342
+original 1666..1753 -> expanded 45230..45317
+original 1753..1900 -> expanded 54851..54998
+original 1900..1901 -> expanded 66067..66068
+generated 0..945 <- imports
+generated 1623..2118 <- Debug
+generated 2118..2310 <- Default
+generated 2310..5585 <- Encode
+generated 5585..16563 <- Decode
+generated 16563..17975 <- __convenience_const
+generated 18087..18256 <- Clone
+generated 18256..18465 <- PartialEq
+generated 18465..18745 <- Debug
+generated 18745..19043 <- __convenience_const
+generated 19212..19489 <- Debug
+generated 19489..19656 <- Clone
+generated 19656..19892 <- PartialEq
+generated 19892..20197 <- __convenience_const
+generated 20652..23484 <- Encode
+generated 23484..30764 <- Decode
+generated 30764..32030 <- __convenience_const
+generated 32281..34302 <- Encode
+generated 34302..34651 <- Encode
+generated 34651..41341 <- Decode
+generated 41342..42812 <- Encode
+generated 42812..45230 <- Decode
+generated 45317..47540 <- Encode
+generated 47540..53631 <- Decode
+generated 53631..54851 <- __convenience_const
+generated 54998..57785 <- Encode
+generated 57785..64870 <- Decode
+generated 64870..66067 <- __convenience_const
+
+## Metadata
+
+class DirectiveSkippedClass: {"body_span":{"end":1667,"start":1483},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1447,"start":1417}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1507,"start":1489},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1541,"start":1512}}],"initializer":"new Map([['seed', 1]])","key":"Named","name":"cache","optional":false,"readonly":false,"span":{"end":1598,"start":1546},"ts_type":"Map<string, number>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skipDecoding: true }","name":"endec","span":{"end":1640,"start":1603}}],"initializer":"7","key":"Named","name":"derived","optional":false,"readonly":false,"span":{"end":1665,"start":1645},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"DirectiveSkippedClass","span":{"end":1667,"start":1455},"superclass":null,"type_params":[]}
+interface DirectiveTexts: {"body_span":{"end":679,"start":269},"decorators":[{"args_src":"Debug, Default, Encode, Decode","name":"Derive","span":{"end":236,"start":190}}],"fields":[{"decorators":[{"args_src":"{ rename: \"skip\" }","name":"endec","span":{"end":339,"start":275}},{"args_src":"{ rename: \"flatten)\" }","name":"debug","span":{"end":339,"start":275}}],"key":"Named","name":"renamed","optional":false,"readonly":false,"span":{"end":360,"start":344},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"\\\"(\\\"\" }","name":"endec","span":{"end":415,"start":365}},{"args_src":"\":(\"","name":"default","span":{"end":415,"start":365}}],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":433,"start":420},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"\\\"a, b]\\\"\" }","name":"endec","span":{"end":495,"start":438}},{"args_src":"\"a, b]\"","name":"default","span":{"end":495,"start":438}}],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":515,"start":500},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"pattern(\\\"^[(a-z, ]+$\\\")\"] }","name":"endec","span":{"end":577,"start":520}}],"key":"Named","name":"matched","optional":false,"readonly":false,"span":{"end":598,"start":582},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"[\\\"skip\\\", \\\"flatten\\\"]\" }","name":"endec","span":{"end":656,"start":603}}],"key":"Named","name":"words","optional":false,"readonly":false,"span":{"end":677,"start":661},"ts_type":"string[]"}],"heritage":[],"methods":[],"name":"DirectiveTexts","span":{"end":679,"start":244},"type_params":[]}
+interface DirectiveStacked: {"body_span":{"end":791,"start":770},"decorators":[{"args_src":"Clone, PartialEq","name":"Derive","span":{"end":735,"start":703}},{"args_src":"Debug","name":"Derive","span":{"end":702,"start":681}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":789,"start":776},"ts_type":"string"}],"heritage":[],"methods":[],"name":"DirectiveStacked","span":{"end":791,"start":743},"type_params":[]}
+interface DirectiveRepeated: {"body_span":{"end":960,"start":942},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":906,"start":793}},{"args_src":"PartialEq, Clone","name":"Derive","span":{"end":906,"start":793}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":958,"start":948},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectiveRepeated","span":{"end":960,"start":914},"type_params":[]}
+interface DirectiveSkipped: {"body_span":{"end":1415,"start":1027},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":992,"start":962}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1046,"start":1033},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1080,"start":1051}}],"key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1100,"start":1085},"ts_type":"string"},{"decorators":[{"args_src":"{ skipDecoding: true }","name":"endec","span":{"end":1142,"start":1105}}],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1161,"start":1147},"ts_type":"number"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1195,"start":1166}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":1215,"start":1200},"ts_type":"string[]"},{"decorators":[{"args_src":"{ skip: true, default: \"\\\"none\\\"\" }","name":"endec","span":{"end":1270,"start":1220}}],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":1288,"start":1275},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1322,"start":1293}}],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1345,"start":1327},"ts_type":"string"},{"decorators":[{"args_src":"{ skipDecoding: true }","name":"endec","span":{"end":1387,"start":1350}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1413,"start":1392},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DirectiveSkipped","span":{"end":1415,"start":1000},"type_params":[]}
+interface DirectiveInner: {"body_span":{"end":1754,"start":1732},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1699,"start":1669}}],"fields":[{"decorators":[],"key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1752,"start":1738},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectiveInner","span":{"end":1754,"start":1707},"type_params":[]}
+interface DirectiveFlat: {"body_span":{"end":1901,"start":1818},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1786,"start":1756}}],"fields":[{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":1838,"start":1824},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":1865,"start":1843}}],"key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":1899,"start":1870},"ts_type":"DirectiveInner | null"}],"heritage":[],"methods":[],"name":"DirectiveFlat","span":{"end":1901,"start":1794},"type_params":[]}
+
+## Registry reads
+
+Name("DirectiveInner")
+Name("Map")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

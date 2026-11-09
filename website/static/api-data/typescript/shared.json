@@ -215,6 +215,104 @@
                 "```typescript\n// Basic usage (no parsing, just find the config path)\nconst config = loadMacroConfig('/project/src');\n// => { keepDecorators: false, configPath: '/project/macroforge.config.js' }\n\n// With Rust binary parser\nconst config = loadMacroConfig('/project/src', rustTransformer.loadConfig);\n// => { keepDecorators: true, configPath: '...', hasForeignTypes: true }\n```"
             ],
             "remarks": "Starting from the given directory, this function walks up the filesystem hierarchy looking for a macroforge config file. The first one found is parsed using the provided loader function (if any), which extracts configuration including foreign type handlers. The returned `MacroConfig` is a subset: only `keepDecorators`, `generateConvenienceConst`, `configPath`, and `hasForeignTypes` are ever populated. The macro-behavior sections (`cfg`, `deprecated`, `mustUse`, `nonExhaustive`) and the `vite` section are NOT surfaced here: the native engine consumes them itself from its cache keyed by `configPath` (pass `configPath` through in `ExpandOptions`), and the Vite plugin re-imports the config file to read its `vite` section. If the loader function throws, the error is swallowed and the fallback (defaults plus `configPath`) is returned."
+        },
+        {
+            "name": "TYPESCRIPT_EXTENSIONS",
+            "kind": "const",
+            "type": "readonly string[]",
+            "description": "The extensions of a TypeScript module, a declaration file among them."
+        },
+        {
+            "name": "JAVASCRIPT_EXTENSIONS",
+            "kind": "const",
+            "type": "readonly string[]",
+            "description": "The extensions of a JavaScript module."
+        },
+        {
+            "name": "DECLARATION_ENDINGS",
+            "kind": "const",
+            "type": "readonly string[]",
+            "description": "The endings of a declaration file."
+        },
+        {
+            "name": "declarationFileOf",
+            "kind": "function",
+            "type": "(fileName: string) => string",
+            "description": "The name of the declaration file a TypeScript module's types are emitted to: `user.ts` and `user.tsx` give `user.d.ts`, `user.mts` gives `user.d.mts` and `user.cts` gives `user.d.cts`.",
+            "params": [
+                {
+                    "name": "fileName",
+                    "type": "string",
+                    "description": ""
+                }
+            ],
+            "returns": "string"
+        },
+        {
+            "name": "SourceMappingSegment",
+            "kind": "interface",
+            "type": null,
+            "description": "One range of the expanded code holding a range of the original as written."
+        },
+        {
+            "name": "SourceMapping",
+            "kind": "interface",
+            "type": null,
+            "description": "The engine's source mapping of an expansion: offsets in UTF-16 code units."
+        },
+        {
+            "name": "SourceMapV3",
+            "kind": "interface",
+            "type": null,
+            "description": "A Source Map v3 of expanded code against one original source."
+        },
+        {
+            "name": "sourceMapOf",
+            "kind": "function",
+            "type": "(mapping: SourceMapping, source: string, original: string, expanded: string) => SourceMapV3 | undefined",
+            "description": "The Source Map v3 of `expanded` against `original`, named `source`, or `undefined` when the mapping has no segment. Every line a segment spans is mapped, as the text it holds is the original's as written: a mapping at the segment's start alone leaves the lines after it mapped nowhere.",
+            "params": [
+                {
+                    "name": "mapping",
+                    "type": "SourceMapping",
+                    "description": ""
+                },
+                {
+                    "name": "source",
+                    "type": "string",
+                    "description": ""
+                },
+                {
+                    "name": "original",
+                    "type": "string",
+                    "description": ""
+                },
+                {
+                    "name": "expanded",
+                    "type": "string",
+                    "description": ""
+                }
+            ],
+            "returns": "SourceMapV3 | undefined"
+        },
+        {
+            "name": "lineAndColumn",
+            "kind": "function",
+            "type": "(text: string, offset: number) => { line: number; column: number }",
+            "description": "The 1-based line and column of `offset` in `text`, as an error message names a place.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "string",
+                    "description": ""
+                },
+                {
+                    "name": "offset",
+                    "type": "number",
+                    "description": ""
+                }
+            ],
+            "returns": "{ line: number; column: number }"
         }
     ]
 }

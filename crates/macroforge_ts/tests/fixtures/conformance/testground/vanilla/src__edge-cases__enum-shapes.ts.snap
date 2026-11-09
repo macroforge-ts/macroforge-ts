@@ -1,0 +1,2520 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/enum-shapes.ts
+sha256 bd6210609229664ee8d04e1dc27a62a704f7b47521b63c92953dc3934cbf8073
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Enums by how their values come about: counted, negative, fractional,
+ * computed, of both kinds at once, repeated, lone, with text that needs
+ * escaping, inlined and named like one another's values, and the fields and
+ * collections that hold them.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumCounted {
+    /** @default */
+    First,
+    Second,
+    Third
+}
+
+export function enumCountedToString(value: EnumCounted): string {
+
+    const held: unknown = value;
+    if (held === EnumCounted["First"]) {
+        return "EnumCounted.First";
+    }
+    if (held === EnumCounted["Second"]) {
+        return "EnumCounted.Second";
+    }
+    if (held === EnumCounted["Third"]) {
+        return "EnumCounted.Third";
+    }
+    return "EnumCounted(" + String(value) + ")";
+}
+
+export function enumCountedClone(value: EnumCounted): EnumCounted {
+    return value;
+}
+
+export function enumCountedEquals(a: EnumCounted, b: EnumCounted): boolean {
+    return a === b;
+}
+
+export function enumCountedHashCode(value: EnumCounted): number {
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function enumCountedPartialCompare(a: EnumCounted, b: EnumCounted): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCountedCompare(a: EnumCounted, b: EnumCounted): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCountedDefaultValue(): EnumCounted {
+    return EnumCounted.First;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumCountedEncode(value: EnumCounted): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumCountedEncodeWithContext(value: EnumCounted, ctx: __mf_EncodeContext): string | number;
+export function enumCountedEncodeWithContext(value: EnumCounted): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumCountedDecode(input: unknown): EnumCounted {
+    return enumCountedDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumCountedFromString(text: string): EnumCounted {
+    return enumCountedDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumCountedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCounted;
+export function enumCountedDecodeWithContext(data: unknown): EnumCounted {
+    if (EnumCounted["First"] === data) {
+        return EnumCounted["First"];
+    }
+    if (EnumCounted["Second"] === data) {
+        return EnumCounted["Second"];
+    }
+    if (EnumCounted["Third"] === data) {
+        return EnumCounted["Third"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumCounted value: " + JSON.stringify(data) }]);
+}
+
+export function enumCountedIs(value: unknown): value is EnumCounted {
+    if (EnumCounted["First"] === value) {
+        return true;
+    }
+    if (EnumCounted["Second"] === value) {
+        return true;
+    }
+    if (EnumCounted["Third"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumCounted {
+  export const toString: typeof enumCountedToString = enumCountedToString;
+  export const clone: typeof enumCountedClone = enumCountedClone;
+  export const equals: typeof enumCountedEquals = enumCountedEquals;
+  export const hashCode: typeof enumCountedHashCode = enumCountedHashCode;
+  export const partialCompare: typeof enumCountedPartialCompare = enumCountedPartialCompare;
+  export const compare: typeof enumCountedCompare = enumCountedCompare;
+  export const defaultValue: typeof enumCountedDefaultValue = enumCountedDefaultValue;
+  export const encode: typeof enumCountedEncode = enumCountedEncode;
+  export const encodeWithContext: typeof enumCountedEncodeWithContext = enumCountedEncodeWithContext;
+  export const decode: typeof enumCountedDecode = enumCountedDecode;
+  export const fromString: typeof enumCountedFromString = enumCountedFromString;
+  export const decodeWithContext: typeof enumCountedDecodeWithContext = enumCountedDecodeWithContext;
+  export const is: typeof enumCountedIs = enumCountedIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumSigned {
+    Below = -1,
+    /** @default */
+    Level = 0,
+    Above = 1,
+    Half = 0.5
+}
+
+export function enumSignedToString(value: EnumSigned): string {
+
+    const held: unknown = value;
+    if (held === EnumSigned["Below"]) {
+        return "EnumSigned.Below";
+    }
+    if (held === EnumSigned["Level"]) {
+        return "EnumSigned.Level";
+    }
+    if (held === EnumSigned["Above"]) {
+        return "EnumSigned.Above";
+    }
+    if (held === EnumSigned["Half"]) {
+        return "EnumSigned.Half";
+    }
+    return "EnumSigned(" + String(value) + ")";
+}
+
+export function enumSignedClone(value: EnumSigned): EnumSigned {
+    return value;
+}
+
+export function enumSignedEquals(a: EnumSigned, b: EnumSigned): boolean {
+    return a === b;
+}
+
+export function enumSignedHashCode(value: EnumSigned): number {
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function enumSignedPartialCompare(a: EnumSigned, b: EnumSigned): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumSignedCompare(a: EnumSigned, b: EnumSigned): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumSignedDefaultValue(): EnumSigned {
+    return EnumSigned.Level;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumSignedEncode(value: EnumSigned): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumSignedEncodeWithContext(value: EnumSigned, ctx: __mf_EncodeContext): string | number;
+export function enumSignedEncodeWithContext(value: EnumSigned): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumSignedDecode(input: unknown): EnumSigned {
+    return enumSignedDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumSignedFromString(text: string): EnumSigned {
+    return enumSignedDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumSignedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumSigned;
+export function enumSignedDecodeWithContext(data: unknown): EnumSigned {
+    if (EnumSigned["Below"] === data) {
+        return EnumSigned["Below"];
+    }
+    if (EnumSigned["Level"] === data) {
+        return EnumSigned["Level"];
+    }
+    if (EnumSigned["Above"] === data) {
+        return EnumSigned["Above"];
+    }
+    if (EnumSigned["Half"] === data) {
+        return EnumSigned["Half"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumSigned value: " + JSON.stringify(data) }]);
+}
+
+export function enumSignedIs(value: unknown): value is EnumSigned {
+    if (EnumSigned["Below"] === value) {
+        return true;
+    }
+    if (EnumSigned["Level"] === value) {
+        return true;
+    }
+    if (EnumSigned["Above"] === value) {
+        return true;
+    }
+    if (EnumSigned["Half"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumSigned {
+  export const toString: typeof enumSignedToString = enumSignedToString;
+  export const clone: typeof enumSignedClone = enumSignedClone;
+  export const equals: typeof enumSignedEquals = enumSignedEquals;
+  export const hashCode: typeof enumSignedHashCode = enumSignedHashCode;
+  export const partialCompare: typeof enumSignedPartialCompare = enumSignedPartialCompare;
+  export const compare: typeof enumSignedCompare = enumSignedCompare;
+  export const defaultValue: typeof enumSignedDefaultValue = enumSignedDefaultValue;
+  export const encode: typeof enumSignedEncode = enumSignedEncode;
+  export const encodeWithContext: typeof enumSignedEncodeWithContext = enumSignedEncodeWithContext;
+  export const decode: typeof enumSignedDecode = enumSignedDecode;
+  export const fromString: typeof enumSignedFromString = enumSignedFromString;
+  export const decodeWithContext: typeof enumSignedDecodeWithContext = enumSignedDecodeWithContext;
+  export const is: typeof enumSignedIs = enumSignedIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumFlags {
+    /** @default */
+    None = 0,
+    Read = 1 << 0,
+    Write = 1 << 1,
+    All = Read | Write
+}
+
+export function enumFlagsToString(value: EnumFlags): string {
+
+    const held: unknown = value;
+    if (held === EnumFlags["None"]) {
+        return "EnumFlags.None";
+    }
+    if (held === EnumFlags["Read"]) {
+        return "EnumFlags.Read";
+    }
+    if (held === EnumFlags["Write"]) {
+        return "EnumFlags.Write";
+    }
+    if (held === EnumFlags["All"]) {
+        return "EnumFlags.All";
+    }
+    return "EnumFlags(" + String(value) + ")";
+}
+
+export function enumFlagsClone(value: EnumFlags): EnumFlags {
+    return value;
+}
+
+export function enumFlagsEquals(a: EnumFlags, b: EnumFlags): boolean {
+    return a === b;
+}
+
+export function enumFlagsHashCode(value: EnumFlags): number {
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function enumFlagsPartialCompare(a: EnumFlags, b: EnumFlags): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumFlagsCompare(a: EnumFlags, b: EnumFlags): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumFlagsDefaultValue(): EnumFlags {
+    return EnumFlags.None;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumFlagsEncode(value: EnumFlags): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumFlagsEncodeWithContext(value: EnumFlags, ctx: __mf_EncodeContext): string | number;
+export function enumFlagsEncodeWithContext(value: EnumFlags): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumFlagsDecode(input: unknown): EnumFlags {
+    return enumFlagsDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumFlagsFromString(text: string): EnumFlags {
+    return enumFlagsDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumFlagsDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumFlags;
+export function enumFlagsDecodeWithContext(data: unknown): EnumFlags {
+    if (EnumFlags["None"] === data) {
+        return EnumFlags["None"];
+    }
+    if (EnumFlags["Read"] === data) {
+        return EnumFlags["Read"];
+    }
+    if (EnumFlags["Write"] === data) {
+        return EnumFlags["Write"];
+    }
+    if (EnumFlags["All"] === data) {
+        return EnumFlags["All"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumFlags value: " + JSON.stringify(data) }]);
+}
+
+export function enumFlagsIs(value: unknown): value is EnumFlags {
+    if (EnumFlags["None"] === value) {
+        return true;
+    }
+    if (EnumFlags["Read"] === value) {
+        return true;
+    }
+    if (EnumFlags["Write"] === value) {
+        return true;
+    }
+    if (EnumFlags["All"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumFlags {
+  export const toString: typeof enumFlagsToString = enumFlagsToString;
+  export const clone: typeof enumFlagsClone = enumFlagsClone;
+  export const equals: typeof enumFlagsEquals = enumFlagsEquals;
+  export const hashCode: typeof enumFlagsHashCode = enumFlagsHashCode;
+  export const partialCompare: typeof enumFlagsPartialCompare = enumFlagsPartialCompare;
+  export const compare: typeof enumFlagsCompare = enumFlagsCompare;
+  export const defaultValue: typeof enumFlagsDefaultValue = enumFlagsDefaultValue;
+  export const encode: typeof enumFlagsEncode = enumFlagsEncode;
+  export const encodeWithContext: typeof enumFlagsEncodeWithContext = enumFlagsEncodeWithContext;
+  export const decode: typeof enumFlagsDecode = enumFlagsDecode;
+  export const fromString: typeof enumFlagsFromString = enumFlagsFromString;
+  export const decodeWithContext: typeof enumFlagsDecodeWithContext = enumFlagsDecodeWithContext;
+  export const is: typeof enumFlagsIs = enumFlagsIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumMixed {
+    /** @default */
+    Zero = 0,
+    Text = 'text',
+    Five = 5,
+    Other = 'other'
+}
+
+export function enumMixedToString(value: EnumMixed): string {
+
+    const held: unknown = value;
+    if (held === EnumMixed["Zero"]) {
+        return "EnumMixed.Zero";
+    }
+    if (held === EnumMixed["Text"]) {
+        return "EnumMixed.Text";
+    }
+    if (held === EnumMixed["Five"]) {
+        return "EnumMixed.Five";
+    }
+    if (held === EnumMixed["Other"]) {
+        return "EnumMixed.Other";
+    }
+    return "EnumMixed(" + String(value) + ")";
+}
+
+export function enumMixedClone(value: EnumMixed): EnumMixed {
+    return value;
+}
+
+export function enumMixedEquals(a: EnumMixed, b: EnumMixed): boolean {
+    return a === b;
+}
+
+export function enumMixedHashCode(value: EnumMixed): number {
+    return typeof value === "string" ? (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0) : (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function enumMixedPartialCompare(a: EnumMixed, b: EnumMixed): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    return typeof a === "number" ? -1 : 1;
+}
+
+export function enumMixedCompare(a: EnumMixed, b: EnumMixed): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    return typeof a === "number" ? -1 : 1;
+}
+
+export function enumMixedDefaultValue(): EnumMixed {
+    return EnumMixed.Zero;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumMixedEncode(value: EnumMixed): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumMixedEncodeWithContext(value: EnumMixed, ctx: __mf_EncodeContext): string | number;
+export function enumMixedEncodeWithContext(value: EnumMixed): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumMixedDecode(input: unknown): EnumMixed {
+    return enumMixedDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumMixedFromString(text: string): EnumMixed {
+    return enumMixedDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumMixedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumMixed;
+export function enumMixedDecodeWithContext(data: unknown): EnumMixed {
+    if (EnumMixed["Zero"] === data) {
+        return EnumMixed["Zero"];
+    }
+    if (EnumMixed["Text"] === data) {
+        return EnumMixed["Text"];
+    }
+    if (EnumMixed["Five"] === data) {
+        return EnumMixed["Five"];
+    }
+    if (EnumMixed["Other"] === data) {
+        return EnumMixed["Other"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumMixed value: " + JSON.stringify(data) }]);
+}
+
+export function enumMixedIs(value: unknown): value is EnumMixed {
+    if (EnumMixed["Zero"] === value) {
+        return true;
+    }
+    if (EnumMixed["Text"] === value) {
+        return true;
+    }
+    if (EnumMixed["Five"] === value) {
+        return true;
+    }
+    if (EnumMixed["Other"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumMixed {
+  export const toString: typeof enumMixedToString = enumMixedToString;
+  export const clone: typeof enumMixedClone = enumMixedClone;
+  export const equals: typeof enumMixedEquals = enumMixedEquals;
+  export const hashCode: typeof enumMixedHashCode = enumMixedHashCode;
+  export const partialCompare: typeof enumMixedPartialCompare = enumMixedPartialCompare;
+  export const compare: typeof enumMixedCompare = enumMixedCompare;
+  export const defaultValue: typeof enumMixedDefaultValue = enumMixedDefaultValue;
+  export const encode: typeof enumMixedEncode = enumMixedEncode;
+  export const encodeWithContext: typeof enumMixedEncodeWithContext = enumMixedEncodeWithContext;
+  export const decode: typeof enumMixedDecode = enumMixedDecode;
+  export const fromString: typeof enumMixedFromString = enumMixedFromString;
+  export const decodeWithContext: typeof enumMixedDecodeWithContext = enumMixedDecodeWithContext;
+  export const is: typeof enumMixedIs = enumMixedIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumRepeated {
+    /** @default */
+    One = 1,
+    Uno = 1,
+    Two = 2
+}
+
+export function enumRepeatedToString(value: EnumRepeated): string {
+
+    const held: unknown = value;
+    if (held === EnumRepeated["One"]) {
+        return "EnumRepeated.One";
+    }
+    if (held === EnumRepeated["Uno"]) {
+        return "EnumRepeated.Uno";
+    }
+    if (held === EnumRepeated["Two"]) {
+        return "EnumRepeated.Two";
+    }
+    return "EnumRepeated(" + String(value) + ")";
+}
+
+export function enumRepeatedClone(value: EnumRepeated): EnumRepeated {
+    return value;
+}
+
+export function enumRepeatedEquals(a: EnumRepeated, b: EnumRepeated): boolean {
+    return a === b;
+}
+
+export function enumRepeatedHashCode(value: EnumRepeated): number {
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function enumRepeatedPartialCompare(a: EnumRepeated, b: EnumRepeated): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumRepeatedCompare(a: EnumRepeated, b: EnumRepeated): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumRepeatedDefaultValue(): EnumRepeated {
+    return EnumRepeated.One;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumRepeatedEncode(value: EnumRepeated): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumRepeatedEncodeWithContext(value: EnumRepeated, ctx: __mf_EncodeContext): string | number;
+export function enumRepeatedEncodeWithContext(value: EnumRepeated): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumRepeatedDecode(input: unknown): EnumRepeated {
+    return enumRepeatedDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumRepeatedFromString(text: string): EnumRepeated {
+    return enumRepeatedDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumRepeatedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumRepeated;
+export function enumRepeatedDecodeWithContext(data: unknown): EnumRepeated {
+    if (EnumRepeated["One"] === data) {
+        return EnumRepeated["One"];
+    }
+    if (EnumRepeated["Uno"] === data) {
+        return EnumRepeated["Uno"];
+    }
+    if (EnumRepeated["Two"] === data) {
+        return EnumRepeated["Two"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumRepeated value: " + JSON.stringify(data) }]);
+}
+
+export function enumRepeatedIs(value: unknown): value is EnumRepeated {
+    if (EnumRepeated["One"] === value) {
+        return true;
+    }
+    if (EnumRepeated["Uno"] === value) {
+        return true;
+    }
+    if (EnumRepeated["Two"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumRepeated {
+  export const toString: typeof enumRepeatedToString = enumRepeatedToString;
+  export const clone: typeof enumRepeatedClone = enumRepeatedClone;
+  export const equals: typeof enumRepeatedEquals = enumRepeatedEquals;
+  export const hashCode: typeof enumRepeatedHashCode = enumRepeatedHashCode;
+  export const partialCompare: typeof enumRepeatedPartialCompare = enumRepeatedPartialCompare;
+  export const compare: typeof enumRepeatedCompare = enumRepeatedCompare;
+  export const defaultValue: typeof enumRepeatedDefaultValue = enumRepeatedDefaultValue;
+  export const encode: typeof enumRepeatedEncode = enumRepeatedEncode;
+  export const encodeWithContext: typeof enumRepeatedEncodeWithContext = enumRepeatedEncodeWithContext;
+  export const decode: typeof enumRepeatedDecode = enumRepeatedDecode;
+  export const fromString: typeof enumRepeatedFromString = enumRepeatedFromString;
+  export const decodeWithContext: typeof enumRepeatedDecodeWithContext = enumRepeatedDecodeWithContext;
+  export const is: typeof enumRepeatedIs = enumRepeatedIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumLone {
+    /** @default */
+    Only = 'only'
+}
+
+export function enumLoneToString(value: EnumLone): string {
+
+    const held: unknown = value;
+    if (held === EnumLone["Only"]) {
+        return "EnumLone.Only";
+    }
+    return "EnumLone(" + String(value) + ")";
+}
+
+export function enumLoneClone(value: EnumLone): EnumLone {
+    return value;
+}
+
+export function enumLoneEquals(a: EnumLone, b: EnumLone): boolean {
+    return a === b;
+}
+
+export function enumLoneHashCode(value: EnumLone): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumLonePartialCompare(a: EnumLone, b: EnumLone): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumLoneCompare(a: EnumLone, b: EnumLone): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumLoneDefaultValue(): EnumLone {
+    return EnumLone.Only;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumLoneEncode(value: EnumLone): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumLoneEncodeWithContext(value: EnumLone, ctx: __mf_EncodeContext): string | number;
+export function enumLoneEncodeWithContext(value: EnumLone): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumLoneDecode(input: unknown): EnumLone {
+    return enumLoneDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumLoneFromString(text: string): EnumLone {
+    return enumLoneDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumLoneDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumLone;
+export function enumLoneDecodeWithContext(data: unknown): EnumLone {
+    if (EnumLone["Only"] === data) {
+        return EnumLone["Only"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumLone value: " + JSON.stringify(data) }]);
+}
+
+export function enumLoneIs(value: unknown): value is EnumLone {
+    if (EnumLone["Only"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumLone {
+  export const toString: typeof enumLoneToString = enumLoneToString;
+  export const clone: typeof enumLoneClone = enumLoneClone;
+  export const equals: typeof enumLoneEquals = enumLoneEquals;
+  export const hashCode: typeof enumLoneHashCode = enumLoneHashCode;
+  export const partialCompare: typeof enumLonePartialCompare = enumLonePartialCompare;
+  export const compare: typeof enumLoneCompare = enumLoneCompare;
+  export const defaultValue: typeof enumLoneDefaultValue = enumLoneDefaultValue;
+  export const encode: typeof enumLoneEncode = enumLoneEncode;
+  export const encodeWithContext: typeof enumLoneEncodeWithContext = enumLoneEncodeWithContext;
+  export const decode: typeof enumLoneDecode = enumLoneDecode;
+  export const fromString: typeof enumLoneFromString = enumLoneFromString;
+  export const decodeWithContext: typeof enumLoneDecodeWithContext = enumLoneDecodeWithContext;
+  export const is: typeof enumLoneIs = enumLoneIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumText {
+    /** @default */
+    Empty = '',
+    Quoted = 'it\'s "quoted"',
+    Spaced = 'two words',
+    Slashed = 'back\\slash'
+}
+
+export function enumTextToString(value: EnumText): string {
+
+    const held: unknown = value;
+    if (held === EnumText["Empty"]) {
+        return "EnumText.Empty";
+    }
+    if (held === EnumText["Quoted"]) {
+        return "EnumText.Quoted";
+    }
+    if (held === EnumText["Spaced"]) {
+        return "EnumText.Spaced";
+    }
+    if (held === EnumText["Slashed"]) {
+        return "EnumText.Slashed";
+    }
+    return "EnumText(" + String(value) + ")";
+}
+
+export function enumTextClone(value: EnumText): EnumText {
+    return value;
+}
+
+export function enumTextEquals(a: EnumText, b: EnumText): boolean {
+    return a === b;
+}
+
+export function enumTextHashCode(value: EnumText): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumTextPartialCompare(a: EnumText, b: EnumText): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumTextCompare(a: EnumText, b: EnumText): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumTextDefaultValue(): EnumText {
+    return EnumText.Empty;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumTextEncode(value: EnumText): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumTextEncodeWithContext(value: EnumText, ctx: __mf_EncodeContext): string | number;
+export function enumTextEncodeWithContext(value: EnumText): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumTextDecode(input: unknown): EnumText {
+    return enumTextDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumTextFromString(text: string): EnumText {
+    return enumTextDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumTextDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumText;
+export function enumTextDecodeWithContext(data: unknown): EnumText {
+    if (EnumText["Empty"] === data) {
+        return EnumText["Empty"];
+    }
+    if (EnumText["Quoted"] === data) {
+        return EnumText["Quoted"];
+    }
+    if (EnumText["Spaced"] === data) {
+        return EnumText["Spaced"];
+    }
+    if (EnumText["Slashed"] === data) {
+        return EnumText["Slashed"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumText value: " + JSON.stringify(data) }]);
+}
+
+export function enumTextIs(value: unknown): value is EnumText {
+    if (EnumText["Empty"] === value) {
+        return true;
+    }
+    if (EnumText["Quoted"] === value) {
+        return true;
+    }
+    if (EnumText["Spaced"] === value) {
+        return true;
+    }
+    if (EnumText["Slashed"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumText {
+  export const toString: typeof enumTextToString = enumTextToString;
+  export const clone: typeof enumTextClone = enumTextClone;
+  export const equals: typeof enumTextEquals = enumTextEquals;
+  export const hashCode: typeof enumTextHashCode = enumTextHashCode;
+  export const partialCompare: typeof enumTextPartialCompare = enumTextPartialCompare;
+  export const compare: typeof enumTextCompare = enumTextCompare;
+  export const defaultValue: typeof enumTextDefaultValue = enumTextDefaultValue;
+  export const encode: typeof enumTextEncode = enumTextEncode;
+  export const encodeWithContext: typeof enumTextEncodeWithContext = enumTextEncodeWithContext;
+  export const decode: typeof enumTextDecode = enumTextDecode;
+  export const fromString: typeof enumTextFromString = enumTextFromString;
+  export const decodeWithContext: typeof enumTextDecodeWithContext = enumTextDecodeWithContext;
+  export const is: typeof enumTextIs = enumTextIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export const enum EnumConstant {
+    /** @default */
+    Low = 'low',
+    High = 'high'
+}
+
+export function enumConstantToString(value: EnumConstant): string {
+
+    const held: unknown = value;
+    if (held === EnumConstant["Low"]) {
+        return "EnumConstant.Low";
+    }
+    if (held === EnumConstant["High"]) {
+        return "EnumConstant.High";
+    }
+    return "EnumConstant(" + String(value) + ")";
+}
+
+export function enumConstantClone(value: EnumConstant): EnumConstant {
+    return value;
+}
+
+export function enumConstantEquals(a: EnumConstant, b: EnumConstant): boolean {
+    return a === b;
+}
+
+export function enumConstantHashCode(value: EnumConstant): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumConstantPartialCompare(a: EnumConstant, b: EnumConstant): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumConstantCompare(a: EnumConstant, b: EnumConstant): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumConstantDefaultValue(): EnumConstant {
+    return EnumConstant.Low;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumConstantEncode(value: EnumConstant): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumConstantEncodeWithContext(value: EnumConstant, ctx: __mf_EncodeContext): string | number;
+export function enumConstantEncodeWithContext(value: EnumConstant): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumConstantDecode(input: unknown): EnumConstant {
+    return enumConstantDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumConstantFromString(text: string): EnumConstant {
+    return enumConstantDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumConstantDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumConstant;
+export function enumConstantDecodeWithContext(data: unknown): EnumConstant {
+    if (EnumConstant["Low"] === data) {
+        return EnumConstant["Low"];
+    }
+    if (EnumConstant["High"] === data) {
+        return EnumConstant["High"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumConstant value: " + JSON.stringify(data) }]);
+}
+
+export function enumConstantIs(value: unknown): value is EnumConstant {
+    if (EnumConstant["Low"] === value) {
+        return true;
+    }
+    if (EnumConstant["High"] === value) {
+        return true;
+    }
+    return false;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumCrossed {
+    /** @default */
+    A = 'B',
+    B = 'A'
+}
+
+export function enumCrossedToString(value: EnumCrossed): string {
+
+    const held: unknown = value;
+    if (held === EnumCrossed["A"]) {
+        return "EnumCrossed.A";
+    }
+    if (held === EnumCrossed["B"]) {
+        return "EnumCrossed.B";
+    }
+    return "EnumCrossed(" + String(value) + ")";
+}
+
+export function enumCrossedClone(value: EnumCrossed): EnumCrossed {
+    return value;
+}
+
+export function enumCrossedEquals(a: EnumCrossed, b: EnumCrossed): boolean {
+    return a === b;
+}
+
+export function enumCrossedHashCode(value: EnumCrossed): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumCrossedPartialCompare(a: EnumCrossed, b: EnumCrossed): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCrossedCompare(a: EnumCrossed, b: EnumCrossed): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCrossedDefaultValue(): EnumCrossed {
+    return EnumCrossed.A;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumCrossedEncode(value: EnumCrossed): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumCrossedEncodeWithContext(value: EnumCrossed, ctx: __mf_EncodeContext): string | number;
+export function enumCrossedEncodeWithContext(value: EnumCrossed): string | number {
+    return value;
+}
+
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumCrossedDecode(input: unknown): EnumCrossed {
+    return enumCrossedDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumCrossedFromString(text: string): EnumCrossed {
+    return enumCrossedDecodeWithContext(__mf_parsedText(text));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumCrossedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCrossed;
+export function enumCrossedDecodeWithContext(data: unknown): EnumCrossed {
+    if (EnumCrossed["A"] === data) {
+        return EnumCrossed["A"];
+    }
+    if (EnumCrossed["B"] === data) {
+        return EnumCrossed["B"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumCrossed value: " + JSON.stringify(data) }]);
+}
+
+export function enumCrossedIs(value: unknown): value is EnumCrossed {
+    if (EnumCrossed["A"] === value) {
+        return true;
+    }
+    if (EnumCrossed["B"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumCrossed {
+  export const toString: typeof enumCrossedToString = enumCrossedToString;
+  export const clone: typeof enumCrossedClone = enumCrossedClone;
+  export const equals: typeof enumCrossedEquals = enumCrossedEquals;
+  export const hashCode: typeof enumCrossedHashCode = enumCrossedHashCode;
+  export const partialCompare: typeof enumCrossedPartialCompare = enumCrossedPartialCompare;
+  export const compare: typeof enumCrossedCompare = enumCrossedCompare;
+  export const defaultValue: typeof enumCrossedDefaultValue = enumCrossedDefaultValue;
+  export const encode: typeof enumCrossedEncode = enumCrossedEncode;
+  export const encodeWithContext: typeof enumCrossedEncodeWithContext = enumCrossedEncodeWithContext;
+  export const decode: typeof enumCrossedDecode = enumCrossedDecode;
+  export const fromString: typeof enumCrossedFromString = enumCrossedFromString;
+  export const decodeWithContext: typeof enumCrossedDecodeWithContext = enumCrossedDecodeWithContext;
+  export const is: typeof enumCrossedIs = enumCrossedIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface EnumHolder {
+    counted: EnumCounted;
+    mixed: EnumMixed;
+    flags: EnumFlags;
+    maybe: EnumCounted | null;
+    later: EnumText | undefined;
+    optional?: EnumSigned;
+    list: EnumMixed[];
+    set: Set<EnumCounted>;
+    byName: Map<string, EnumText>;
+    byKind: Map<EnumText, number>;
+    labels: Record<string, EnumSigned>;
+    pair: [EnumCounted, EnumText];
+    constant: EnumConstant;
+}
+
+export function enumHolderToString(value: EnumHolder): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("counted: " + enumCountedToString(value.counted));
+    parts.push("mixed: " + enumMixedToString(value.mixed));
+    parts.push("flags: " + enumFlagsToString(value.flags));
+    parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : enumCountedToString(value.maybe)));
+    parts.push("later: " + (value.later == null ? String(value.later) : enumTextToString(value.later)));
+    parts.push("optional: " + (value.optional == null ? String(value.optional) : enumSignedToString(value.optional)));
+    parts.push("list: " + "[" + value.list.map(enumMixedToString).join(", ") + "]");
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("byName: " + __mf_structuralDebug(value.byName));
+    parts.push("byKind: " + __mf_structuralDebug(value.byKind));
+    parts.push("labels: " + __mf_structuralDebug(value.labels));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("constant: " + enumConstantToString(value.constant));
+        return "EnumHolder { " + parts.join(", ") + " }";
+    });
+}
+
+export function enumHolderClone(value: EnumHolder): EnumHolder {
+    return __mf_clonedWith(value, (): EnumHolder => ({
+	counted: enumCountedClone(value.counted),
+	mixed: enumMixedClone(value.mixed),
+	flags: enumFlagsClone(value.flags),
+	maybe: value.maybe == null ? value.maybe : enumCountedClone(value.maybe),
+	later: value.later == null ? value.later : enumTextClone(value.later),
+	..."optional" in value ? { optional: value.optional == null ? value.optional : enumSignedClone(value.optional) } : {},
+	list: value.list.map((__item0) => enumMixedClone(__item0)),
+	set: new Set(Array.from(value.set, (__item0) => enumCountedClone(__item0))),
+	byName: (() => {
+		const __copy0 = new Map(value.byName);
+		for (const [__key0, __item0] of value.byName) __copy0.set(__key0, enumTextClone(__item0));
+		return __copy0;
+	})(),
+	byKind: new Map(value.byKind),
+	labels: __mf_structuralClone(value.labels),
+	pair: __mf_structuralClone(value.pair),
+	constant: enumConstantClone(value.constant)
+}));
+}
+
+export function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => enumCountedEquals(a.counted, b.counted),
+            () => enumMixedEquals(a.mixed, b.mixed),
+            () => enumFlagsEquals(a.flags, b.flags),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : enumCountedEquals(a.maybe, b.maybe),
+            () => a.later == null || b.later == null ? a.later === b.later : enumTextEquals(a.later, b.later),
+            () => a.optional == null || b.optional == null ? a.optional === b.optional : enumSignedEquals(a.optional, b.optional),
+            () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+            	const __other0 = b.list[__index0];
+            	return __other0 === undefined ? __item0 === undefined : enumMixedEquals(__item0, __other0);
+            }),
+            () => a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => enumCountedEquals(__item0, __other0))),
+            () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+            	const __other0 = b.byName.get(__key0);
+            	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : enumTextEquals(__item0, __other0));
+            }),
+            () => a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
+            	const __other0 = b.byKind.get(__key0);
+            	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => __mf_structuralEquals(a.labels, b.labels),
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => enumConstantEquals(a.constant, b.constant),
+        ].every((same) => same());
+    });
+}
+
+export function enumHolderHashCode(value: EnumHolder): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (enumCountedHashCode(value.counted))) | 0;
+    hash = (hash * 31 + (enumMixedHashCode(value.mixed))) | 0;
+    hash = (hash * 31 + (enumFlagsHashCode(value.flags))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : enumCountedHashCode(value.maybe))) | 0;
+    hash = (hash * 31 + (value.later == null ? 0 : enumTextHashCode(value.later))) | 0;
+    hash = (hash * 31 + (value.optional == null ? 0 : enumSignedHashCode(value.optional))) | 0;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + enumMixedHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + enumCountedHashCode(__item0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + enumTextHashCode(__item0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.byKind).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.labels))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (enumConstantHashCode(value.constant))) | 0;
+        return hash;
+    });
+}
+
+export function enumHolderDefaultValue(): EnumHolder {
+    return {
+        counted: enumCountedDefaultValue(),
+        mixed: enumMixedDefaultValue(),
+        flags: enumFlagsDefaultValue(),
+        maybe: null,
+        later: undefined,
+        list: [],
+        set: new Set(),
+        byName: new Map(),
+        byKind: new Map(),
+        labels: ({}),
+        pair: [enumCountedDefaultValue(), enumTextDefaultValue()],
+        constant: enumConstantDefaultValue(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function enumHolderEncode(value: EnumHolder, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = enumHolderEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function enumHolderEncodeWithContext(value: EnumHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EnumHolder" });
+    enumHolderEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function enumHolderEncodePartialWithContext(value: Partial<EnumHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EnumHolder>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "EnumHolder" };
+        enumHolderEncodeFields(value as EnumHolder, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function enumHolderEncodeFields(value: EnumHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("counted")) {
+                if (value.counted !== undefined) {
+                    result["counted"] = enumCountedEncodeWithContext(value.counted, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("mixed")) {
+                if (value.mixed !== undefined) {
+                    result["mixed"] = enumMixedEncodeWithContext(value.mixed, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flags")) {
+                if (value.flags !== undefined) {
+                    result["flags"] = enumFlagsEncodeWithContext(value.flags, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : enumCountedEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("later")) {
+                if (value.later !== undefined) {
+                    result["later"] = enumTextEncodeWithContext(value.later, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optional")) {
+                if (value.optional !== undefined) {
+                    result["optional"] = enumSignedEncodeWithContext(value.optional, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => enumMixedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set, (__item0) => enumCountedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, enumTextEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byKind")) {
+                if (value.byKind !== undefined) {
+                    result["byKind"] = Object.fromEntries(value.byKind.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("labels")) {
+                if (value.labels !== undefined) {
+                    result["labels"] = Object.fromEntries((Object.entries(value.labels) as [string, EnumSigned][]).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [enumCountedEncodeWithContext(value.pair[0], ctx), enumTextEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("constant")) {
+                if (value.constant !== undefined) {
+                    result["constant"] = enumConstantEncodeWithContext(value.constant, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function enumHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EnumHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = enumHolderDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "EnumHolder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function enumHolderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EnumHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => enumHolderDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EnumHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EnumHolder> | __mf_PendingRef;
+export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<EnumHolder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EnumHolder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "EnumHolder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "EnumHolder") as EnumHolder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EnumHolder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["counted", "counted"], ["mixed", "mixed"], ["flags", "flags"], ["maybe", "maybe"], ["list", "list"], ["set", "set"], ["byName", "byName"], ["byKind", "byKind"], ["labels", "labels"], ["pair", "pair"], ["constant", "constant"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "counted"?: EnumCounted | undefined; "mixed"?: EnumMixed | undefined; "flags"?: EnumFlags | undefined; "maybe"?: EnumCounted | null | undefined; "later"?: EnumText | undefined | undefined; "optional"?: EnumSigned | undefined; "list"?: EnumMixed[] | undefined; "set"?: Set<EnumCounted> | undefined; "byName"?: Map<string, EnumText> | undefined; "byKind"?: Map<EnumText, number> | undefined; "labels"?: Record<string, EnumSigned> | undefined; "pair"?: [EnumCounted, EnumText] | undefined; "constant"?: EnumConstant | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EnumHolder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
+                const __raw_counted = obj["counted"] as EnumCounted;
+
+                ctx.pushScope("counted");
+                try {
+                    const __result = enumCountedDecodeWithContext(__raw_counted, ctx);
+                    ctx.assignOrDefer(instance, "counted", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "counted" : "counted." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "counted", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+                const __raw_mixed = obj["mixed"] as EnumMixed;
+
+                ctx.pushScope("mixed");
+                try {
+                    const __result = enumMixedDecodeWithContext(__raw_mixed, ctx);
+                    ctx.assignOrDefer(instance, "mixed", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "mixed", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flags")) ? "flags" in obj : (__fields.keeps("flags") && obj["flags"] !== undefined)) {
+                const __raw_flags = obj["flags"] as EnumFlags;
+
+                ctx.pushScope("flags");
+                try {
+                    const __result = enumFlagsDecodeWithContext(__raw_flags, ctx);
+                    ctx.assignOrDefer(instance, "flags", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "flags" : "flags." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "flags", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as EnumCounted | null;
+
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = enumCountedDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
+                const __raw_later = obj["later"] as EnumText | undefined;
+                if (__raw_later === undefined) {
+                    instance.later = undefined;
+                } else {
+
+                    ctx.pushScope("later");
+                    try {
+                        const __result = enumTextDecodeWithContext(__raw_later, ctx);
+                        ctx.assignOrDefer(instance, "later", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "later" : "later." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optional"))) {
+                if (("optional" in obj && obj["optional"] !== undefined)) {
+                    const __raw_optional = obj["optional"] as EnumSigned;
+
+                    ctx.pushScope("optional");
+                    try {
+                        const __result = enumSignedDecodeWithContext(__raw_optional, ctx);
+                        ctx.assignOrDefer(instance, "optional", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "optional" : "optional." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as EnumMixed[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => enumMixedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "list", message: __raw_list == null ? "EnumHolder.list is required" : "expected EnumMixed[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<EnumCounted>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => enumCountedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "set", message: __raw_set == null ? "EnumHolder.set is required" : "expected Set<EnumCounted>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, EnumText>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => enumTextDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byName", message: __raw_byName == null ? "EnumHolder.byName is required" : "expected Map<string, EnumText>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+                const __raw_byKind = obj["byKind"] as Record<string, number>;
+                if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
+                    ctx.pushScope("byKind");
+                    try {
+                        instance.byKind = __mf_decodeMap(__raw_byKind, ctx, (__key0) => enumTextDecodeWithContext(__key0, ctx), __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byKind", message: __raw_byKind == null ? "EnumHolder.byKind is required" : "expected Map<EnumText, number>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("labels")) ? "labels" in obj : (__fields.keeps("labels") && obj["labels"] !== undefined)) {
+                const __raw_labels = obj["labels"] as Record<string, EnumSigned>;
+                if (typeof __raw_labels === "object" && __raw_labels !== null) {
+                    ctx.pushScope("labels");
+                    try {
+                        instance.labels = (__mf_decodeRecord(__raw_labels, ctx, (__raw0) => enumSignedDecodeWithContext(__raw0, ctx)) as Record<string, EnumSigned>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "labels" : "labels." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "labels", message: __raw_labels == null ? "EnumHolder.labels is required" : "expected Record<string, EnumSigned>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [EnumCounted, EnumText];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => enumCountedDecodeWithContext(__raw0, ctx), (__raw0) => enumTextDecodeWithContext(__raw0, ctx)], 2) as [EnumCounted, EnumText]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "EnumHolder.pair is required" : "expected [EnumCounted, EnumText]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("constant")) ? "constant" in obj : (__fields.keeps("constant") && obj["constant"] !== undefined)) {
+                const __raw_constant = obj["constant"] as EnumConstant;
+
+                ctx.pushScope("constant");
+                try {
+                    const __result = enumConstantDecodeWithContext(__raw_constant, ctx);
+                    ctx.assignOrDefer(instance, "constant", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "constant" : "constant." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "constant", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as EnumHolder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function enumHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EnumHolder>): Partial<EnumHolder> | __mf_PendingRef {
+    return enumHolderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function enumHolderValidateField<K extends keyof EnumHolder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function enumHolderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function enumHolderValidateFields(partial: { readonly [K in keyof EnumHolder]?: unknown }): Array<{ field: string; message: string }>;
+export function enumHolderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function enumHolderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["counted", "mixed", "flags", "maybe", "list", "set", "byName", "byKind", "labels", "pair", "constant"]);
+}
+
+export function enumHolderIs(obj: unknown): obj is EnumHolder {
+    return enumHolderHasShape(obj) && enumHolderDecode(obj).success;
+}
+
+export const EnumHolder: {
+  readonly toString: typeof enumHolderToString;
+  readonly clone: typeof enumHolderClone;
+  readonly equals: typeof enumHolderEquals;
+  readonly hashCode: typeof enumHolderHashCode;
+  readonly defaultValue: typeof enumHolderDefaultValue;
+  readonly encode: typeof enumHolderEncode;
+  readonly encodeWithContext: typeof enumHolderEncodeWithContext;
+  readonly encodePartialWithContext: typeof enumHolderEncodePartialWithContext;
+  readonly decode: typeof enumHolderDecode;
+  readonly fromString: typeof enumHolderFromString;
+  readonly decodeWithContext: typeof enumHolderDecodeWithContext;
+  readonly decodePartialWithContext: typeof enumHolderDecodePartialWithContext;
+  readonly validateField: typeof enumHolderValidateField;
+  readonly validateFields: typeof enumHolderValidateFields;
+  readonly hasShape: typeof enumHolderHasShape;
+  readonly is: typeof enumHolderIs;
+} = {
+  toString: enumHolderToString,
+  clone: enumHolderClone,
+  equals: enumHolderEquals,
+  hashCode: enumHolderHashCode,
+  defaultValue: enumHolderDefaultValue,
+  encode: enumHolderEncode,
+  encodeWithContext: enumHolderEncodeWithContext,
+  encodePartialWithContext: enumHolderEncodePartialWithContext,
+  decode: enumHolderDecode,
+  fromString: enumHolderFromString,
+  decodeWithContext: enumHolderDecodeWithContext,
+  decodePartialWithContext: enumHolderDecodePartialWithContext,
+  validateField: enumHolderValidateField,
+  validateFields: enumHolderValidateFields,
+  hasShape: enumHolderHasShape,
+  is: enumHolderIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord) */
+export interface EnumOrdered {
+    counted: EnumCounted;
+    mixed: EnumMixed;
+    text: EnumText;
+}
+
+export function enumOrderedToString(value: EnumOrdered): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("counted: " + enumCountedToString(value.counted));
+    parts.push("mixed: " + enumMixedToString(value.mixed));
+    parts.push("text: " + enumTextToString(value.text));
+        return "EnumOrdered { " + parts.join(", ") + " }";
+    });
+}
+
+export function enumOrderedClone(value: EnumOrdered): EnumOrdered {
+    return __mf_clonedWith(value, (): EnumOrdered => ({
+	counted: enumCountedClone(value.counted),
+	mixed: enumMixedClone(value.mixed),
+	text: enumTextClone(value.text)
+}));
+}
+
+export function enumOrderedEquals(a: EnumOrdered, b: EnumOrdered): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => enumCountedEquals(a.counted, b.counted),
+            () => enumMixedEquals(a.mixed, b.mixed),
+            () => enumTextEquals(a.text, b.text),
+        ].every((same) => same());
+    });
+}
+
+export function enumOrderedPartialCompare(a: EnumOrdered, b: EnumOrdered): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => enumCountedPartialCompare(a.counted, b.counted),
+        () => enumMixedPartialCompare(a.mixed, b.mixed),
+        () => enumTextPartialCompare(a.text, b.text),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function enumOrderedCompare(a: EnumOrdered, b: EnumOrdered): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => enumCountedCompare(a.counted, b.counted),
+        () => enumMixedCompare(a.mixed, b.mixed),
+        () => enumTextCompare(a.text, b.text),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export const EnumOrdered: {
+  readonly toString: typeof enumOrderedToString;
+  readonly clone: typeof enumOrderedClone;
+  readonly equals: typeof enumOrderedEquals;
+  readonly partialCompare: typeof enumOrderedPartialCompare;
+  readonly compare: typeof enumOrderedCompare;
+} = {
+  toString: enumOrderedToString,
+  clone: enumOrderedClone,
+  equals: enumOrderedEquals,
+  partialCompare: enumOrderedPartialCompare,
+  compare: enumOrderedCompare
+};
+
+## DTS
+
+/**
+* Enums by how their values come about: counted, negative, fractional,
+* computed, of both kinds at once, repeated, lone, with text that needs
+* escaping, inlined and named like one another's values, and the fields and
+* collections that hold them.
+*/
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumCounted {
+	/** @default */
+	First = 0,
+	Second = 1,
+	Third = 2
+}
+export declare function enumCountedToString(value: EnumCounted): string;
+export declare function enumCountedClone(value: EnumCounted): EnumCounted;
+export declare function enumCountedEquals(a: EnumCounted, b: EnumCounted): boolean;
+export declare function enumCountedHashCode(value: EnumCounted): number;
+export declare function enumCountedPartialCompare(a: EnumCounted, b: EnumCounted): number | null;
+export declare function enumCountedCompare(a: EnumCounted, b: EnumCounted): number;
+export declare function enumCountedDefaultValue(): EnumCounted;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumCountedEncode(value: EnumCounted): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumCountedEncodeWithContext(value: EnumCounted, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumCountedDecode(input: unknown): EnumCounted;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumCountedFromString(text: string): EnumCounted;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumCountedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCounted;
+export declare function enumCountedIs(value: unknown): value is EnumCounted;
+export declare namespace EnumCounted {
+	const toString: typeof enumCountedToString;
+	const clone: typeof enumCountedClone;
+	const equals: typeof enumCountedEquals;
+	const hashCode: typeof enumCountedHashCode;
+	const partialCompare: typeof enumCountedPartialCompare;
+	const compare: typeof enumCountedCompare;
+	const defaultValue: typeof enumCountedDefaultValue;
+	const encode: typeof enumCountedEncode;
+	const encodeWithContext: typeof enumCountedEncodeWithContext;
+	const decode: typeof enumCountedDecode;
+	const fromString: typeof enumCountedFromString;
+	const decodeWithContext: typeof enumCountedDecodeWithContext;
+	const is: typeof enumCountedIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumSigned {
+	Below = -1,
+	/** @default */
+	Level = 0,
+	Above = 1,
+	Half = .5
+}
+export declare function enumSignedToString(value: EnumSigned): string;
+export declare function enumSignedClone(value: EnumSigned): EnumSigned;
+export declare function enumSignedEquals(a: EnumSigned, b: EnumSigned): boolean;
+export declare function enumSignedHashCode(value: EnumSigned): number;
+export declare function enumSignedPartialCompare(a: EnumSigned, b: EnumSigned): number | null;
+export declare function enumSignedCompare(a: EnumSigned, b: EnumSigned): number;
+export declare function enumSignedDefaultValue(): EnumSigned;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumSignedEncode(value: EnumSigned): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumSignedEncodeWithContext(value: EnumSigned, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumSignedDecode(input: unknown): EnumSigned;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumSignedFromString(text: string): EnumSigned;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumSignedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumSigned;
+export declare function enumSignedIs(value: unknown): value is EnumSigned;
+export declare namespace EnumSigned {
+	const toString: typeof enumSignedToString;
+	const clone: typeof enumSignedClone;
+	const equals: typeof enumSignedEquals;
+	const hashCode: typeof enumSignedHashCode;
+	const partialCompare: typeof enumSignedPartialCompare;
+	const compare: typeof enumSignedCompare;
+	const defaultValue: typeof enumSignedDefaultValue;
+	const encode: typeof enumSignedEncode;
+	const encodeWithContext: typeof enumSignedEncodeWithContext;
+	const decode: typeof enumSignedDecode;
+	const fromString: typeof enumSignedFromString;
+	const decodeWithContext: typeof enumSignedDecodeWithContext;
+	const is: typeof enumSignedIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumFlags {
+	/** @default */
+	None = 0,
+	Read = 1,
+	Write = 2,
+	All = 3
+}
+export declare function enumFlagsToString(value: EnumFlags): string;
+export declare function enumFlagsClone(value: EnumFlags): EnumFlags;
+export declare function enumFlagsEquals(a: EnumFlags, b: EnumFlags): boolean;
+export declare function enumFlagsHashCode(value: EnumFlags): number;
+export declare function enumFlagsPartialCompare(a: EnumFlags, b: EnumFlags): number | null;
+export declare function enumFlagsCompare(a: EnumFlags, b: EnumFlags): number;
+export declare function enumFlagsDefaultValue(): EnumFlags;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumFlagsEncode(value: EnumFlags): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumFlagsEncodeWithContext(value: EnumFlags, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumFlagsDecode(input: unknown): EnumFlags;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumFlagsFromString(text: string): EnumFlags;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumFlagsDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumFlags;
+export declare function enumFlagsIs(value: unknown): value is EnumFlags;
+export declare namespace EnumFlags {
+	const toString: typeof enumFlagsToString;
+	const clone: typeof enumFlagsClone;
+	const equals: typeof enumFlagsEquals;
+	const hashCode: typeof enumFlagsHashCode;
+	const partialCompare: typeof enumFlagsPartialCompare;
+	const compare: typeof enumFlagsCompare;
+	const defaultValue: typeof enumFlagsDefaultValue;
+	const encode: typeof enumFlagsEncode;
+	const encodeWithContext: typeof enumFlagsEncodeWithContext;
+	const decode: typeof enumFlagsDecode;
+	const fromString: typeof enumFlagsFromString;
+	const decodeWithContext: typeof enumFlagsDecodeWithContext;
+	const is: typeof enumFlagsIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumMixed {
+	/** @default */
+	Zero = 0,
+	Text = "text",
+	Five = 5,
+	Other = "other"
+}
+export declare function enumMixedToString(value: EnumMixed): string;
+export declare function enumMixedClone(value: EnumMixed): EnumMixed;
+export declare function enumMixedEquals(a: EnumMixed, b: EnumMixed): boolean;
+export declare function enumMixedHashCode(value: EnumMixed): number;
+export declare function enumMixedPartialCompare(a: EnumMixed, b: EnumMixed): number | null;
+export declare function enumMixedCompare(a: EnumMixed, b: EnumMixed): number;
+export declare function enumMixedDefaultValue(): EnumMixed;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumMixedEncode(value: EnumMixed): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumMixedEncodeWithContext(value: EnumMixed, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumMixedDecode(input: unknown): EnumMixed;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumMixedFromString(text: string): EnumMixed;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumMixedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumMixed;
+export declare function enumMixedIs(value: unknown): value is EnumMixed;
+export declare namespace EnumMixed {
+	const toString: typeof enumMixedToString;
+	const clone: typeof enumMixedClone;
+	const equals: typeof enumMixedEquals;
+	const hashCode: typeof enumMixedHashCode;
+	const partialCompare: typeof enumMixedPartialCompare;
+	const compare: typeof enumMixedCompare;
+	const defaultValue: typeof enumMixedDefaultValue;
+	const encode: typeof enumMixedEncode;
+	const encodeWithContext: typeof enumMixedEncodeWithContext;
+	const decode: typeof enumMixedDecode;
+	const fromString: typeof enumMixedFromString;
+	const decodeWithContext: typeof enumMixedDecodeWithContext;
+	const is: typeof enumMixedIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumRepeated {
+	/** @default */
+	One = 1,
+	Uno = 1,
+	Two = 2
+}
+export declare function enumRepeatedToString(value: EnumRepeated): string;
+export declare function enumRepeatedClone(value: EnumRepeated): EnumRepeated;
+export declare function enumRepeatedEquals(a: EnumRepeated, b: EnumRepeated): boolean;
+export declare function enumRepeatedHashCode(value: EnumRepeated): number;
+export declare function enumRepeatedPartialCompare(a: EnumRepeated, b: EnumRepeated): number | null;
+export declare function enumRepeatedCompare(a: EnumRepeated, b: EnumRepeated): number;
+export declare function enumRepeatedDefaultValue(): EnumRepeated;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumRepeatedEncode(value: EnumRepeated): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumRepeatedEncodeWithContext(value: EnumRepeated, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumRepeatedDecode(input: unknown): EnumRepeated;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumRepeatedFromString(text: string): EnumRepeated;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumRepeatedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumRepeated;
+export declare function enumRepeatedIs(value: unknown): value is EnumRepeated;
+export declare namespace EnumRepeated {
+	const toString: typeof enumRepeatedToString;
+	const clone: typeof enumRepeatedClone;
+	const equals: typeof enumRepeatedEquals;
+	const hashCode: typeof enumRepeatedHashCode;
+	const partialCompare: typeof enumRepeatedPartialCompare;
+	const compare: typeof enumRepeatedCompare;
+	const defaultValue: typeof enumRepeatedDefaultValue;
+	const encode: typeof enumRepeatedEncode;
+	const encodeWithContext: typeof enumRepeatedEncodeWithContext;
+	const decode: typeof enumRepeatedDecode;
+	const fromString: typeof enumRepeatedFromString;
+	const decodeWithContext: typeof enumRepeatedDecodeWithContext;
+	const is: typeof enumRepeatedIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumLone {
+	/** @default */
+	Only = "only"
+}
+export declare function enumLoneToString(value: EnumLone): string;
+export declare function enumLoneClone(value: EnumLone): EnumLone;
+export declare function enumLoneEquals(a: EnumLone, b: EnumLone): boolean;
+export declare function enumLoneHashCode(value: EnumLone): number;
+export declare function enumLonePartialCompare(a: EnumLone, b: EnumLone): number | null;
+export declare function enumLoneCompare(a: EnumLone, b: EnumLone): number;
+export declare function enumLoneDefaultValue(): EnumLone;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumLoneEncode(value: EnumLone): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumLoneEncodeWithContext(value: EnumLone, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumLoneDecode(input: unknown): EnumLone;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumLoneFromString(text: string): EnumLone;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumLoneDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumLone;
+export declare function enumLoneIs(value: unknown): value is EnumLone;
+export declare namespace EnumLone {
+	const toString: typeof enumLoneToString;
+	const clone: typeof enumLoneClone;
+	const equals: typeof enumLoneEquals;
+	const hashCode: typeof enumLoneHashCode;
+	const partialCompare: typeof enumLonePartialCompare;
+	const compare: typeof enumLoneCompare;
+	const defaultValue: typeof enumLoneDefaultValue;
+	const encode: typeof enumLoneEncode;
+	const encodeWithContext: typeof enumLoneEncodeWithContext;
+	const decode: typeof enumLoneDecode;
+	const fromString: typeof enumLoneFromString;
+	const decodeWithContext: typeof enumLoneDecodeWithContext;
+	const is: typeof enumLoneIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumText {
+	/** @default */
+	Empty = "",
+	Quoted = "it's \"quoted\"",
+	Spaced = "two words",
+	Slashed = "back\\slash"
+}
+export declare function enumTextToString(value: EnumText): string;
+export declare function enumTextClone(value: EnumText): EnumText;
+export declare function enumTextEquals(a: EnumText, b: EnumText): boolean;
+export declare function enumTextHashCode(value: EnumText): number;
+export declare function enumTextPartialCompare(a: EnumText, b: EnumText): number | null;
+export declare function enumTextCompare(a: EnumText, b: EnumText): number;
+export declare function enumTextDefaultValue(): EnumText;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumTextEncode(value: EnumText): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumTextEncodeWithContext(value: EnumText, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumTextDecode(input: unknown): EnumText;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumTextFromString(text: string): EnumText;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumTextDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumText;
+export declare function enumTextIs(value: unknown): value is EnumText;
+export declare namespace EnumText {
+	const toString: typeof enumTextToString;
+	const clone: typeof enumTextClone;
+	const equals: typeof enumTextEquals;
+	const hashCode: typeof enumTextHashCode;
+	const partialCompare: typeof enumTextPartialCompare;
+	const compare: typeof enumTextCompare;
+	const defaultValue: typeof enumTextDefaultValue;
+	const encode: typeof enumTextEncode;
+	const encodeWithContext: typeof enumTextEncodeWithContext;
+	const decode: typeof enumTextDecode;
+	const fromString: typeof enumTextFromString;
+	const decodeWithContext: typeof enumTextDecodeWithContext;
+	const is: typeof enumTextIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare const enum EnumConstant {
+	/** @default */
+	Low = "low",
+	High = "high"
+}
+export declare function enumConstantToString(value: EnumConstant): string;
+export declare function enumConstantClone(value: EnumConstant): EnumConstant;
+export declare function enumConstantEquals(a: EnumConstant, b: EnumConstant): boolean;
+export declare function enumConstantHashCode(value: EnumConstant): number;
+export declare function enumConstantPartialCompare(a: EnumConstant, b: EnumConstant): number | null;
+export declare function enumConstantCompare(a: EnumConstant, b: EnumConstant): number;
+export declare function enumConstantDefaultValue(): EnumConstant;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumConstantEncode(value: EnumConstant): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumConstantEncodeWithContext(value: EnumConstant, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumConstantDecode(input: unknown): EnumConstant;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumConstantFromString(text: string): EnumConstant;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumConstantDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumConstant;
+export declare function enumConstantIs(value: unknown): value is EnumConstant;
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumCrossed {
+	/** @default */
+	A = "B",
+	B = "A"
+}
+export declare function enumCrossedToString(value: EnumCrossed): string;
+export declare function enumCrossedClone(value: EnumCrossed): EnumCrossed;
+export declare function enumCrossedEquals(a: EnumCrossed, b: EnumCrossed): boolean;
+export declare function enumCrossedHashCode(value: EnumCrossed): number;
+export declare function enumCrossedPartialCompare(a: EnumCrossed, b: EnumCrossed): number | null;
+export declare function enumCrossedCompare(a: EnumCrossed, b: EnumCrossed): number;
+export declare function enumCrossedDefaultValue(): EnumCrossed;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumCrossedEncode(value: EnumCrossed): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumCrossedEncodeWithContext(value: EnumCrossed, ctx: __mf_EncodeContext): string | number;
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumCrossedDecode(input: unknown): EnumCrossed;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumCrossedFromString(text: string): EnumCrossed;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumCrossedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCrossed;
+export declare function enumCrossedIs(value: unknown): value is EnumCrossed;
+export declare namespace EnumCrossed {
+	const toString: typeof enumCrossedToString;
+	const clone: typeof enumCrossedClone;
+	const equals: typeof enumCrossedEquals;
+	const hashCode: typeof enumCrossedHashCode;
+	const partialCompare: typeof enumCrossedPartialCompare;
+	const compare: typeof enumCrossedCompare;
+	const defaultValue: typeof enumCrossedDefaultValue;
+	const encode: typeof enumCrossedEncode;
+	const encodeWithContext: typeof enumCrossedEncodeWithContext;
+	const decode: typeof enumCrossedDecode;
+	const fromString: typeof enumCrossedFromString;
+	const decodeWithContext: typeof enumCrossedDecodeWithContext;
+	const is: typeof enumCrossedIs;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface EnumHolder {
+	counted: EnumCounted;
+	mixed: EnumMixed;
+	flags: EnumFlags;
+	maybe: EnumCounted | null;
+	later: EnumText | undefined;
+	optional?: EnumSigned;
+	list: EnumMixed[];
+	set: Set<EnumCounted>;
+	byName: Map<string, EnumText>;
+	byKind: Map<EnumText, number>;
+	labels: Record<string, EnumSigned>;
+	pair: [EnumCounted, EnumText];
+	constant: EnumConstant;
+}
+export declare function enumHolderToString(value: EnumHolder): string;
+export declare function enumHolderClone(value: EnumHolder): EnumHolder;
+export declare function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean;
+export declare function enumHolderHashCode(value: EnumHolder): number;
+export declare function enumHolderDefaultValue(): EnumHolder;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function enumHolderEncode(value: EnumHolder, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function enumHolderEncodeWithContext(value: EnumHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function enumHolderEncodePartialWithContext(value: Partial<EnumHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EnumHolder>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function enumHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EnumHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function enumHolderFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EnumHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EnumHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EnumHolder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function enumHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EnumHolder>): Partial<EnumHolder> | __mf_PendingRef;
+export declare function enumHolderValidateField<K extends keyof EnumHolder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function enumHolderValidateFields(partial: { readonly [K in keyof EnumHolder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function enumHolderHasShape(obj: unknown): boolean;
+export declare function enumHolderIs(obj: unknown): obj is EnumHolder;
+export declare const EnumHolder: {
+	readonly toString: typeof enumHolderToString;
+	readonly clone: typeof enumHolderClone;
+	readonly equals: typeof enumHolderEquals;
+	readonly hashCode: typeof enumHolderHashCode;
+	readonly defaultValue: typeof enumHolderDefaultValue;
+	readonly encode: typeof enumHolderEncode;
+	readonly encodeWithContext: typeof enumHolderEncodeWithContext;
+	readonly encodePartialWithContext: typeof enumHolderEncodePartialWithContext;
+	readonly decode: typeof enumHolderDecode;
+	readonly fromString: typeof enumHolderFromString;
+	readonly decodeWithContext: typeof enumHolderDecodeWithContext;
+	readonly decodePartialWithContext: typeof enumHolderDecodePartialWithContext;
+	readonly validateField: typeof enumHolderValidateField;
+	readonly validateFields: typeof enumHolderValidateFields;
+	readonly hasShape: typeof enumHolderHasShape;
+	readonly is: typeof enumHolderIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord) */
+export interface EnumOrdered {
+	counted: EnumCounted;
+	mixed: EnumMixed;
+	text: EnumText;
+}
+export declare function enumOrderedToString(value: EnumOrdered): string;
+export declare function enumOrderedClone(value: EnumOrdered): EnumOrdered;
+export declare function enumOrderedEquals(a: EnumOrdered, b: EnumOrdered): boolean;
+export declare function enumOrderedPartialCompare(a: EnumOrdered, b: EnumOrdered): number | null;
+export declare function enumOrderedCompare(a: EnumOrdered, b: EnumOrdered): number;
+export declare const EnumOrdered: {
+	readonly toString: typeof enumOrderedToString;
+	readonly clone: typeof enumOrderedClone;
+	readonly equals: typeof enumOrderedEquals;
+	readonly partialCompare: typeof enumOrderedPartialCompare;
+	readonly compare: typeof enumOrderedCompare;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..434 -> expanded 1299..1733
+original 434..635 -> expanded 6080..6281
+original 635..850 -> expanded 10768..10983
+original 850..1056 -> expanded 15368..15574
+original 1056..1236 -> expanded 20352..20532
+original 1236..1392 -> expanded 24923..25079
+original 1392..1631 -> expanded 28687..28926
+original 1631..1814 -> expanded 33223..33406
+original 1814..1980 -> expanded 36450..36616
+original 1980..2468 -> expanded 40635..41123
+original 2468..2631 -> expanded 77767..77930
+original 2631..2632 -> expanded 80334..80335
+generated 0..1299 <- imports
+generated 1733..2136 <- Debug
+generated 2136..2225 <- Clone
+generated 2225..2325 <- PartialEq
+generated 2325..2533 <- Hash
+generated 2533..2748 <- PartialOrd
+generated 2748..2949 <- Ord
+generated 2949..3039 <- Default
+generated 3039..3479 <- Encode
+generated 3479..5029 <- Decode
+generated 5029..6080 <- __convenience_const
+generated 6281..6752 <- Debug
+generated 6752..6838 <- Clone
+generated 6838..6935 <- PartialEq
+generated 6935..7141 <- Hash
+generated 7141..7353 <- PartialOrd
+generated 7353..7551 <- Ord
+generated 7551..7638 <- Default
+generated 7638..8072 <- Encode
+generated 8072..9744 <- Decode
+generated 9744..10768 <- __convenience_const
+generated 10983..11437 <- Debug
+generated 11437..11520 <- Clone
+generated 11520..11614 <- PartialEq
+generated 11614..11818 <- Hash
+generated 11818..12027 <- PartialOrd
+generated 12027..12222 <- Ord
+generated 12222..12305 <- Default
+generated 12305..12733 <- Encode
+generated 12733..14371 <- Decode
+generated 14371..15368 <- __convenience_const
+generated 15574..16030 <- Debug
+generated 16030..16113 <- Clone
+generated 16113..16207 <- PartialEq
+generated 16207..16525 <- Hash
+generated 16525..16871 <- PartialOrd
+generated 16871..17203 <- Ord
+generated 17203..17286 <- Default
+generated 17286..17714 <- Encode
+generated 17714..19355 <- Decode
+generated 19355..20352 <- __convenience_const
+generated 20532..20930 <- Debug
+generated 20930..21022 <- Clone
+generated 21022..21125 <- PartialEq
+generated 21125..21335 <- Hash
+generated 21335..21553 <- PartialOrd
+generated 21553..21757 <- Ord
+generated 21757..21848 <- Default
+generated 21848..22294 <- Encode
+generated 22294..23845 <- Decode
+generated 23845..24923 <- __convenience_const
+generated 25079..25297 <- Debug
+generated 25297..25377 <- Clone
+generated 25377..25468 <- PartialEq
+generated 25468..25627 <- Hash
+generated 25627..25833 <- PartialOrd
+generated 25833..26025 <- Ord
+generated 26025..26105 <- Default
+generated 26105..26527 <- Encode
+generated 26527..27717 <- Decode
+generated 27717..28687 <- __convenience_const
+generated 28926..29385 <- Debug
+generated 29385..29465 <- Clone
+generated 29465..29556 <- PartialEq
+generated 29556..29715 <- Hash
+generated 29715..29921 <- PartialOrd
+generated 29921..30113 <- Ord
+generated 30113..30194 <- Default
+generated 30194..30616 <- Encode
+generated 30616..32253 <- Decode
+generated 32253..33223 <- __convenience_const
+generated 33406..33725 <- Debug
+generated 33725..33817 <- Clone
+generated 33817..33920 <- PartialEq
+generated 33920..34087 <- Hash
+generated 34087..34305 <- PartialOrd
+generated 34305..34509 <- Ord
+generated 34509..34600 <- Default
+generated 34600..35046 <- Encode
+generated 35046..36450 <- Decode
+generated 36616..36918 <- Debug
+generated 36918..37007 <- Clone
+generated 37007..37107 <- PartialEq
+generated 37107..37272 <- Hash
+generated 37272..37487 <- PartialOrd
+generated 37487..37688 <- Ord
+generated 37688..37774 <- Default
+generated 37774..38214 <- Encode
+generated 38214..39584 <- Decode
+generated 39584..40635 <- __convenience_const
+generated 41123..42325 <- Debug
+generated 42325..43316 <- Clone
+generated 43316..45310 <- PartialEq
+generated 45310..46946 <- Hash
+generated 46946..47426 <- Default
+generated 47426..53242 <- Encode
+generated 53242..76243 <- Decode
+generated 76243..77767 <- __convenience_const
+generated 77930..78331 <- Debug
+generated 78331..78576 <- Clone
+generated 78576..78950 <- PartialEq
+generated 78950..79436 <- PartialOrd
+generated 79436..79887 <- Ord
+generated 79887..80334 <- __convenience_const
+
+## Metadata
+
+interface EnumHolder: {"body_span":{"end":2469,"start":2082},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2053,"start":1983}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2109,"start":2088},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2131,"start":2114},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":2153,"start":2136},"ts_type":"EnumFlags"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2184,"start":2158},"ts_type":"EnumCounted | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":2217,"start":2189},"ts_type":"EnumText | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2244,"start":2222},"ts_type":"EnumSigned"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":2267,"start":2249},"ts_type":"EnumMixed[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":2294,"start":2272},"ts_type":"Set<EnumCounted>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2329,"start":2299},"ts_type":"Map<string, EnumText>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":2364,"start":2334},"ts_type":"Map<EnumText, number>"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":2404,"start":2369},"ts_type":"Record<string, EnumSigned>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2439,"start":2409},"ts_type":"[EnumCounted, EnumText]"},{"decorators":[],"key":"Named","name":"constant","optional":false,"readonly":false,"span":{"end":2467,"start":2444},"ts_type":"EnumConstant"}],"heritage":[],"methods":[],"name":"EnumHolder","span":{"end":2469,"start":2061},"type_params":[]}
+interface EnumOrdered: {"body_span":{"end":2632,"start":2561},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2531,"start":2471}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2588,"start":2567},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2610,"start":2593},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":2630,"start":2615},"ts_type":"EnumText"}],"heritage":[],"methods":[],"name":"EnumOrdered","span":{"end":2632,"start":2539},"type_params":[]}
+enum EnumCounted: {"body_span":{"end":435,"start":379},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":354,"start":263}}],"is_const":false,"is_declare":false,"name":"EnumCounted","span":{"end":435,"start":362},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":400,"start":385}}],"name":"First","span":{"end":410,"start":405},"value":{"Number":0.0}},{"decorators":[],"name":"Second","span":{"end":422,"start":416},"value":{"Number":1.0}},{"decorators":[],"name":"Third","span":{"end":433,"start":428},"value":{"Number":2.0}}]}
+enum EnumSigned: {"body_span":{"end":636,"start":552},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":528,"start":437}}],"is_const":false,"is_declare":false,"name":"EnumSigned","span":{"end":636,"start":536},"variants":[{"decorators":[],"name":"Below","span":{"end":568,"start":558},"value":{"Number":-1.0}},{"decorators":[{"args_src":"","name":"default","span":{"end":589,"start":574}}],"name":"Level","span":{"end":603,"start":594},"value":{"Number":0.0}},{"decorators":[],"name":"Above","span":{"end":618,"start":609},"value":{"Number":1.0}},{"decorators":[],"name":"Half","span":{"end":634,"start":624},"value":{"Number":0.5}}]}
+enum EnumFlags: {"body_span":{"end":851,"start":752},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":729,"start":638}}],"is_const":false,"is_declare":false,"name":"EnumFlags","span":{"end":851,"start":737},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":773,"start":758}}],"name":"None","span":{"end":786,"start":778},"value":{"Number":0.0}},{"decorators":[],"name":"Read","span":{"end":805,"start":792},"value":{"Expr":"1 << 0"}},{"decorators":[],"name":"Write","span":{"end":825,"start":811},"value":{"Expr":"1 << 1"}},{"decorators":[],"name":"All","span":{"end":849,"start":831},"value":{"Expr":"Read | Write"}}]}
+enum EnumMixed: {"body_span":{"end":1057,"start":967},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":944,"start":853}}],"is_const":false,"is_declare":false,"name":"EnumMixed","span":{"end":1057,"start":952},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":988,"start":973}}],"name":"Zero","span":{"end":1001,"start":993},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":1020,"start":1007},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":1034,"start":1026},"value":{"Number":5.0}},{"decorators":[],"name":"Other","span":{"end":1055,"start":1040},"value":{"String":"other"}}]}
+enum EnumRepeated: {"body_span":{"end":1237,"start":1176},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1150,"start":1059}}],"is_const":false,"is_declare":false,"name":"EnumRepeated","span":{"end":1237,"start":1158},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1197,"start":1182}}],"name":"One","span":{"end":1209,"start":1202},"value":{"Number":1.0}},{"decorators":[],"name":"Uno","span":{"end":1222,"start":1215},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":1235,"start":1228},"value":{"Number":2.0}}]}
+enum EnumLone: {"body_span":{"end":1393,"start":1352},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1330,"start":1239}}],"is_const":false,"is_declare":false,"name":"EnumLone","span":{"end":1393,"start":1338},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1373,"start":1358}}],"name":"Only","span":{"end":1391,"start":1378},"value":{"String":"only"}}]}
+enum EnumText: {"body_span":{"end":1632,"start":1508},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1486,"start":1395}}],"is_const":false,"is_declare":false,"name":"EnumText","span":{"end":1632,"start":1494},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1529,"start":1514}}],"name":"Empty","span":{"end":1544,"start":1534},"value":{"String":""}},{"decorators":[],"name":"Quoted","span":{"end":1575,"start":1550},"value":{"String":"it's \"quoted\""}},{"decorators":[],"name":"Spaced","span":{"end":1601,"start":1581},"value":{"String":"two words"}},{"decorators":[],"name":"Slashed","span":{"end":1630,"start":1607},"value":{"String":"back\\slash"}}]}
+enum EnumConstant: {"body_span":{"end":1815,"start":1757},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1725,"start":1634}}],"is_const":true,"is_declare":false,"name":"EnumConstant","span":{"end":1815,"start":1733},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1778,"start":1763}}],"name":"Low","span":{"end":1794,"start":1783},"value":{"String":"low"}},{"decorators":[],"name":"High","span":{"end":1813,"start":1800},"value":{"String":"high"}}]}
+enum EnumCrossed: {"body_span":{"end":1981,"start":1933},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1908,"start":1817}}],"is_const":false,"is_declare":false,"name":"EnumCrossed","span":{"end":1981,"start":1916},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1954,"start":1939}}],"name":"A","span":{"end":1966,"start":1959},"value":{"String":"B"}},{"decorators":[],"name":"B","span":{"end":1979,"start":1972},"value":{"String":"A"}}]}
+
+## Registry reads
+
+Name("EnumConstant")
+Name("EnumCounted")
+Name("EnumFlags")
+Name("EnumMixed")
+Name("EnumSigned")
+Name("EnumText")
+Name("Map")
+Name("Record")
+Name("Set")
+Name("[EnumCounted, EnumText]")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

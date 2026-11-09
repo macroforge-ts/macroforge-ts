@@ -2,7 +2,7 @@
 
 use std::cell::RefCell;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::macros::{ts_macro_derive, ts_template};
@@ -16,7 +16,7 @@ use super::class::class_default;
 use super::object::object_default;
 use super::type_alias::type_alias_default;
 use super::values::DefaultSources;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{TypeNames, derive_interface_fields};
 
 #[ts_macro_derive(
     Default,
@@ -39,17 +39,22 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             let enum_name = input.name();
             let enum_ident = ts_ident!(enum_name);
 
-            // Find variant with @default attribute (like Rust's #[default] on enums)
-            let default_variant = enum_data.variants().iter().find(|v| {
-                v.decorators
-                    .iter()
-                    .any(|d| d.name.eq_ignore_ascii_case("default"))
-            });
+            // The variant marked `@default`, as Rust's `#[default]` marks one.
+            let marked: Vec<_> = enum_data
+                .variants()
+                .iter()
+                .filter(|variant| {
+                    variant
+                        .decorators
+                        .iter()
+                        .any(|decorator| decorator.name.eq_ignore_ascii_case("default"))
+                })
+                .collect();
 
-            match default_variant {
-                Some(variant) => {
+            match marked.as_slice() {
+                [variant] => {
                     let variant_name = &variant.name;
-                    let fn_name_ident = ts_ident!("{}DefaultValue", enum_name.to_case(Case::Camel));
+                    let fn_name_ident = ts_ident!("{}DefaultValue", function_prefix(enum_name));
                     let enum_expr: Expr = ts_ident!(enum_name).into();
                     let variant_ident = ts_ident!(variant_name.as_str());
                     Ok(ts_template! {
@@ -58,7 +63,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         }
                     })
                 }
-                None => Err(MacroforgeError::new(
+                [] => Err(MacroforgeError::new(
                     input.decorator_span(),
                     format!(
                         "@derive(Default) on enum requires exactly one variant with @default attribute. \
@@ -66,11 +71,22 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         enum_name
                     ),
                 )),
+                [_, _, ..] => Err(MacroforgeError::new(
+                    input.decorator_span(),
+                    format!(
+                        "@derive(Default): `{}` of {enum_name} are each marked @default, and an enum has one default: mark one of them",
+                        marked
+                            .iter()
+                            .map(|variant| variant.name.as_str())
+                            .collect::<Vec<_>>()
+                            .join("`, `")
+                    ),
+                )),
             }
         }
         Data::Interface(interface) => object_default(
             &TypeNames::new(input.name(), interface.type_params()),
-            interface.fields(),
+            &derive_interface_fields(&input, interface, "Default")?,
             input.decorator_span(),
             &sources,
         ),

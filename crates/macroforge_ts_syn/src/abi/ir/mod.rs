@@ -71,6 +71,7 @@ pub mod interface;
 pub mod type_alias;
 pub mod type_alias_resolve;
 mod type_alias_scope;
+pub use type_alias_scope::{Unadopted, adopt_type_scope};
 pub mod type_param;
 pub mod type_registry;
 

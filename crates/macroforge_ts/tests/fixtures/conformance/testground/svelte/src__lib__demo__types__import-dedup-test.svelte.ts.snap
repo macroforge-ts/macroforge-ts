@@ -12,8 +12,9 @@ true
 
 ## Output
 
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { equalWithin as __mf_equalWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -42,14 +43,11 @@ export interface UserWithDecode {
     email: string;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userWithDecodeDecodeWithContext(data, ctx);
+        const resultOrRef = userWithDecodeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -95,6 +93,10 @@ export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions):
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userWithDecodeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userWithDecodeDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -107,59 +109,67 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserWithDecode.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserWithDecode | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserWithDecode") as UserWithDecode | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["age", "age"], ["email", "email"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined; "email"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UserWithDecode");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "UserWithDecode.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "UserWithDecode.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
-            errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as string;
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as string;
 
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "email", message: __raw_email == null ? "UserWithDecode.email is required" : "expected string" });
-        } else {
-            instance.email = __raw_email;
-        }
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "email", message: __raw_email == null ? "UserWithDecode.email is required" : "expected string" });
+                } else {
+                    instance.email = __raw_email;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -184,8 +194,7 @@ export function userWithDecodeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o && "email" in o;
+    return __mf_holdsAll(obj, ["name", "age", "email"]);
 }
 
 export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
@@ -194,6 +203,7 @@ export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
 
 export const UserWithDecode: {
   readonly decode: typeof userWithDecodeDecode;
+  readonly fromString: typeof userWithDecodeFromString;
   readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
   readonly decodePartialWithContext: typeof userWithDecodeDecodePartialWithContext;
   readonly validateField: typeof userWithDecodeValidateField;
@@ -202,6 +212,7 @@ export const UserWithDecode: {
   readonly is: typeof userWithDecodeIs;
 } = {
   decode: userWithDecodeDecode,
+  fromString: userWithDecodeFromString,
   decodeWithContext: userWithDecodeDecodeWithContext,
   decodePartialWithContext: userWithDecodeDecodePartialWithContext,
   validateField: userWithDecodeValidateField,
@@ -219,18 +230,26 @@ export interface ComparableItem {
 
 export function comparableItemEquals(a: ComparableItem, b: ComparableItem): boolean {
     if (a === b) return true;
-    return a.priority === b.priority && a.name === b.name;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.priority === b.priority || a.priority !== a.priority && b.priority !== b.priority,
+            () => a.name === b.name,
+        ].every((same) => same());
+    });
 }
 
 export function comparableItemPartialCompare(a: ComparableItem, b: ComparableItem): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority || (a.priority !== a.priority && b.priority !== b.priority) ? 0 : null),
+        () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
     return 0;
+    });
 }
 
 export const ComparableItem: {
@@ -249,14 +268,11 @@ export interface FullFeaturedType {
     score: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = fullFeaturedTypeDecodeWithContext(data, ctx);
+        const resultOrRef = fullFeaturedTypeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -302,6 +318,10 @@ export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fullFeaturedTypeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => fullFeaturedTypeDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -314,59 +334,67 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "FullFeaturedType.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as FullFeaturedType | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "FullFeaturedType") as FullFeaturedType | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["value", "value"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: number | undefined; "value"?: string | undefined; "score"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "FullFeaturedType");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number")) {
-            errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
-        const __raw_value = obj["value"] as string;
+                if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
+                    errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
+                const __raw_value = obj["value"] as string;
 
-        if (!(typeof __raw_value === "string")) {
-            errors.push({ field: "value", message: __raw_value == null ? "FullFeaturedType.value is required" : "expected string" });
-        } else {
-            instance.value = __raw_value;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_value === "string")) {
+                    errors.push({ field: "value", message: __raw_value == null ? "FullFeaturedType.value is required" : "expected string" });
+                } else {
+                    instance.value = __raw_value;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
-            errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -391,8 +419,7 @@ export function fullFeaturedTypeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "value" in o && "score" in o;
+    return __mf_holdsAll(obj, ["id", "value", "score"]);
 }
 
 export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
@@ -401,25 +428,33 @@ export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
 
 export function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeaturedType): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.value === b.value && a.score === b.score;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id || a.id !== a.id && b.id !== b.id,
+            () => a.value === b.value,
+            () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        ].every((same) => same());
+    });
 }
 
 export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.value < b.value ? -1 : a.value > b.value ? 1 : 0);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null),
+        () => (a.value < b.value ? -1 : a.value > b.value ? 1 : 0),
+        () => (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
     return 0;
+    });
 }
 
 export const FullFeaturedType: {
   readonly decode: typeof fullFeaturedTypeDecode;
+  readonly fromString: typeof fullFeaturedTypeFromString;
   readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
   readonly decodePartialWithContext: typeof fullFeaturedTypeDecodePartialWithContext;
   readonly validateField: typeof fullFeaturedTypeValidateField;
@@ -430,6 +465,7 @@ export const FullFeaturedType: {
   readonly partialCompare: typeof fullFeaturedTypePartialCompare;
 } = {
   decode: fullFeaturedTypeDecode,
+  fromString: fullFeaturedTypeFromString,
   decodeWithContext: fullFeaturedTypeDecodeWithContext,
   decodePartialWithContext: fullFeaturedTypeDecodePartialWithContext,
   validateField: fullFeaturedTypeValidateField,
@@ -446,14 +482,11 @@ export interface TypeA {
     fieldA: string;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = typeADecodeWithContext(data, ctx);
+        const resultOrRef = typeADecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -499,6 +532,10 @@ export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function typeAFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => typeADecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -511,28 +548,32 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeA.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as TypeA | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "TypeA") as TypeA | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("fieldA")) && !("fieldA" in obj)) {
-        errors.push({ field: "fieldA", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["fieldA", "fieldA"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "fieldA"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TypeA");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldA")) || (__fields.keeps("fieldA") && obj["fieldA"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fieldA")) ? "fieldA" in obj : (__fields.keeps("fieldA") && obj["fieldA"] !== undefined)) {
         const __raw_fieldA = obj["fieldA"] as string;
 
         if (!(typeof __raw_fieldA === "string")) {
@@ -564,8 +605,7 @@ export function typeAHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldA" in o;
+    return __mf_holdsAll(obj, ["fieldA"]);
 }
 
 export function typeAIs(obj: unknown): obj is TypeA {
@@ -574,6 +614,7 @@ export function typeAIs(obj: unknown): obj is TypeA {
 
 export const TypeA: {
   readonly decode: typeof typeADecode;
+  readonly fromString: typeof typeAFromString;
   readonly decodeWithContext: typeof typeADecodeWithContext;
   readonly decodePartialWithContext: typeof typeADecodePartialWithContext;
   readonly validateField: typeof typeAValidateField;
@@ -582,6 +623,7 @@ export const TypeA: {
   readonly is: typeof typeAIs;
 } = {
   decode: typeADecode,
+  fromString: typeAFromString,
   decodeWithContext: typeADecodeWithContext,
   decodePartialWithContext: typeADecodePartialWithContext,
   validateField: typeAValidateField,
@@ -595,14 +637,11 @@ export interface TypeB {
     fieldB: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = typeBDecodeWithContext(data, ctx);
+        const resultOrRef = typeBDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -648,6 +687,10 @@ export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function typeBFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => typeBDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -660,31 +703,35 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeB.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as TypeB | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "TypeB") as TypeB | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("fieldB")) && !("fieldB" in obj)) {
-        errors.push({ field: "fieldB", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["fieldB", "fieldB"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "fieldB"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TypeB");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldB")) || (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fieldB")) ? "fieldB" in obj : (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
         const __raw_fieldB = obj["fieldB"] as number;
 
-        if (!(typeof __raw_fieldB === "number")) {
+        if (!(typeof __raw_fieldB === "number" && globalThis.Number.isFinite(__raw_fieldB))) {
             errors.push({ field: "fieldB", message: __raw_fieldB == null ? "TypeB.fieldB is required" : "expected number" });
         } else {
             instance.fieldB = __raw_fieldB;
@@ -713,8 +760,7 @@ export function typeBHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldB" in o;
+    return __mf_holdsAll(obj, ["fieldB"]);
 }
 
 export function typeBIs(obj: unknown): obj is TypeB {
@@ -723,6 +769,7 @@ export function typeBIs(obj: unknown): obj is TypeB {
 
 export const TypeB: {
   readonly decode: typeof typeBDecode;
+  readonly fromString: typeof typeBFromString;
   readonly decodeWithContext: typeof typeBDecodeWithContext;
   readonly decodePartialWithContext: typeof typeBDecodePartialWithContext;
   readonly validateField: typeof typeBValidateField;
@@ -731,6 +778,7 @@ export const TypeB: {
   readonly is: typeof typeBIs;
 } = {
   decode: typeBDecode,
+  fromString: typeBFromString,
   decodeWithContext: typeBDecodeWithContext,
   decodePartialWithContext: typeBDecodePartialWithContext,
   validateField: typeBValidateField,
@@ -746,15 +794,16 @@ export interface TypeC {
 
 export function typeCEquals(a: TypeC, b: TypeC): boolean {
     if (a === b) return true;
-    return a.fieldC === b.fieldC;
+    return __mf_equalWithin(a, b, () => {
+        return a.fieldC === b.fieldC || a.fieldC !== a.fieldC && b.fieldC !== b.fieldC;
+    });
 }
 
 export function typeCPartialCompare(a: TypeC, b: TypeC): number | null {
     if (a === b) return 0;
-    const cmp0 = (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return __mf_comparedWithin(a, b, () => {
+    return (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC || (a.fieldC !== a.fieldC && b.fieldC !== b.fieldC) ? 0 : null);
+    });
 }
 
 export const TypeC: {
@@ -790,8 +839,19 @@ export interface UserWithDecode {
 	age: number;
 	email: string;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserWithDecode;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userWithDecodeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: UserWithDecode;
 } | {
@@ -819,6 +879,7 @@ export declare function userWithDecodeHasShape(obj: unknown): boolean;
 export declare function userWithDecodeIs(obj: unknown): obj is UserWithDecode;
 export declare const UserWithDecode: {
 	readonly decode: typeof userWithDecodeDecode;
+	readonly fromString: typeof userWithDecodeFromString;
 	readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
 	readonly decodePartialWithContext: typeof userWithDecodeDecodePartialWithContext;
 	readonly validateField: typeof userWithDecodeValidateField;
@@ -841,8 +902,19 @@ export interface FullFeaturedType {
 	value: string;
 	score: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: FullFeaturedType;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fullFeaturedTypeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: FullFeaturedType;
 } | {
@@ -872,6 +944,7 @@ export declare function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeatu
 export declare function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null;
 export declare const FullFeaturedType: {
 	readonly decode: typeof fullFeaturedTypeDecode;
+	readonly fromString: typeof fullFeaturedTypeFromString;
 	readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
 	readonly decodePartialWithContext: typeof fullFeaturedTypeDecodePartialWithContext;
 	readonly validateField: typeof fullFeaturedTypeValidateField;
@@ -884,8 +957,19 @@ export declare const FullFeaturedType: {
 export interface TypeA {
 	fieldA: string;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function typeADecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TypeA;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function typeAFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: TypeA;
 } | {
@@ -913,6 +997,7 @@ export declare function typeAHasShape(obj: unknown): boolean;
 export declare function typeAIs(obj: unknown): obj is TypeA;
 export declare const TypeA: {
 	readonly decode: typeof typeADecode;
+	readonly fromString: typeof typeAFromString;
 	readonly decodeWithContext: typeof typeADecodeWithContext;
 	readonly decodePartialWithContext: typeof typeADecodePartialWithContext;
 	readonly validateField: typeof typeAValidateField;
@@ -923,8 +1008,19 @@ export declare const TypeA: {
 export interface TypeB {
 	fieldB: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TypeB;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function typeBFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: TypeB;
 } | {
@@ -952,6 +1048,7 @@ export declare function typeBHasShape(obj: unknown): boolean;
 export declare function typeBIs(obj: unknown): obj is TypeB;
 export declare const TypeB: {
 	readonly decode: typeof typeBDecode;
+	readonly fromString: typeof typeBFromString;
 	readonly decodeWithContext: typeof typeBDecodeWithContext;
 	readonly decodePartialWithContext: typeof typeBDecodePartialWithContext;
 	readonly validateField: typeof typeBValidateField;
@@ -976,49 +1073,52 @@ export declare function verifyImports(): void;
 
 ## Mapping
 
-original 0..745 -> expanded 350..1095
-original 767..857 -> expanded 1095..1185
-original 857..921 -> expanded 8623..8687
-original 958..1034 -> expanded 8687..8763
-original 1034..1084 -> expanded 9640..9690
-original 1129..1221 -> expanded 9690..9782
-original 1221..1291 -> expanded 18323..18393
-original 1313..1360 -> expanded 18393..18440
-original 1360..1362 -> expanded 24284..24286
-original 1384..1431 -> expanded 24286..24333
-original 1431..1433 -> expanded 30177..30179
-original 1470..1517 -> expanded 30179..30226
-original 1517..2163 -> expanded 30831..31477
-generated 0..350 <- imports
-generated 1185..7855 <- Decode
-generated 7855..8623 <- __convenience_const
-generated 8763..8941 <- PartialEq
-generated 8941..9408 <- PartialOrd
-generated 9408..9640 <- __convenience_const
-generated 9782..16518 <- Decode
-generated 16518..16715 <- PartialEq
-generated 16715..17325 <- PartialOrd
-generated 17325..18323 <- __convenience_const
-generated 18440..23651 <- Decode
-generated 23651..24284 <- __convenience_const
-generated 24333..29544 <- Decode
-generated 29544..30177 <- __convenience_const
-generated 30226..30352 <- PartialEq
-generated 30352..30644 <- PartialOrd
-generated 30644..30831 <- __convenience_const
+original 0..745 -> expanded 559..1304
+original 767..857 -> expanded 1304..1394
+original 857..921 -> expanded 9652..9716
+original 958..1034 -> expanded 9716..9792
+original 1034..1084 -> expanded 10945..10995
+original 1129..1221 -> expanded 10995..11087
+original 1221..1291 -> expanded 20770..20840
+original 1313..1360 -> expanded 20840..20887
+original 1360..1362 -> expanded 27338..27340
+original 1384..1431 -> expanded 27340..27387
+original 1431..1433 -> expanded 33882..33884
+original 1470..1517 -> expanded 33884..33931
+original 1517..2163 -> expanded 34656..35302
+generated 0..559 <- imports
+generated 1394..8788 <- Decode
+generated 8788..9652 <- __convenience_const
+generated 9792..10153 <- PartialEq
+generated 10153..10713 <- PartialOrd
+generated 10713..10945 <- __convenience_const
+generated 11087..18599 <- Decode
+generated 18599..19017 <- PartialEq
+generated 19017..19672 <- PartialOrd
+generated 19672..20770 <- __convenience_const
+generated 20887..26627 <- Decode
+generated 26627..27338 <- __convenience_const
+generated 27387..33171 <- Decode
+generated 33171..33882 <- __convenience_const
+generated 33931..34161 <- PartialEq
+generated 34161..34469 <- PartialOrd
+generated 34469..34656 <- __convenience_const
 
 ## Metadata
 
-interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
-interface ComparableItem: {"body_span":{"end":1035,"start":992},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":959,"start":922}}],"fields":[{"decorators":[],"name":"priority","optional":false,"readonly":false,"span":{"end":1015,"start":998},"ts_type":"number"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1033,"start":1020},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1035,"start":967},"type_params":[]}
-interface FullFeaturedType: {"body_span":{"end":1222,"start":1165},"decorators":[{"args_src":"Decode, PartialEq, PartialOrd","name":"Derive","span":{"end":1130,"start":1085}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1182,"start":1171},"ts_type":"number"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1201,"start":1187},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":1220,"start":1206},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1222,"start":1138},"type_params":[]}
-interface TypeA: {"body_span":{"end":1361,"start":1338},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1314,"start":1292}}],"fields":[{"decorators":[],"name":"fieldA","optional":false,"readonly":false,"span":{"end":1359,"start":1344},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1361,"start":1322},"type_params":[]}
-interface TypeB: {"body_span":{"end":1432,"start":1409},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1385,"start":1363}}],"fields":[{"decorators":[],"name":"fieldB","optional":false,"readonly":false,"span":{"end":1430,"start":1415},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1432,"start":1393},"type_params":[]}
-interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":1471,"start":1434}}],"fields":[{"decorators":[],"name":"fieldC","optional":false,"readonly":false,"span":{"end":1516,"start":1501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1518,"start":1479},"type_params":[]}
+interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
+interface ComparableItem: {"body_span":{"end":1035,"start":992},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":959,"start":922}}],"fields":[{"decorators":[],"key":"Named","name":"priority","optional":false,"readonly":false,"span":{"end":1015,"start":998},"ts_type":"number"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1033,"start":1020},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1035,"start":967},"type_params":[]}
+interface FullFeaturedType: {"body_span":{"end":1222,"start":1165},"decorators":[{"args_src":"Decode, PartialEq, PartialOrd","name":"Derive","span":{"end":1130,"start":1085}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1182,"start":1171},"ts_type":"number"},{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1201,"start":1187},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":1220,"start":1206},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1222,"start":1138},"type_params":[]}
+interface TypeA: {"body_span":{"end":1361,"start":1338},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1314,"start":1292}}],"fields":[{"decorators":[],"key":"Named","name":"fieldA","optional":false,"readonly":false,"span":{"end":1359,"start":1344},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1361,"start":1322},"type_params":[]}
+interface TypeB: {"body_span":{"end":1432,"start":1409},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1385,"start":1363}}],"fields":[{"decorators":[],"key":"Named","name":"fieldB","optional":false,"readonly":false,"span":{"end":1430,"start":1415},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1432,"start":1393},"type_params":[]}
+interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":1471,"start":1434}}],"fields":[{"decorators":[],"key":"Named","name":"fieldC","optional":false,"readonly":false,"span":{"end":1516,"start":1501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1518,"start":1479},"type_params":[]}
 
 ## Registry reads
 
-(none)
+Name("Exit")
+Name("Option")
+ExportedAs("Exit")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

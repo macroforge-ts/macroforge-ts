@@ -1,20 +1,19 @@
 //! Parsing one validator: its name, arguments and custom message.
 
 use super::{CustomValidator, Validator, ValidatorParseError, ValidatorSpec};
-use crate::builtin::derive::common::parse_string_literal;
+use crate::builtin::derive::common::{is_identifier_name, parse_string_literal, regex_error};
 use crate::builtin::derive::endec::helpers::extract_named_value;
-
-use super::extract::extract_bracket_content;
+use crate::ts_syn::scan::unwrapped;
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
 pub(super) fn parse_validator_object(input: &str) -> Result<ValidatorSpec, ValidatorParseError> {
-    let content = extract_bracket_content(input, '{', '}')
+    let content = unwrapped(input, '{', '}')
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "malformed validator object"))?;
 
-    let validator_str = extract_named_value(&content, "validate")
+    let validator_str = extract_named_value(content, "validate")
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "missing 'validate' field"))?;
     let validator = parse_validator_string(&validator_str)?;
-    let custom_message = extract_named_value(&content, "message");
+    let custom_message = extract_named_value(content, "message");
 
     Ok(ValidatorSpec {
         validator,
@@ -29,15 +28,16 @@ pub(in crate::builtin::derive::endec) fn parse_validator_string(
     let trimmed = s.trim();
 
     // Check for function-call style: name(args)
-    if let Some(paren_idx) = trimmed.find('(') {
-        let name = &trimmed[..paren_idx];
-        let Some(args_end) = trimmed.rfind(')') else {
-            return Err(ValidatorParseError::invalid_args(
-                name,
-                "missing closing parenthesis",
-            ));
+    if let Some((name, rest)) = trimmed.split_once('(') {
+        // The arguments run to a `)` that ends the validator, and what
+        // stands before them is its name: `)(` has neither.
+        let Some(args) = rest.strip_suffix(')') else {
+            return Err(if is_identifier_name(name.trim()) {
+                ValidatorParseError::invalid_args(name, "missing closing parenthesis")
+            } else {
+                ValidatorParseError::unknown_validator(trimmed)
+            });
         };
-        let args = &trimmed[paren_idx + 1..args_end];
         return parse_validator_with_args(name, args);
     }
 
@@ -100,6 +100,12 @@ pub(super) fn parse_validator_with_args(
                     let max = parts[1].trim().parse().map_err(|_| {
                         ValidatorParseError::invalid_args(name, "expected two positive integers")
                     })?;
+                    if min > max {
+                        return Err(ValidatorParseError::invalid_args(
+                            name,
+                            "the first length is the least and cannot be above the second",
+                        ));
+                    }
                     Ok(Validator::LengthRange(min, max))
                 }
                 _ => Err(ValidatorParseError::invalid_args(
@@ -108,9 +114,18 @@ pub(super) fn parse_validator_with_args(
                 )),
             }
         }
-        "pattern" => parse_validator_string_arg(args)
-            .map(Validator::Pattern)
-            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string pattern")),
+        "pattern" => {
+            let pattern = parse_validator_string_arg(args).ok_or_else(|| {
+                ValidatorParseError::invalid_args(name, "expected a string pattern")
+            })?;
+            match regex_error(&pattern) {
+                Some(why) => Err(ValidatorParseError::invalid_args(
+                    name,
+                    &format!("`{pattern}` is no regular expression: {why}"),
+                )),
+                None => Ok(Validator::Pattern(pattern)),
+            }
+        }
         "startswith" => parse_validator_string_arg(args)
             .map(Validator::StartsWith)
             .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string")),
@@ -151,6 +166,12 @@ pub(super) fn parse_validator_with_args(
                     .trim()
                     .parse()
                     .map_err(|_| ValidatorParseError::invalid_args(name, "expected two numbers"))?;
+                if min > max {
+                    return Err(ValidatorParseError::invalid_args(
+                        name,
+                        "the first number is the least and cannot be above the second",
+                    ));
+                }
                 Ok(Validator::Between(min, max))
             } else {
                 Err(ValidatorParseError::invalid_args(

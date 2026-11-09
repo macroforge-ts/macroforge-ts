@@ -1,0 +1,93 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_expression_unparsed.ts
+---
+## Input
+
+/** A default that is no expression is reported in the parser's own words. */
+/** @derive(Default) */
+export interface Settings {
+    /** @default(1 +) */
+    retries: number;
+}
+
+/** @derive(Default) */
+export class Options {
+    /** @default(new) */
+    level: number;
+}
+
+/** @derive(Default) */
+export type Limits = {
+    /** @default(a b) */
+    upper: number;
+};
+
+## Changed
+
+true
+
+## Output
+
+/** A default that is no expression is reported in the parser's own words. */
+
+export interface Settings {
+    
+    retries: number;
+}
+
+
+export class Options {
+    
+    level: number;
+}
+
+
+export type Limits = {
+    /** @default(a b) */
+    upper: number;
+};
+
+## DTS
+
+/** A default that is no expression is reported in the parser's own words. */
+export interface Settings {
+	retries: number;
+}
+export declare class Options {
+	level: number;
+}
+export type Limits = {
+	/** @default(a b) */
+	upper: number;
+};
+
+## Diagnostics
+
+Error [83..99]: @derive(Default): invalid default expression for 'retries': parse error: Unexpected token
+Error [184..200]: @derive(Default): invalid default expression for 'level': parse error: Unexpected token
+Error [278..294]: @derive(Default): invalid default expression for 'upper': parse error: Unexpected token
+
+## Mapping
+
+original 0..78 -> expanded 0..78
+original 101..134 -> expanded 78..111
+original 154..179 -> expanded 111..136
+original 202..230 -> expanded 136..164
+original 250..273 -> expanded 164..187
+original 296..367 -> expanded 187..258
+
+## Metadata
+
+class Options: {"body_span":{"end":272,"start":225},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":203,"start":180}}],"fields":[{"accessor":false,"decorators":[{"args_src":"new","name":"default","span":{"end":251,"start":231}}],"initializer":null,"key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":270,"start":256},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Options","span":{"end":272,"start":211},"superclass":null,"type_params":[]}
+interface Settings: {"body_span":{"end":178,"start":129},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":102,"start":79}}],"fields":[{"decorators":[{"args_src":"1 +","name":"default","span":{"end":155,"start":135}}],"key":"Named","name":"retries","optional":false,"readonly":false,"span":{"end":176,"start":160},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":178,"start":110},"type_params":[]}
+type Limits: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"a b","name":"default","span":{"end":345,"start":325}}],"key":"Named","name":"upper","optional":false,"readonly":false,"span":{"end":364,"start":350},"ts_type":"number"}]}},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":297,"start":274}}],"name":"Limits","span":{"end":367,"start":305},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

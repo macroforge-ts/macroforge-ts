@@ -35,3 +35,18 @@ export {
     type NonExhaustiveConfig,
     type VitePluginConfig
 } from './config.ts';
+
+export {
+    DECLARATION_ENDINGS,
+    declarationFileOf,
+    JAVASCRIPT_EXTENSIONS,
+    TYPESCRIPT_EXTENSIONS
+} from './source-file.ts';
+
+export {
+    lineAndColumn,
+    sourceMapOf,
+    type SourceMapping,
+    type SourceMappingSegment,
+    type SourceMapV3
+} from './source-map.ts';

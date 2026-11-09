@@ -1,0 +1,66 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_several_markers.ts
+---
+## Input
+
+/** @derive(Default) */
+export enum Level {
+    /** @default */
+    Low,
+    /** @default */
+    High
+}
+
+/** @derive(Default) */
+export type Size = /** @default */ 'small' | 'medium' | /** @default */ 'large';
+
+## Changed
+
+true
+
+## Output
+
+export enum Level {
+    /** @default */
+    Low,
+    /** @default */
+    High
+}
+
+
+export type Size = /** @default */ 'small' | 'medium' | /** @default */ 'large';
+
+## DTS
+
+export declare enum Level {
+	/** @default */
+	Low = 0,
+	/** @default */
+	High = 1
+}
+export type Size = "small" | "medium" | "large";
+
+## Diagnostics
+
+Error [5..21]: @derive(Default): `Low`, `High` of Level are each marked @default, and an enum has one default: mark one of them
+Error [110..126]: @derive(Default): 2 members of 'Size' are marked @default, and a union has one default: mark one of them
+
+## Mapping
+
+original 23..105 -> expanded 0..82
+original 128..210 -> expanded 82..164
+
+## Metadata
+
+enum Level: {"body_span":{"end":104,"start":43},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"is_const":false,"is_declare":false,"name":"Level","span":{"end":104,"start":32},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":64,"start":49}}],"name":"Low","span":{"end":72,"start":69},"value":{"Number":0.0}},{"decorators":[{"args_src":"","name":"default","span":{"end":93,"start":78}}],"name":"High","span":{"end":102,"start":98},"value":{"Number":1.0}}]}
+type Size: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":164,"start":149}}],"kind":{"Literal":"'small'"}},{"decorators":[],"kind":{"Literal":"'medium'"}},{"decorators":[{"args_src":"","name":"default","span":{"end":201,"start":186}}],"kind":{"Literal":"'large'"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":129,"start":106}}],"name":"Size","span":{"end":210,"start":137},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -17,21 +17,57 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 class Point {
     x: number;
     y: number;
 
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Point" });
+    Point.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Point" };
+        Point.#encodeFields(value as Point, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: Point, keepMetadata?: boolean): string {
         return pointEncode(value, keepMetadata);
-    }
-
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return pointEncodeWithContext(value, ctx);
     }
 }
 
@@ -41,61 +77,34 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
     const __raw = pointEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pointEncodePartialWithContext(value, ctx);
+    return Point.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "Point",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("x")) {
-
-        if (value.x !== undefined) {
-            result.x = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-
-        if (value.y !== undefined) {
-            result.y = value.y;
-        }
-    }
-
-    return result;
+    return Point.encodePartialWithContext(value, ctx, fields);
 }
 
 ## DTS
 
 declare class Point {
+	#private;
 	x: number;
 	y: number;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: Point, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Point, keepMetadata?: boolean): string;
 }
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 export {};
 
@@ -105,16 +114,17 @@ export {};
 
 ## Mapping
 
-original 22..67 -> expanded 302..347
-original 67..68 -> expanded 974..975
-original 68..69 -> expanded 2877..2878
-generated 0..302 <- imports
-generated 347..974 <- Encode
-generated 975..2877 <- Encode
+original 22..67 -> expanded 458..503
+original 67..68 -> expanded 2661..2662
+original 68..69 -> expanded 3972..3973
+generated 0..458 <- imports
+generated 503..2344 <- Encode
+generated 2344..2661 <- Encode
+generated 2662..3972 <- Encode
 
 ## Metadata
 
-class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"type_params":[]}
+class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

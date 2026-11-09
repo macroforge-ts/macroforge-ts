@@ -2,7 +2,7 @@
 //! type. The value is viewed as an object whose fields the regular field
 //! decoders handle, so each element decodes by its own type.
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
@@ -10,13 +10,15 @@ use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
 use super::AliasDecode;
-use crate::builtin::derive::common::{TypeNames, tuple_element};
-use crate::builtin::derive::endec::EndecContainerOptions;
+use crate::builtin::derive::common::{TypeNames, tuple_element, undefined_as_null};
 use crate::builtin::derive::endec::decode::field::prepare::to_decode_field;
-use crate::builtin::derive::endec::decode::field::statements::{Required, decode_fields};
+use crate::builtin::derive::endec::decode::field::statements::{
+    Required, assembly_type, decode_fields,
+};
 use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::{EndecContainerOptions, TypeCategory};
 
 /// How a tuple's elements map onto the view's fields.
 struct TupleLayout {
@@ -26,6 +28,8 @@ struct TupleLayout {
     /// Elements other than a rest element.
     fixed: usize,
     rest: bool,
+    /// Optional elements whose `null` is the `undefined` they were written from.
+    null_as_undefined: Vec<usize>,
 }
 
 /// The view functions for a tuple alias, decoding each element by its type.
@@ -36,10 +40,10 @@ pub(super) fn tuple_view(
     let layout = tuple_layout(alias, elements)?;
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
+        function_prefix(alias.type_name),
         alias.generic_decl
     );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(alias.type_name));
     let decode_context_ident = &alias.decode_context_ident;
     let decode_error_expr = &alias.decode_error_expr;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
@@ -53,11 +57,17 @@ pub(super) fn tuple_view(
     let slots: Vec<(String, Expr)> = (0..layout.fixed)
         .map(|index| (format!("e{index}"), number(index)))
         .collect();
-    let field_statements = decode_fields(&layout.fields, type_name, Required::All);
+    let null_as_undefined: Vec<String> = layout
+        .null_as_undefined
+        .iter()
+        .map(usize::to_string)
+        .collect();
+    let assembly = assembly_type(&layout.fields);
+    let field_statements = decode_fields(&layout.fields, type_name, "__type", Required::All);
     let reference = decode_reference(type_name, &alias.full_type_name);
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
             {$typescript reference}
             if (!Array.isArray(value)) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected an array" }]);
@@ -77,13 +87,21 @@ pub(super) fn tuple_view(
             for (let __index = 0; __index < Math.min(value.length, @{fixed.clone()}); __index++) {
                 obj[__index] = value[__index];
             }
+            {#for key in &null_as_undefined}
+                if (obj["@{key}"] === null) {
+                    obj["@{key}"] = undefined;
+                }
+            {/for}
             {#if has_rest}
-                obj.rest = value.slice(@{fixed.clone()});
+                obj["rest"] = value.slice(@{fixed.clone()});
             {/if}
             // Each element decodes onto `instance`, whose properties write
             // through to the tuple: a reference resolved later lands there too.
-            const tuple: unknown[] = [];
-            const instance: any = {};
+            // An element left `undefined` keeps its place before the rest.
+            const tuple: unknown[] = new Array<unknown>(Math.min(value.length, @{fixed.clone()})).fill(undefined);
+            {#if !slots.is_empty() || has_rest}
+                const instance: @{&assembly} = {};
+            {/if}
             {#for (slot, index) in &slots}
                 Object.defineProperty(instance, "@{slot}", {
                     get: () => tuple[@{index.clone()}],
@@ -128,21 +146,38 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
     }
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
+        function_prefix(alias.type_name),
         alias.generic_decl
     );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(alias.type_name));
     let decode_context_ident = &alias.decode_context_ident;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
-    let field_statements = decode_fields(&Vec::from_iter(field), alias.type_name, Required::All);
+    let fields = Vec::from_iter(field);
+    let assembly = assembly_type(&fields);
+    let field_statements = decode_fields(&fields, alias.type_name, "__type", Required::All);
     let reference = decode_reference(alias.type_name, &alias.full_type_name);
+    // What a value of the aliased type is encoded as, as far as one check
+    // tells: enough to tell it from the other members of a union.
+    let has_shape = match TypeCategory::from_ts_type(ts_type) {
+        TypeCategory::Array(_) | TypeCategory::Set(_) => "Array.isArray(value)",
+        TypeCategory::Map(_, _) | TypeCategory::Record(_, _) => {
+            r#"typeof value === "object" && value !== null && !Array.isArray(value)"#
+        }
+        TypeCategory::Date => r#"value instanceof Date || typeof value === "string""#,
+        TypeCategory::Primitive
+        | TypeCategory::Optional(_)
+        | TypeCategory::Nullable(_)
+        | TypeCategory::Encodable(_)
+        | TypeCategory::Wrapper(_)
+        | TypeCategory::Unknown => "value != null",
+    };
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
             {$typescript reference}
             const obj: Record<string, unknown> = { _root: value };
             const errors: Array<{ field: string; message: string }> = [];
-            const instance: any = {};
+            const instance: @{&assembly} = {};
 
             {$typescript field_statements}
 
@@ -151,7 +186,7 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
         }
 
         export function @{fn_has_shape_ident}(value: unknown): boolean {
-            return value != null;
+            return @{has_shape};
         }
     })
 }
@@ -163,6 +198,7 @@ fn tuple_layout(alias: &AliasDecode, elements: &[String]) -> Result<TupleLayout,
         required: 0,
         fixed: 0,
         rest: false,
+        null_as_undefined: Vec::new(),
     };
     for (index, source) in elements.iter().enumerate() {
         let element = tuple_element(source);
@@ -173,6 +209,10 @@ fn tuple_layout(alias: &AliasDecode, elements: &[String]) -> Result<TupleLayout,
             layout.fixed += 1;
             if !element.optional && layout.required == index {
                 layout.required += 1;
+            }
+            // An optional element that is there and `undefined` is written as `null`.
+            if element.optional && undefined_as_null(&format!("{} | undefined", element.ts_type)) {
+                layout.null_as_undefined.push(index);
             }
             (format!("e{index}"), index.to_string())
         };

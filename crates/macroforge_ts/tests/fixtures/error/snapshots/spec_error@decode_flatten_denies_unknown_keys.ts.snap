@@ -1,0 +1,59 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/decode_flatten_denies_unknown_keys.ts
+---
+## Input
+
+/** @derive(Decode) */
+/** @endec({ denyUnknownFields: true }) */
+interface Settings {
+    name: string;
+    /** @endec(flatten) */
+    extra: Record<string, number>;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
+
+/** @endec({ denyUnknownFields: true }) */
+interface Settings {
+    name: string;
+    
+    extra: Record<string, number>;
+}
+
+## DTS
+
+/** @endec({ denyUnknownFields: true }) */
+interface Settings {
+	name: string;
+	extra: Record<string, number>;
+}
+
+## Diagnostics
+
+Error [137..167]: @endec(flatten) on 'extra' cannot be combined with denyUnknownFields: the keys its type reads are not known here, so none can be told unknown
+
+## Mapping
+
+original 22..109 -> expanded 111..198
+original 131..169 -> expanded 198..236
+generated 0..111 <- imports
+
+## Metadata
+
+interface Settings: {"body_span":{"end":169,"start":86},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":66,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":105,"start":92},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":132,"start":110}}],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":167,"start":137},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":169,"start":67},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

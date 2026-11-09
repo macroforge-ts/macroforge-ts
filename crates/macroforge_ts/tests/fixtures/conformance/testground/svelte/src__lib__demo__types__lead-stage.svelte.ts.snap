@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,26 +40,20 @@ export function leadStageEncode(value: LeadStage, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function leadStageEncodeWithContext(value: LeadStage, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function leadStageDecode(input: unknown): { success: true; value: LeadStage } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Open':
@@ -105,6 +99,10 @@ export function leadStageHasShape(value: unknown): boolean {
 
 export function leadStageIs(value: unknown): value is LeadStage {
     return leadStageHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function leadStageFromString(text: string): { success: true; value: LeadStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => leadStageDecode(value));
 }
 
 /** Per-variant error types  */
@@ -289,6 +287,7 @@ export const LeadStage: {
   readonly decodeWithContext: typeof leadStageDecodeWithContext;
   readonly hasShape: typeof leadStageHasShape;
   readonly is: typeof leadStageIs;
+  readonly fromString: typeof leadStageFromString;
   readonly createForm: typeof leadStageCreateForm;
   readonly fromFormData: typeof leadStageFromFormData;
 } = {
@@ -299,6 +298,7 @@ export const LeadStage: {
   decodeWithContext: leadStageDecodeWithContext,
   hasShape: leadStageHasShape,
   is: leadStageIs,
+  fromString: leadStageFromString,
   createForm: leadStageCreateForm,
   fromFormData: leadStageFromFormData
 };
@@ -312,7 +312,7 @@ export declare function leadStageDefaultValue(): LeadStage;
 export declare function leadStageEncode(value: LeadStage, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function leadStageEncodeWithContext(value: LeadStage, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function leadStageDecode(input: unknown): {
 	success: true;
 	value: LeadStage;
@@ -327,6 +327,17 @@ export declare function leadStageDecode(input: unknown): {
 export declare function leadStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef;
 export declare function leadStageHasShape(value: unknown): boolean;
 export declare function leadStageIs(value: unknown): value is LeadStage;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function leadStageFromString(text: string): {
+	success: true;
+	value: LeadStage;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type LeadStageOpenErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -426,6 +437,7 @@ export declare const LeadStage: {
 	readonly decodeWithContext: typeof leadStageDecodeWithContext;
 	readonly hasShape: typeof leadStageHasShape;
 	readonly is: typeof leadStageIs;
+	readonly fromString: typeof leadStageFromString;
 	readonly createForm: typeof leadStageCreateForm;
 	readonly fromFormData: typeof leadStageFromFormData;
 };
@@ -436,15 +448,15 @@ export declare const LeadStage: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..239 -> expanded 614..746
-original 239..240 -> expanded 11426..11427
-generated 0..556 <- imports
-generated 746..821 <- Default
-generated 821..2082 <- Encode
-generated 2082..4094 <- Decode
-generated 4094..10617 <- Gigaform
-generated 10617..11426 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..239 -> expanded 769..901
+original 239..240 -> expanded 12118..12119
+generated 0..711 <- imports
+generated 901..976 <- Default
+generated 976..2276 <- Encode
+generated 2276..4700 <- Decode
+generated 4700..11223 <- Gigaform
+generated 11223..12118 <- __convenience_const
 
 ## Metadata
 
@@ -452,7 +464,9 @@ type LeadStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default"
 
 ## Registry reads
 
+Name("Gigaform")
 Name("LeadStage")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

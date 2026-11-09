@@ -1,5 +1,6 @@
 //! Source-type derivation shared by every Oxc parser entry point.
 
+use crate::ts_syn::source_path::{ModuleKind, module_kind};
 use oxc::span::SourceType;
 
 /// The source type Oxc should parse `filepath` with.
@@ -10,11 +11,7 @@ use oxc::span::SourceType;
 pub(crate) fn for_path(filepath: &str) -> SourceType {
     SourceType::ts()
         .with_jsx(filepath.ends_with(".tsx"))
-        .with_typescript_definition(is_declaration(filepath))
-}
-
-fn is_declaration(filepath: &str) -> bool {
-    filepath.ends_with(".d.ts") || filepath.ends_with(".d.mts") || filepath.ends_with(".d.cts")
+        .with_typescript_definition(module_kind(filepath) == Some(ModuleKind::Declaration))
 }
 
 #[cfg(test)]

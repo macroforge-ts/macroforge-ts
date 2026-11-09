@@ -33,7 +33,6 @@ export function levelClone(value: Level): Level {
 }
 
 export function levelEquals(a: Level, b: Level): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -65,7 +64,6 @@ export function modeClone(value: Mode): Mode {
 }
 
 export function modeEquals(a: Mode, b: Mode): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -98,7 +96,9 @@ export function pairClone(value: Pair): Pair {
 
 export function pairEquals(a: Pair, b: Pair): boolean {
     if (a === b) return true;
-    return a[0] === b[0] && a[1] === b[1];
+    if (!(a[0] === b[0])) return false;
+    if (!((a[1] === b[1] || (a[1] !== a[1] && b[1] !== b[1])))) return false;
+    return true;
 }
 
 export function pairPartialCompare(a: Pair, b: Pair): number | null {
@@ -109,7 +109,7 @@ export function pairPartialCompare(a: Pair, b: Pair): number | null {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : null);
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 || (left1 !== left1 && right1 !== right1) ? 0 : null);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -122,7 +122,7 @@ export function pairCompare(a: Pair, b: Pair): number {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : left1 !== left1 ? (right1 !== right1 ? 0 : 1) : -1);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -147,16 +147,15 @@ export function metersClone(value: Meters): Meters {
 }
 
 export function metersEquals(a: Meters, b: Meters): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
 export function metersPartialCompare(a: Meters, b: Meters): number | null {
-    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+    return a < b ? -1 : a > b ? 1 : a === b || (a !== a && b !== b) ? 0 : null;
 }
 
 export function metersCompare(a: Meters, b: Meters): number {
-    return a < b ? -1 : a > b ? 1 : 0;
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : a !== a ? (b !== b ? 0 : 1) : -1;
 }
 
 export const Meters: {
@@ -229,37 +228,37 @@ export {};
 ## Mapping
 
 original 53..84 -> expanded 136..167
-original 84..86 -> expanded 881..883
-original 139..176 -> expanded 883..920
-original 176..178 -> expanded 1613..1615
-original 231..268 -> expanded 1615..1652
-original 268..270 -> expanded 3103..3105
-original 323..345 -> expanded 3105..3127
-original 361..362 -> expanded 3171..3172
-original 362..363 -> expanded 3920..3921
+original 84..86 -> expanded 851..853
+original 139..176 -> expanded 853..890
+original 176..178 -> expanded 1553..1555
+original 231..268 -> expanded 1555..1592
+original 268..270 -> expanded 3249..3251
+original 323..345 -> expanded 3251..3273
+original 361..362 -> expanded 3317..3318
+original 362..363 -> expanded 4105..4106
 generated 0..91 <- imports
 generated 91..136 <- $Newtype
 generated 167..238 <- Clone
-generated 238..350 <- PartialEq
-generated 350..467 <- PartialOrd
-generated 467..570 <- Ord
-generated 570..881 <- __convenience_const
-generated 920..988 <- Clone
-generated 988..1097 <- PartialEq
-generated 1097..1211 <- PartialOrd
-generated 1211..1311 <- Ord
-generated 1311..1613 <- __convenience_const
-generated 1652..1735 <- Clone
-generated 1735..1867 <- PartialEq
-generated 1867..2354 <- PartialOrd
-generated 2354..2801 <- Ord
-generated 2801..3103 <- __convenience_const
-generated 3127..3171 <- $Newtype
-generated 3172..3246 <- Clone
-generated 3246..3361 <- PartialEq
-generated 3361..3496 <- PartialOrd
-generated 3496..3600 <- Ord
-generated 3600..3920 <- __convenience_const
+generated 238..320 <- PartialEq
+generated 320..437 <- PartialOrd
+generated 437..540 <- Ord
+generated 540..851 <- __convenience_const
+generated 890..958 <- Clone
+generated 958..1037 <- PartialEq
+generated 1037..1151 <- PartialOrd
+generated 1151..1251 <- Ord
+generated 1251..1553 <- __convenience_const
+generated 1592..1675 <- Clone
+generated 1675..1899 <- PartialEq
+generated 1899..2428 <- PartialOrd
+generated 2428..2947 <- Ord
+generated 2947..3249 <- __convenience_const
+generated 3273..3317 <- $Newtype
+generated 3318..3392 <- Clone
+generated 3392..3477 <- PartialEq
+generated 3477..3636 <- PartialOrd
+generated 3636..3785 <- Ord
+generated 3785..4105 <- __convenience_const
 
 ## Metadata
 

@@ -1,12 +1,18 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
+use crate::builtin::derive::common::{
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-use crate::builtin::derive::common::{is_primitive_union, structural_call};
+use crate::builtin::derive::common::{
+    is_primitive_union, js_string, parameter_name, rendered, structural_call,
+};
 
 use super::debug_generation::{debug_value_expr, push_statements};
 use super::types::DebugField;
@@ -23,12 +29,13 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "Debug", ClassUse::Reads)?;
             let class_name = input.name();
-            let class_names = TypeNames::new(class_name, class.type_params());
+            let class_names = TypeNames::new(class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "Debug"));
             let class_ident = class_names.full_type_ident();
 
-            let debug_fields: Vec<DebugField> = class
-                .fields()
+            let debug_fields: Vec<DebugField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     DebugField::shown(
@@ -40,77 +47,66 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("ToString");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("ToString")).into();
-
             let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry);
-
-            // Generate standalone function with value parameter
-            let standalone = if debug_fields.is_empty() {
+            let body = if debug_fields.is_empty() {
                 ts_template! {
-                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
-                        return "@{class_name} {}";
-                    }
+                    return "@{class_name} {}";
                 }
             } else {
                 ts_template! {
-                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
+                    return @{structural_callee("debuggedWithin")}(value, () => {
                         const parts: string[] = [];
-                        {$typescript TsStream::from_string(push_stmts)}
+                    {$typescript TsStream::from_string(push_stmts)}
                         return "@{class_name} { " + parts.join(", ") + " }";
-                    }
+                    });
                 }
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("toString")}(value: @{class_ident.clone()}): string {
-                    return @{fn_name_expr}(value);
-                }
-            });
-
-            // Combine standalone function with class body using {$typescript}
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            // The body! output has /* @macroforge:body */ marker for class body insertion
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            let parameter = parameter_name("value", body.source());
+            let value = rendered(ts_template! { @{ts_ident!(parameter.as_str())}: @{class_ident} });
+            Ok(class_names
+                .class_function("toString", "ToString", &value, &parameter, "string", body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
             let enum_ident = ts_ident!(enum_name);
-            let variants: Vec<String> = enum_data
+            // A member is found by its value: a string enum has no lookup
+            // from value to name, and a `const enum` no object to look in.
+            let members: Vec<(Expr, String)> = enum_data
                 .variants()
                 .iter()
-                .map(|v| v.name.clone())
+                .map(|variant| {
+                    let name = js_string(&variant.name);
+                    (
+                        Expr::Source(rendered(ts_template! { @{enum_name}[@{name}] })),
+                        js_string(&format!("{enum_name}.{}", variant.name)),
+                    )
+                })
                 .collect();
 
-            let fn_name_ident = ts_ident!("{}ToString", enum_name.to_case(Case::Camel));
-            // Convert ident to expression for array access
-            let enum_expr: Expr = enum_ident.clone().into();
+            let fn_name_ident = ts_ident!("{}ToString", function_prefix(enum_name));
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{enum_ident.clone()}): string {
-                    {#if !variants.is_empty()}
-                        const key = @{enum_expr.clone()}[value as unknown as keyof typeof @{enum_ident.clone()}];
-                        if (key !== undefined) {
-                            return "@{enum_name}." + key;
-                        }
-                        return "@{enum_name}(" + String(value) + ")";
-                    {:else}
-                        return "@{enum_name}(" + String(value) + ")";
+                    {#if !members.is_empty()}
+                        // Members that share a value are one type, which a
+                        // test of `value` itself would narrow away.
+                        const held: unknown = value;
+                        {#for (member, label) in &members}
+                            if (held === @{member}) {
+                                return @{label};
+                            }
+                        {/for}
                     {/if}
+                    return "@{enum_name}(" + String(value) + ")";
                 }
             })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "Debug")?;
             let interface_name = input.name();
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
 
-            let debug_fields: Vec<DebugField> = interface
-                .fields()
+            let debug_fields: Vec<DebugField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     DebugField::shown(
@@ -126,7 +122,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             if debug_fields.is_empty() {
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
+                    export function @{fn_name_ident}(_value: @{interface_ident.clone()}): string {
                         return "@{interface_name} {}";
                     }
                 })
@@ -135,9 +131,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
-                        const parts: string[] = [];
+                        return @{structural_callee("debuggedWithin")}(value, () => {
+                            const parts: string[] = [];
                         {$typescript TsStream::from_string(push_stmts)}
-                        return "@{interface_name} { " + parts.join(", ") + " }";
+                            return "@{interface_name} { " + parts.join(", ") + " }";
+                        });
                     }
                 })
             }
@@ -149,7 +147,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate different output based on type body
             let effective_fields =
-                crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
+                crate::builtin::derive::common::derive_alias_fields(&input, type_alias);
             if let Some(ref effective_fields) = effective_fields {
                 // Object-like type (Object or flattened Intersection): show fields
                 let debug_fields: Vec<DebugField> = effective_fields
@@ -168,7 +166,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                 if debug_fields.is_empty() {
                     Ok(ts_template! {
-                        export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
+                        export function @{fn_name_ident}(_value: @{type_ident.clone()}): string {
                             return "@{type_name} {}";
                         }
                     })
@@ -177,9 +175,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                     Ok(ts_template! {
                         export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
-                            const parts: string[] = [];
+                            return @{structural_callee("debuggedWithin")}(value, () => {
+                                const parts: string[] = [];
                             {$typescript TsStream::from_string(push_stmts)}
-                            return "@{type_name} { " + parts.join(", ") + " }";
+                                return "@{type_name} { " + parts.join(", ") + " }";
+                            });
                         }
                     })
                 }
@@ -197,7 +197,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 let rendered = Expr::parse(&rendered_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(Debug): invalid debug expression: {err:?}"),
+                        format!("@derive(Debug): invalid debug expression: {err}"),
                     )
                 })?;
                 Ok(ts_template! {

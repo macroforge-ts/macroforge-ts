@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 enum Status {
@@ -26,9 +26,13 @@ enum Status {
 }
 
 export function statusToString(value: Status): string {
-    const key = Status[value as unknown as keyof typeof Status];
-    if (key !== undefined) {
-        return "Status." + key;
+
+    const held: unknown = value;
+    if (held === Status["Active"]) {
+        return "Status.Active";
+    }
+    if (held === Status["Inactive"]) {
+        return "Status.Inactive";
     }
     return "Status(" + String(value) + ")";
 }
@@ -42,11 +46,7 @@ export function statusEquals(a: Status, b: Status): boolean {
 }
 
 export function statusHashCode(value: Status): number {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-        hash = (hash * 31 + value.charCodeAt(i)) | 0;
-    }
-    return hash;
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
 }
 
 /** Encodes this enum value to a JSON string.  */
@@ -60,9 +60,14 @@ export function statusEncodeWithContext(value: Status): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function statusDecode(input: unknown): Status {
     return statusDecodeWithContext(input);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function statusFromString(text: string): Status {
+    return statusDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -74,7 +79,7 @@ export function statusDecodeWithContext(data: unknown): Status {
     if (Status["Inactive"] === data) {
         return Status["Inactive"];
     }
-    throw new Error("Invalid Status value: " + JSON.stringify(data));
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Status value: " + JSON.stringify(data) }]);
 }
 
 export function statusIs(value: unknown): value is Status {
@@ -95,6 +100,7 @@ namespace Status {
   export const encode: typeof statusEncode = statusEncode;
   export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
   export const decode: typeof statusDecode = statusDecode;
+  export const fromString: typeof statusFromString = statusFromString;
   export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
   export const is: typeof statusIs = statusIs;
 }
@@ -113,8 +119,10 @@ export declare function statusHashCode(value: Status): number;
 export declare function statusEncode(value: Status): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function statusDecode(input: unknown): Status;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function statusFromString(text: string): Status;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
 export declare function statusIs(value: unknown): value is Status;
@@ -126,6 +134,7 @@ declare namespace Status {
 	const encode: typeof statusEncode;
 	const encodeWithContext: typeof statusEncodeWithContext;
 	const decode: typeof statusDecode;
+	const fromString: typeof statusFromString;
 	const decodeWithContext: typeof statusDecodeWithContext;
 	const is: typeof statusIs;
 }
@@ -137,20 +146,20 @@ export {};
 
 ## Mapping
 
-original 61..126 -> expanded 194..259
-original 126..127 -> expanded 2802..2803
-generated 0..194 <- imports
-generated 259..494 <- Debug
-generated 494..568 <- Clone
-generated 568..653 <- PartialEq
-generated 653..852 <- Hash
-generated 852..1262 <- Encode
-generated 1262..2186 <- Decode
-generated 2186..2802 <- __convenience_const
+original 61..126 -> expanded 258..323
+original 126..127 -> expanded 3336..3337
+generated 0..258 <- imports
+generated 323..614 <- Debug
+generated 614..688 <- Clone
+generated 688..773 <- PartialEq
+generated 773..928 <- Hash
+generated 928..1338 <- Encode
+generated 1338..2649 <- Decode
+generated 2649..3336 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":127,"start":75},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"is_const":false,"name":"Status","span":{"end":127,"start":63},"variants":[{"decorators":[],"name":"Active","span":{"end":98,"start":81},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":125,"start":104},"value":{"String":"inactive"}}]}
+enum Status: {"body_span":{"end":127,"start":75},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"is_const":false,"is_declare":false,"name":"Status","span":{"end":127,"start":63},"variants":[{"decorators":[],"name":"Active","span":{"end":98,"start":81},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":125,"start":104},"value":{"String":"inactive"}}]}
 
 ## Registry reads
 

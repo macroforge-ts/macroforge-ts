@@ -12,7 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte testground.
@@ -31,29 +32,40 @@ export interface SvelteAllMacrosTest {
 }
 
 export function svelteAllMacrosTestToString(value: SvelteAllMacrosTest): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("testId: " + String(value.id));
     parts.push("title: " + String(value.title));
     parts.push("content: " + String(value.content));
     parts.push("count: " + String(value.count));
     parts.push("enabled: " + String(value.enabled));
-    return "SvelteAllMacrosTest { " + parts.join(", ") + " }";
+        return "SvelteAllMacrosTest { " + parts.join(", ") + " }";
+    });
 }
 
 export function svelteAllMacrosTestClone(value: SvelteAllMacrosTest): SvelteAllMacrosTest {
-    return ({
+    return __mf_clonedWith(value, (): SvelteAllMacrosTest => ({
 	id: value.id,
 	title: value.title,
 	content: value.content,
 	apiKey: value.apiKey,
 	count: value.count,
 	enabled: value.enabled
-});
+}));
 }
 
 export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMacrosTest): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.title === b.title && a.content === b.content && a.apiKey === b.apiKey && a.count === b.count && a.enabled === b.enabled;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.title === b.title,
+            () => a.content === b.content,
+            () => a.apiKey === b.apiKey,
+            () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+            () => a.enabled === b.enabled,
+        ].every((same) => same());
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -65,75 +77,78 @@ export function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetada
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return svelteAllMacrosTestEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "SvelteAllMacrosTest",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("title")) {
-
-        if (value.title !== undefined) {
-            result.title = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("content")) {
-
-        if (value.content !== undefined) {
-            result.content = value.content;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("apiKey")) {
-
-        if (value.apiKey !== undefined) {
-            result.apiKey = value.apiKey;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-
-        if (value.count !== undefined) {
-            result.count = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("enabled")) {
-
-        if (value.enabled !== undefined) {
-            result.enabled = value.enabled;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SvelteAllMacrosTest" });
+    svelteAllMacrosTestEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SvelteAllMacrosTest" };
+        svelteAllMacrosTestEncodeFields(value as SvelteAllMacrosTest, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function svelteAllMacrosTestEncodeFields(value: SvelteAllMacrosTest, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("content")) {
+                if (value.content !== undefined) {
+                    result["content"] = value.content;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("apiKey")) {
+                if (value.apiKey !== undefined) {
+                    result["apiKey"] = value.apiKey;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("enabled")) {
+                if (value.enabled !== undefined) {
+                    result["enabled"] = value.enabled;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = svelteAllMacrosTestDecodeWithContext(data, ctx);
+        const resultOrRef = svelteAllMacrosTestDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -179,6 +194,10 @@ export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOpti
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function svelteAllMacrosTestFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => svelteAllMacrosTestDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SvelteAllMacrosTest | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -191,95 +210,100 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "SvelteAllMacrosTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as SvelteAllMacrosTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "SvelteAllMacrosTest") as SvelteAllMacrosTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "SvelteAllMacrosTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("content")) && !("content" in obj)) {
-        errors.push({ field: "content", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("apiKey")) && !("apiKey" in obj)) {
-        errors.push({ field: "apiKey", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("enabled")) && !("enabled" in obj)) {
-        errors.push({ field: "enabled", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["title", "title"], ["content", "content"], ["apiKey", "apiKey"], ["count", "count"], ["enabled", "enabled"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "title"?: string | undefined; "content"?: string | undefined; "apiKey"?: string | undefined; "count"?: number | undefined; "enabled"?: boolean | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SvelteAllMacrosTest");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "SvelteAllMacrosTest.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "SvelteAllMacrosTest.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "SvelteAllMacrosTest.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("content")) || (__fields.keeps("content") && obj["content"] !== undefined)) {
-        const __raw_content = obj["content"] as string;
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "SvelteAllMacrosTest.title is required" : "expected string" });
+                } else {
+                    instance.title = __raw_title;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("content")) ? "content" in obj : (__fields.keeps("content") && obj["content"] !== undefined)) {
+                const __raw_content = obj["content"] as string;
 
-        if (!(typeof __raw_content === "string")) {
-            errors.push({ field: "content", message: __raw_content == null ? "SvelteAllMacrosTest.content is required" : "expected string" });
-        } else {
-            instance.content = __raw_content;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("apiKey")) || (__fields.keeps("apiKey") && obj["apiKey"] !== undefined)) {
-        const __raw_apiKey = obj["apiKey"] as string;
+                if (!(typeof __raw_content === "string")) {
+                    errors.push({ field: "content", message: __raw_content == null ? "SvelteAllMacrosTest.content is required" : "expected string" });
+                } else {
+                    instance.content = __raw_content;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("apiKey")) ? "apiKey" in obj : (__fields.keeps("apiKey") && obj["apiKey"] !== undefined)) {
+                const __raw_apiKey = obj["apiKey"] as string;
 
-        if (!(typeof __raw_apiKey === "string")) {
-            errors.push({ field: "apiKey", message: __raw_apiKey == null ? "SvelteAllMacrosTest.apiKey is required" : "expected string" });
-        } else {
-            instance.apiKey = __raw_apiKey;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
+                if (!(typeof __raw_apiKey === "string")) {
+                    errors.push({ field: "apiKey", message: __raw_apiKey == null ? "SvelteAllMacrosTest.apiKey is required" : "expected string" });
+                } else {
+                    instance.apiKey = __raw_apiKey;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
-            errors.push({ field: "count", message: __raw_count == null ? "SvelteAllMacrosTest.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("enabled")) || (__fields.keeps("enabled") && obj["enabled"] !== undefined)) {
-        const __raw_enabled = obj["enabled"] as boolean;
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "SvelteAllMacrosTest.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("enabled")) ? "enabled" in obj : (__fields.keeps("enabled") && obj["enabled"] !== undefined)) {
+                const __raw_enabled = obj["enabled"] as boolean;
 
-        if (!(typeof __raw_enabled === "boolean")) {
-            errors.push({ field: "enabled", message: __raw_enabled == null ? "SvelteAllMacrosTest.enabled is required" : "expected boolean" });
-        } else {
-            instance.enabled = __raw_enabled;
-        }
+                if (!(typeof __raw_enabled === "boolean")) {
+                    errors.push({ field: "enabled", message: __raw_enabled == null ? "SvelteAllMacrosTest.enabled is required" : "expected boolean" });
+                } else {
+                    instance.enabled = __raw_enabled;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -304,8 +328,7 @@ export function svelteAllMacrosTestHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "title" in o && "content" in o && "apiKey" in o && "count" in o && "enabled" in o;
+    return __mf_holdsAll(obj, ["id", "title", "content", "apiKey", "count", "enabled"]);
 }
 
 export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest {
@@ -313,14 +336,16 @@ export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest 
 }
 
 export function svelteAllMacrosTestHashCode(value: SvelteAllMacrosTest): number {
-    let hash = 17;
-    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.title ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.content ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.apiKey ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.title ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.content ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.apiKey ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.enabled ? 1231 : 1237)) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export namespace SvelteAllMacrosTest {
@@ -366,10 +391,21 @@ export declare function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: Sve
 export declare function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SvelteAllMacrosTest;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function svelteAllMacrosTestFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SvelteAllMacrosTest;
 } | {
@@ -407,26 +443,28 @@ export declare const svelteTestInstance: unknown;
 
 ## Mapping
 
-original 0..60 -> expanded 483..543
-original 121..165 -> expanded 543..587
-original 200..261 -> expanded 587..648
-original 290..353 -> expanded 648..711
-original 353..886 -> expanded 13969..14502
-generated 0..483 <- imports
-generated 711..1142 <- Debug
-generated 1142..1384 <- Clone
-generated 1384..1669 <- PartialEq
-generated 1669..4387 <- Encode
-generated 4387..13175 <- Decode
-generated 13175..13969 <- Hash
+original 0..60 -> expanded 871..931
+original 121..165 -> expanded 931..975
+original 200..261 -> expanded 975..1036
+original 290..353 -> expanded 1036..1099
+original 353..886 -> expanded 16360..16893
+generated 0..871 <- imports
+generated 1099..1592 <- Debug
+generated 1592..1885 <- Clone
+generated 1885..2405 <- PartialEq
+generated 2405..5978 <- Encode
+generated 5978..15466 <- Decode
+generated 15466..16360 <- Hash
 
 ## Metadata
 
-interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators":[{"args_src":"Debug, Clone, PartialEq, Encode, Decode, Hash","name":"Derive","span":{"end":122,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":201,"start":166}}],"name":"id","optional":false,"readonly":false,"span":{"end":217,"start":206},"ts_type":"string"},{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":236,"start":222},"ts_type":"string"},{"decorators":[],"name":"content","optional":false,"readonly":false,"span":{"end":257,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":291,"start":262}}],"name":"apiKey","optional":false,"readonly":false,"span":{"end":311,"start":296},"ts_type":"string"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"number"},{"decorators":[],"name":"enabled","optional":false,"readonly":false,"span":{"end":352,"start":335},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":354,"start":130},"type_params":[]}
+interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators":[{"args_src":"Debug, Clone, PartialEq, Encode, Decode, Hash","name":"Derive","span":{"end":122,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":201,"start":166}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":217,"start":206},"ts_type":"string"},{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":236,"start":222},"ts_type":"string"},{"decorators":[],"key":"Named","name":"content","optional":false,"readonly":false,"span":{"end":257,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":291,"start":262}}],"key":"Named","name":"apiKey","optional":false,"readonly":false,"span":{"end":311,"start":296},"ts_type":"string"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"number"},{"decorators":[],"key":"Named","name":"enabled","optional":false,"readonly":false,"span":{"end":352,"start":335},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":354,"start":130},"type_params":[]}
 
 ## Registry reads
 
-(none)
+Name("boolean")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

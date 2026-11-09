@@ -1,0 +1,1200 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/endec_union_member_arguments.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+interface Box<T> {
+    held: T;
+}
+
+/** @derive(Encode, Decode) */
+interface Circle {
+    radius: number;
+}
+
+/** @derive(Encode, Decode) */
+type Shape = Box<Date> | Circle;
+
+/** @derive(Encode, Decode) */
+type Outcome<T> = Box<T> | 'none';
+
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "kind" }) */
+type Tagged<T> = ({ kind: 'box' } & Box<T>) | ({ kind: 'circle' } & Circle);
+
+## Changed
+
+true
+
+## Output
+
+import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, withTag as __mf_withTag, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
+
+interface Box<T> {
+    held: T;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function boxEncode<T>(value: Box<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = boxEncodeWithContext<T>(value, ctx, __encodeT);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Box" });
+    boxEncodeFields<T>(value, ctx, result, undefined, __encodeT);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Box" };
+        boxEncodeFields<T>(value as Box<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeT);
+        return result;
+    });
+}
+
+function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
+    if (__fields === undefined || __fields.keeps("held")) {
+        if (value.held !== undefined) {
+            result["held"] = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = boxDecodeWithContext<T>(input, ctx, __decodeT);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Box.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function boxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => boxDecode<T>(value, opts, __decodeT));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Box<T> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Box<T>> | __mf_PendingRef;
+export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __fields?: __mf_FieldRequirement): Partial<Box<T>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Box.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Box") as Box<T> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "held"?: T | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Box");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+        const __raw_held = obj["held"] as T;
+        ctx.pushScope("held");
+        try {
+            const __result = (__decodeT === undefined ? __raw_held as T : __decodeT(__raw_held, ctx));
+            ctx.assignOrDefer(instance, "held", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "held" : "held." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Box<T>;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function boxDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Box<T>>, __decodeT?: __mf_Decoder<T>): Partial<Box<T>> | __mf_PendingRef {
+    return boxDecodeWithContext<T>(value, ctx, __decodeT, __mf_fieldRequirement(fields));
+}
+export function boxValidateField<T, K extends keyof Box<T> = keyof Box<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function boxValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function boxValidateFields<T>(partial: { readonly [K in keyof Box<T>]?: unknown }): Array<{ field: string; message: string }>;
+export function boxValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function boxHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["held"]);
+}
+
+export function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T> {
+    return boxHasShape(obj) && boxDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
+}
+
+const Box: {
+  readonly encode: typeof boxEncode;
+  readonly encodeWithContext: typeof boxEncodeWithContext;
+  readonly encodePartialWithContext: typeof boxEncodePartialWithContext;
+  readonly decode: typeof boxDecode;
+  readonly fromString: typeof boxFromString;
+  readonly decodeWithContext: typeof boxDecodeWithContext;
+  readonly decodePartialWithContext: typeof boxDecodePartialWithContext;
+  readonly validateField: typeof boxValidateField;
+  readonly validateFields: typeof boxValidateFields;
+  readonly hasShape: typeof boxHasShape;
+  readonly is: typeof boxIs;
+} = {
+  encode: boxEncode,
+  encodeWithContext: boxEncodeWithContext,
+  encodePartialWithContext: boxEncodePartialWithContext,
+  decode: boxDecode,
+  fromString: boxFromString,
+  decodeWithContext: boxDecodeWithContext,
+  decodePartialWithContext: boxDecodePartialWithContext,
+  validateField: boxValidateField,
+  validateFields: boxValidateFields,
+  hasShape: boxHasShape,
+  is: boxIs
+};
+
+
+interface Circle {
+    radius: number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function circleEncode(value: Circle, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = circleEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function circleEncodeWithContext(value: Circle, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Circle" });
+    circleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Circle>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Circle" };
+        circleEncodeFields(value as Circle, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("radius")) {
+        if (value.radius !== undefined) {
+            result["radius"] = value.radius;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = circleDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Circle.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function circleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => circleDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Circle | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Circle> | __mf_PendingRef;
+export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Circle> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Circle.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Circle.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Circle") as Circle | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Circle.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "radius"?: number | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Circle");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
+        const __raw_radius = obj["radius"] as number;
+
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
+            errors.push({ field: "radius", message: __raw_radius == null ? "Circle.radius is required" : "expected number" });
+        } else {
+            instance.radius = __raw_radius;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Circle;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function circleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Circle>): Partial<Circle> | __mf_PendingRef {
+    return circleDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function circleValidateField<K extends keyof Circle>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function circleValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function circleValidateFields(partial: { readonly [K in keyof Circle]?: unknown }): Array<{ field: string; message: string }>;
+export function circleValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function circleHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["radius"]);
+}
+
+export function circleIs(obj: unknown): obj is Circle {
+    return circleHasShape(obj) && circleDecode(obj).success;
+}
+
+const Circle: {
+  readonly encode: typeof circleEncode;
+  readonly encodeWithContext: typeof circleEncodeWithContext;
+  readonly encodePartialWithContext: typeof circleEncodePartialWithContext;
+  readonly decode: typeof circleDecode;
+  readonly fromString: typeof circleFromString;
+  readonly decodeWithContext: typeof circleDecodeWithContext;
+  readonly decodePartialWithContext: typeof circleDecodePartialWithContext;
+  readonly validateField: typeof circleValidateField;
+  readonly validateFields: typeof circleValidateFields;
+  readonly hasShape: typeof circleHasShape;
+  readonly is: typeof circleIs;
+} = {
+  encode: circleEncode,
+  encodeWithContext: circleEncodeWithContext,
+  encodePartialWithContext: circleEncodePartialWithContext,
+  decode: circleDecode,
+  fromString: circleFromString,
+  decodeWithContext: circleDecodeWithContext,
+  decodePartialWithContext: circleDecodePartialWithContext,
+  validateField: circleValidateField,
+  validateFields: circleValidateFields,
+  hasShape: circleHasShape,
+  is: circleIs
+};
+
+
+type Shape = Box<Date> | Circle;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Shape): member is Box<Date> => __mf_member(member, "__type") === "Box", (member) => ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => __mf_member(member, "__type") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Box<Date> => typeof member === "object" && member !== null && !Array.isArray(member) && "held" in member, (member) => ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => circleEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Shape.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Shape.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Shape | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "__type");
+        if (typeof __typeName === "string") {
+            if (__typeName === "Box<Date>") {
+                return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<Date>(__member, ctx, __mf_decodeDate))(value, ctx) as Shape;
+            }
+            if (__typeName === "Circle") {
+                return circleDecodeWithContext(value, ctx) as Shape;
+            }
+
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Shape.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Box<Date>, Circle"
+            }]);
+        }
+    }
+
+    const __shapeMatches: Array<string> = [];
+    if (boxHasShape(value)) __shapeMatches.push("Box<Date>");
+    if (circleHasShape(value)) __shapeMatches.push("Circle");
+
+    if (__shapeMatches.length === 1) {
+        if (__shapeMatches[0] === "Box<Date>") {
+            return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<Date>(__member, ctx, __mf_decodeDate))(value, ctx) as Shape;
+        }
+        if (__shapeMatches[0] === "Circle") {
+            return circleDecodeWithContext(value, ctx) as Shape;
+        }
+    }
+
+    if (__shapeMatches.length > 1) {
+        if (__shapeMatches.includes("Box<Date>")) {
+            try {
+                return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<Date>(__member, ctx, __mf_decodeDate))(value, ctx) as Shape;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("Circle")) {
+            try {
+                return circleDecodeWithContext(value, ctx) as Shape;
+            } catch {                        }
+        }
+
+        throw new __mf_DecodeError([{
+            field: "_root",
+            message: "Shape.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+        }]);
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Shape.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Box<Date>, Circle"
+    }]);
+}
+export function shapeHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "__type");
+                    if (typeof __typeName === "string") {
+                        return __typeName === "Box<Date>" || __typeName === "Circle";
+                    }
+                }
+                if (boxHasShape(value)) return true;
+                if (circleHasShape(value)) return true;
+                return false;
+}
+export function shapeIs(value: unknown): value is Shape {
+    return shapeHasShape(value) && shapeDecode(value).success;
+}
+
+const Shape: {
+  readonly encode: typeof shapeEncode;
+  readonly encodeWithContext: typeof shapeEncodeWithContext;
+  readonly decode: typeof shapeDecode;
+  readonly fromString: typeof shapeFromString;
+  readonly decodeWithContext: typeof shapeDecodeWithContext;
+  readonly hasShape: typeof shapeHasShape;
+  readonly is: typeof shapeIs;
+} = {
+  encode: shapeEncode,
+  encodeWithContext: shapeEncodeWithContext,
+  decode: shapeDecode,
+  fromString: shapeFromString,
+  decodeWithContext: shapeDecodeWithContext,
+  hasShape: shapeHasShape,
+  is: shapeIs
+};
+
+
+type Outcome<T> = Box<T> | 'none';
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = outcomeEncodeWithContext(value, ctx, __encodeT);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Outcome<T>): member is Box<T> => __mf_member(member, "__type") === "Box", (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+        __mf_memberCoder((member: Outcome<T>): member is Box<T> => typeof member === "object" && member !== null && !Array.isArray(member) && "held" in member, (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Outcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = outcomeDecodeWithContext<T>(input, ctx, __decodeT);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Outcome.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Outcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => outcomeDecode<T>(value, opts, __decodeT));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Outcome<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Outcome.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Outcome<T> | __mf_PendingRef;
+    }
+
+    
+    const allowedLiterals = ['none'] as const;
+    if (allowedLiterals.some((allowed) => allowed === value)) {
+        return value as Outcome<T>;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "__type");
+        if (typeof __typeName === "string") {
+            if (__typeName === "Box<T>") {
+                return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx) as Outcome<T>;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (boxHasShape(value)) __shapeMatches.push("Box<T>");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "Box<T>") {
+                    return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx) as Outcome<T>;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (boxHasShape(value)) __shapeMatches.push("Box<T>");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "Box<T>") {
+                return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx) as Outcome<T>;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Outcome.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function outcomeHasShape(value: unknown): boolean {
+                const allowedLiterals = ['none'] as const;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "__type");
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "Box<T>") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (boxHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (boxHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function outcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Outcome<T> {
+    return outcomeHasShape(value) && outcomeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
+}
+
+const Outcome: {
+  readonly encode: typeof outcomeEncode;
+  readonly encodeWithContext: typeof outcomeEncodeWithContext;
+  readonly decode: typeof outcomeDecode;
+  readonly fromString: typeof outcomeFromString;
+  readonly decodeWithContext: typeof outcomeDecodeWithContext;
+  readonly hasShape: typeof outcomeHasShape;
+  readonly is: typeof outcomeIs;
+} = {
+  encode: outcomeEncode,
+  encodeWithContext: outcomeEncodeWithContext,
+  decode: outcomeDecode,
+  fromString: outcomeFromString,
+  decodeWithContext: outcomeDecodeWithContext,
+  hasShape: outcomeHasShape,
+  is: outcomeIs
+};
+
+
+type Tagged<T> = ({ kind: 'box' } & Box<T>) | ({ kind: 'circle' } & Circle);
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function taggedEncode<T>(value: Tagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = taggedEncodeWithContext(value, ctx, __encodeT);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Tagged<T>): member is { "kind": "box" } & Box<T> => __mf_member(member, "kind") === "box", (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => __mf_withTag(((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(__member, ctx), "kind", "box"))(member, ctx)),
+        __mf_memberCoder((member: Tagged<T>): member is { "kind": "circle" } & Circle => __mf_member(member, "kind") === "circle", (member) => ((__member: Circle, ctx: __mf_EncodeContext) => __mf_withTag(circleEncodeWithContext(__member, ctx), "kind", "circle"))(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "kind": __mf_member(value, "kind") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Tagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = taggedDecodeWithContext<T>(input, ctx, __decodeT);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Tagged.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Tagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => taggedDecode<T>(value, opts, __decodeT));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Tagged<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Tagged.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Tagged<T> | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "kind");
+        if (typeof __typeName === "string") {
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "box" ? { ...((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx), "kind": "box" } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "circle" ? { ...circleDecodeWithContext(value, ctx), "kind": "circle" } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as Tagged<T>;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Tagged.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function taggedHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "kind");
+                    if (["box", "circle"].some((tag) => tag === __typeName)) return true;
+                }
+                return false;
+}
+export function taggedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Tagged<T> {
+    return taggedHasShape(value) && taggedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
+}
+export function taggedBoxIs<T>(__v: Tagged<T>): __v is Extract<Tagged<T>, { kind: "box" }> {
+    return __mf_member(__v, "kind") === "box";
+}
+export function taggedCircleIs<T>(__v: Tagged<T>): __v is Extract<Tagged<T>, { kind: "circle" }> {
+    return __mf_member(__v, "kind") === "circle";
+}
+
+const Tagged: {
+  readonly encode: typeof taggedEncode;
+  readonly encodeWithContext: typeof taggedEncodeWithContext;
+  readonly decode: typeof taggedDecode;
+  readonly fromString: typeof taggedFromString;
+  readonly decodeWithContext: typeof taggedDecodeWithContext;
+  readonly hasShape: typeof taggedHasShape;
+  readonly is: typeof taggedIs;
+  readonly boxIs: typeof taggedBoxIs;
+  readonly circleIs: typeof taggedCircleIs;
+} = {
+  encode: taggedEncode,
+  encodeWithContext: taggedEncodeWithContext,
+  decode: taggedDecode,
+  fromString: taggedFromString,
+  decodeWithContext: taggedDecodeWithContext,
+  hasShape: taggedHasShape,
+  is: taggedIs,
+  boxIs: taggedBoxIs,
+  circleIs: taggedCircleIs
+};
+
+## DTS
+
+interface Box<T> {
+	held: T;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function boxEncode<T>(value: Box<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Box<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function boxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Box<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Box<T> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Box<T>> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function boxDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Box<T>>, __decodeT?: __mf_Decoder<T>): Partial<Box<T>> | __mf_PendingRef;
+export declare function boxValidateField<
+	T,
+	K extends keyof Box<T> = keyof Box<T>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function boxValidateFields<T>(partial: { readonly [K in keyof Box<T>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function boxHasShape(obj: unknown): boolean;
+export declare function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T>;
+interface Circle {
+	radius: number;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function circleEncode(value: Circle, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function circleEncodeWithContext(value: Circle, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Circle>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function circleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Circle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function circleFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Circle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Circle | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Circle> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function circleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Circle>): Partial<Circle> | __mf_PendingRef;
+export declare function circleValidateField<K extends keyof Circle>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function circleValidateFields(partial: { readonly [K in keyof Circle]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function circleHasShape(obj: unknown): boolean;
+export declare function circleIs(obj: unknown): obj is Circle;
+type Shape = Box<Date> | Circle;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeEncode(value: Shape, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Shape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Shape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef;
+export declare function shapeHasShape(value: unknown): boolean;
+export declare function shapeIs(value: unknown): value is Shape;
+type Outcome<T> = Box<T> | "none";
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Outcome<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Outcome<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Outcome<T> | __mf_PendingRef;
+export declare function outcomeHasShape(value: unknown): boolean;
+export declare function outcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Outcome<T>;
+type Tagged<T> = ({
+	kind: "box";
+} & Box<T>) | ({
+	kind: "circle";
+} & Circle);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function taggedEncode<T>(value: Tagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Tagged<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Tagged<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Tagged<T> | __mf_PendingRef;
+export declare function taggedHasShape(value: unknown): boolean;
+export declare function taggedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Tagged<T>;
+export declare function taggedBoxIs<T>(__v: Tagged<T>): __v is Extract<Tagged<T>, {
+	kind: "box";
+}>;
+export declare function taggedCircleIs<T>(__v: Tagged<T>): __v is Extract<Tagged<T>, {
+	kind: "circle";
+}>;
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 30..64 -> expanded 1036..1070
+original 64..66 -> expanded 10852..10854
+original 96..137 -> expanded 10854..10895
+original 137..139 -> expanded 19851..19853
+original 169..202 -> expanded 19853..19886
+original 202..204 -> expanded 27956..27958
+original 234..269 -> expanded 27958..27993
+original 269..271 -> expanded 35991..35993
+original 332..409 -> expanded 35993..36070
+original 409..410 -> expanded 43136..43137
+generated 0..1036 <- imports
+generated 1070..3368 <- Encode
+generated 3368..9892 <- Decode
+generated 9892..10852 <- __convenience_const
+generated 10895..13002 <- Encode
+generated 13002..18822 <- Decode
+generated 18822..19851 <- __convenience_const
+generated 19886..22135 <- Encode
+generated 22135..27402 <- Decode
+generated 27402..27956 <- __convenience_const
+generated 27993..30038 <- Encode
+generated 30038..35407 <- Decode
+generated 35407..35991 <- __convenience_const
+generated 36070..38146 <- Encode
+generated 38146..42435 <- Decode
+generated 42435..43136 <- __convenience_const
+
+## Metadata
+
+interface Box: {"body_span":{"end":65,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":63,"start":55},"ts_type":"T"}],"heritage":[],"methods":[],"name":"Box","span":{"end":65,"start":32},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+interface Circle: {"body_span":{"end":138,"start":115},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":97,"start":67}}],"fields":[{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":136,"start":121},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Circle","span":{"end":138,"start":98},"type_params":[]}
+type Shape: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Box<Date>"}},{"decorators":[],"kind":{"TypeRef":"Circle"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":170,"start":140}}],"name":"Shape","span":{"end":203,"start":171},"type_params":[]}
+type Outcome: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Box<T>"}},{"decorators":[],"kind":{"Literal":"'none'"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":235,"start":205}}],"name":"Outcome","span":{"end":270,"start":236},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type Tagged: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":365,"start":354},"ts_type":"'box'"}]}}},{"decorators":[],"kind":{"TypeRef":"Box<T>"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":397,"start":383},"ts_type":"'circle'"}]}}},{"decorators":[],"kind":{"TypeRef":"Circle"}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":333,"start":303}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":302,"start":272}}],"name":"Tagged","span":{"end":410,"start":334},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

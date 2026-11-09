@@ -1,10 +1,10 @@
 use crate::builtin::derive::common::{
-    Builtin, ValueType, classify_value_type, collection_element_type, derived_function,
+    Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
     field_value_type, rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
 use super::types::HashField;
 
@@ -76,7 +76,7 @@ pub fn generate_field_hash_for_interface(
 ) -> String {
     generate_value_hash(
         &field_value_type(&field.ts_type, field.optional),
-        &rendered(ts_template! { @{var}.@{&field.name} }),
+        &rendered(ts_template! { @{var}@{Member::of(&field.name)} }),
         resolved,
         registry,
     )
@@ -93,20 +93,22 @@ pub(crate) fn generate_value_hash(
     value_hash(ts_type, value, resolved, registry, 0)
 }
 
-/// An expression hashing the fixed-length tuple `value` element by element.
-pub(crate) fn tuple_hash_expr(elements: &[String], registry: &TypeRegistry) -> String {
-    elements
-        .iter()
-        .enumerate()
-        .fold("1".to_string(), |hash, (index, source)| {
-            let element = generate_value_hash(
-                tuple_element(source).ts_type,
-                &rendered(ts_template! { value[@{index}] }),
-                None,
-                registry,
-            );
-            rendered(ts_template! { ((@{hash}) * 31 + (@{element})) | 0 })
-        })
+/// Statements hashing the fixed-length tuple `value` element by element and
+/// returning the hash. An element takes a statement of its own: one
+/// expression over them all would nest as deep as the tuple is long.
+pub(crate) fn tuple_hash_statements(elements: &[String], registry: &TypeRegistry) -> String {
+    let mut steps = vec![ts_template! { let hash = 1; }];
+    for (index, source) in elements.iter().enumerate() {
+        let element = generate_value_hash(
+            tuple_element(source).ts_type,
+            &rendered(ts_template! { value[@{index}] }),
+            None,
+            registry,
+        );
+        steps.push(ts_template! { hash = (hash * 31 + (@{element})) | 0; });
+    }
+    steps.push(ts_template! { return hash; });
+    rendered(TsStream::merge_all(steps))
 }
 
 fn value_hash(
@@ -131,7 +133,7 @@ fn value_hash(
         ValueType::Array(element_type) => {
             let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1);
             rendered(ts_template! {
-                @{value}.reduce((@{&hash}, @{&item}) => (@{&hash} * 31 + (@{inner})) | 0, 1)
+                @{value}.reduce<number>((@{&hash}, @{&item}) => (@{&hash} * 31 + (@{inner})) | 0, 1)
             })
         }
         ValueType::Map {
@@ -142,14 +144,14 @@ fn value_hash(
             let key_hash = value_hash(key, &key_var.sym, None, registry, depth + 1);
             let inner = value_hash(value_type, &item.sym, element(), registry, depth + 1);
             rendered(ts_template! {
-                Array.from(@{value}).reduce((@{&hash}, [@{&key_var}, @{&item}]) =>
+                Array.from(@{value}).reduce<number>((@{&hash}, [@{&key_var}, @{&item}]) =>
                     (@{&hash} + (((@{key_hash}) * 31 + (@{inner})) | 0)) | 0, 0)
             })
         }
         ValueType::Set(element_type) => {
             let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1);
             rendered(ts_template! {
-                Array.from(@{value}).reduce((@{&hash}, @{&item}) => (@{&hash} + (@{inner})) | 0, 0)
+                Array.from(@{value}).reduce<number>((@{&hash}, @{&item}) => (@{&hash} + (@{inner})) | 0, 0)
             })
         }
         ValueType::Builtin(builtin) => builtin_hash(builtin, value),
@@ -162,7 +164,9 @@ fn value_hash(
 }
 
 fn string_hash(text: &str) -> String {
-    rendered(ts_template! { @{text}.split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0) })
+    rendered(
+        ts_template! { @{text}.split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0) },
+    )
 }
 
 fn builtin_hash(builtin: Builtin, value: &str) -> String {
@@ -174,7 +178,7 @@ fn builtin_hash(builtin: Builtin, value: &str) -> String {
         Builtin::Url => string_hash(&rendered(ts_template! { @{value}.href })),
         Builtin::UrlSearchParams => string_hash(&rendered(ts_template! { @{value}.toString() })),
         Builtin::TypedArray => rendered(ts_template! {
-            Array.from(@{value}, Number).reduce((h, v) => (h * 31 + (v | 0)) | 0, 0)
+            Array.from(@{value}, Number).reduce<number>((h, v) => (h * 31 + (v | 0)) | 0, 0)
         }),
         Builtin::ArrayBuffer => structural_hash(value),
         Builtin::Error => string_hash(&rendered(ts_template! { @{value}.message })),

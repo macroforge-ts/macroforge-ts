@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,32 +35,24 @@ export function recurrenceEndEncode(value: RecurrenceEnd, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = recurrenceEndDecodeWithContext(data, ctx);
+        const resultOrRef = recurrenceEndDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -106,6 +98,10 @@ export function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function recurrenceEndFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => recurrenceEndDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RecurrenceEnd | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -116,7 +112,7 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     
-    if (typeof value === "number") {
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
         return value as RecurrenceEnd;
     }
     if (typeof value === "string") {
@@ -129,10 +125,10 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }]);
 }
 export function recurrenceEndHasShape(value: unknown): boolean {
-                return typeof value === "number" || typeof value === "string";
+                return (typeof value === "number" && globalThis.Number.isFinite(value)) || typeof value === "string";
 }
 export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
-    return recurrenceEndHasShape(value);
+    return recurrenceEndHasShape(value) && recurrenceEndDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -266,6 +262,7 @@ export const RecurrenceEnd: {
   readonly encode: typeof recurrenceEndEncode;
   readonly encodeWithContext: typeof recurrenceEndEncodeWithContext;
   readonly decode: typeof recurrenceEndDecode;
+  readonly fromString: typeof recurrenceEndFromString;
   readonly decodeWithContext: typeof recurrenceEndDecodeWithContext;
   readonly hasShape: typeof recurrenceEndHasShape;
   readonly is: typeof recurrenceEndIs;
@@ -276,6 +273,7 @@ export const RecurrenceEnd: {
   encode: recurrenceEndEncode,
   encodeWithContext: recurrenceEndEncodeWithContext,
   decode: recurrenceEndDecode,
+  fromString: recurrenceEndFromString,
   decodeWithContext: recurrenceEndDecodeWithContext,
   hasShape: recurrenceEndHasShape,
   is: recurrenceEndIs,
@@ -292,8 +290,19 @@ export declare function recurrenceEndDefaultValue(): RecurrenceEnd;
 export declare function recurrenceEndEncode(value: RecurrenceEnd, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: RecurrenceEnd;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function recurrenceEndFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: RecurrenceEnd;
 } | {
@@ -367,6 +376,7 @@ export declare const RecurrenceEnd: {
 	readonly encode: typeof recurrenceEndEncode;
 	readonly encodeWithContext: typeof recurrenceEndEncodeWithContext;
 	readonly decode: typeof recurrenceEndDecode;
+	readonly fromString: typeof recurrenceEndFromString;
 	readonly decodeWithContext: typeof recurrenceEndDecodeWithContext;
 	readonly hasShape: typeof recurrenceEndHasShape;
 	readonly is: typeof recurrenceEndIs;
@@ -380,15 +390,15 @@ export declare const RecurrenceEnd: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..171 -> expanded 614..678
-original 171..172 -> expanded 9877..9878
-generated 0..556 <- imports
-generated 678..756 <- Default
-generated 756..2037 <- Encode
-generated 2037..4583 <- Decode
-generated 4583..8992 <- Gigaform
-generated 8992..9877 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..171 -> expanded 769..833
+original 171..172 -> expanded 10775..10776
+generated 0..711 <- imports
+generated 833..911 <- Default
+generated 911..2231 <- Encode
+generated 2231..5387 <- Decode
+generated 5387..9796 <- Gigaform
+generated 9796..10775 <- __convenience_const
 
 ## Metadata
 
@@ -396,7 +406,11 @@ type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"def
 
 ## Registry reads
 
+Name("Gigaform")
 Name("RecurrenceEnd")
+Name("number")
+Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

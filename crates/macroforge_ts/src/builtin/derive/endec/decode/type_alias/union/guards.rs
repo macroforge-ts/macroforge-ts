@@ -5,6 +5,8 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
+use crate::builtin::derive::endec::coder::endec_helper;
 use convert_case::{Case, Casing};
 
 /// One guard per inline variant: internally tagged objects, `{ tag } & Type`
@@ -17,9 +19,20 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         type_name,
         full_type_name,
         tag_field,
+        generic_decl,
+        param_names,
         ..
     } = u;
-    let camel_name = type_name.to_case(Case::Camel);
+    let camel_name = function_prefix(type_name);
+    // A tag tells apart the members of a value of the union. Of a value of
+    // a generic union it says nothing of the type arguments, so the guard
+    // takes a value already of the union.
+    let input = if param_names.is_empty() {
+        "unknown".to_string()
+    } else {
+        full_type_name.to_string()
+    };
+    let member = endec_helper("member");
     let mut guards: Vec<TsStream> = Vec::new();
 
     // Internally tagged inline object variants: discriminate by the tag
@@ -30,10 +43,8 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         let tag = tag_field;
         let value = ov.tag_value.as_str();
         guards.push(ts_template! {
-            export function @{fn_ident}(__v: unknown): __v is Extract<@{full_type_name}, { @{tag}: "@{value}" }> {
-                return __v !== null
-                    && typeof __v === "object"
-                    && (__v as Record<string, unknown>)["@{tag}"] === "@{value}";
+            export function @{fn_ident}@{*generic_decl}(__v: @{&input}): __v is Extract<@{full_type_name}, { @{tag}: "@{value}" }> {
+                return @{&member}(__v, "@{tag}") === "@{value}";
             }
         });
     }
@@ -46,10 +57,8 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         let tag = tag_field;
         let value = iv.tag_value.as_str();
         guards.push(ts_template! {
-            export function @{fn_ident}(__v: unknown): __v is Extract<@{full_type_name}, { @{tag}: "@{value}" }> {
-                return __v !== null
-                    && typeof __v === "object"
-                    && (__v as Record<string, unknown>)["@{tag}"] === "@{value}";
+            export function @{fn_ident}@{*generic_decl}(__v: @{&input}): __v is Extract<@{full_type_name}, { @{tag}: "@{value}" }> {
+                return @{&member}(__v, "@{tag}") === "@{value}";
             }
         });
     }
@@ -61,7 +70,7 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         let fn_ident = ts_ident!("{}{}Is", camel_name, variant_pascal);
         let key = ov.name.as_str();
         guards.push(ts_template! {
-            export function @{fn_ident}(__v: unknown): __v is Extract<@{full_type_name}, { @{key}: any }> {
+            export function @{fn_ident}@{*generic_decl}(__v: @{&input}): __v is Extract<@{full_type_name}, { @{key}: unknown }> {
                 return __v !== null
                     && typeof __v === "object"
                     && "@{key}" in __v;

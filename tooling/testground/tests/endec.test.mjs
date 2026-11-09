@@ -6,7 +6,13 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { expandSync } from '@macroforge/core';
-import { encodedText, encodedTextWithoutMetadata } from '@macroforge/core/endec';
+import {
+    EncodeContext,
+    encodedAs,
+    encodedReference,
+    encodedText,
+    encodedTextWithoutMetadata
+} from '@macroforge/core/endec';
 
 // ============================================================================
 // Encode Macro Expansion Tests
@@ -75,7 +81,10 @@ describe('Encode macro expansion', () => {
             result.code.includes('ctx.getId(value)'),
             'Should check for existing ID'
         );
-        assert.ok(result.code.includes('__ref:'), 'Should return __ref for cycles');
+        assert.ok(
+            result.code.includes('return __mf_encodedReference(ctx, existingId);'),
+            'Should return a reference for a value met again'
+        );
         assert.ok(
             result.code.includes('ctx.register(value)'),
             'Should register object'
@@ -157,9 +166,8 @@ describe('Encode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.user_id instead of result["user_id"]
         assert.ok(
-            result.code.includes('result.user_id'),
+            result.code.includes('result["user_id"]'),
             'Should use renamed key in output'
         );
     });
@@ -175,13 +183,12 @@ describe('Encode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.username instead of result["username"]
         assert.ok(
-            result.code.includes('result.username'),
+            result.code.includes('result["username"]'),
             'Should include non-skipped fields'
         );
         assert.ok(
-            !result.code.includes('result.password'),
+            !result.code.includes('result["password"]'),
             'Should skip fields with skip: true'
         );
     });
@@ -230,6 +237,11 @@ describe('Encode macro expansion', () => {
 
     test('handles Array encoding with nested objects', () => {
         const code = `
+      /** @derive(Encode) */
+      class Item {
+        name: string;
+      }
+
       /** @derive(Encode) */
       class Container {
         items: Item[];
@@ -379,6 +391,11 @@ describe('Decode macro expansion', () => {
     test('handles Array decoding', () => {
         const code = `
       /** @derive(Decode) */
+      class Item {
+        name: string;
+      }
+
+      /** @derive(Decode) */
       class Container {
         items: Item[];
       }
@@ -401,12 +418,8 @@ describe('Decode macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('new Map('),
+            result.code.includes('__mf_decodeMap('),
             'Should construct Map from object'
-        );
-        assert.ok(
-            result.code.includes('Object.entries'),
-            'Should use Object.entries'
         );
     });
 
@@ -420,15 +433,15 @@ describe('Decode macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('new Set('),
+            result.code.includes('__mf_decodeSet('),
             'Should construct Set from array'
         );
     });
 
-    test('rejects classes with custom constructors', () => {
+    test('keeps the constructor of a class that has one', () => {
         const code = `
       /** @derive(Decode) */
-      class Invalid {
+      class Named {
         name: string;
         constructor(name: string) {
           this.name = name;
@@ -437,13 +450,15 @@ describe('Decode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(
-            result.diagnostics.length > 0,
-            'Should report error for custom constructor'
+        assert.deepStrictEqual(result.diagnostics, [], 'Should expand without diagnostics');
+        assert.strictEqual(
+            result.code.split('constructor(').length - 1,
+            1,
+            'Should not add a second constructor'
         );
         assert.ok(
-            result.diagnostics.some((d) => d.message.includes('constructor')),
-            'Error should mention constructor'
+            result.code.includes('Object.create(Named.prototype)'),
+            'Should build the instance without the constructor'
         );
     });
 
@@ -701,6 +716,16 @@ describe('Type alias encoding', () => {
     test('generates prefixed functions for union type alias', () => {
         const code = `
       /** @derive(Encode) */
+      interface Success {
+        value: number;
+      }
+
+      /** @derive(Encode) */
+      interface Failure {
+        reason: string;
+      }
+
+      /** @derive(Encode) */
       type Result = Success | Failure;
     `;
         const result = expandSync(code, 'test.ts');
@@ -746,9 +771,10 @@ describe('Import handling', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(
-            result.code.includes('import { DecodeContext'),
-            'Should add DecodeContext import'
+        assert.match(
+            result.code,
+            /import \{[^}]*\bDecodeContext as __mf_DecodeContext\b[^}]*\} from "@macroforge\/core\/endec"/,
+            'Should add DecodeContext import with __mf_ alias'
         );
         assert.ok(
             result.code.includes('PendingRef'),
@@ -810,8 +836,8 @@ describe('Edge cases', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('__ref'),
-            'Should handle self-reference with __ref'
+            result.code.includes('__mf_encodedReference(ctx, existingId)'),
+            'Should handle self-reference with a reference'
         );
         assert.ok(result.code.includes('ctx.getId'), 'Should check for cycles');
     });
@@ -829,7 +855,11 @@ describe('Edge cases', () => {
             result.code.includes('Object.fromEntries'),
             'Should handle Map encoding'
         );
-        assert.ok(result.code.includes('.entries()'), 'Should iterate Map entries');
+        assert.ok(
+            result.code.includes('Array.from(value.data, ') &&
+                result.code.includes('Array.from(__item0)'),
+            'Should encode each Set held in the Map'
+        );
     });
 });
 
@@ -851,13 +881,12 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.userName instead of result["userName"]
         assert.ok(
-            result.code.includes('result.userName'),
+            result.code.includes('result["userName"]'),
             'Should convert to camelCase'
         );
         assert.ok(
-            result.code.includes('result.createdAt'),
+            result.code.includes('result["createdAt"]'),
             'Should convert to camelCase'
         );
     });
@@ -875,13 +904,12 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.user_name instead of result["user_name"]
         assert.ok(
-            result.code.includes('result.user_name'),
+            result.code.includes('result["user_name"]'),
             'Should convert to snake_case'
         );
         assert.ok(
-            result.code.includes('result.created_at'),
+            result.code.includes('result["created_at"]'),
             'Should convert to snake_case'
         );
     });
@@ -910,14 +938,14 @@ describe('Recursive collection decoding', () => {
 
         // Should call activityDecode (result-returning) for each array element
         assert.ok(
-            result.code.includes('activityDecode(item)'),
+            result.code.includes('activityDecodeWithContext(__raw0, ctx)'),
             'Should recursively decode Activity elements via result-returning function'
         );
-        // Should NOT have a raw `as Activity[]` cast in the Account decoder
-        // (the Activity[] field should go through .map with decoding)
+        // The array goes through the shared decoder, which settles an element
+        // that refers ahead of its object, not through a raw `as Activity[]`.
         assert.ok(
-            result.code.includes('__arr'),
-            'Should use __arr intermediate for PendingRef support'
+            result.code.includes('__mf_decodeArray('),
+            'Should decode the array element by element'
         );
         // Activity.timestamp should be parsed as Date
         assert.ok(
@@ -945,7 +973,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('tagDecode(item)'),
+            result.code.includes('tagDecodeWithContext(__raw0, ctx)'),
             'Class template should call tagDecode for Tag[] elements'
         );
     });
@@ -966,7 +994,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('itemDecode(item)'),
+            result.code.includes('itemDecodeWithContext(__raw0, ctx)'),
             'Type alias template should call itemDecode for Item[] elements'
         );
     });
@@ -981,9 +1009,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes(
-                'typeof item === "string" ? new Date(item) : item as Date'
-            ),
+            result.code.includes('__mf_decodeArray(__raw_dates, ctx, __mf_decodeDate)'),
             'Should map Date[] elements from ISO strings'
         );
     });
@@ -1004,11 +1030,11 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('permissionDecode(item)'),
+            result.code.includes('permissionDecodeWithContext(__raw0, ctx)'),
             'Should call permissionDecode for Set<Permission> elements'
         );
         assert.ok(
-            result.code.includes('new Set('),
+            result.code.includes('__mf_decodeSet('),
             'Should wrap result in new Set()'
         );
     });
@@ -1029,11 +1055,11 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('scoreDecode(v)'),
+            result.code.includes('scoreDecodeWithContext(__raw0, ctx)'),
             'Should call scoreDecode for Map values'
         );
         assert.ok(
-            result.code.includes('new Map('),
+            result.code.includes('__mf_decodeMap('),
             'Should wrap result in new Map()'
         );
     });
@@ -1062,12 +1088,12 @@ describe('Recursive collection decoding', () => {
 
         // Dashboard.reports should recursively decode Report
         assert.ok(
-            result.code.includes('reportDecode(item)'),
+            result.code.includes('reportDecodeWithContext(__raw0, ctx)'),
             'Dashboard should recursively decode Report[] elements'
         );
         // Report.metrics should recursively decode Metric
         assert.ok(
-            result.code.includes('metricDecode(item)'),
+            result.code.includes('metricDecodeWithContext(__raw0, ctx)'),
             'Report should recursively decode Metric[] elements'
         );
         // Metric.recordedAt should parse Date
@@ -1105,18 +1131,18 @@ describe('Recursive collection decoding', () => {
 
         // Array<Address>
         assert.ok(
-            result.code.includes('addressDecode(item)'),
+            result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Array<Address> should recursively decode'
         );
         // Set<Address>
         assert.ok(
-            result.code.includes('new Set(') &&
-                result.code.includes('addressDecode(item)'),
+            result.code.includes('__mf_decodeSet(') &&
+                result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Set<Address> should recursively decode into Set'
         );
         // Map<string, Address>
         assert.ok(
-            result.code.includes('addressDecode(v)'),
+            result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Map<string, Address> should recursively decode values'
         );
     });
@@ -1161,7 +1187,7 @@ describe('Built-in type endec', () => {
             'Should encode bigint with String(v)'
         );
         assert.ok(
-            result.code.includes('BigInt(v as string)'),
+            result.code.includes('return BigInt(raw);'),
             'Should decode bigint with BigInt()'
         );
     });
@@ -1178,7 +1204,7 @@ describe('Built-in type endec', () => {
             'Should encode URL with toString()'
         );
         assert.ok(
-            result.code.includes('new URL(v as string)'),
+            result.code.includes('return new URL(raw);'),
             'Should decode URL with new URL()'
         );
     });
@@ -1212,7 +1238,7 @@ describe('Built-in type endec', () => {
             'Should encode Uint8Array with Array.from()'
         );
         assert.ok(
-            result.code.includes('new Uint8Array(v as number[])'),
+            result.code.includes('new Uint8Array(v)'),
             'Should decode Uint8Array with new Uint8Array()'
         );
     });
@@ -1230,7 +1256,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('.map(') &&
-                result.code.includes('new URL(v as string)'),
+                result.code.includes('return new URL(raw);'),
             'Should decode URL[] by mapping new URL()'
         );
     });
@@ -1243,13 +1269,13 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('Array.from(s)') &&
+            result.code.includes('Array.from(value.urls, ') &&
                 result.code.includes('v.toString()'),
             'Should encode Set<URL> with Array.from and toString()'
         );
         assert.ok(
-            result.code.includes('new Set(') &&
-                result.code.includes('new URL(v as string)'),
+            result.code.includes('__mf_decodeSet(') &&
+                result.code.includes('return new URL(raw);'),
             'Should decode Set<URL> with new Set and new URL()'
         );
     });
@@ -1262,13 +1288,13 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('m.entries()') &&
+            result.code.includes('Array.from(value.endpoints, ') &&
                 result.code.includes('v.toString()'),
             'Should encode Map<string, URL> by mapping entries'
         );
         assert.ok(
-            result.code.includes('new Map(') &&
-                result.code.includes('new URL(v as string)'),
+            result.code.includes('__mf_decodeMap(') &&
+                result.code.includes('return new URL(raw);'),
             'Should decode Map<string, URL> with new Map and new URL()'
         );
     });
@@ -1287,7 +1313,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('=== null ? null') &&
-                result.code.includes('BigInt(v as string)'),
+                result.code.includes('return BigInt(raw);'),
             'Should decode bigint | null with null check and BigInt()'
         );
     });
@@ -1321,7 +1347,7 @@ describe('Built-in type endec', () => {
             'Should encode URLSearchParams with toString()'
         );
         assert.ok(
-            result.code.includes('new URLSearchParams(v as string)'),
+            result.code.includes('return new URLSearchParams(raw);'),
             'Should decode URLSearchParams with new URLSearchParams()'
         );
     });
@@ -1339,7 +1365,7 @@ describe('Built-in type endec', () => {
             'Should encode ArrayBuffer via Uint8Array + Array.from()'
         );
         assert.ok(
-            result.code.includes('new Uint8Array(v as number[])') &&
+            result.code.includes('new Uint8Array(v)') &&
                 result.code.includes('.buffer'),
             'Should decode ArrayBuffer via new Uint8Array().buffer'
         );
@@ -1366,13 +1392,13 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('Object.entries(obj)') &&
+            result.code.includes('Object.entries(value.links)') &&
                 result.code.includes('v.toString()'),
             'Should encode Record<string, URL> by mapping entries'
         );
         assert.ok(
-            result.code.includes('Object.entries(raw as Record<string, unknown>)') &&
-                result.code.includes('new URL(v as string)'),
+            result.code.includes('__mf_decodeRecord(') &&
+                result.code.includes('return new URL(raw);'),
             'Should decode Record<string, URL> with Object.entries and new URL()'
         );
     });
@@ -1412,19 +1438,22 @@ describe('Encode metadata stripping', () => {
     });
 
     test('the text helpers strip the tag and __id at every depth, or keep them', () => {
-        const encoded = {
+        const ctx = EncodeContext.create();
+        const phone = encodedAs(ctx, 1, { __type: 'PhoneNumber', main: true, number: '555' });
+        const encoded = encodedAs(ctx, 0, {
             __type: 'Account',
-            __id: 0,
             name: 'Ada',
-            phones: [{ __type: 'PhoneNumber', __id: 1, main: true, number: '555' }],
-            owner: { __ref: 0 },
+            phones: [phone],
+            primary: encodedReference(ctx, 1),
             missing: undefined,
             nothing: null
-        };
+        });
 
+        // Without the ids a reference has nothing to name, so the value it
+        // stands for is written out in its place.
         assert.equal(
             encodedTextWithoutMetadata(encoded, '__type'),
-            '{"name":"Ada","phones":[{"main":true,"number":"555"}],"owner":{"__ref":0},"nothing":null}'
+            '{"name":"Ada","phones":[{"main":true,"number":"555"}],"primary":{"main":true,"number":"555"},"nothing":null}'
         );
         assert.equal(
             encodedTextWithoutMetadata({ kind: 'Circle', __type: 'kept', radius: 1 }, 'kind'),
@@ -1433,6 +1462,71 @@ describe('Encode metadata stripping', () => {
         );
         assert.equal(encodedText(encoded), JSON.stringify(encoded));
         assert.equal(encodedText('red'), '"red"');
+    });
+
+    test('only a reference the encoders wrote is written out', () => {
+        const ctx = EncodeContext.create();
+        const secret = encodedAs(ctx, 0, { __type: 'Secret', token: 'hidden' });
+        // Data shaped like a reference, or like an encoding with an id, is data.
+        const forged = { note: { __ref: 0 }, claim: { __id: 0, token: 'forged' }, at: new Date(0) };
+        assert.equal(
+            encodedTextWithoutMetadata(
+                { secret, forged, again: encodedReference(ctx, 0) },
+                '__type'
+            ),
+            '{"secret":{"token":"hidden"},"forged":{"note":{"__ref":0},"claim":{"token":"forged"},"at":"1970-01-01T00:00:00.000Z"},"again":{"token":"hidden"}}'
+        );
+        // A reference from another context names nothing in this one.
+        assert.equal(
+            encodedTextWithoutMetadata(
+                { other: encodedReference(EncodeContext.create(), 0) },
+                '__type'
+            ),
+            '{"other":{"__ref":0}}'
+        );
+    });
+
+    test('a value that holds itself, or is held too many times over, has no text without metadata', () => {
+        const ctx = EncodeContext.create();
+        const loop = encodedAs(ctx, 0, { __type: 'Loop', name: 'Ada' });
+        loop.self = encodedReference(ctx, 0);
+        assert.throws(() => encodedTextWithoutMetadata(loop, '__type'), {
+            name: 'TypeError',
+            message: /holds itself.*keepMetadata/
+        });
+        assert.equal(typeof encodedText(loop), 'string');
+
+        // Each level holds the one below it twice, so the text doubles with
+        // every level: thirty of them would be a billion copies.
+        let level = encodedAs(ctx, 1, { __type: 'Level', depth: 0 });
+        for (let id = 2; id < 32; id++) {
+            level = encodedAs(ctx, id, {
+                __type: 'Level',
+                left: level,
+                right: encodedReference(ctx, id - 1)
+            });
+        }
+        assert.throws(() => encodedTextWithoutMetadata(level, '__type'), {
+            name: 'TypeError',
+            message: /too large to write out.*keepMetadata/
+        });
+
+        // What is copied is counted by its size, strings and arrays included:
+        // a large value held in many places is refused, a few times is fine.
+        const blob = encodedAs(ctx, 100, {
+            __type: 'Blob',
+            text: 'x'.repeat(1_000_000),
+            items: new Array(1000).fill(0)
+        });
+        const held = (times) => ({
+            first: blob,
+            rest: Array.from({ length: times }, () => encodedReference(ctx, 100))
+        });
+        assert.throws(() => encodedTextWithoutMetadata(held(32), '__type'), {
+            name: 'TypeError',
+            message: /too large to write out.*keepMetadata/
+        });
+        assert.equal(JSON.parse(encodedTextWithoutMetadata(held(4), '__type')).rest.length, 4);
     });
 
     test('the text helpers throw for a value with no JSON text', () => {
@@ -1457,7 +1551,7 @@ describe('Encode metadata stripping', () => {
             'encodeWithContext should still have __type marker'
         );
         assert.ok(
-            result.code.includes('__id = ctx.register(value)'),
+            result.code.includes('__mf_encodedAs(ctx, ctx.register(value), {'),
             'encodeWithContext should still register __id'
         );
     });
@@ -1510,7 +1604,7 @@ describe('Enum tagging modes: expansion', () => {
         );
         // Decode: should check __type tag field
         assert.ok(
-            result.code.includes('(value as any)["__type"]'),
+            result.code.includes('__mf_member(value, "__type")'),
             'InternallyTagged decode should check __type field'
         );
     });
@@ -1525,7 +1619,7 @@ describe('Enum tagging modes: expansion', () => {
 
         // Decode: should check custom "kind" field
         assert.ok(
-            result.code.includes('(value as any)["kind"]'),
+            result.code.includes('__mf_member(value, "kind")'),
             'InternallyTagged with custom tag should check "kind" field'
         );
     });
@@ -1582,11 +1676,11 @@ describe('Enum tagging modes: expansion', () => {
         );
         // Decode: should read tag and content fields
         assert.ok(
-            result.code.includes('(value as any)["t"]'),
+            result.code.includes('__mf_member(value, "t")'),
             'AdjacentlyTagged decode should read tag field "t"'
         );
         assert.ok(
-            result.code.includes('(value as any)["c"]'),
+            result.code.includes('__mf_member(value, "c")'),
             'AdjacentlyTagged decode should read content field "c"'
         );
         assert.ok(

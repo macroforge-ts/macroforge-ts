@@ -39,7 +39,7 @@ original 25..83 -> expanded 0..58
 
 ## Metadata
 
-interface Config: {"body_span":{"end":83,"start":44},"decorators":[{"args_src":"Encodable","name":"Derive","span":{"end":26,"start":1}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":63,"start":50},"ts_type":"string"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":81,"start":68},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Config","span":{"end":83,"start":27},"type_params":[]}
+interface Config: {"body_span":{"end":83,"start":44},"decorators":[{"args_src":"Encodable","name":"Derive","span":{"end":26,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":63,"start":50},"ts_type":"string"},{"decorators":[],"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":81,"start":68},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Config","span":{"end":83,"start":27},"type_params":[]}
 
 ## Registry reads
 

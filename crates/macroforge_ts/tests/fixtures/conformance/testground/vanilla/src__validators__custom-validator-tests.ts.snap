@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { isMultipleOfThree as __mf_isMultipleOfThree__shared_validators } from "./shared-validators";
 /**
@@ -36,17 +36,15 @@ export class CustomNumberValidator {
     evenNumber: number;
 
 constructor(props: { evenNumber: number }) {
+
     this.evenNumber = props.evenNumber;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = CustomNumberValidator.decodeWithContext(data, ctx);
+        const resultOrRef = CustomNumberValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -93,6 +91,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => CustomNumberValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomNumberValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -105,30 +108,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomNumberValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomNumberValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomNumberValidator") as CustomNumberValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "CustomNumberValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
-        errors.push({ field: "evenNumber", message: "missing required field" });
-    }
-    const instance = Object.create(CustomNumberValidator.prototype) as CustomNumberValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["evenNumber", "evenNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(CustomNumberValidator.prototype);
+    const instance: { "evenNumber"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomNumberValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("evenNumber")) || (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
-        if (!(typeof __raw_evenNumber === "number")) {
+        if (!(typeof __raw_evenNumber === "number" && globalThis.Number.isFinite(__raw_evenNumber))) {
             errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomNumberValidator.evenNumber is required" : "expected number" });
         } else {
             if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
@@ -140,7 +149,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomNumberValidator)) {
+        throw new TypeError("CustomNumberValidator.decodeWithContext: the value made is no CustomNumberValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomNumberValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -168,8 +180,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "evenNumber" in o;
+    return __mf_holdsAll(obj, ["evenNumber"]);
 }
 
 static is(obj: unknown): obj is CustomNumberValidator {
@@ -179,14 +190,20 @@ static is(obj: unknown): obj is CustomNumberValidator {
     if (!CustomNumberValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomNumberValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function customNumberValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomNumberValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customNumberValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomNumberValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -216,17 +233,15 @@ export class CustomStringValidator {
     username: string;
 
 constructor(props: { username: string }) {
+
     this.username = props.username;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = CustomStringValidator.decodeWithContext(data, ctx);
+        const resultOrRef = CustomStringValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -273,6 +288,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => CustomStringValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomStringValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -285,27 +305,33 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomStringValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomStringValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomStringValidator") as CustomStringValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "CustomStringValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
-        errors.push({ field: "username", message: "missing required field" });
-    }
-    const instance = Object.create(CustomStringValidator.prototype) as CustomStringValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["username", "username"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(CustomStringValidator.prototype);
+    const instance: { "username"?: string | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomStringValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
         const __raw_username = obj["username"] as string;
 
         if (!(typeof __raw_username === "string")) {
@@ -320,7 +346,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomStringValidator)) {
+        throw new TypeError("CustomStringValidator.decodeWithContext: the value made is no CustomStringValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomStringValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -348,8 +377,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "username" in o;
+    return __mf_holdsAll(obj, ["username"]);
 }
 
 static is(obj: unknown): obj is CustomStringValidator {
@@ -359,14 +387,20 @@ static is(obj: unknown): obj is CustomStringValidator {
     if (!CustomStringValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomStringValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function customStringValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomStringValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customStringValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomStringValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -397,17 +431,15 @@ export class ImportedCustomValidator {
     count: number;
 
 constructor(props: { count: number }) {
+
     this.count = props.count;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ImportedCustomValidator.decodeWithContext(data, ctx);
+        const resultOrRef = ImportedCustomValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -454,6 +486,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ImportedCustomValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ImportedCustomValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -466,30 +503,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ImportedCustomValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ImportedCustomValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ImportedCustomValidator") as ImportedCustomValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ImportedCustomValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    const instance = Object.create(ImportedCustomValidator.prototype) as ImportedCustomValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(ImportedCustomValidator.prototype);
+    const instance: { "count"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ImportedCustomValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "ImportedCustomValidator.count is required" : "expected number" });
         } else {
             if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
@@ -501,7 +544,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ImportedCustomValidator)) {
+        throw new TypeError("ImportedCustomValidator.decodeWithContext: the value made is no ImportedCustomValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ImportedCustomValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -529,8 +575,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "count" in o;
+    return __mf_holdsAll(obj, ["count"]);
 }
 
 static is(obj: unknown): obj is ImportedCustomValidator {
@@ -540,14 +585,20 @@ static is(obj: unknown): obj is ImportedCustomValidator {
     if (!ImportedCustomValidator.hasShape(obj)) {
         return false;
     }
+
     const result = ImportedCustomValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function importedCustomValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ImportedCustomValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function importedCustomValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ImportedCustomValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -576,17 +627,15 @@ export class CustomWithMessageValidator {
     evenNumber: number;
 
 constructor(props: { evenNumber: number }) {
+
     this.evenNumber = props.evenNumber;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = CustomWithMessageValidator.decodeWithContext(data, ctx);
+        const resultOrRef = CustomWithMessageValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -633,6 +682,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => CustomWithMessageValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomWithMessageValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -645,30 +699,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomWithMessageValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomWithMessageValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomWithMessageValidator") as CustomWithMessageValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "CustomWithMessageValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
-        errors.push({ field: "evenNumber", message: "missing required field" });
-    }
-    const instance = Object.create(CustomWithMessageValidator.prototype) as CustomWithMessageValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["evenNumber", "evenNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(CustomWithMessageValidator.prototype);
+    const instance: { "evenNumber"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomWithMessageValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("evenNumber")) || (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
-        if (!(typeof __raw_evenNumber === "number")) {
+        if (!(typeof __raw_evenNumber === "number" && globalThis.Number.isFinite(__raw_evenNumber))) {
             errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomWithMessageValidator.evenNumber is required" : "expected number" });
         } else {
             if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
@@ -680,7 +740,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomWithMessageValidator)) {
+        throw new TypeError("CustomWithMessageValidator.decodeWithContext: the value made is no CustomWithMessageValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomWithMessageValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -708,8 +771,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "evenNumber" in o;
+    return __mf_holdsAll(obj, ["evenNumber"]);
 }
 
 static is(obj: unknown): obj is CustomWithMessageValidator {
@@ -719,14 +781,20 @@ static is(obj: unknown): obj is CustomWithMessageValidator {
     if (!CustomWithMessageValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomWithMessageValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function customWithMessageValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomWithMessageValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customWithMessageValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomWithMessageValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -763,8 +831,19 @@ export declare class CustomNumberValidator {
 	constructor(props: {
 		evenNumber: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomNumberValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: CustomNumberValidator;
 	} | {
@@ -789,8 +868,19 @@ export declare class CustomNumberValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is CustomNumberValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function customNumberValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomNumberValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customNumberValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CustomNumberValidator;
 } | {
@@ -815,8 +905,19 @@ export declare class CustomStringValidator {
 	constructor(props: {
 		username: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomStringValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: CustomStringValidator;
 	} | {
@@ -841,8 +942,19 @@ export declare class CustomStringValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is CustomStringValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function customStringValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomStringValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customStringValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CustomStringValidator;
 } | {
@@ -867,8 +979,19 @@ export declare class ImportedCustomValidator {
 	constructor(props: {
 		count: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ImportedCustomValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ImportedCustomValidator;
 	} | {
@@ -893,8 +1016,19 @@ export declare class ImportedCustomValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ImportedCustomValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function importedCustomValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ImportedCustomValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function importedCustomValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ImportedCustomValidator;
 } | {
@@ -919,8 +1053,19 @@ export declare class CustomWithMessageValidator {
 	constructor(props: {
 		evenNumber: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomWithMessageValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: CustomWithMessageValidator;
 	} | {
@@ -945,8 +1090,19 @@ export declare class CustomWithMessageValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is CustomWithMessageValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function customWithMessageValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomWithMessageValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customWithMessageValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CustomWithMessageValidator;
 } | {
@@ -971,31 +1127,31 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 
 ## Mapping
 
-original 0..536 -> expanded 452..988
-original 536..537 -> expanded 7341..7342
-original 537..709 -> expanded 9319..9491
-original 709..710 -> expanded 15826..15827
-original 710..1016 -> expanded 17804..18110
-original 1016..1017 -> expanded 24471..24472
-original 1017..1206 -> expanded 26479..26668
-original 1206..1207 -> expanded 32990..32991
-original 1207..1208 -> expanded 35043..35044
-generated 0..452 <- imports
-generated 988..7341 <- Decode
-generated 7342..9319 <- Decode
-generated 9491..15826 <- Decode
-generated 15827..17804 <- Decode
-generated 18110..24471 <- Decode
-generated 24472..26479 <- Decode
-generated 26668..32990 <- Decode
-generated 32991..35043 <- Decode
+original 0..536 -> expanded 543..1079
+original 536..537 -> expanded 8268..8269
+original 537..709 -> expanded 10687..10859
+original 709..710 -> expanded 17980..17981
+original 710..1016 -> expanded 20399..20705
+original 1016..1017 -> expanded 27904..27905
+original 1017..1206 -> expanded 30359..30548
+original 1206..1207 -> expanded 37736..37737
+original 1207..1208 -> expanded 40245..40246
+generated 0..543 <- imports
+generated 1079..8268 <- Decode
+generated 8269..10687 <- Decode
+generated 10859..17980 <- Decode
+generated 17981..20399 <- Decode
+generated 20705..27904 <- Decode
+generated 27905..30359 <- Decode
+generated 30548..37736 <- Decode
+generated 37737..40245 <- Decode
 
 ## Metadata
 
-class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"type_params":[]}
-class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"type_params":[]}
-class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"type_params":[]}
-class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"type_params":[]}
+class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"key":"Named","name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"superclass":null,"type_params":[]}
+class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"superclass":null,"type_params":[]}
+class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"superclass":null,"type_params":[]}
+class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"key":"Named","name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

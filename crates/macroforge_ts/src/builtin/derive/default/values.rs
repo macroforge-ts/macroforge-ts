@@ -2,16 +2,19 @@
 
 use std::cell::RefCell;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::literal::decode_literal_default;
 use crate::builtin::derive::common::{
-    TypeNames, get_type_default_with_registry, is_primitive_type, js_string, rendered,
-    type_has_derive,
+    Declared, DefaultFieldOptions, TypeNames, entry_derives, extract_named_string,
+    fields_from_definition, get_type_default_with_registry, is_primitive_type, js_string, mentions,
+    rendered, standalone_fn_name,
 };
+use crate::builtin::derive::common::{array_element_type, tuple_body, undefaultable};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
-    FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
+    FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry, TypeRegistryEntry,
+    resolve_generic_aliases,
 };
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 use crate::ts_syn::ts_ident;
@@ -24,6 +27,145 @@ pub(super) struct DefaultSources<'a> {
     pub(super) file_imports: &'a [FileImportEntry],
     /// Why a written default cannot be used, found while resolving it.
     pub(super) rejected: RefCell<Vec<String>>,
+}
+
+impl<'a> DefaultSources<'a> {
+    /// Where the names in the type being defaulted resolve.
+    pub(super) fn declared(&self) -> Declared<'a> {
+        Declared {
+            registry: self.registry,
+            file_path: self.caller_file_path,
+            file_imports: self.file_imports,
+        }
+    }
+}
+
+/// How the default of a field typed `ts_type` comes to need a default of
+/// its own type `owner` again, when it does: nothing for a field that holds
+/// an `owner` itself, and the fields of the other types it goes through
+/// otherwise. `None` for a field whose default ends.
+fn endless_default(owner: &str, ts_type: &str, sources: &DefaultSources) -> Option<String> {
+    let mut through = Vec::new();
+    defaults_back_to(
+        (sources.caller_file_path, owner),
+        ts_type,
+        sources.declared(),
+        &mut through,
+        &mut Vec::new(),
+    )
+    .then(|| match through.as_slice() {
+        [] => String::new(),
+        fields => format!(", through {}", fields.join(" and ")),
+    })
+}
+
+/// Whether the default of a value typed `ts_type`, read where `declared`
+/// resolves its names, calls the default of the type `owner` names by its
+/// file and name. `through` gathers the fields it goes by, and `seen` the
+/// types already followed.
+fn defaults_back_to(
+    owner: (&str, &str),
+    ts_type: &str,
+    declared: Declared<'_>,
+    through: &mut Vec<String>,
+    seen: &mut Vec<(String, String)>,
+) -> bool {
+    for (name, entry) in defaulted_types(ts_type, declared) {
+        // Expanded on its own, a file's types are not in the registry: the
+        // owner is still known by its name.
+        let Some(entry) = entry else {
+            if name == owner.1 {
+                return true;
+            }
+            continue;
+        };
+        if (entry.file_path.as_str(), entry.name.as_str()) == owner {
+            return true;
+        }
+        let key = (entry.file_path.clone(), entry.name.clone());
+        if seen.contains(&key) {
+            continue;
+        }
+        seen.push(key);
+        let within = Declared {
+            registry: declared.registry,
+            file_path: &entry.file_path,
+            file_imports: &entry.file_imports,
+        };
+        for (field, field_type) in defaulting_fields(entry, declared.registry) {
+            through.push(format!("`{}.{field}`", entry.name));
+            if defaults_back_to(owner, &field_type, within, through, seen) {
+                return true;
+            }
+            through.pop();
+        }
+    }
+    false
+}
+
+/// The types whose own defaults the default of a value typed `ts_type`
+/// calls, read off the default that is written for it: each by the name the
+/// type gives it, with its declaration where the registry holds one.
+fn defaulted_types<'t, 'r>(
+    ts_type: &'t str,
+    declared: Declared<'r>,
+) -> Vec<(&'t str, Option<&'r TypeRegistryEntry>)> {
+    let written = get_type_default_with_registry(
+        ts_type,
+        declared.registry,
+        declared.file_path,
+        declared.file_imports,
+    );
+    ts_type
+        .split(|letter: char| !(letter.is_alphanumeric() || matches!(letter, '_' | '$')))
+        .filter(|name| !name.is_empty())
+        .filter(|name| mentions(&written, &standalone_fn_name(name, "DefaultValue")))
+        .map(|name| {
+            let entry =
+                declared
+                    .registry
+                    .resolve_in_file(name, declared.file_path, declared.file_imports);
+            (name, entry)
+        })
+        .collect()
+}
+
+/// The fields of the type `entry` declares that its default fills with the
+/// default of their own type, as their names and types: the ones it has to
+/// have, without a `@default` or an initializer of their own. None for a
+/// type that derives no `Default`.
+fn defaulting_fields(entry: &TypeRegistryEntry, registry: &TypeRegistry) -> Vec<(String, String)> {
+    if !entry_derives(entry, "Default") {
+        return Vec::new();
+    }
+    fn undeclared(decorators: &[crate::ts_syn::abi::DecoratorIR]) -> bool {
+        !DefaultFieldOptions::from_decorators(decorators).has_default
+    }
+    match &entry.definition {
+        TypeDefinitionIR::Class(class) => class
+            .fields
+            .iter()
+            .filter(|field| {
+                !field.optional && field.initializer.is_none() && undeclared(&field.decorators)
+            })
+            .map(|field| (field.name.clone(), field.ts_type.clone()))
+            .collect(),
+        TypeDefinitionIR::TypeAlias(alias) if alias.body.as_alias().is_some() => alias
+            .body
+            .as_alias()
+            .map(|aliased| (alias.name.clone(), aliased.to_string()))
+            .into_iter()
+            .collect(),
+        TypeDefinitionIR::Interface(_) | TypeDefinitionIR::TypeAlias(_) => {
+            fields_from_definition(entry, registry)
+                .unwrap_or_default()
+                .into_iter()
+                .filter(|field| !field.optional && undeclared(&field.decorators))
+                .map(|field| (field.name, field.ts_type))
+                .collect()
+        }
+        TypeDefinitionIR::Enum(_) => Vec::new(),
+    }
 }
 
 /// Whether `expression` reads the `this` of the code around it. A function
@@ -68,6 +210,20 @@ pub(super) fn reads_this(expression: &str) -> bool {
     })
 }
 
+/// Whether `expression` is several expressions with commas between them,
+/// which read as one value nowhere a default is written out.
+fn writes_several(expression: &str) -> bool {
+    use oxc::allocator::Allocator;
+    use oxc::ast::ast::Expression;
+
+    let allocator = Allocator::default();
+    let parser = oxc::parser::Parser::new(&allocator, expression, oxc::span::SourceType::ts());
+    // An unparseable default is reported where it is parsed.
+    parser
+        .parse_expression()
+        .is_ok_and(|parsed| matches!(parsed, Expression::SequenceExpression(_)))
+}
+
 /// Resolve the default expression for a field, wrapping a user-provided
 /// string into `{ [tag]: "value" }` when the field type is a registered
 /// internally-tagged union (e.g. `@default("Fixed")` on a field typed
@@ -79,6 +235,12 @@ pub(super) fn resolve_default_value(
     sources: &DefaultSources,
 ) -> String {
     if let Some(v) = opts_value {
+        if writes_several(&v) {
+            sources.rejected.borrow_mut().push(format!(
+                "@default({v}) writes several values, and a default is one; write an object or an array in its brackets"
+            ));
+            return "undefined".to_string();
+        }
         if let Some(wrapped) = wrap_string_for_tagged_union(&v, ts_type, sources) {
             return wrapped;
         }
@@ -129,7 +291,7 @@ fn wrap_string_for_tagged_union(
     let tag = alias
         .decorators
         .iter()
-        .find_map(|d| (d.name == "endec").then(|| extract_tag_from_endec_args(&d.args_src)))
+        .find_map(|d| (d.name == "endec").then(|| extract_named_string(&d.args_src, "tag")))
         .flatten()?;
 
     for member in members {
@@ -162,12 +324,7 @@ fn wrap_string_for_tagged_union(
             .trim_matches('\'');
         if lit == variant_name {
             return Some(if let Some(p) = payload_type {
-                let camel = p
-                    .split('<')
-                    .next()
-                    .unwrap_or(&p)
-                    .trim()
-                    .to_case(Case::Camel);
+                let camel = function_prefix(p.split('<').next().unwrap_or(&p).trim());
                 let (tag, variant) = (js_string(&tag), js_string(variant_name));
                 let payload_default = ts_ident!("{}DefaultValue", camel);
                 rendered(ts_template! { ({ @{tag}: @{variant}, ...@{payload_default}() }) })
@@ -197,26 +354,6 @@ pub(super) fn contains_top_level_pipe(s: &str) -> bool {
     false
 }
 
-/// Extract `"value"` out of `tag: "value"` or `tag = "value"` inside the
-/// raw arguments of `@endec(...)`. Returns the unquoted variant tag name.
-fn extract_tag_from_endec_args(args: &str) -> Option<String> {
-    let s = args.trim();
-    let idx = s.find("tag")?;
-    let after = &s[idx + 3..];
-    let after = after.trim_start();
-    let after = after
-        .strip_prefix(':')
-        .or_else(|| after.strip_prefix('='))?
-        .trim_start();
-    let quote = after.chars().next()?;
-    if quote != '"' && quote != '\'' {
-        return None;
-    }
-    let rest = &after[1..];
-    let end = rest.find(quote)?;
-    Some(rest[..end].to_string())
-}
-
 /// An error at each required field with no default to fall back on, as
 /// Rust's derive requires a default for every field: a field typed by one of
 /// the type's `params`, which would need a `T: Default` bound, or by a type
@@ -225,12 +362,21 @@ fn extract_tag_from_endec_args(args: &str) -> Option<String> {
 pub(super) fn missing_default_derives<'f>(
     fields: impl Iterator<Item = (&'f str, &'f str, SpanIR)>,
     names: &TypeNames,
-    registry: &TypeRegistry,
+    sources: &DefaultSources,
     diagnostics: &mut DiagnosticCollector,
 ) {
     let parent_name = &names.type_name;
-    for (field_name, ts_type, span) in fields {
-        let ts_type = ts_type.trim();
+    let registry = sources.registry;
+    for (field_name, written, span) in fields {
+        // A generic alias defaults as what it stands for, which is what the
+        // default written for the field resolves it to.
+        let resolved = resolve_generic_aliases(
+            written.trim(),
+            registry,
+            sources.caller_file_path,
+            sources.file_imports,
+        );
+        let ts_type = resolved.trim();
         if names.params.iter().any(|param| param == ts_type) {
             diagnostics.error(
                 span,
@@ -240,9 +386,28 @@ pub(super) fn missing_default_derives<'f>(
             );
             continue;
         }
+        if let Some(through) = endless_default(parent_name, written, sources) {
+            diagnostics.error(
+                span,
+                format!(
+                    "@derive(Default) on '{parent_name}': field '{field_name}' needs a default of '{parent_name}' itself{through}, so a default of it would never end; make the field optional or nullable, or add @default(value)"
+                ),
+            );
+            continue;
+        }
+        let declared = sources.declared();
+        if let Some(reason) = undefaultable(ts_type, declared) {
+            diagnostics.error(
+                span,
+                format!(
+                    "@derive(Default) on '{parent_name}': field '{field_name}' {reason}; add @default(value)"
+                ),
+            );
+            continue;
+        }
         if is_primitive_type(ts_type)
-            || ts_type.ends_with("[]")
-            || ts_type.starts_with("Array<")
+            || array_element_type(ts_type).is_some()
+            || tuple_body(ts_type).is_some()
             || ts_type.starts_with("Map<")
             || ts_type.starts_with("Set<")
             || ts_type == "Date"
@@ -250,13 +415,17 @@ pub(super) fn missing_default_derives<'f>(
         {
             continue;
         }
-        let type_known =
-            registry.get(ts_type).is_some() || registry.get_all(ts_type).next().is_some();
-        if type_known && !type_has_derive(registry, ts_type, "Default") {
+        // A generic type is known, and derives, by its name.
+        let type_name = ts_type.split_once('<').map_or(ts_type, |(base, _)| base);
+        let derives_default = registry
+            .resolve_in_file(type_name, sources.caller_file_path, sources.file_imports)
+            .map(|entry| entry_derives(entry, "Default"));
+        if derives_default == Some(false) {
             diagnostics.error(
                 span,
                 format!(
-                    "@derive(Default) on '{parent_name}': field '{field_name}' has type '{ts_type}', which does not derive Default; derive it or add @default(value)"
+                    "@derive(Default) on '{parent_name}': field '{field_name}' has type '{}', which does not derive Default; derive it or add @default(value)",
+                    written.trim()
                 ),
             );
         }

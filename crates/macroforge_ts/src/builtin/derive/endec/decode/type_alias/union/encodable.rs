@@ -6,9 +6,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
-use crate::builtin::derive::endec::decode::helpers::{
-    extract_base_type, nested_decode_fn_name, nested_has_shape_fn_name,
-};
+use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 
 /// Dispatches to the member decoders. Every path either returns a member
 /// or throws.
@@ -50,7 +48,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                     const __keys = Object.keys(value);
                                     const __variantName = __keys[0];
                                     if (__variantName !== undefined) {
-                                        const __inner = (value as any)[__variantName];
+                                        const __inner = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, __variantName);
                                         {#for ov in external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref decode_callee) = ov.inner_foreign_decode_callee}
@@ -66,7 +64,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                             }
                                         {/for}
                                         {#for type_ref in regular_encodables}
-                                            {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                             if (__variantName === "@{type_ref.full_type}") {
                                                 return @{decode_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
                                             }
@@ -88,7 +86,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                 // String value may be a unit variant name
                                 if (typeof value === "string") {
                                     {#for type_ref in regular_encodables}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (value === "@{type_ref.full_type}") {
                                             return @{decode_with_context_fn}({}, ctx) as @{full_type_ident};
                                         }
@@ -101,11 +99,11 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                             {:else if *is_adjacently_tagged}
                                 // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     if (typeof __typeName === "string") {
-                                        const __content = (value as any)["@{content_field}"];
+                                        const __content = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{content_field}");
                                         {#for type_ref in regular_encodables}
-                                            {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                             if (__typeName === "@{type_ref.full_type}") {
                                                 return @{decode_with_context_fn}(__content != null && typeof __content === "object" ? __content : {}, ctx) as @{full_type_ident};
                                             }
@@ -144,7 +142,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
 
                                 if (__shapeMatches.length >= 1) {
                                     {#for type_ref in regular_encodables}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                             try {
                                                 return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
@@ -171,10 +169,10 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                 // Internally tagged (default): tag-based discrimination with shape matching fallback
                                 // Tag-based discrimination (only for object values)
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     if (typeof __typeName === "string") {
                                         {#for type_ref in regular_encodables}
-                                            {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                             if (__typeName === "@{type_ref.full_type}") {
                                                 return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                             }
@@ -190,25 +188,15 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                         {#for ov in object_variants}
                                             if (__typeName === "@{ov.tag_value}") {
                                                 // Inline object variant: decode fields in place
-                                                const __result: Record<string, unknown> = { "@{tag_field}": "@{ov.tag_value}" };
-                                                {#for field in &ov.fields}
-                                                    {#if field.name != *tag_field}
-                                                        __result["@{field.name}"] = (value as any)["@{field.name}"] ?? null;
-                                                    {/if}
-                                                {/for}
-                                                return __result as @{full_type_ident};
+                                                return { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } as @{full_type_ident};
                                             }
                                         {/for}
                                         {#for iv in intersection_variants}
                                             if (__typeName === "@{iv.tag_value}") {
                                                 // Intersection variant: decode the type ref and merge with tag
-                                                {#if iv.is_encodable}
-                                                    {$let iv_deser_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&iv.type_ref))).into()}
-                                                    const __inner = @{iv_deser_fn}(value, ctx);
-                                                    return { ...(__inner as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {:else}
-                                                    return { ...(value as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {/if}
+                                                {$let iv_deser_fn: Expr = iv.decoder.clone()}
+                                                const __inner = @{iv_deser_fn}(value, ctx);
+                                                return { ...__inner, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
                                             }
                                         {/for}
 
@@ -234,7 +222,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
 
                                 if (__shapeMatches.length === 1) {
                                     {#for type_ref in regular_encodables}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                             return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                         }
@@ -252,7 +240,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                 if (__shapeMatches.length > 1) {
                                     // Multiple variants match: try each decoder in order, return first success
                                     {#for type_ref in regular_encodables}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (__shapeMatches.includes("@{type_ref.full_type}")) {
                                             try {
                                                 return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};

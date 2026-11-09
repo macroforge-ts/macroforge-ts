@@ -1,0 +1,327 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/endec_kebab_rename.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+/** @endec({ renameAll: "kebab-case" }) */
+interface Profile {
+    firstName: string;
+    isActive: boolean;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+/** @endec({ renameAll: "kebab-case" }) */
+interface Profile {
+    firstName: string;
+    isActive: boolean;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function profileEncode(value: Profile, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = profileEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function profileEncodeWithContext(value: Profile, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Profile" });
+    profileEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function profileEncodePartialWithContext(value: Partial<Profile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Profile>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Profile" };
+        profileEncodeFields(value as Profile, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function profileEncodeFields(value: Profile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["first-name"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["is-active"] = value.isActive;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = profileDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Profile.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function profileFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => profileDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef;
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Profile") as Profile | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "first-name"], ["isActive", "is-active"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "firstName"?: string | undefined; "isActive"?: boolean | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Profile");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
+                const __raw_firstName = obj["first-name"] as string;
+
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "first-name", message: __raw_firstName == null ? "Profile.first-name is required" : "expected string" });
+                } else {
+                    instance.firstName = __raw_firstName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
+                const __raw_isActive = obj["is-active"] as boolean;
+
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "is-active", message: __raw_isActive == null ? "Profile.is-active is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Profile;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function profileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Profile>): Partial<Profile> | __mf_PendingRef {
+    return profileDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function profileValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function profileValidateFields(partial: { readonly [K in keyof Profile]?: unknown }): Array<{ field: string; message: string }>;
+export function profileValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function profileHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["first-name", "is-active"]);
+}
+
+export function profileIs(obj: unknown): obj is Profile {
+    return profileHasShape(obj) && profileDecode(obj).success;
+}
+
+const Profile: {
+  readonly encode: typeof profileEncode;
+  readonly encodeWithContext: typeof profileEncodeWithContext;
+  readonly encodePartialWithContext: typeof profileEncodePartialWithContext;
+  readonly decode: typeof profileDecode;
+  readonly fromString: typeof profileFromString;
+  readonly decodeWithContext: typeof profileDecodeWithContext;
+  readonly decodePartialWithContext: typeof profileDecodePartialWithContext;
+  readonly validateField: typeof profileValidateField;
+  readonly validateFields: typeof profileValidateFields;
+  readonly hasShape: typeof profileHasShape;
+  readonly is: typeof profileIs;
+} = {
+  encode: profileEncode,
+  encodeWithContext: profileEncodeWithContext,
+  encodePartialWithContext: profileEncodePartialWithContext,
+  decode: profileDecode,
+  fromString: profileFromString,
+  decodeWithContext: profileDecodeWithContext,
+  decodePartialWithContext: profileDecodePartialWithContext,
+  validateField: profileValidateField,
+  validateFields: profileValidateFields,
+  hasShape: profileHasShape,
+  is: profileIs
+};
+
+## DTS
+
+/** @endec({ renameAll: "kebab-case" }) */
+interface Profile {
+	firstName: string;
+	isActive: boolean;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function profileEncode(value: Profile, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function profileEncodeWithContext(value: Profile, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function profileEncodePartialWithContext(value: Partial<Profile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Profile>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function profileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Profile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function profileFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Profile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function profileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Profile>): Partial<Profile> | __mf_PendingRef;
+export declare function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function profileValidateFields(partial: { readonly [K in keyof Profile]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function profileHasShape(obj: unknown): boolean;
+export declare function profileIs(obj: unknown): obj is Profile;
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 30..141 -> expanded 687..798
+original 141..142 -> expanded 11024..11025
+generated 0..687 <- imports
+generated 798..3301 <- Encode
+generated 3301..9972 <- Decode
+generated 9972..11024 <- __convenience_const
+
+## Metadata
+
+interface Profile: {"body_span":{"end":142,"start":93},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":74,"start":32}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":117,"start":99},"ts_type":"string"},{"decorators":[],"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":140,"start":122},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":142,"start":75},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

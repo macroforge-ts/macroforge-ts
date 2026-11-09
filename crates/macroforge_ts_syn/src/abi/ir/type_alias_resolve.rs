@@ -24,6 +24,10 @@ use std::collections::HashMap;
 use super::type_alias::{TypeAliasIR, TypeBody, TypeMember, TypeMemberKind};
 use super::type_alias_scope::adopt_alias_scope;
 use super::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
+use crate::scan::{
+    Token, angle_unwrapped, ends_in_its_last_part, is_ident_continue, is_ident_start, tokens,
+    top_level_letters,
+};
 
 const MAX_DEPTH: u8 = 16;
 
@@ -45,16 +49,43 @@ pub fn resolve_generic_aliases(
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
 ) -> String {
-    resolve_recursive(ts_type, registry, caller_file_path, file_imports, 0)
+    resolve_generic_aliases_where(
+        ts_type,
+        registry,
+        caller_file_path,
+        file_imports,
+        &|_, _| true,
+    )
 }
 
-fn resolve_recursive(
+/// [`resolve_generic_aliases`], expanding an instantiation only where
+/// `expands` says so, given the alias's name and what it expands to. One left
+/// alone keeps its name, with its arguments resolved.
+pub fn resolve_generic_aliases_where(
     ts_type: &str,
     registry: &TypeRegistry,
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
-    depth: u8,
+    expands: &dyn Fn(&str, &str) -> bool,
 ) -> String {
+    let source = AliasSource {
+        registry,
+        caller_file_path,
+        file_imports,
+        expands,
+    };
+    resolve_recursive(ts_type, &source, 0)
+}
+
+/// Where instantiations are resolved from, and which of them are expanded.
+struct AliasSource<'a> {
+    registry: &'a TypeRegistry,
+    caller_file_path: &'a str,
+    file_imports: &'a [FileImportEntry],
+    expands: &'a dyn Fn(&str, &str) -> bool,
+}
+
+fn resolve_recursive(ts_type: &str, source: &AliasSource<'_>, depth: u8) -> String {
     if depth >= MAX_DEPTH {
         return ts_type.to_string();
     }
@@ -64,7 +95,7 @@ fn resolve_recursive(
     if let Some(parts) = split_top_level_union(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
+            .map(|part| resolve_recursive(part, source, depth + 1))
             .collect();
         return resolved.join(" | ");
     }
@@ -73,14 +104,17 @@ fn resolve_recursive(
     if let Some(parts) = split_top_level_intersection(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
+            .map(|part| resolve_recursive(part, source, depth + 1))
             .collect();
         return resolved.join(" & ");
     }
 
     // `T[]`: recurse into element type.
-    if let Some(inner) = trimmed.strip_suffix("[]") {
-        let element = resolve_recursive(inner, registry, caller_file_path, file_imports, depth + 1);
+    if let Some(inner) = trimmed
+        .strip_suffix("[]")
+        .filter(|_| !ends_in_its_last_part(trimmed))
+    {
+        let element = resolve_recursive(inner, source, depth + 1);
         // `[]` binds tighter than `|` and `&`, so a compound element keeps
         // its parentheses.
         let compound = split_top_level_union(&element).is_some()
@@ -96,28 +130,21 @@ fn resolve_recursive(
     if let Some((base, args_str)) = parse_generic(trimmed) {
         let resolved_args: Vec<String> = split_top_level_commas(args_str)
             .iter()
-            .map(|a| resolve_recursive(a, registry, caller_file_path, file_imports, depth + 1))
+            .map(|argument| resolve_recursive(argument, source, depth + 1))
             .collect();
 
-        // Only user-defined aliases start with an uppercase letter; lower-case
-        // names (`partial<T>`) are TS unknowns. We also leave built-in container
-        // types alone and just rebuild them with resolved args.
-        if base.chars().next().is_some_and(|c| c.is_ascii_uppercase())
-            && let Some(expanded) = try_expand_alias(
-                base,
-                &resolved_args,
-                registry,
-                caller_file_path,
-                file_imports,
-            )
+        // A name the registry does not hold as an alias, a built-in
+        // container included, is rebuilt around its resolved arguments. So
+        // is an alias the caller keeps by name.
+        if let Some(expanded) = try_expand_alias(
+            base,
+            &resolved_args,
+            source.registry,
+            source.caller_file_path,
+            source.file_imports,
+        ) && (source.expands)(base, &expanded)
         {
-            return resolve_recursive(
-                &expanded,
-                registry,
-                caller_file_path,
-                file_imports,
-                depth + 1,
-            );
+            return resolve_recursive(&expanded, source, depth + 1);
         }
 
         return format!("{}<{}>", base, resolved_args.join(", "));
@@ -156,7 +183,7 @@ pub fn alias_default_member(
     let (base, args) = parse_generic(ts_type.trim())?;
     let resolved_args: Vec<String> = split_top_level_commas(args)
         .iter()
-        .map(|arg| resolve_recursive(arg, registry, caller_file_path, file_imports, 1))
+        .map(|arg| resolve_generic_aliases(arg, registry, caller_file_path, file_imports))
         .collect();
     instantiate_alias(
         base,
@@ -254,162 +281,124 @@ fn render_member(member: &TypeMember, subs: &HashMap<&str, &str>) -> Option<Stri
     }
 }
 
-/// Replace identifier tokens in `s` that match a key in `subs` with the
-/// substituted value. Everything else, string literals included, passes
-/// through untouched.
-fn substitute_tokens(s: &str, subs: &HashMap<&str, &str>) -> String {
-    let mut out = String::with_capacity(s.len());
-    for token in tokens(s) {
-        match token {
-            Token::Ident(ident) => out.push_str(subs.get(ident).copied().unwrap_or(ident)),
-            Token::Other(text) => out.push_str(text),
-        }
-    }
-    out
-}
-
-/// Each identifier token in `s`, in order of appearance, outside string
-/// literals.
-pub(super) fn identifiers(s: &str) -> Vec<&str> {
-    tokens(s)
-        .filter_map(|token| match token {
-            Token::Ident(ident) => Some(ident),
-            Token::Other(_) => None,
+/// Replace each identifier in `s` that names a type and is a key in `subs`
+/// with its substitute. Everything else passes through untouched: a string,
+/// the text of a template literal, a key, a label, a parameter's name and a
+/// member of a qualified name.
+pub fn substitute_tokens(s: &str, subs: &HashMap<&str, &str>) -> String {
+    let tokens = tokens(s);
+    tokens
+        .iter()
+        .enumerate()
+        .map(|(index, token)| match token {
+            Token::Ident(ident) if names_type(&tokens, index) => {
+                subs.get(ident).copied().unwrap_or(ident)
+            }
+            Token::Ident(text) | Token::Other(text) => text,
         })
         .collect()
 }
 
-enum Token<'a> {
-    Ident(&'a str),
-    /// Anything that is not an identifier: punctuation, numbers, whitespace
-    /// and whole string literals.
-    Other(&'a str),
-}
-
-/// `s` split into identifiers and the text between them.
-fn tokens(s: &str) -> impl Iterator<Item = Token<'_>> {
-    let mut rest = s;
-    std::iter::from_fn(move || {
-        let first = rest.chars().next()?;
-        let len = if is_ident_start(first) {
-            rest.find(|c: char| !is_ident_continue(c))
-                .unwrap_or(rest.len())
-        } else if matches!(first, '"' | '\'' | '`') {
-            string_literal_len(rest, first)
-        } else {
-            first.len_utf8()
-        };
-        let (token, tail) = rest.split_at(len);
-        rest = tail;
-        Some(if is_ident_start(first) {
-            Token::Ident(token)
-        } else {
-            Token::Other(token)
+/// Each identifier in `s` that names a type, in order of appearance.
+pub(super) fn identifiers(s: &str) -> Vec<&str> {
+    let tokens = tokens(s);
+    tokens
+        .iter()
+        .enumerate()
+        .filter_map(|(index, token)| match token {
+            Token::Ident(ident) if names_type(&tokens, index) => Some(*ident),
+            Token::Ident(_) | Token::Other(_) => None,
         })
-    })
+        .collect()
 }
 
-/// The length of the string literal `s` opens with `quote`, through its
-/// closing quote, or all of `s` when it is unterminated.
-fn string_literal_len(s: &str, quote: char) -> usize {
-    let mut escaped = false;
-    for (index, c) in s.char_indices().skip(1) {
-        match c {
-            _ if escaped => escaped = false,
-            '\\' => escaped = true,
-            _ if c == quote => return index + c.len_utf8(),
-            _ => {}
-        }
-    }
-    s.len()
-}
-
-fn is_ident_start(c: char) -> bool {
-    c.is_ascii_alphabetic() || c == '_' || c == '$'
-}
-
-fn is_ident_continue(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '_' || c == '$'
+/// Whether the identifier at `index` of `tokens` names a type: not a member
+/// of a qualified name (`NS.T`), and not a key, label or parameter name,
+/// which a `:` follows unless it ends a conditional's branch (`? A | T :`).
+fn names_type(tokens: &[Token<'_>], index: usize) -> bool {
+    let significant = |token: &&Token<'_>| !token.text().trim().is_empty();
+    let before: Vec<&str> = tokens
+        .get(..index)
+        .unwrap_or_default()
+        .iter()
+        .rev()
+        .filter(significant)
+        .take(3)
+        .map(Token::text)
+        .collect();
+    let mut after = tokens
+        .get(index + 1..)
+        .unwrap_or_default()
+        .iter()
+        .filter(significant)
+        .map(Token::text);
+    let spread = before == [".", ".", "."];
+    let member = before.first() == Some(&".") && !spread;
+    let named = match after.next() {
+        Some(":") => true,
+        Some("?") => after.next() == Some(":"),
+        _ => false,
+    };
+    // What stands after one of these is a type, a `:` after it or not.
+    let typed = matches!(
+        before.first().copied(),
+        Some("?" | ":" | "|" | "&" | ">" | "keyof" | "typeof" | "infer" | "unique")
+    );
+    !member && (!named || typed)
 }
 
 /// Parse a generic instantiation `Base<args>` into `("Base", "args")`.
 fn parse_generic(type_name: &str) -> Option<(&str, &str)> {
     let open = type_name.find('<')?;
-    if !type_name.ends_with('>') {
-        return None;
-    }
-    let close = type_name.len() - 1;
-    if open >= close {
-        return None;
-    }
-    let base = type_name[..open].trim();
-    let args = type_name[open + 1..close].trim();
-    if base.is_empty() || args.is_empty() {
-        return None;
-    }
-    Some((base, args))
+    let base = type_name.get(..open)?.trim();
+    let named = base
+        .split('.')
+        .all(|part| part.starts_with(is_ident_start) && part.chars().all(is_ident_continue));
+    let args = angle_unwrapped(type_name.get(open..)?)?.trim();
+    (named && !args.is_empty()).then_some((base, args))
 }
 
 /// Split a generic-argument list, or a tuple's elements, on top-level commas.
 /// Nested `<>`, `()`, `[]`, `{}` depth is tracked so `Map<string, number>`
 /// yields one member.
 pub fn split_top_level_commas(args: &str) -> Vec<&str> {
-    split_on_top_level(args, b',')
+    split_on_top_level(args, ',')
         .into_iter()
         .map(str::trim)
         .collect()
 }
 
 /// Split a type on its top-level `|`, ignoring any inside `<>`, `()`, `[]`,
-/// `{}` or a string literal. `None` when there is no top-level `|`.
+/// `{}` or a string literal. `None` when there is no top-level `|`, and for a
+/// function or conditional type, whose last part takes a `|` in it as its own.
 pub fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
-    let parts = split_on_top_level(s, b'|');
-    if parts.len() < 2 {
-        return None;
-    }
-    Some(parts.into_iter().map(str::trim).collect())
+    split_type_operands(s, '|')
 }
 
 /// Split a type on its top-level `&`, like [`split_top_level_union`].
 pub fn split_top_level_intersection(s: &str) -> Option<Vec<&str>> {
-    let parts = split_on_top_level(s, b'&');
-    if parts.len() < 2 {
+    split_type_operands(s, '&')
+}
+
+fn split_type_operands(s: &str, operator: char) -> Option<Vec<&str>> {
+    let parts = split_on_top_level(s, operator);
+    // A `&` binds tighter than a `|`.
+    let looser = operator == '&' && top_level_letters(s).any(|(_, letter)| letter == '|');
+    if parts.len() < 2 || ends_in_its_last_part(s) || looser {
         return None;
     }
     Some(parts.into_iter().map(str::trim).collect())
 }
 
-fn split_on_top_level(s: &str, sep: u8) -> Vec<&str> {
-    let mut out = Vec::new();
-    let mut depth: i32 = 0;
-    let mut in_str: Option<u8> = None;
+fn split_on_top_level(s: &str, separator: char) -> Vec<&str> {
+    let mut parts = Vec::new();
     let mut start = 0;
-    let bytes = s.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        let c = bytes[i];
-        if let Some(quote) = in_str {
-            if c == quote && (i == 0 || bytes[i - 1] != b'\\') {
-                in_str = None;
-            }
-        } else {
-            match c {
-                b'"' | b'\'' | b'`' => in_str = Some(c),
-                // The `>` of an arrow (`=>`) closes nothing.
-                b'>' if i > 0 && bytes[i - 1] == b'=' => {}
-                b'<' | b'(' | b'[' | b'{' => depth += 1,
-                b'>' | b')' | b']' | b'}' => depth -= 1,
-                _ if c == sep && depth == 0 => {
-                    out.push(&s[start..i]);
-                    start = i + 1;
-                }
-                _ => {}
-            }
-        }
-        i += 1;
+    for (at, _) in top_level_letters(s).filter(|(_, letter)| *letter == separator) {
+        parts.push(s.get(start..at).unwrap_or_default());
+        start = at + separator.len_utf8();
     }
-    out.push(&s[start..]);
-    out
+    parts.push(s.get(start..).unwrap_or_default());
+    parts
 }
 
 #[cfg(test)]

@@ -2,9 +2,11 @@
 
 use super::make_decorator;
 use crate::builtin::derive::common::{
-    CompareFieldOptions, DefaultFieldOptions, get_type_default, has_known_default, is_generic_type,
-    is_numeric_type, is_primitive_type, parse_generic_type, primitive_keyword_test, tuple_element,
+    CompareFieldOptions, Declared, DefaultFieldOptions, get_type_default, has_known_default,
+    is_generic_type, is_nullable_type, is_numeric_type, is_primitive_type, parse_generic_type,
+    primitive_keyword_test, tuple_element, undefaultable,
 };
+use crate::ts_syn::abi::ir::TypeRegistry;
 
 #[test]
 fn test_compare_field_skip() {
@@ -79,6 +81,18 @@ fn test_is_numeric_type() {
 }
 
 #[test]
+fn a_grouped_type_defaults_as_the_type_in_it() {
+    assert_eq!(get_type_default("(number | null)"), "null");
+    assert_eq!(get_type_default("((string | undefined))"), "undefined");
+    assert_eq!(get_type_default("((number | null) | null)"), "null");
+    assert_eq!(get_type_default("(number)"), "0");
+    assert_eq!(get_type_default("(string | number)[]"), "[]");
+    assert!(is_nullable_type("(number | null)"));
+    assert!(is_nullable_type("(string | null) | number"));
+    assert!(!is_nullable_type("(number | null)[]"));
+}
+
+#[test]
 fn test_get_type_default() {
     assert_eq!(get_type_default("string"), r#""""#);
     assert_eq!(get_type_default("number"), "0");
@@ -95,26 +109,109 @@ fn test_get_type_default() {
     assert_eq!(get_type_default("Date"), "new Date()");
     // Unknown types call their defaultValue() method (Prefix style)
     assert_eq!(get_type_default("User"), "userDefaultValue()");
-    // Generic type instantiations without a TypeRegistry cannot be resolved,
-    // so they fall back to `undefined`. With a registry, `RecordLink<T>`
-    // expands to its body (`string | T`) and the default flows through the
-    // primitive-or-encodable detector to `"place:holder"`. See
-    // `get_type_default_with_registry` for the resolved path.
-    assert_eq!(get_type_default("RecordLink<Service>"), "undefined");
-    assert_eq!(get_type_default("Result<User, Error>"), "undefined");
-    // Object literal types default to {}
-    assert_eq!(get_type_default("{ [key: string]: number }"), "{}");
-    assert_eq!(get_type_default("{ foo: string; bar: number }"), "{}");
-    assert_eq!(get_type_default("{ [K in keyof T]: V }"), "{}");
+    // A generic type defaults through its own function, as any named type
+    // does, given the same arguments. An alias the registry holds is written
+    // out first: see `get_type_default_with_registry`.
+    assert_eq!(
+        get_type_default("RecordLink<Service>"),
+        "recordLinkDefaultValue<Service>()"
+    );
+    assert_eq!(
+        get_type_default("Result<User, Error>"),
+        "resultDefaultValue<User, Error>()"
+    );
+    // A promise is settled on its value's default.
+    assert_eq!(
+        get_type_default("Promise<string>"),
+        r#"Promise.resolve("")"#
+    );
+    assert_eq!(
+        get_type_default("Promise<void>"),
+        "Promise.resolve(undefined)"
+    );
+    // A boxed primitive takes the primitive's.
+    assert_eq!(get_type_default("String"), r#""""#);
+    assert_eq!(get_type_default("Object"), "({})");
+    // An object type written in place defaults to the members it has to
+    // have, and one that names none to an empty object.
+    assert_eq!(get_type_default("{ [key: string]: number }"), "({})");
+    assert_eq!(
+        get_type_default("{ foo: string; bar: number; later?: Date }"),
+        r#"({ foo: "", bar: 0 })"#
+    );
+    assert_eq!(get_type_default("{ [K in keyof T]: V }"), "({})");
+    // A `Required` or a `NonNullable` defaults as what it wraps.
+    assert_eq!(get_type_default("Required<User>"), "userDefaultValue()");
+    assert_eq!(get_type_default("NonNullable<string | null>"), r#""""#);
+    // A selection of a type the registry does not hold names no field.
+    assert_eq!(get_type_default("Pick<User, 'id'>"), "({})");
+}
+
+#[test]
+fn a_type_no_default_can_be_written_for_is_told_with_why() {
+    let registry = TypeRegistry::default();
+    let declared = Declared {
+        registry: &registry,
+        file_path: "",
+        file_imports: &[],
+    };
+    for (ts_type, why) in [
+        ("keyof Config", "a `keyof` type"),
+        ("typeof seed", "a `typeof` type"),
+        ("Config['mode']", "an indexed access type"),
+        ("this", "the type of whatever value holds it"),
+        ("import('./other').Other", "an inline `import()`"),
+        ("A & B", "an intersection"),
+        ("string & { readonly __brand: 'Id' }", "an intersection"),
+        ("Exclude<'a' | 'b', 'a'>", "a utility type"),
+        ("ReturnType<() => string>", "a utility type"),
+        ("{ [K in 'a' | 'b']: number }", "a mapped type"),
+        ("T extends string ? A : B", "a conditional type"),
+        ("unique symbol", "a symbol only its own declaration makes"),
+        ("never", "a type with no value"),
+        ("URL", "a built-in class with no value to default to"),
+        ("[string, Promise<this>]", "which holds `this`"),
+        ("{ at: URL }", "which holds `URL`"),
+        (
+            "Record<'a' | 'b', keyof Config>",
+            "which holds `keyof Config`",
+        ),
+        ("Readonly<A & B>", "which holds `A & B`"),
+        ("A & B | C", "which holds `A & B`"),
+    ] {
+        let reason = undefaultable(ts_type, declared);
+        assert!(
+            reason.as_deref().is_some_and(|reason| reason.contains(why)),
+            "{ts_type}: {reason:?}"
+        );
+    }
+    for ts_type in [
+        "string",
+        "User",
+        "Box<string>",
+        "Promise<string>",
+        "A & B | null",
+        "string | (A & B)",
+        "[string, URL?]",
+        "{ at?: URL }",
+        "URL[]",
+        "Map<string, URL>",
+        "Record<string, URL>",
+        "symbol",
+        "Error",
+        "WeakMap<object, string>",
+    ] {
+        assert_eq!(undefaultable(ts_type, declared), None, "{ts_type}");
+    }
 }
 
 #[test]
 fn test_get_type_default_object_literal_before_union_split() {
     // Object types containing pipes should not be split as unions
-    assert_eq!(get_type_default("{ a: string | number }"), "{}");
+    assert_eq!(get_type_default("{ a: string | number }"), r#"({ a: "" })"#);
     assert_eq!(
         get_type_default("{ status: \"active\" | \"inactive\" }"),
-        "{}"
+        r#"({ status: "active" })"#
     );
 }
 

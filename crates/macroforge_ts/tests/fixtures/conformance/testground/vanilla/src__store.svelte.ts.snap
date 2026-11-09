@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { structuralDebug as __mf_structuralDebug, instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
 /** @derive(Debug, Clone) */
 export class Store {
     items: string[];
@@ -24,26 +24,28 @@ export class Store {
     }
 
     static toString(value: Store): string {
-        return storeToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("items: " + __mf_structuralDebug(value.items));
+        parts.push("count: " + String(value.count));
+            return "Store { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: Store): Store {
-        return storeClone(value);
+        return __mf_clonedWith(value, () => ({
+        	items: [...value.items],
+        	count: value.count
+        }));
     }
 }
 
 export function storeToString(value: Store): string {
-    const parts: string[] = [];
-    parts.push("items: " + __mf_structuralDebug(value.items));
-    parts.push("count: " + String(value.count));
-    return "Store { " + parts.join(", ") + " }";
+    return Store.toString(value);
 }
 
 export function storeClone(value: Store): Store {
-    return __mf_instanceWith(value, ({
-	items: [...value.items],
-	count: value.count
-}));
+    return Store.clone(value);
 }
 
 ## DTS
@@ -65,18 +67,18 @@ export declare function storeClone(value: Store): Store;
 
 ## Mapping
 
-original 0..203 -> expanded 122..325
-original 203..204 -> expanded 494..495
-original 204..205 -> expanded 888..889
-generated 0..122 <- imports
-generated 325..413 <- Debug
-generated 413..494 <- Clone
-generated 495..745 <- Debug
-generated 745..888 <- Clone
+original 0..203 -> expanded 157..360
+original 203..204 -> expanded 859..860
+original 204..205 -> expanded 1035..1036
+generated 0..157 <- imports
+generated 360..690 <- Debug
+generated 690..859 <- Clone
+generated 860..951 <- Debug
+generated 951..1035 <- Clone
 
 ## Metadata
 
-class Store: {"body_span":{"end":205,"start":49},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":71,"start":55},"ts_type":"string[]","visibility":"Public"},{"decorators":[],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":90,"start":76},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":203,"start":140},"body_src":"\n        this.items = items;\n        this.count = count;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"items: string[], count: number","return_type_src":"","span":{"end":203,"start":96},"type_params":[],"visibility":"Public"}],"name":"Store","span":{"end":205,"start":37},"type_params":[]}
+class Store: {"body_span":{"end":205,"start":49},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":71,"start":55},"ts_type":"string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":90,"start":76},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":203,"start":140},"body_src":"\n        this.items = items;\n        this.count = count;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"items: string[], count: number","return_type_src":"","span":{"end":203,"start":96},"type_params":[],"visibility":"Public"}],"name":"Store","span":{"end":205,"start":37},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

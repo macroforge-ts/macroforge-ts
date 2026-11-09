@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -25,17 +25,15 @@ export class MaxItemsValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MaxItemsValidator.decodeWithContext(data, ctx);
+        const resultOrRef = MaxItemsValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -82,6 +80,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MaxItemsValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MaxItemsValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -94,34 +97,55 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MaxItemsValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MaxItemsValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MaxItemsValidator") as MaxItemsValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "MaxItemsValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
-    }
-    const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(MaxItemsValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MaxItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MaxItemsValidator.items is required" }); } else {
                 if (__raw_items.length > 5) { errors.push({ field: "items", message: "MaxItemsValidator.items must have at most 5 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "MaxItemsValidator.items is required" : "expected Array<string>" });
         }
@@ -129,7 +153,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MaxItemsValidator)) {
+        throw new TypeError("MaxItemsValidator.decodeWithContext: the value made is no MaxItemsValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MaxItemsValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -157,8 +184,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is MaxItemsValidator {
@@ -168,14 +194,20 @@ static is(obj: unknown): obj is MaxItemsValidator {
     if (!MaxItemsValidator.hasShape(obj)) {
         return false;
     }
+
     const result = MaxItemsValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function maxItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MaxItemsValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function maxItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MaxItemsValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -205,17 +237,15 @@ export class MinItemsValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MinItemsValidator.decodeWithContext(data, ctx);
+        const resultOrRef = MinItemsValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -262,6 +292,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MinItemsValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MinItemsValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -274,34 +309,55 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MinItemsValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MinItemsValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MinItemsValidator") as MinItemsValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "MinItemsValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
-    }
-    const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(MinItemsValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MinItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MinItemsValidator.items is required" }); } else {
                 if (__raw_items.length < 2) { errors.push({ field: "items", message: "MinItemsValidator.items must have at least 2 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "MinItemsValidator.items is required" : "expected Array<string>" });
         }
@@ -309,7 +365,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MinItemsValidator)) {
+        throw new TypeError("MinItemsValidator.decodeWithContext: the value made is no MinItemsValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MinItemsValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -337,8 +396,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is MinItemsValidator {
@@ -348,14 +406,20 @@ static is(obj: unknown): obj is MinItemsValidator {
     if (!MinItemsValidator.hasShape(obj)) {
         return false;
     }
+
     const result = MinItemsValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function minItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MinItemsValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function minItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MinItemsValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -385,17 +449,15 @@ export class ItemsCountValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ItemsCountValidator.decodeWithContext(data, ctx);
+        const resultOrRef = ItemsCountValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -442,6 +504,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
     }
 }
 
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ItemsCountValidator.decode(value, opts));
+}
+
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ItemsCountValidator | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -454,34 +521,55 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ItemsCountValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ItemsCountValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ItemsCountValidator") as ItemsCountValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ItemsCountValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
-    }
-    const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(ItemsCountValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ItemsCountValidator");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "ItemsCountValidator.items is required" }); } else {
                 if (__raw_items.length !== 3) { errors.push({ field: "items", message: "ItemsCountValidator.items must have exactly 3 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "ItemsCountValidator.items is required" : "expected Array<string>" });
         }
@@ -489,7 +577,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ItemsCountValidator)) {
+        throw new TypeError("ItemsCountValidator.decodeWithContext: the value made is no ItemsCountValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ItemsCountValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -517,8 +608,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is ItemsCountValidator {
@@ -528,14 +618,20 @@ static is(obj: unknown): obj is ItemsCountValidator {
     if (!ItemsCountValidator.hasShape(obj)) {
         return false;
     }
+
     const result = ItemsCountValidator.decode(obj);
     return result.success;
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function itemsCountValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ItemsCountValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function itemsCountValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ItemsCountValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -570,8 +666,19 @@ export declare class MaxItemsValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MaxItemsValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MaxItemsValidator;
 	} | {
@@ -596,8 +703,19 @@ export declare class MaxItemsValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MaxItemsValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function maxItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MaxItemsValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function maxItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MaxItemsValidator;
 } | {
@@ -622,8 +740,19 @@ export declare class MinItemsValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MinItemsValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MinItemsValidator;
 	} | {
@@ -648,8 +777,19 @@ export declare class MinItemsValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MinItemsValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function minItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MinItemsValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function minItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MinItemsValidator;
 } | {
@@ -674,8 +814,19 @@ export declare class ItemsCountValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ItemsCountValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ItemsCountValidator;
 	} | {
@@ -700,8 +851,19 @@ export declare class ItemsCountValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ItemsCountValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function itemsCountValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ItemsCountValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function itemsCountValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ItemsCountValidator;
 } | {
@@ -726,26 +888,26 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 350..590
-original 240..241 -> expanded 6684..6685
-original 241..396 -> expanded 8602..8757
-original 396..397 -> expanded 14854..14855
-original 397..558 -> expanded 16772..16933
-original 558..559 -> expanded 23083..23084
-original 559..560 -> expanded 25031..25032
-generated 0..350 <- imports
-generated 590..6684 <- Decode
-generated 6685..8602 <- Decode
-generated 8757..14854 <- Decode
-generated 14855..16772 <- Decode
-generated 16933..23083 <- Decode
-generated 23084..25031 <- Decode
+original 0..240 -> expanded 509..749
+original 240..241 -> expanded 8211..8212
+original 241..396 -> expanded 10558..10713
+original 396..397 -> expanded 18178..18179
+original 397..558 -> expanded 20525..20686
+original 558..559 -> expanded 28216..28217
+original 559..560 -> expanded 30599..30600
+generated 0..509 <- imports
+generated 749..8211 <- Decode
+generated 8212..10558 <- Decode
+generated 10713..18178 <- Decode
+generated 18179..20525 <- Decode
+generated 20686..28216 <- Decode
+generated 28217..30599 <- Decode
 
 ## Metadata
 
-class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"type_params":[]}
-class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"type_params":[]}
-class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"type_params":[]}
+class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
+class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
+class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

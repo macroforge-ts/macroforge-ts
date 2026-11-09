@@ -1,0 +1,44 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/unnamed_default_class.ts
+---
+## Input
+
+/** @derive(Debug, Clone) */
+export default class {
+    x: number = 0;
+}
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+Error [5..26]: this `@derive` is on a class without a name, and the functions a derive generates are named after their type, so it would generate nothing
+  help: name the class
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

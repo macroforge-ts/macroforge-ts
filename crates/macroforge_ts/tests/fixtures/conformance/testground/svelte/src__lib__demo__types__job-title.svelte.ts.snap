@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -39,26 +39,20 @@ export function jobTitleEncode(value: JobTitle, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function jobTitleDecode(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Technician':
@@ -101,6 +95,10 @@ export function jobTitleHasShape(value: unknown): boolean {
 
 export function jobTitleIs(value: unknown): value is JobTitle {
     return jobTitleHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function jobTitleFromString(text: string): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => jobTitleDecode(value));
 }
 
 /** Per-variant error types  */
@@ -269,6 +267,7 @@ export const JobTitle: {
   readonly decodeWithContext: typeof jobTitleDecodeWithContext;
   readonly hasShape: typeof jobTitleHasShape;
   readonly is: typeof jobTitleIs;
+  readonly fromString: typeof jobTitleFromString;
   readonly createForm: typeof jobTitleCreateForm;
   readonly fromFormData: typeof jobTitleFromFormData;
 } = {
@@ -279,6 +278,7 @@ export const JobTitle: {
   decodeWithContext: jobTitleDecodeWithContext,
   hasShape: jobTitleHasShape,
   is: jobTitleIs,
+  fromString: jobTitleFromString,
   createForm: jobTitleCreateForm,
   fromFormData: jobTitleFromFormData
 };
@@ -292,7 +292,7 @@ export declare function jobTitleDefaultValue(): JobTitle;
 export declare function jobTitleEncode(value: JobTitle, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function jobTitleDecode(input: unknown): {
 	success: true;
 	value: JobTitle;
@@ -307,6 +307,17 @@ export declare function jobTitleDecode(input: unknown): {
 export declare function jobTitleDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef;
 export declare function jobTitleHasShape(value: unknown): boolean;
 export declare function jobTitleIs(value: unknown): value is JobTitle;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function jobTitleFromString(text: string): {
+	success: true;
+	value: JobTitle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type JobTitleTechnicianErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -394,6 +405,7 @@ export declare const JobTitle: {
 	readonly decodeWithContext: typeof jobTitleDecodeWithContext;
 	readonly hasShape: typeof jobTitleHasShape;
 	readonly is: typeof jobTitleIs;
+	readonly fromString: typeof jobTitleFromString;
 	readonly createForm: typeof jobTitleCreateForm;
 	readonly fromFormData: typeof jobTitleFromFormData;
 };
@@ -404,15 +416,15 @@ export declare const JobTitle: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..247 -> expanded 614..754
-original 247..248 -> expanded 11241..11242
-generated 0..556 <- imports
-generated 754..833 <- Default
-generated 833..2089 <- Encode
-generated 2089..4120 <- Decode
-generated 4120..10451 <- Gigaform
-generated 10451..11241 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..247 -> expanded 769..909
+original 247..248 -> expanded 11928..11929
+generated 0..711 <- imports
+generated 909..988 <- Default
+generated 988..2283 <- Encode
+generated 2283..4723 <- Decode
+generated 4723..11054 <- Gigaform
+generated 11054..11928 <- __convenience_const
 
 ## Metadata
 
@@ -420,7 +432,9 @@ type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 ## Registry reads
 
+Name("Gigaform")
 Name("JobTitle")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

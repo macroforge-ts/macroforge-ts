@@ -1,0 +1,107 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_mixed_values.ts
+---
+## Input
+
+/** @derive(PartialEq, Eq, Hash, PartialOrd, Ord) */
+enum Mixed {
+    Zero = 0,
+    Text = 'text',
+    Five = 5
+}
+
+## Changed
+
+true
+
+## Output
+
+enum Mixed {
+    Zero = 0,
+    Text = 'text',
+    Five = 5
+}
+
+export function mixedEquals(a: Mixed, b: Mixed): boolean {
+    return a === b;
+}
+
+export function mixedHashCode(value: Mixed): number {
+    return typeof value === "string" ? (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0) : (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function mixedPartialCompare(a: Mixed, b: Mixed): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    return typeof a === "number" ? -1 : 1;
+}
+
+export function mixedCompare(a: Mixed, b: Mixed): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    return typeof a === "number" ? -1 : 1;
+}
+
+namespace Mixed {
+  export const equals: typeof mixedEquals = mixedEquals;
+  export const hashCode: typeof mixedHashCode = mixedHashCode;
+  export const partialCompare: typeof mixedPartialCompare = mixedPartialCompare;
+  export const compare: typeof mixedCompare = mixedCompare;
+}
+
+## DTS
+
+declare enum Mixed {
+	Zero = 0,
+	Text = "text",
+	Five = 5
+}
+export declare function mixedEquals(a: Mixed, b: Mixed): boolean;
+export declare function mixedHashCode(value: Mixed): number;
+export declare function mixedPartialCompare(a: Mixed, b: Mixed): number | null;
+export declare function mixedCompare(a: Mixed, b: Mixed): number;
+declare namespace Mixed {
+	const equals: typeof mixedEquals;
+	const hashCode: typeof mixedHashCode;
+	const partialCompare: typeof mixedPartialCompare;
+	const compare: typeof mixedCompare;
+}
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 52..113 -> expanded 0..61
+original 113..114 -> expanded 1389..1390
+generated 61..143 <- PartialEq
+generated 143..453 <- Hash
+generated 453..787 <- PartialOrd
+generated 787..1107 <- Ord
+generated 1107..1389 <- __convenience_const
+
+## Metadata
+
+enum Mixed: {"body_span":{"end":114,"start":65},"decorators":[{"args_src":"PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":53,"start":1}}],"is_const":false,"is_declare":false,"name":"Mixed","span":{"end":114,"start":54},"variants":[{"decorators":[],"name":"Zero","span":{"end":79,"start":71},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":98,"start":85},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":112,"start":104},"value":{"Number":5.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

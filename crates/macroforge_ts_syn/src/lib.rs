@@ -21,7 +21,7 @@
 //! - [`jsdoc`] - JSDoc directive parsing used by lowering
 //! - [`lower`] - AST lowering from OXC types to IR representations
 //! - [`stream`] - Parsing stream abstraction similar to `syn::parse::ParseBuffer`
-//! - [`type_normalize`] - Helpers for splitting TS type-string snippets into structural pieces
+//! - [`type_normalize`] - Classifies the base names of TS type-string snippets
 //!
 //! ## Architecture
 //!
@@ -100,7 +100,12 @@ pub mod errors;
 pub mod import_registry;
 pub mod jsdoc;
 pub mod lower;
+pub mod preamble;
 mod quote_helpers;
+pub mod scan;
+pub mod source_path;
+#[cfg(any(test, feature = "proptest"))]
+pub mod strategies;
 pub mod stream;
 pub mod type_normalize;
 
@@ -112,9 +117,11 @@ pub use import_registry::{
     with_registry, with_registry_mut,
 };
 pub use lower::{
-    collect_exported_names, lower_classes, lower_enums, lower_functions, lower_interfaces,
-    lower_targets, lower_type_aliases,
+    collect_export_aliases, collect_exported_names, collect_re_exports, initializer_type,
+    lower_classes, lower_enums, lower_functions, lower_interfaces, lower_targets,
+    lower_type_aliases,
 };
+pub use preamble::preamble_end;
 pub use quote_helpers::{
     QuoteArena, ToAssignTargetSource, ToExprSource, ToIdentSource, ToPatSource,
     ToStringLiteralSource, ToTypeSource, assignment_target_to_string, binding_pattern_to_string,

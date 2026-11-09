@@ -3,7 +3,7 @@
         {
             "name": "@macroforge/shared",
             "version": "0.6.0",
-            "exportCount": 20
+            "exportCount": 29
         },
         {
             "name": "@macroforge/vite-plugin",

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -49,63 +49,64 @@ export function scheduleSettingsEncode(value: ScheduleSettings, keepMetadata?: b
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return scheduleSettingsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function scheduleSettingsEncodePartialWithContext(value: Partial<ScheduleSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScheduleSettings>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "ScheduleSettings",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("daysPerWeek")) {
-
-        if (value.daysPerWeek !== undefined) {
-            result.daysPerWeek = value.daysPerWeek;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rowHeight")) {
-
-        if (value.rowHeight !== undefined) {
-            result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("visibleRoutes")) {
-
-        if (value.visibleRoutes !== undefined) {
-            result.visibleRoutes = value.visibleRoutes;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("detailedCards")) {
-
-        if (value.detailedCards !== undefined) {
-            result.detailedCards = value.detailedCards;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ScheduleSettings" });
+    scheduleSettingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function scheduleSettingsEncodePartialWithContext(value: Partial<ScheduleSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScheduleSettings>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ScheduleSettings" };
+        scheduleSettingsEncodeFields(value as ScheduleSettings, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("daysPerWeek")) {
+                if (value.daysPerWeek !== undefined) {
+                    result["daysPerWeek"] = value.daysPerWeek;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rowHeight")) {
+                if (value.rowHeight !== undefined) {
+                    result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("visibleRoutes")) {
+                if (value.visibleRoutes !== undefined) {
+                    result["visibleRoutes"] = value.visibleRoutes;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("detailedCards")) {
+                if (value.detailedCards !== undefined) {
+                    result["detailedCards"] = value.detailedCards;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
+        const resultOrRef = scheduleSettingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -151,6 +152,10 @@ export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function scheduleSettingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => scheduleSettingsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScheduleSettings | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -163,84 +168,107 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ScheduleSettings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ScheduleSettings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ScheduleSettings") as ScheduleSettings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "ScheduleSettings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("daysPerWeek")) && !("daysPerWeek" in obj)) {
-        errors.push({ field: "daysPerWeek", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rowHeight")) && !("rowHeight" in obj)) {
-        errors.push({ field: "rowHeight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("visibleRoutes")) && !("visibleRoutes" in obj)) {
-        errors.push({ field: "visibleRoutes", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("detailedCards")) && !("detailedCards" in obj)) {
-        errors.push({ field: "detailedCards", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["daysPerWeek", "daysPerWeek"], ["rowHeight", "rowHeight"], ["visibleRoutes", "visibleRoutes"], ["detailedCards", "detailedCards"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "daysPerWeek"?: number | undefined; "rowHeight"?: RowHeight | undefined; "visibleRoutes"?: Array<string> | undefined; "detailedCards"?: boolean | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ScheduleSettings");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("daysPerWeek")) || (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
-        const __raw_daysPerWeek = obj["daysPerWeek"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
+                const __raw_daysPerWeek = obj["daysPerWeek"] as number;
 
-        if (!(typeof __raw_daysPerWeek === "number")) {
-            errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
-        } else {
-            instance.daysPerWeek = __raw_daysPerWeek;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rowHeight")) || (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
-        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
-
-        ctx.pushScope("rowHeight");
-        try {
-            const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, "rowHeight", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_daysPerWeek === "number" && globalThis.Number.isFinite(__raw_daysPerWeek))) {
+                    errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
+                } else {
+                    instance.daysPerWeek = __raw_daysPerWeek;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("visibleRoutes")) || (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
-        const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+                const __raw_rowHeight = obj["rowHeight"] as RowHeight;
 
-        if (Array.isArray(__raw_visibleRoutes)) {
-            instance.visibleRoutes = __raw_visibleRoutes as string[];
-        } else {
-            errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("detailedCards")) || (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
-        const __raw_detailedCards = obj["detailedCards"] as boolean;
+                ctx.pushScope("rowHeight");
+                try {
+                    const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
+                    ctx.assignOrDefer(instance, "rowHeight", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        if (!(typeof __raw_detailedCards === "boolean")) {
-            errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
-        } else {
-            instance.detailedCards = __raw_detailedCards;
-        }
+                        errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("visibleRoutes")) ? "visibleRoutes" in obj : (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
+                const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
+                if (Array.isArray(__raw_visibleRoutes)) {
+                    ctx.pushScope("visibleRoutes");
+                    try {
+                        instance.visibleRoutes = __mf_decodeArray(__raw_visibleRoutes, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "visibleRoutes" : "visibleRoutes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("detailedCards")) ? "detailedCards" in obj : (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
+                const __raw_detailedCards = obj["detailedCards"] as boolean;
+
+                if (!(typeof __raw_detailedCards === "boolean")) {
+                    errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
+                } else {
+                    instance.detailedCards = __raw_detailedCards;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -265,8 +293,7 @@ export function scheduleSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;
+    return __mf_holdsAll(obj, ["daysPerWeek", "rowHeight", "visibleRoutes", "detailedCards"]);
 }
 
 export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
@@ -501,6 +528,7 @@ export const ScheduleSettings: {
   readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
   readonly encodePartialWithContext: typeof scheduleSettingsEncodePartialWithContext;
   readonly decode: typeof scheduleSettingsDecode;
+  readonly fromString: typeof scheduleSettingsFromString;
   readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
   readonly decodePartialWithContext: typeof scheduleSettingsDecodePartialWithContext;
   readonly validateField: typeof scheduleSettingsValidateField;
@@ -515,6 +543,7 @@ export const ScheduleSettings: {
   encodeWithContext: scheduleSettingsEncodeWithContext,
   encodePartialWithContext: scheduleSettingsEncodePartialWithContext,
   decode: scheduleSettingsDecode,
+  fromString: scheduleSettingsFromString,
   decodeWithContext: scheduleSettingsDecodeWithContext,
   decodePartialWithContext: scheduleSettingsDecodePartialWithContext,
   validateField: scheduleSettingsValidateField,
@@ -540,10 +569,21 @@ export declare function scheduleSettingsDefaultValue(): ScheduleSettings;
 export declare function scheduleSettingsEncode(value: ScheduleSettings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function scheduleSettingsEncodePartialWithContext(value: Partial<ScheduleSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScheduleSettings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ScheduleSettings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function scheduleSettingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ScheduleSettings;
 } | {
@@ -616,6 +656,7 @@ export declare const ScheduleSettings: {
 	readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
 	readonly encodePartialWithContext: typeof scheduleSettingsEncodePartialWithContext;
 	readonly decode: typeof scheduleSettingsDecode;
+	readonly fromString: typeof scheduleSettingsFromString;
 	readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
 	readonly decodePartialWithContext: typeof scheduleSettingsDecodePartialWithContext;
 	readonly validateField: typeof scheduleSettingsValidateField;
@@ -632,28 +673,30 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 758..871
-original 162..228 -> expanded 871..937
-original 253..343 -> expanded 937..1027
-original 343..344 -> expanded 22465..22466
-generated 0..758 <- imports
-generated 1027..1227 <- Default
-generated 1227..3726 <- Encode
-generated 3726..11926 <- Decode
-generated 11926..20983 <- Gigaform
-generated 20983..22465 <- __convenience_const
+original 0..113 -> expanded 1030..1143
+original 162..228 -> expanded 1143..1209
+original 253..343 -> expanded 1209..1299
+original 343..344 -> expanded 25245..25246
+generated 0..1030 <- imports
+generated 1299..1499 <- Default
+generated 1499..4699 <- Encode
+generated 4699..14606 <- Decode
+generated 14606..23663 <- Gigaform
+generated 23663..25245 <- __convenience_const
 
 ## Metadata
 
-interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":163,"start":114}}],"fields":[{"decorators":[],"name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":224,"start":204},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":254,"start":229}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":280,"start":259},"ts_type":"RowHeight"},{"decorators":[],"name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":314,"start":285},"ts_type":"Array<string>"},{"decorators":[],"name":"detailedCards","optional":false,"readonly":false,"span":{"end":342,"start":319},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":344,"start":171},"type_params":[]}
+interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":163,"start":114}}],"fields":[{"decorators":[],"key":"Named","name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":224,"start":204},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":254,"start":229}}],"key":"Named","name":"rowHeight","optional":false,"readonly":false,"span":{"end":280,"start":259},"ts_type":"RowHeight"},{"decorators":[],"key":"Named","name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":314,"start":285},"ts_type":"Array<string>"},{"decorators":[],"key":"Named","name":"detailedCards","optional":false,"readonly":false,"span":{"end":342,"start":319},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":344,"start":171},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("RowHeight")
 Name("boolean")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

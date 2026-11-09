@@ -43,6 +43,7 @@
 mod args;
 mod field_options;
 mod ordering;
+mod property;
 mod registry_helpers;
 mod type_names;
 mod type_utils;
@@ -51,24 +52,36 @@ mod value_type;
 #[cfg(test)]
 mod tests;
 
-pub(crate) use args::find_named_value;
 pub use args::{
-    bigint_literal, extract_named_string, has_flag, js_string, parse_string_literal, regex_literal,
+    DecoratorOption, OptionValue, bigint_literal, decorator_options, extract_named_string,
+    has_flag, js_string, js_string_text, parse_string_literal, regex_error, regex_literal,
+    whole_string_literal,
 };
+pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items};
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
+pub use property::{
+    Member, is_identifier_name, local_name_part, mentions, parameter_name, property_key,
+};
 pub use registry_helpers::{
-    collection_element_type, fields_from_definition, flatten_intersection_fields,
-    get_effective_fields, resolved_type_has_derive, standalone_fn_name, type_has_derive,
+    ClassUse, Declared, InheritedStatics, class_instance_fields, collection_element_type,
+    declared_type_has_derive, derive_alias_fields, derive_class_fields, derive_interface_fields,
+    entry_derives, fields_from_definition, flatten_intersection_fields, get_effective_fields,
+    inherited_statics, interface_instance_fields, resolved_type_has_derive, standalone_fn_name,
+    type_has_derive,
 };
 pub(crate) use type_names::TypeNames;
+pub use type_names::function_prefix;
+pub(crate) use type_utils::is_function_type;
 pub use type_utils::{
-    EnumValueKinds, array_element_type, detect_primitive_encodable_union, get_type_default,
-    get_type_default_with_registry, has_known_default, is_generic_type, is_nullable_type,
-    is_numeric_type, is_primitive_type, parse_generic_type, primitive_compare_statements,
-    primitive_keyword_test, tuple_compare_statements, tuple_element,
+    EnumValueKinds, MAX_TYPE_DEPTH, array_element_type, detect_primitive_encodable_union,
+    get_type_default, get_type_default_with_registry, has_known_default, is_generic_type,
+    is_nullable_type, is_numeric_type, is_primitive_type, parse_generic_type,
+    primitive_compare_statements, primitive_keyword_test, record_key_texts, tuple_body,
+    tuple_compare_statements, tuple_element, undefaultable, undefined_as_null, ungrouped,
 };
 pub use value_type::{
-    Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, field_value_type,
-    fixed_tuple, is_primitive_union, rendered, structural_call, structural_helper,
+    Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, each_on_its_own,
+    field_value_type, first_order, fixed_tuple, is_primitive_union, rendered, structural_call,
+    structural_callee, structural_helper,
 };

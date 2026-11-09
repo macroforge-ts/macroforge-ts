@@ -13,7 +13,7 @@ true
 ## Output
 
 import { productDefaultsDecodeWithContext, productDefaultsEncodeWithContext, productDefaultsDefaultValue } from "./product-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,99 +71,106 @@ export function productEncode(value: Product, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return productEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Product",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("quickCode")) {
-
-        if (value.quickCode !== undefined) {
-            result.quickCode = value.quickCode;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("group")) {
-        if (value.group !== undefined) {
-
-            result.group = value.group;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("subgroup")) {
-        if (value.subgroup !== undefined) {
-
-            result.subgroup = value.subgroup;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("unit")) {
-        if (value.unit !== undefined) {
-
-            result.unit = value.unit;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("active")) {
-
-        if (value.active !== undefined) {
-            result.active = value.active;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("commission")) {
-
-        if (value.commission !== undefined) {
-            result.commission = value.commission;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("favorite")) {
-
-        if (value.favorite !== undefined) {
-            result.favorite = value.favorite;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("defaults")) {
-
-        if (value.defaults !== undefined) {
-            result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Product" });
+    productEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Product" };
+        productEncodeFields(value as Product, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function productEncodeFields(value: Product, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("quickCode")) {
+                if (value.quickCode !== undefined) {
+                    result["quickCode"] = value.quickCode;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("group")) {
+                if (value.group !== undefined) {
+                    result["group"] = value.group;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("subgroup")) {
+                if (value.subgroup !== undefined) {
+                    result["subgroup"] = value.subgroup;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("unit")) {
+                if (value.unit !== undefined) {
+                    result["unit"] = value.unit;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("active")) {
+                if (value.active !== undefined) {
+                    result["active"] = value.active;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("commission")) {
+                if (value.commission !== undefined) {
+                    result["commission"] = value.commission;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("favorite")) {
+                if (value.favorite !== undefined) {
+                    result["favorite"] = value.favorite;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("defaults")) {
+                if (value.defaults !== undefined) {
+                    result["defaults"] = productDefaultsEncodeWithContext(value.defaults, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = productDecodeWithContext(data, ctx);
+        const resultOrRef = productDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -209,6 +216,10 @@ export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function productFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => productDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -221,162 +232,164 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Product.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Product | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Product") as Product | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("quickCode")) && !("quickCode" in obj)) {
-        errors.push({ field: "quickCode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("group")) && !("group" in obj)) {
-        errors.push({ field: "group", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) && !("subgroup" in obj)) {
-        errors.push({ field: "subgroup", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("unit")) && !("unit" in obj)) {
-        errors.push({ field: "unit", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("commission")) && !("commission" in obj)) {
-        errors.push({ field: "commission", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) && !("favorite" in obj)) {
-        errors.push({ field: "favorite", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("defaults")) && !("defaults" in obj)) {
-        errors.push({ field: "defaults", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["name", "name"], ["quickCode", "quickCode"], ["group", "group"], ["subgroup", "subgroup"], ["unit", "unit"], ["active", "active"], ["commission", "commission"], ["favorite", "favorite"], ["defaults", "defaults"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "quickCode"?: string | undefined; "group"?: string | null | undefined; "subgroup"?: string | null | undefined; "unit"?: string | null | undefined; "active"?: boolean | undefined; "commission"?: boolean | undefined; "favorite"?: boolean | undefined; "defaults"?: ProductDefaults | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Product");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Product.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Product.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
-            }
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("quickCode")) || (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
-        const __raw_quickCode = obj["quickCode"] as string;
-
-        if (!(typeof __raw_quickCode === "string")) {
-            errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Product.quickCode is required" : "expected string" });
-        } else {
-            if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
-                if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
-            }
-            instance.quickCode = __raw_quickCode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("group")) || (__fields.keeps("group") && obj["group"] !== undefined)) {
-        const __raw_group = obj["group"] as string | null;
-
-        if (!(typeof __raw_group === "string" || __raw_group === null)) {
-            errors.push({ field: "group", message: "expected string | null" });
-        } else {
-            instance.group = __raw_group;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) || (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
-        const __raw_subgroup = obj["subgroup"] as string | null;
-
-        if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
-            errors.push({ field: "subgroup", message: "expected string | null" });
-        } else {
-            instance.subgroup = __raw_subgroup;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("unit")) || (__fields.keeps("unit") && obj["unit"] !== undefined)) {
-        const __raw_unit = obj["unit"] as string | null;
-
-        if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
-            errors.push({ field: "unit", message: "expected string | null" });
-        } else {
-            instance.unit = __raw_unit;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Product.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("commission")) || (__fields.keeps("commission") && obj["commission"] !== undefined)) {
-        const __raw_commission = obj["commission"] as boolean;
-
-        if (!(typeof __raw_commission === "boolean")) {
-            errors.push({ field: "commission", message: __raw_commission == null ? "Product.commission is required" : "expected boolean" });
-        } else {
-            instance.commission = __raw_commission;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) || (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
-        const __raw_favorite = obj["favorite"] as boolean;
-
-        if (!(typeof __raw_favorite === "boolean")) {
-            errors.push({ field: "favorite", message: __raw_favorite == null ? "Product.favorite is required" : "expected boolean" });
-        } else {
-            instance.favorite = __raw_favorite;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("defaults")) || (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
-        const __raw_defaults = obj["defaults"] as ProductDefaults;
-
-        ctx.pushScope("defaults");
-        try {
-            const __result = productDefaultsDecodeWithContext(__raw_defaults, ctx);
-            ctx.assignOrDefer(instance, "defaults", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Product.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Product.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("quickCode")) ? "quickCode" in obj : (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
+                const __raw_quickCode = obj["quickCode"] as string;
+
+                if (!(typeof __raw_quickCode === "string")) {
+                    errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Product.quickCode is required" : "expected string" });
+                } else {
+                    if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+                        if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
+                    }
+                    instance.quickCode = __raw_quickCode;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
+                const __raw_group = obj["group"] as string | null;
+
+                if (!(typeof __raw_group === "string" || __raw_group === null)) {
+                    errors.push({ field: "group", message: "expected string | null" });
+                } else {
+                    instance.group = __raw_group;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
+                const __raw_subgroup = obj["subgroup"] as string | null;
+
+                if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
+                    errors.push({ field: "subgroup", message: "expected string | null" });
+                } else {
+                    instance.subgroup = __raw_subgroup;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("unit")) ? "unit" in obj : (__fields.keeps("unit") && obj["unit"] !== undefined)) {
+                const __raw_unit = obj["unit"] as string | null;
+
+                if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
+                    errors.push({ field: "unit", message: "expected string | null" });
+                } else {
+                    instance.unit = __raw_unit;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
+
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Product.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("commission")) ? "commission" in obj : (__fields.keeps("commission") && obj["commission"] !== undefined)) {
+                const __raw_commission = obj["commission"] as boolean;
+
+                if (!(typeof __raw_commission === "boolean")) {
+                    errors.push({ field: "commission", message: __raw_commission == null ? "Product.commission is required" : "expected boolean" });
+                } else {
+                    instance.commission = __raw_commission;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
+                const __raw_favorite = obj["favorite"] as boolean;
+
+                if (!(typeof __raw_favorite === "boolean")) {
+                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Product.favorite is required" : "expected boolean" });
+                } else {
+                    instance.favorite = __raw_favorite;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("defaults")) ? "defaults" in obj : (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
+                const __raw_defaults = obj["defaults"] as ProductDefaults;
+
+                ctx.pushScope("defaults");
+                try {
+                    const __result = productDefaultsDecodeWithContext(__raw_defaults, ctx);
+                    ctx.assignOrDefer(instance, "defaults", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "defaults", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -425,8 +438,7 @@ export function productHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "quickCode" in o && "group" in o && "subgroup" in o && "unit" in o && "active" in o && "commission" in o && "favorite" in o && "defaults" in o;
+    return __mf_holdsAll(obj, ["id", "name", "quickCode", "group", "subgroup", "unit", "active", "commission", "favorite", "defaults"]);
 }
 
 export function productIs(obj: unknown): obj is Product {
@@ -825,6 +837,7 @@ export const Product: {
   readonly encodeWithContext: typeof productEncodeWithContext;
   readonly encodePartialWithContext: typeof productEncodePartialWithContext;
   readonly decode: typeof productDecode;
+  readonly fromString: typeof productFromString;
   readonly decodeWithContext: typeof productDecodeWithContext;
   readonly decodePartialWithContext: typeof productDecodePartialWithContext;
   readonly validateField: typeof productValidateField;
@@ -839,6 +852,7 @@ export const Product: {
   encodeWithContext: productEncodeWithContext,
   encodePartialWithContext: productEncodePartialWithContext,
   decode: productDecode,
+  fromString: productFromString,
   decodeWithContext: productDecodeWithContext,
   decodePartialWithContext: productDecodePartialWithContext,
   validateField: productValidateField,
@@ -870,10 +884,21 @@ export declare function productDefaultValue(): Product;
 export declare function productEncode(value: Product, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function productDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Product;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function productFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Product;
 } | {
@@ -964,6 +989,7 @@ export declare const Product: {
 	readonly encodeWithContext: typeof productEncodeWithContext;
 	readonly encodePartialWithContext: typeof productEncodePartialWithContext;
 	readonly decode: typeof productDecode;
+	readonly fromString: typeof productFromString;
 	readonly decodeWithContext: typeof productDecodeWithContext;
 	readonly decodePartialWithContext: typeof productDecodePartialWithContext;
 	readonly validateField: typeof productValidateField;
@@ -980,36 +1006,38 @@ export declare const Product: {
 
 ## Mapping
 
-original 0..125 -> expanded 783..908
-original 174..206 -> expanded 908..940
-original 234..255 -> expanded 940..961
-original 296..301 -> expanded 961..966
-original 342..365 -> expanded 966..989
-original 412..417 -> expanded 989..994
-original 458..486 -> expanded 994..1022
-original 551..582 -> expanded 1022..1053
-original 650..684 -> expanded 1053..1087
-original 748..778 -> expanded 1087..1117
-original 823..849 -> expanded 1117..1143
-original 898..928 -> expanded 1143..1173
-original 975..1031 -> expanded 1173..1229
-original 1031..1032 -> expanded 33601..33602
-generated 0..783 <- imports
-generated 1229..1547 <- Default
-generated 1547..4868 <- Encode
-generated 4868..18093 <- Decode
-generated 18093..32362 <- Gigaform
-generated 32362..33601 <- __convenience_const
+original 0..125 -> expanded 987..1112
+original 174..206 -> expanded 1112..1144
+original 234..255 -> expanded 1144..1165
+original 296..301 -> expanded 1165..1170
+original 342..365 -> expanded 1170..1193
+original 412..417 -> expanded 1193..1198
+original 458..486 -> expanded 1198..1226
+original 551..582 -> expanded 1226..1257
+original 650..684 -> expanded 1257..1291
+original 748..778 -> expanded 1291..1321
+original 823..849 -> expanded 1321..1347
+original 898..928 -> expanded 1347..1377
+original 975..1031 -> expanded 1377..1433
+original 1031..1032 -> expanded 35759..35760
+generated 0..987 <- imports
+generated 1433..1751 <- Default
+generated 1751..6142 <- Encode
+generated 6142..20169 <- Decode
+generated 20169..34438 <- Gigaform
+generated 34438..35759 <- __convenience_const
 
 ## Metadata
 
-interface Product: {"body_span":{"end":1032,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":749,"start":685}}],"name":"unit","optional":false,"readonly":false,"span":{"end":774,"start":754},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":824,"start":779}}],"name":"active","optional":false,"readonly":false,"span":{"end":845,"start":829},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":899,"start":850}}],"name":"commission","optional":false,"readonly":false,"span":{"end":924,"start":904},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":976,"start":929}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":999,"start":981},"ts_type":"boolean"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1030,"start":1004},"ts_type":"ProductDefaults"}],"heritage":[],"methods":[],"name":"Product","span":{"end":1032,"start":183},"type_params":[]}
+interface Product: {"body_span":{"end":1032,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"key":"Named","name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"key":"Named","name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"key":"Named","name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":749,"start":685}}],"key":"Named","name":"unit","optional":false,"readonly":false,"span":{"end":774,"start":754},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":824,"start":779}}],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":845,"start":829},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":899,"start":850}}],"key":"Named","name":"commission","optional":false,"readonly":false,"span":{"end":924,"start":904},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":976,"start":929}}],"key":"Named","name":"favorite","optional":false,"readonly":false,"span":{"end":999,"start":981},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"defaults","optional":false,"readonly":false,"span":{"end":1030,"start":1004},"ts_type":"ProductDefaults"}],"heritage":[],"methods":[],"name":"Product","span":{"end":1032,"start":183},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("ProductDefaults")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

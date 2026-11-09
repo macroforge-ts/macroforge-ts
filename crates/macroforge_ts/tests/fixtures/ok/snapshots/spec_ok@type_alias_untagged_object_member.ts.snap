@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -36,32 +36,45 @@ export function linkEncode(value: Link, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Link): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["id"] = value.id;
+                },
+                () => {
+                    if (value.label !== undefined) {
+                        result["label"] = value.label;
+                    }
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = linkDecodeWithContext(data, ctx);
+        const resultOrRef = linkDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -107,6 +120,10 @@ export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function linkFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => linkDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Link | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -120,11 +137,11 @@ export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if (typeof value === "string") {
         return value as Link;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const __result: Record<string, unknown> = {};
-        __result["id"] = (value as any)["id"];
-        if ("label" in value) __result["label"] = (value as any)["label"];
-        return __result as Link;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) ? __mf_decodeObject(value, ctx, { id: __mf_decodeString, label: __mf_decodeString }, ["label"]) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Link;
     }
 
     throw new __mf_DecodeError([{
@@ -134,17 +151,22 @@ export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 }
 export function linkHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function linkIs(value: unknown): value is Link {
-    return linkHasShape(value);
+    return linkHasShape(value) && linkDecode(value).success;
 }
 
 export const Link: {
   readonly encode: typeof linkEncode;
   readonly encodeWithContext: typeof linkEncodeWithContext;
   readonly decode: typeof linkDecode;
+  readonly fromString: typeof linkFromString;
   readonly decodeWithContext: typeof linkDecodeWithContext;
   readonly hasShape: typeof linkHasShape;
   readonly is: typeof linkIs;
@@ -152,6 +174,7 @@ export const Link: {
   encode: linkEncode,
   encodeWithContext: linkEncodeWithContext,
   decode: linkDecode,
+  fromString: linkFromString,
   decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
@@ -167,8 +190,19 @@ export type Link = string | {
 export declare function linkEncode(value: Link, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function linkDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Link;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function linkFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Link;
 } | {
@@ -186,6 +220,7 @@ export declare const Link: {
 	readonly encode: typeof linkEncode;
 	readonly encodeWithContext: typeof linkEncodeWithContext;
 	readonly decode: typeof linkDecode;
+	readonly fromString: typeof linkFromString;
 	readonly decodeWithContext: typeof linkDecodeWithContext;
 	readonly hasShape: typeof linkHasShape;
 	readonly is: typeof linkIs;
@@ -197,17 +232,17 @@ export declare const Link: {
 
 ## Mapping
 
-original 0..185 -> expanded 397..582
-original 215..275 -> expanded 582..642
-original 275..276 -> expanded 5122..5123
-generated 0..397 <- imports
-generated 642..1878 <- Encode
-generated 1878..4652 <- Decode
-generated 4652..5122 <- __convenience_const
+original 0..185 -> expanded 715..900
+original 215..275 -> expanded 900..960
+original 275..276 -> expanded 6978..6979
+generated 0..715 <- imports
+generated 960..2912 <- Encode
+generated 2912..6432 <- Decode
+generated 6432..6978 <- __convenience_const
 
 ## Metadata
 
-type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":258,"start":247},"ts_type":"string"},{"decorators":[],"name":"label","optional":true,"readonly":false,"span":{"end":273,"start":259},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":216,"start":186}}],"name":"Link","span":{"end":276,"start":224},"type_params":[]}
+type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":258,"start":247},"ts_type":"string"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":273,"start":259},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":216,"start":186}}],"name":"Link","span":{"end":276,"start":224},"type_params":[]}
 
 ## Registry reads
 

@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { metersDecode, metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
@@ -37,53 +37,50 @@ export function tripEncode(value: Trip, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return tripEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Trip",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("leg")) {
-
-        if (value.leg !== undefined) {
-            result.leg = metersEncodeWithContext(value.leg, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("legs")) {
-
-        if (value.legs !== undefined) {
-            result.legs = value.legs.map(
-                (item) => metersEncodeWithContext(item, ctx)
-            );
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Trip" });
+    tripEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Trip" };
+        tripEncodeFields(value as Trip, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function tripEncodeFields(value: Trip, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("leg")) {
+                if (value.leg !== undefined) {
+                    result["leg"] = metersEncodeWithContext(value.leg, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("legs")) {
+                if (value.legs !== undefined) {
+                    result["legs"] = value.legs.map((__item0) => metersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Trip } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = tripDecodeWithContext(data, ctx);
+        const resultOrRef = tripDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -129,6 +126,10 @@ export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tripFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Trip } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tripDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Trip | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -141,86 +142,85 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Trip.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Trip | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Trip") as Trip | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Trip.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("leg")) && !("leg" in obj)) {
-        errors.push({ field: "leg", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("legs")) && !("legs" in obj)) {
-        errors.push({ field: "legs", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["leg", "leg"], ["legs", "legs"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "leg"?: Meters | undefined; "legs"?: Meters[] | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Trip");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("leg")) || (__fields.keeps("leg") && obj["leg"] !== undefined)) {
-        const __raw_leg = obj["leg"] as Meters;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("leg")) ? "leg" in obj : (__fields.keeps("leg") && obj["leg"] !== undefined)) {
+                const __raw_leg = obj["leg"] as Meters;
 
-        ctx.pushScope("leg");
-        try {
-            const __result = metersDecodeWithContext(__raw_leg, ctx);
-            ctx.assignOrDefer(instance, "leg", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "leg" : "leg." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("leg");
+                try {
+                    const __result = metersDecodeWithContext(__raw_leg, ctx);
+                    ctx.assignOrDefer(instance, "leg", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "leg" : "leg." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "leg", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("legs")) || (__fields.keeps("legs") && obj["legs"] !== undefined)) {
-        const __raw_legs = obj["legs"] as Meters[];
-
-        if (Array.isArray(__raw_legs)) {
-            const __arr = __raw_legs.map((item: Meters | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("legs")) ? "legs" in obj : (__fields.keeps("legs") && obj["legs"] !== undefined)) {
+                const __raw_legs = obj["legs"] as Meters[];
+                if (Array.isArray(__raw_legs)) {
+                    ctx.pushScope("legs");
+                    try {
+                        instance.legs = __mf_decodeArray(__raw_legs, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "legs" : "legs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                    return result;
+                } else {
+                    errors.push({ field: "legs", message: __raw_legs == null ? "Trip.legs is required" : "expected Meters[]" });
                 }
-                const __elemResult = metersDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
-                        errors.push({
-                            field: __err.field === "_root"
-                                ? "legs[" + idx + "]"
-                                : "legs[" + idx + "]." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.legs = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.legs, idx, (item as any).__refId);
-                }
-            });
-        } else {
-            errors.push({ field: "legs", message: __raw_legs == null ? "Trip.legs is required" : "expected Meters[]" });
-        }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -245,8 +245,7 @@ export function tripHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "leg" in o && "legs" in o;
+    return __mf_holdsAll(obj, ["leg", "legs"]);
 }
 
 export function tripIs(obj: unknown): obj is Trip {
@@ -258,6 +257,7 @@ export const Trip: {
   readonly encodeWithContext: typeof tripEncodeWithContext;
   readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
   readonly decode: typeof tripDecode;
+  readonly fromString: typeof tripFromString;
   readonly decodeWithContext: typeof tripDecodeWithContext;
   readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
   readonly validateField: typeof tripValidateField;
@@ -269,6 +269,7 @@ export const Trip: {
   encodeWithContext: tripEncodeWithContext,
   encodePartialWithContext: tripEncodePartialWithContext,
   decode: tripDecode,
+  fromString: tripFromString,
   decodeWithContext: tripDecodeWithContext,
   decodePartialWithContext: tripDecodePartialWithContext,
   validateField: tripValidateField,
@@ -303,10 +304,21 @@ export interface Trip {
 export declare function tripEncode(value: Trip, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function tripDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Trip;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tripFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Trip;
 } | {
@@ -337,6 +349,7 @@ export declare const Trip: {
 	readonly encodeWithContext: typeof tripEncodeWithContext;
 	readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
 	readonly decode: typeof tripDecode;
+	readonly fromString: typeof tripFromString;
 	readonly decodeWithContext: typeof tripDecodeWithContext;
 	readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
 	readonly validateField: typeof tripValidateField;
@@ -353,20 +366,22 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 594..918
-original 324..674 -> expanded 11239..11589
-generated 0..594 <- imports
-generated 918..2940 <- Encode
-generated 2940..10325 <- Decode
-generated 10325..11239 <- __convenience_const
+original 0..324 -> expanded 817..1141
+original 324..674 -> expanded 12364..12714
+generated 0..817 <- imports
+generated 1141..3642 <- Encode
+generated 3642..11374 <- Decode
+generated 11374..12364 <- __convenience_const
 
 ## Metadata
 
-interface Trip: {"body_span":{"end":325,"start":285},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":262,"start":232}}],"fields":[{"decorators":[],"name":"leg","optional":false,"readonly":false,"span":{"end":303,"start":291},"ts_type":"Meters"},{"decorators":[],"name":"legs","optional":false,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Meters[]"}],"heritage":[],"methods":[],"name":"Trip","span":{"end":325,"start":270},"type_params":[]}
+interface Trip: {"body_span":{"end":325,"start":285},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":262,"start":232}}],"fields":[{"decorators":[],"key":"Named","name":"leg","optional":false,"readonly":false,"span":{"end":303,"start":291},"ts_type":"Meters"},{"decorators":[],"key":"Named","name":"legs","optional":false,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Meters[]"}],"heritage":[],"methods":[],"name":"Trip","span":{"end":325,"start":270},"type_params":[]}
 
 ## Registry reads
 
 Name("Meters")
+Name("Run")
+Name("Username")
 
 ## Buildtime dependencies
 

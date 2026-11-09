@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -69,111 +69,120 @@ export function siteEncode(value: Site, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return siteEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Site",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("addressLine1")) {
-
-        if (value.addressLine1 !== undefined) {
-            result.addressLine1 = value.addressLine1;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("addressLine2")) {
-        if (value.addressLine2 !== undefined) {
-
-            result.addressLine2 = value.addressLine2;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sublocalityLevel1")) {
-        if (value.sublocalityLevel1 !== undefined) {
-
-            result.sublocalityLevel1 = value.sublocalityLevel1;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("locality")) {
-
-        if (value.locality !== undefined) {
-            result.locality = value.locality;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("administrativeAreaLevel3")) {
-        if (value.administrativeAreaLevel3 !== undefined) {
-
-            result.administrativeAreaLevel3 = value.administrativeAreaLevel3;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("administrativeAreaLevel2")) {
-        if (value.administrativeAreaLevel2 !== undefined) {
-
-            result.administrativeAreaLevel2 = value.administrativeAreaLevel2;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("administrativeAreaLevel1")) {
-
-        if (value.administrativeAreaLevel1 !== undefined) {
-            result.administrativeAreaLevel1 = value.administrativeAreaLevel1;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("country")) {
-
-        if (value.country !== undefined) {
-            result.country = value.country;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("postalCode")) {
-
-        if (value.postalCode !== undefined) {
-            result.postalCode = value.postalCode;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("postalCodeSuffix")) {
-        if (value.postalCodeSuffix !== undefined) {
-
-            result.postalCodeSuffix = value.postalCodeSuffix;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("coordinates")) {
-
-        if (value.coordinates !== undefined) {
-            result.coordinates = coordinatesEncodeWithContext(value.coordinates, ctx);
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Site" });
+    siteEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Site" };
+        siteEncodeFields(value as Site, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("addressLine1")) {
+                if (value.addressLine1 !== undefined) {
+                    result["addressLine1"] = value.addressLine1;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("addressLine2")) {
+                if (value.addressLine2 !== undefined) {
+                    result["addressLine2"] = value.addressLine2;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sublocalityLevel1")) {
+                if (value.sublocalityLevel1 !== undefined) {
+                    result["sublocalityLevel1"] = value.sublocalityLevel1;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("locality")) {
+                if (value.locality !== undefined) {
+                    result["locality"] = value.locality;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("administrativeAreaLevel3")) {
+                if (value.administrativeAreaLevel3 !== undefined) {
+                    result["administrativeAreaLevel3"] = value.administrativeAreaLevel3;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("administrativeAreaLevel2")) {
+                if (value.administrativeAreaLevel2 !== undefined) {
+                    result["administrativeAreaLevel2"] = value.administrativeAreaLevel2;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("administrativeAreaLevel1")) {
+                if (value.administrativeAreaLevel1 !== undefined) {
+                    result["administrativeAreaLevel1"] = value.administrativeAreaLevel1;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("country")) {
+                if (value.country !== undefined) {
+                    result["country"] = value.country;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("postalCode")) {
+                if (value.postalCode !== undefined) {
+                    result["postalCode"] = value.postalCode;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("postalCodeSuffix")) {
+                if (value.postalCodeSuffix !== undefined) {
+                    result["postalCodeSuffix"] = value.postalCodeSuffix;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("coordinates")) {
+                if (value.coordinates !== undefined) {
+                    result["coordinates"] = coordinatesEncodeWithContext(value.coordinates, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = siteDecodeWithContext(data, ctx);
+        const resultOrRef = siteDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -219,6 +228,10 @@ export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function siteFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => siteDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Site | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -231,195 +244,195 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Site.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Site | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Site") as Site | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Site.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("addressLine1")) && !("addressLine1" in obj)) {
-        errors.push({ field: "addressLine1", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("addressLine2")) && !("addressLine2" in obj)) {
-        errors.push({ field: "addressLine2", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sublocalityLevel1")) && !("sublocalityLevel1" in obj)) {
-        errors.push({ field: "sublocalityLevel1", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("locality")) && !("locality" in obj)) {
-        errors.push({ field: "locality", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel3")) && !("administrativeAreaLevel3" in obj)) {
-        errors.push({ field: "administrativeAreaLevel3", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel2")) && !("administrativeAreaLevel2" in obj)) {
-        errors.push({ field: "administrativeAreaLevel2", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel1")) && !("administrativeAreaLevel1" in obj)) {
-        errors.push({ field: "administrativeAreaLevel1", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("country")) && !("country" in obj)) {
-        errors.push({ field: "country", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("postalCode")) && !("postalCode" in obj)) {
-        errors.push({ field: "postalCode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("postalCodeSuffix")) && !("postalCodeSuffix" in obj)) {
-        errors.push({ field: "postalCodeSuffix", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("coordinates")) && !("coordinates" in obj)) {
-        errors.push({ field: "coordinates", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["addressLine1", "addressLine1"], ["addressLine2", "addressLine2"], ["sublocalityLevel1", "sublocalityLevel1"], ["locality", "locality"], ["administrativeAreaLevel3", "administrativeAreaLevel3"], ["administrativeAreaLevel2", "administrativeAreaLevel2"], ["administrativeAreaLevel1", "administrativeAreaLevel1"], ["country", "country"], ["postalCode", "postalCode"], ["postalCodeSuffix", "postalCodeSuffix"], ["coordinates", "coordinates"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "addressLine1"?: string | undefined; "addressLine2"?: string | null | undefined; "sublocalityLevel1"?: string | null | undefined; "locality"?: string | undefined; "administrativeAreaLevel3"?: string | null | undefined; "administrativeAreaLevel2"?: string | null | undefined; "administrativeAreaLevel1"?: string | undefined; "country"?: string | undefined; "postalCode"?: string | undefined; "postalCodeSuffix"?: string | null | undefined; "coordinates"?: Coordinates | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Site");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Site.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("addressLine1")) || (__fields.keeps("addressLine1") && obj["addressLine1"] !== undefined)) {
-        const __raw_addressLine1 = obj["addressLine1"] as string;
-
-        if (!(typeof __raw_addressLine1 === "string")) {
-            errors.push({ field: "addressLine1", message: __raw_addressLine1 == null ? "Site.addressLine1 is required" : "expected string" });
-        } else {
-            if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
-                if (__raw_addressLine1.length === 0) { errors.push({ field: "addressLine1", message: "Site.addressLine1 must not be empty" }); }
-            }
-            instance.addressLine1 = __raw_addressLine1;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("addressLine2")) || (__fields.keeps("addressLine2") && obj["addressLine2"] !== undefined)) {
-        const __raw_addressLine2 = obj["addressLine2"] as string | null;
-
-        if (!(typeof __raw_addressLine2 === "string" || __raw_addressLine2 === null)) {
-            errors.push({ field: "addressLine2", message: "expected string | null" });
-        } else {
-            instance.addressLine2 = __raw_addressLine2;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sublocalityLevel1")) || (__fields.keeps("sublocalityLevel1") && obj["sublocalityLevel1"] !== undefined)) {
-        const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
-
-        if (!(typeof __raw_sublocalityLevel1 === "string" || __raw_sublocalityLevel1 === null)) {
-            errors.push({ field: "sublocalityLevel1", message: "expected string | null" });
-        } else {
-            instance.sublocalityLevel1 = __raw_sublocalityLevel1;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("locality")) || (__fields.keeps("locality") && obj["locality"] !== undefined)) {
-        const __raw_locality = obj["locality"] as string;
-
-        if (!(typeof __raw_locality === "string")) {
-            errors.push({ field: "locality", message: __raw_locality == null ? "Site.locality is required" : "expected string" });
-        } else {
-            if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
-                if (__raw_locality.length === 0) { errors.push({ field: "locality", message: "Site.locality must not be empty" }); }
-            }
-            instance.locality = __raw_locality;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel3")) || (__fields.keeps("administrativeAreaLevel3") && obj["administrativeAreaLevel3"] !== undefined)) {
-        const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
-
-        if (!(typeof __raw_administrativeAreaLevel3 === "string" || __raw_administrativeAreaLevel3 === null)) {
-            errors.push({ field: "administrativeAreaLevel3", message: "expected string | null" });
-        } else {
-            instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel2")) || (__fields.keeps("administrativeAreaLevel2") && obj["administrativeAreaLevel2"] !== undefined)) {
-        const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
-
-        if (!(typeof __raw_administrativeAreaLevel2 === "string" || __raw_administrativeAreaLevel2 === null)) {
-            errors.push({ field: "administrativeAreaLevel2", message: "expected string | null" });
-        } else {
-            instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel1")) || (__fields.keeps("administrativeAreaLevel1") && obj["administrativeAreaLevel1"] !== undefined)) {
-        const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
-
-        if (!(typeof __raw_administrativeAreaLevel1 === "string")) {
-            errors.push({ field: "administrativeAreaLevel1", message: __raw_administrativeAreaLevel1 == null ? "Site.administrativeAreaLevel1 is required" : "expected string" });
-        } else {
-            if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
-                if (__raw_administrativeAreaLevel1.length === 0) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 must not be empty" }); }
-            }
-            instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("country")) || (__fields.keeps("country") && obj["country"] !== undefined)) {
-        const __raw_country = obj["country"] as string;
-
-        if (!(typeof __raw_country === "string")) {
-            errors.push({ field: "country", message: __raw_country == null ? "Site.country is required" : "expected string" });
-        } else {
-            if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
-                if (__raw_country.length === 0) { errors.push({ field: "country", message: "Site.country must not be empty" }); }
-            }
-            instance.country = __raw_country;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("postalCode")) || (__fields.keeps("postalCode") && obj["postalCode"] !== undefined)) {
-        const __raw_postalCode = obj["postalCode"] as string;
-
-        if (!(typeof __raw_postalCode === "string")) {
-            errors.push({ field: "postalCode", message: __raw_postalCode == null ? "Site.postalCode is required" : "expected string" });
-        } else {
-            if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
-                if (__raw_postalCode.length === 0) { errors.push({ field: "postalCode", message: "Site.postalCode must not be empty" }); }
-            }
-            instance.postalCode = __raw_postalCode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("postalCodeSuffix")) || (__fields.keeps("postalCodeSuffix") && obj["postalCodeSuffix"] !== undefined)) {
-        const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
-
-        if (!(typeof __raw_postalCodeSuffix === "string" || __raw_postalCodeSuffix === null)) {
-            errors.push({ field: "postalCodeSuffix", message: "expected string | null" });
-        } else {
-            instance.postalCodeSuffix = __raw_postalCodeSuffix;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("coordinates")) || (__fields.keeps("coordinates") && obj["coordinates"] !== undefined)) {
-        const __raw_coordinates = obj["coordinates"] as Coordinates;
-
-        ctx.pushScope("coordinates");
-        try {
-            const __result = coordinatesDecodeWithContext(__raw_coordinates, ctx);
-            ctx.assignOrDefer(instance, "coordinates", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "coordinates" : "coordinates." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Site.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("addressLine1")) ? "addressLine1" in obj : (__fields.keeps("addressLine1") && obj["addressLine1"] !== undefined)) {
+                const __raw_addressLine1 = obj["addressLine1"] as string;
+
+                if (!(typeof __raw_addressLine1 === "string")) {
+                    errors.push({ field: "addressLine1", message: __raw_addressLine1 == null ? "Site.addressLine1 is required" : "expected string" });
+                } else {
+                    if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
+                        if (__raw_addressLine1.length === 0) { errors.push({ field: "addressLine1", message: "Site.addressLine1 must not be empty" }); }
+                    }
+                    instance.addressLine1 = __raw_addressLine1;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("addressLine2")) ? "addressLine2" in obj : (__fields.keeps("addressLine2") && obj["addressLine2"] !== undefined)) {
+                const __raw_addressLine2 = obj["addressLine2"] as string | null;
+
+                if (!(typeof __raw_addressLine2 === "string" || __raw_addressLine2 === null)) {
+                    errors.push({ field: "addressLine2", message: "expected string | null" });
+                } else {
+                    instance.addressLine2 = __raw_addressLine2;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sublocalityLevel1")) ? "sublocalityLevel1" in obj : (__fields.keeps("sublocalityLevel1") && obj["sublocalityLevel1"] !== undefined)) {
+                const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
+
+                if (!(typeof __raw_sublocalityLevel1 === "string" || __raw_sublocalityLevel1 === null)) {
+                    errors.push({ field: "sublocalityLevel1", message: "expected string | null" });
+                } else {
+                    instance.sublocalityLevel1 = __raw_sublocalityLevel1;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("locality")) ? "locality" in obj : (__fields.keeps("locality") && obj["locality"] !== undefined)) {
+                const __raw_locality = obj["locality"] as string;
+
+                if (!(typeof __raw_locality === "string")) {
+                    errors.push({ field: "locality", message: __raw_locality == null ? "Site.locality is required" : "expected string" });
+                } else {
+                    if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
+                        if (__raw_locality.length === 0) { errors.push({ field: "locality", message: "Site.locality must not be empty" }); }
+                    }
+                    instance.locality = __raw_locality;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("administrativeAreaLevel3")) ? "administrativeAreaLevel3" in obj : (__fields.keeps("administrativeAreaLevel3") && obj["administrativeAreaLevel3"] !== undefined)) {
+                const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
+
+                if (!(typeof __raw_administrativeAreaLevel3 === "string" || __raw_administrativeAreaLevel3 === null)) {
+                    errors.push({ field: "administrativeAreaLevel3", message: "expected string | null" });
+                } else {
+                    instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("administrativeAreaLevel2")) ? "administrativeAreaLevel2" in obj : (__fields.keeps("administrativeAreaLevel2") && obj["administrativeAreaLevel2"] !== undefined)) {
+                const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
+
+                if (!(typeof __raw_administrativeAreaLevel2 === "string" || __raw_administrativeAreaLevel2 === null)) {
+                    errors.push({ field: "administrativeAreaLevel2", message: "expected string | null" });
+                } else {
+                    instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("administrativeAreaLevel1")) ? "administrativeAreaLevel1" in obj : (__fields.keeps("administrativeAreaLevel1") && obj["administrativeAreaLevel1"] !== undefined)) {
+                const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
+
+                if (!(typeof __raw_administrativeAreaLevel1 === "string")) {
+                    errors.push({ field: "administrativeAreaLevel1", message: __raw_administrativeAreaLevel1 == null ? "Site.administrativeAreaLevel1 is required" : "expected string" });
+                } else {
+                    if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
+                        if (__raw_administrativeAreaLevel1.length === 0) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 must not be empty" }); }
+                    }
+                    instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("country")) ? "country" in obj : (__fields.keeps("country") && obj["country"] !== undefined)) {
+                const __raw_country = obj["country"] as string;
+
+                if (!(typeof __raw_country === "string")) {
+                    errors.push({ field: "country", message: __raw_country == null ? "Site.country is required" : "expected string" });
+                } else {
+                    if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
+                        if (__raw_country.length === 0) { errors.push({ field: "country", message: "Site.country must not be empty" }); }
+                    }
+                    instance.country = __raw_country;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("postalCode")) ? "postalCode" in obj : (__fields.keeps("postalCode") && obj["postalCode"] !== undefined)) {
+                const __raw_postalCode = obj["postalCode"] as string;
+
+                if (!(typeof __raw_postalCode === "string")) {
+                    errors.push({ field: "postalCode", message: __raw_postalCode == null ? "Site.postalCode is required" : "expected string" });
+                } else {
+                    if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
+                        if (__raw_postalCode.length === 0) { errors.push({ field: "postalCode", message: "Site.postalCode must not be empty" }); }
+                    }
+                    instance.postalCode = __raw_postalCode;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("postalCodeSuffix")) ? "postalCodeSuffix" in obj : (__fields.keeps("postalCodeSuffix") && obj["postalCodeSuffix"] !== undefined)) {
+                const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
+
+                if (!(typeof __raw_postalCodeSuffix === "string" || __raw_postalCodeSuffix === null)) {
+                    errors.push({ field: "postalCodeSuffix", message: "expected string | null" });
+                } else {
+                    instance.postalCodeSuffix = __raw_postalCodeSuffix;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("coordinates")) ? "coordinates" in obj : (__fields.keeps("coordinates") && obj["coordinates"] !== undefined)) {
+                const __raw_coordinates = obj["coordinates"] as Coordinates;
+
+                ctx.pushScope("coordinates");
+                try {
+                    const __result = coordinatesDecodeWithContext(__raw_coordinates, ctx);
+                    ctx.assignOrDefer(instance, "coordinates", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "coordinates" : "coordinates." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "coordinates", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -504,8 +517,7 @@ export function siteHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "addressLine1" in o && "addressLine2" in o && "sublocalityLevel1" in o && "locality" in o && "administrativeAreaLevel3" in o && "administrativeAreaLevel2" in o && "administrativeAreaLevel1" in o && "country" in o && "postalCode" in o && "postalCodeSuffix" in o && "coordinates" in o;
+    return __mf_holdsAll(obj, ["id", "addressLine1", "addressLine2", "sublocalityLevel1", "locality", "administrativeAreaLevel3", "administrativeAreaLevel2", "administrativeAreaLevel1", "country", "postalCode", "postalCodeSuffix", "coordinates"]);
 }
 
 export function siteIs(obj: unknown): obj is Site {
@@ -953,6 +965,7 @@ export const Site: {
   readonly encodeWithContext: typeof siteEncodeWithContext;
   readonly encodePartialWithContext: typeof siteEncodePartialWithContext;
   readonly decode: typeof siteDecode;
+  readonly fromString: typeof siteFromString;
   readonly decodeWithContext: typeof siteDecodeWithContext;
   readonly decodePartialWithContext: typeof siteDecodePartialWithContext;
   readonly validateField: typeof siteValidateField;
@@ -967,6 +980,7 @@ export const Site: {
   encodeWithContext: siteEncodeWithContext,
   encodePartialWithContext: siteEncodePartialWithContext,
   decode: siteDecode,
+  fromString: siteFromString,
   decodeWithContext: siteDecodeWithContext,
   decodePartialWithContext: siteDecodePartialWithContext,
   validateField: siteValidateField,
@@ -1000,10 +1014,21 @@ export declare function siteDefaultValue(): Site;
 export declare function siteEncode(value: Site, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function siteDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Site;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function siteFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Site;
 } | {
@@ -1100,6 +1125,7 @@ export declare const Site: {
 	readonly encodeWithContext: typeof siteEncodeWithContext;
 	readonly encodePartialWithContext: typeof siteEncodePartialWithContext;
 	readonly decode: typeof siteDecode;
+	readonly fromString: typeof siteFromString;
 	readonly decodeWithContext: typeof siteDecodeWithContext;
 	readonly decodePartialWithContext: typeof siteDecodePartialWithContext;
 	readonly validateField: typeof siteValidateField;
@@ -1116,29 +1142,31 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 766..882
-original 165..210 -> expanded 882..927
-original 251..353 -> expanded 927..1029
-original 394..511 -> expanded 1029..1146
-original 552..595 -> expanded 1146..1189
-original 636..662 -> expanded 1189..1215
-original 703..796 -> expanded 1215..1308
-original 796..797 -> expanded 43703..43704
-generated 0..766 <- imports
-generated 1308..1742 <- Default
-generated 1742..5719 <- Encode
-generated 5719..24613 <- Decode
-generated 24613..42545 <- Gigaform
-generated 42545..43703 <- __convenience_const
+original 0..116 -> expanded 970..1086
+original 165..210 -> expanded 1086..1131
+original 251..353 -> expanded 1131..1233
+original 394..511 -> expanded 1233..1350
+original 552..595 -> expanded 1350..1393
+original 636..662 -> expanded 1393..1419
+original 703..796 -> expanded 1419..1512
+original 796..797 -> expanded 46100..46101
+generated 0..970 <- imports
+generated 1512..1946 <- Default
+generated 1946..7116 <- Encode
+generated 7116..26934 <- Decode
+generated 26934..44866 <- Gigaform
+generated 44866..46100 <- __convenience_const
 
 ## Metadata
 
-interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":166,"start":117}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":206,"start":195},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":252,"start":211}}],"name":"addressLine1","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"string"},{"decorators":[],"name":"addressLine2","optional":false,"readonly":false,"span":{"end":311,"start":283},"ts_type":"string | null"},{"decorators":[],"name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":349,"start":316},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":395,"start":354}}],"name":"locality","optional":false,"readonly":false,"span":{"end":417,"start":400},"ts_type":"string"},{"decorators":[],"name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":462,"start":422},"ts_type":"string | null"},{"decorators":[],"name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":507,"start":467},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":553,"start":512}}],"name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":591,"start":558},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":637,"start":596}}],"name":"country","optional":false,"readonly":false,"span":{"end":658,"start":642},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":704,"start":663}}],"name":"postalCode","optional":false,"readonly":false,"span":{"end":728,"start":709},"ts_type":"string"},{"decorators":[],"name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":765,"start":733},"ts_type":"string | null"},{"decorators":[],"name":"coordinates","optional":false,"readonly":false,"span":{"end":795,"start":770},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":797,"start":174},"type_params":[]}
+interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":166,"start":117}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":206,"start":195},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":252,"start":211}}],"key":"Named","name":"addressLine1","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"string"},{"decorators":[],"key":"Named","name":"addressLine2","optional":false,"readonly":false,"span":{"end":311,"start":283},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":349,"start":316},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":395,"start":354}}],"key":"Named","name":"locality","optional":false,"readonly":false,"span":{"end":417,"start":400},"ts_type":"string"},{"decorators":[],"key":"Named","name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":462,"start":422},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":507,"start":467},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":553,"start":512}}],"key":"Named","name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":591,"start":558},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":637,"start":596}}],"key":"Named","name":"country","optional":false,"readonly":false,"span":{"end":658,"start":642},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":704,"start":663}}],"key":"Named","name":"postalCode","optional":false,"readonly":false,"span":{"end":728,"start":709},"ts_type":"string"},{"decorators":[],"key":"Named","name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":765,"start":733},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"coordinates","optional":false,"readonly":false,"span":{"end":795,"start":770},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":797,"start":174},"type_params":[]}
 
 ## Registry reads
 
 Name("Coordinates")
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

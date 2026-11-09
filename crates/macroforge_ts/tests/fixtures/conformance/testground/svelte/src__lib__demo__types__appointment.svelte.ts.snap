@@ -13,12 +13,12 @@ true
 ## Output
 
 import { colorsDecodeWithContext, colorsEncodeWithContext, colorsDecode } from "./colors.svelte";
-import { employeeDecode, employeeEncodeWithContext } from "./employee.svelte";
+import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
 import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from "./recurrence-rule.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -100,133 +100,134 @@ export function appointmentEncode(value: Appointment, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return appointmentEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Appointment",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("title")) {
-
-        if (value.title !== undefined) {
-            result.title = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("status")) {
-
-        if (value.status !== undefined) {
-            result.status = statusEncodeWithContext(value.status, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("begins")) {
-
-        if (value.begins !== undefined) {
-            result.begins = __foreign__dateTimeDateTimeEncode(value.begins);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("duration")) {
-
-        if (value.duration !== undefined) {
-            result.duration = value.duration;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("timeZone")) {
-
-        if (value.timeZone !== undefined) {
-            result.timeZone = value.timeZone;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("offsetMs")) {
-
-        if (value.offsetMs !== undefined) {
-            result.offsetMs = value.offsetMs;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("allDay")) {
-
-        if (value.allDay !== undefined) {
-            result.allDay = value.allDay;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("multiDay")) {
-
-        if (value.multiDay !== undefined) {
-            result.multiDay = value.multiDay;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("employees")) {
-
-        if (value.employees !== undefined) {
-            result.employees = value.employees.map(
-                (item) => typeof item === "string"
-                    ? item
-                    : employeeEncodeWithContext(item, ctx)
-            );
-        }
-    }
-    if (__fields === undefined || __fields.keeps("location")) {
-
-        if (value.location !== undefined) {
-            result.location = typeof value.location === "string"
-                ? value.location
-                : siteEncodeWithContext(value.location, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("description")) {
-
-        if (value.description !== undefined) {
-            result.description = __foreign__optionOptionEncode(value.description);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("colors")) {
-
-        if (value.colors !== undefined) {
-            result.colors = colorsEncodeWithContext(value.colors, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("recurrenceRule")) {
-        if (value.recurrenceRule !== undefined) {
-
-            if (value.recurrenceRule !== null) {
-                result.recurrenceRule = recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
-            } else {
-                result.recurrenceRule = null;
-            }
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Appointment" });
+    appointmentEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Appointment" };
+        appointmentEncodeFields(value as Appointment, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("status")) {
+                if (value.status !== undefined) {
+                    result["status"] = statusEncodeWithContext(value.status, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("begins")) {
+                if (value.begins !== undefined) {
+                    result["begins"] = __foreign__dateTimeDateTimeEncode(value.begins);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("duration")) {
+                if (value.duration !== undefined) {
+                    result["duration"] = value.duration;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("timeZone")) {
+                if (value.timeZone !== undefined) {
+                    result["timeZone"] = value.timeZone;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("offsetMs")) {
+                if (value.offsetMs !== undefined) {
+                    result["offsetMs"] = value.offsetMs;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("allDay")) {
+                if (value.allDay !== undefined) {
+                    result["allDay"] = value.allDay;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("multiDay")) {
+                if (value.multiDay !== undefined) {
+                    result["multiDay"] = value.multiDay;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("employees")) {
+                if (value.employees !== undefined) {
+                    result["employees"] = value.employees.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("location")) {
+                if (value.location !== undefined) {
+                    result["location"] = (typeof value.location === "string" ? value.location : siteEncodeWithContext(value.location, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("description")) {
+                if (value.description !== undefined) {
+                    result["description"] = __foreign__optionOptionEncode(value.description);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("colors")) {
+                if (value.colors !== undefined) {
+                    result["colors"] = colorsEncodeWithContext(value.colors, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("recurrenceRule")) {
+                if (value.recurrenceRule !== undefined) {
+                    result["recurrenceRule"] = value.recurrenceRule === null ? null : recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = appointmentDecodeWithContext(data, ctx);
+        const resultOrRef = appointmentDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -272,6 +273,10 @@ export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function appointmentFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => appointmentDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Appointment | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -284,279 +289,266 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Appointment.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Appointment | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Appointment") as Appointment | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Appointment.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
-        errors.push({ field: "status", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("begins")) && !("begins" in obj)) {
-        errors.push({ field: "begins", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("duration")) && !("duration" in obj)) {
-        errors.push({ field: "duration", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("timeZone")) && !("timeZone" in obj)) {
-        errors.push({ field: "timeZone", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("offsetMs")) && !("offsetMs" in obj)) {
-        errors.push({ field: "offsetMs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("allDay")) && !("allDay" in obj)) {
-        errors.push({ field: "allDay", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("multiDay")) && !("multiDay" in obj)) {
-        errors.push({ field: "multiDay", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("employees")) && !("employees" in obj)) {
-        errors.push({ field: "employees", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("location")) && !("location" in obj)) {
-        errors.push({ field: "location", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
-        errors.push({ field: "description", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("colors")) && !("colors" in obj)) {
-        errors.push({ field: "colors", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceRule")) && !("recurrenceRule" in obj)) {
-        errors.push({ field: "recurrenceRule", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["title", "title"], ["status", "status"], ["begins", "begins"], ["duration", "duration"], ["timeZone", "timeZone"], ["offsetMs", "offsetMs"], ["allDay", "allDay"], ["multiDay", "multiDay"], ["employees", "employees"], ["location", "location"], ["description", "description"], ["colors", "colors"], ["recurrenceRule", "recurrenceRule"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "title"?: string | undefined; "status"?: Status | undefined; "begins"?: DateTime.DateTime | undefined; "duration"?: number | undefined; "timeZone"?: string | undefined; "offsetMs"?: number | undefined; "allDay"?: boolean | undefined; "multiDay"?: boolean | undefined; "employees"?: Array<string | Employee> | undefined; "location"?: string | Site | undefined; "description"?: Option.Option<string> | undefined; "colors"?: Colors | undefined; "recurrenceRule"?: RecurrenceRule | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Appointment");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Appointment.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
-
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "Appointment.title is required" : "expected string" });
-        } else {
-            if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
-                if (__raw_title.length === 0) { errors.push({ field: "title", message: "Appointment.title must not be empty" }); }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Appointment.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("status")) || (__fields.keeps("status") && obj["status"] !== undefined)) {
-        const __raw_status = obj["status"] as Status;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        ctx.pushScope("status");
-        try {
-            const __result = statusDecodeWithContext(__raw_status, ctx);
-            ctx.assignOrDefer(instance, "status", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "status" : "status." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "Appointment.title is required" : "expected string" });
+                } else {
+                    if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
+                        if (__raw_title.length === 0) { errors.push({ field: "title", message: "Appointment.title must not be empty" }); }
+                    }
+                    instance.title = __raw_title;
                 }
-            } else {
-                throw __e;
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("begins")) || (__fields.keeps("begins") && obj["begins"] !== undefined)) {
-        try {
-            instance.begins = __foreign__dateTimeDateTimeDecode(obj["begins"]);
-        } catch (__error) {
-            errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("duration")) || (__fields.keeps("duration") && obj["duration"] !== undefined)) {
-        const __raw_duration = obj["duration"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
+                const __raw_status = obj["status"] as Status;
 
-        if (!(typeof __raw_duration === "number")) {
-            errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
-        } else {
-            instance.duration = __raw_duration;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("timeZone")) || (__fields.keeps("timeZone") && obj["timeZone"] !== undefined)) {
-        const __raw_timeZone = obj["timeZone"] as string;
+                ctx.pushScope("status");
+                try {
+                    const __result = statusDecodeWithContext(__raw_status, ctx);
+                    ctx.assignOrDefer(instance, "status", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "status" : "status." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        if (!(typeof __raw_timeZone === "string")) {
-            errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Appointment.timeZone is required" : "expected string" });
-        } else {
-            instance.timeZone = __raw_timeZone;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("offsetMs")) || (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
-        const __raw_offsetMs = obj["offsetMs"] as number;
-
-        if (!(typeof __raw_offsetMs === "number")) {
-            errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
-        } else {
-            instance.offsetMs = __raw_offsetMs;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("allDay")) || (__fields.keeps("allDay") && obj["allDay"] !== undefined)) {
-        const __raw_allDay = obj["allDay"] as boolean;
-
-        if (!(typeof __raw_allDay === "boolean")) {
-            errors.push({ field: "allDay", message: __raw_allDay == null ? "Appointment.allDay is required" : "expected boolean" });
-        } else {
-            instance.allDay = __raw_allDay;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("multiDay")) || (__fields.keeps("multiDay") && obj["multiDay"] !== undefined)) {
-        const __raw_multiDay = obj["multiDay"] as boolean;
-
-        if (!(typeof __raw_multiDay === "boolean")) {
-            errors.push({ field: "multiDay", message: __raw_multiDay == null ? "Appointment.multiDay is required" : "expected boolean" });
-        } else {
-            instance.multiDay = __raw_multiDay;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("employees")) || (__fields.keeps("employees") && obj["employees"] !== undefined)) {
-        const __raw_employees = obj["employees"] as Array<string | Employee>;
-
-        if (Array.isArray(__raw_employees)) {
-            const __arr = __raw_employees.map((item: string | Employee | { __ref: number }, idx) => {
-                if (typeof item === "string") {
-                    return item;
-                }
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
+                        errors.push({ field: "status", message: __e instanceof Error ? __e.message : String(__e) });
                     }
-                    return result;
+                } finally {
+                    ctx.popScope();
                 }
-                const __elemResult = employeeDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
-                        errors.push({
-                            field: __err.field === "_root"
-                                ? "employees[" + idx + "]"
-                                : "employees[" + idx + "]." + __err.field,
-                            message: __err.message
-                        });
-                    }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("begins")) ? "begins" in obj : (__fields.keeps("begins") && obj["begins"] !== undefined)) {
+                try {
+                    instance.begins = ((__raw: unknown) => __foreign__dateTimeDateTimeDecode(__raw) as DateTime.DateTime)(obj["begins"]);
+                } catch (__error) {
+                    errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.employees = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.employees, idx, (item as any).__refId);
-                }
-            });
-        } else {
-            errors.push({ field: "employees", message: __raw_employees == null ? "Appointment.employees is required" : "expected Array<string | Employee>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("location")) || (__fields.keeps("location") && obj["location"] !== undefined)) {
-        const __raw_location = obj["location"] as string | Site;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("duration")) ? "duration" in obj : (__fields.keeps("duration") && obj["duration"] !== undefined)) {
+                const __raw_duration = obj["duration"] as number;
 
-        if (typeof __raw_location === "string") {
-            instance.location = __raw_location;
-        } else {
-            ctx.pushScope("location");
-            try {
-                const __result = siteDecodeWithContext(__raw_location, ctx);
-                ctx.assignOrDefer(instance, "location", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "location" : "location." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_duration === "number" && globalThis.Number.isFinite(__raw_duration))) {
+                    errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
+                } else {
+                    instance.duration = __raw_duration;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("timeZone")) ? "timeZone" in obj : (__fields.keeps("timeZone") && obj["timeZone"] !== undefined)) {
+                const __raw_timeZone = obj["timeZone"] as string;
+
+                if (!(typeof __raw_timeZone === "string")) {
+                    errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Appointment.timeZone is required" : "expected string" });
+                } else {
+                    instance.timeZone = __raw_timeZone;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("offsetMs")) ? "offsetMs" in obj : (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
+                const __raw_offsetMs = obj["offsetMs"] as number;
+
+                if (!(typeof __raw_offsetMs === "number" && globalThis.Number.isFinite(__raw_offsetMs))) {
+                    errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
+                } else {
+                    instance.offsetMs = __raw_offsetMs;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("allDay")) ? "allDay" in obj : (__fields.keeps("allDay") && obj["allDay"] !== undefined)) {
+                const __raw_allDay = obj["allDay"] as boolean;
+
+                if (!(typeof __raw_allDay === "boolean")) {
+                    errors.push({ field: "allDay", message: __raw_allDay == null ? "Appointment.allDay is required" : "expected boolean" });
+                } else {
+                    instance.allDay = __raw_allDay;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("multiDay")) ? "multiDay" in obj : (__fields.keeps("multiDay") && obj["multiDay"] !== undefined)) {
+                const __raw_multiDay = obj["multiDay"] as boolean;
+
+                if (!(typeof __raw_multiDay === "boolean")) {
+                    errors.push({ field: "multiDay", message: __raw_multiDay == null ? "Appointment.multiDay is required" : "expected boolean" });
+                } else {
+                    instance.multiDay = __raw_multiDay;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("employees")) ? "employees" in obj : (__fields.keeps("employees") && obj["employees"] !== undefined)) {
+                const __raw_employees = obj["employees"] as Array<string | Employee>;
+                if (Array.isArray(__raw_employees)) {
+                    ctx.pushScope("employees");
+                    try {
+                        instance.employees = __mf_decodeArray(__raw_employees, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "employees" : "employees." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "employees", message: __raw_employees == null ? "Appointment.employees is required" : "expected Array<string | Employee>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
-        try {
-            instance.description = __foreign__optionOptionDecode(obj["description"]);
-        } catch (__error) {
-            errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("colors")) || (__fields.keeps("colors") && obj["colors"] !== undefined)) {
-        const __raw_colors = obj["colors"] as Colors;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("location")) ? "location" in obj : (__fields.keeps("location") && obj["location"] !== undefined)) {
+                const __raw_location = obj["location"] as string | Site;
 
-        ctx.pushScope("colors");
-        try {
-            const __result = colorsDecodeWithContext(__raw_colors, ctx);
-            ctx.assignOrDefer(instance, "colors", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "colors" : "colors." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-                throw __e;
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("recurrenceRule")) || (__fields.keeps("recurrenceRule") && obj["recurrenceRule"] !== undefined)) {
-        const __raw_recurrenceRule = obj["recurrenceRule"] as RecurrenceRule | null;
-
-        if (__raw_recurrenceRule === null) {
-            instance.recurrenceRule = null;
-        } else {
-            ctx.pushScope("recurrenceRule");
-            try {
-                const __result = recurrenceRuleDecodeWithContext(__raw_recurrenceRule, ctx);
-                ctx.assignOrDefer(instance, "recurrenceRule", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "recurrenceRule" : "recurrenceRule." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (typeof __raw_location === "string") {
+                    instance.location = __raw_location;
                 } else {
-                    throw __e;
+                    ctx.pushScope("location");
+                    try {
+                        const __result = siteDecodeWithContext(__raw_location, ctx);
+                        ctx.assignOrDefer(instance, "location", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "location" : "location." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "location", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
+                try {
+                    instance.description = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["description"]);
+                } catch (__error) {
+                    errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("colors")) ? "colors" in obj : (__fields.keeps("colors") && obj["colors"] !== undefined)) {
+                const __raw_colors = obj["colors"] as Colors;
+
+                ctx.pushScope("colors");
+                try {
+                    const __result = colorsDecodeWithContext(__raw_colors, ctx);
+                    ctx.assignOrDefer(instance, "colors", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "colors" : "colors." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "colors", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("recurrenceRule")) ? "recurrenceRule" in obj : (__fields.keeps("recurrenceRule") && obj["recurrenceRule"] !== undefined)) {
+                const __raw_recurrenceRule = obj["recurrenceRule"] as RecurrenceRule | null;
+
+                if (__raw_recurrenceRule === null) {
+                    instance.recurrenceRule = null;
+                } else {
+                    ctx.pushScope("recurrenceRule");
+                    try {
+                        const __result = recurrenceRuleDecodeWithContext(__raw_recurrenceRule, ctx);
+                        ctx.assignOrDefer(instance, "recurrenceRule", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "recurrenceRule" : "recurrenceRule." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "recurrenceRule", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -593,8 +585,7 @@ export function appointmentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "title" in o && "status" in o && "begins" in o && "duration" in o && "timeZone" in o && "offsetMs" in o && "allDay" in o && "multiDay" in o && "employees" in o && "location" in o && "description" in o && "colors" in o && "recurrenceRule" in o;
+    return __mf_holdsAll(obj, ["id", "title", "status", "begins", "duration", "timeZone", "offsetMs", "allDay", "multiDay", "employees", "location", "description", "colors", "recurrenceRule"]);
 }
 
 export function appointmentIs(obj: unknown): obj is Appointment {
@@ -1206,6 +1197,7 @@ export const Appointment: {
   readonly encodeWithContext: typeof appointmentEncodeWithContext;
   readonly encodePartialWithContext: typeof appointmentEncodePartialWithContext;
   readonly decode: typeof appointmentDecode;
+  readonly fromString: typeof appointmentFromString;
   readonly decodeWithContext: typeof appointmentDecodeWithContext;
   readonly decodePartialWithContext: typeof appointmentDecodePartialWithContext;
   readonly validateField: typeof appointmentValidateField;
@@ -1220,6 +1212,7 @@ export const Appointment: {
   encodeWithContext: appointmentEncodeWithContext,
   encodePartialWithContext: appointmentEncodePartialWithContext,
   decode: appointmentDecode,
+  fromString: appointmentFromString,
   decodeWithContext: appointmentDecodeWithContext,
   decodePartialWithContext: appointmentDecodePartialWithContext,
   validateField: appointmentValidateField,
@@ -1260,10 +1253,21 @@ export declare function appointmentDefaultValue(): Appointment;
 export declare function appointmentEncode(value: Appointment, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Appointment;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function appointmentFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Appointment;
 } | {
@@ -1366,6 +1370,7 @@ export declare const Appointment: {
 	readonly encodeWithContext: typeof appointmentEncodeWithContext;
 	readonly encodePartialWithContext: typeof appointmentEncodePartialWithContext;
 	readonly decode: typeof appointmentDecode;
+	readonly fromString: typeof appointmentFromString;
 	readonly decodeWithContext: typeof appointmentDecodeWithContext;
 	readonly decodePartialWithContext: typeof appointmentDecodePartialWithContext;
 	readonly validateField: typeof appointmentValidateField;
@@ -1382,52 +1387,60 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1380..1739
-original 408..444 -> expanded 1739..1775
-original 472..493 -> expanded 1775..1796
-original 535..540 -> expanded 1796..1801
-original 581..605 -> expanded 1801..1825
-original 784..789 -> expanded 1825..1830
-original 817..842 -> expanded 1830..1855
-original 889..925 -> expanded 1855..1891
-original 980..1007 -> expanded 1891..1918
-original 1053..1080 -> expanded 1918..1945
-original 1108..1135 -> expanded 1945..1972
-original 1181..1207 -> expanded 1972..1998
-original 1255..1283 -> expanded 1998..2026
-original 1372..1418 -> expanded 2026..2072
-original 1471..1476 -> expanded 2072..2077
-original 1495..1529 -> expanded 2077..2111
-original 1581..1626 -> expanded 2111..2156
-original 1654..1659 -> expanded 2156..2161
-original 1732..1757 -> expanded 2161..2186
-original 1785..1830 -> expanded 2186..2231
-original 1830..1831 -> expanded 49865..49866
-generated 0..1380 <- imports
-generated 2231..2783 <- Default
-generated 2783..7393 <- Encode
-generated 7393..25458 <- Decode
-generated 25458..48518 <- Gigaform
-generated 48518..49865 <- __convenience_const
+original 0..359 -> expanded 1628..1987
+original 408..444 -> expanded 1987..2023
+original 472..493 -> expanded 2023..2044
+original 535..540 -> expanded 2044..2049
+original 581..605 -> expanded 2049..2073
+original 784..789 -> expanded 2073..2078
+original 817..842 -> expanded 2078..2103
+original 889..925 -> expanded 2103..2139
+original 980..1007 -> expanded 2139..2166
+original 1053..1080 -> expanded 2166..2193
+original 1108..1135 -> expanded 2193..2220
+original 1181..1207 -> expanded 2220..2246
+original 1255..1283 -> expanded 2246..2274
+original 1372..1418 -> expanded 2274..2320
+original 1471..1476 -> expanded 2320..2325
+original 1495..1529 -> expanded 2325..2359
+original 1581..1626 -> expanded 2359..2404
+original 1654..1659 -> expanded 2404..2409
+original 1732..1757 -> expanded 2409..2434
+original 1785..1830 -> expanded 2434..2479
+original 1830..1831 -> expanded 52418..52419
+generated 0..1628 <- imports
+generated 2479..3031 <- Default
+generated 3031..8826 <- Encode
+generated 8826..27921 <- Decode
+generated 27921..50981 <- Gigaform
+generated 50981..52418 <- __convenience_const
 
 ## Metadata
 
-interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":409,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":473,"start":445}}],"name":"id","optional":false,"readonly":false,"span":{"end":489,"start":478},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":582,"start":541}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":536,"start":494}}],"name":"title","optional":false,"readonly":false,"span":{"end":601,"start":587},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":818,"start":790}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":785,"start":606}}],"name":"status","optional":false,"readonly":false,"span":{"end":838,"start":823},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":890,"start":843}}],"name":"begins","optional":false,"readonly":false,"span":{"end":921,"start":895},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":981,"start":926}}],"name":"duration","optional":false,"readonly":false,"span":{"end":1003,"start":986},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1054,"start":1008}}],"name":"timeZone","optional":false,"readonly":false,"span":{"end":1076,"start":1059},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1109,"start":1081}}],"name":"offsetMs","optional":false,"readonly":false,"span":{"end":1131,"start":1114},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1182,"start":1136}}],"name":"allDay","optional":false,"readonly":false,"span":{"end":1203,"start":1187},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1256,"start":1208}}],"name":"multiDay","optional":false,"readonly":false,"span":{"end":1279,"start":1261},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1373,"start":1284}}],"name":"employees","optional":false,"readonly":false,"span":{"end":1414,"start":1378},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1496,"start":1477}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1472,"start":1419}}],"name":"location","optional":false,"readonly":false,"span":{"end":1525,"start":1501},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1582,"start":1530}}],"name":"description","optional":false,"readonly":false,"span":{"end":1622,"start":1587},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1733,"start":1660}},{"args_src":"{}","name":"hiddenController","span":{"end":1655,"start":1627}}],"name":"colors","optional":false,"readonly":false,"span":{"end":1753,"start":1738},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1786,"start":1758}}],"name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1829,"start":1791},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1831,"start":417},"type_params":[]}
+interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":409,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":473,"start":445}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":489,"start":478},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":582,"start":541}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":536,"start":494}}],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":601,"start":587},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":818,"start":790}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":785,"start":606}}],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":838,"start":823},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":890,"start":843}}],"key":"Named","name":"begins","optional":false,"readonly":false,"span":{"end":921,"start":895},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":981,"start":926}}],"key":"Named","name":"duration","optional":false,"readonly":false,"span":{"end":1003,"start":986},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1054,"start":1008}}],"key":"Named","name":"timeZone","optional":false,"readonly":false,"span":{"end":1076,"start":1059},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1109,"start":1081}}],"key":"Named","name":"offsetMs","optional":false,"readonly":false,"span":{"end":1131,"start":1114},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1182,"start":1136}}],"key":"Named","name":"allDay","optional":false,"readonly":false,"span":{"end":1203,"start":1187},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1256,"start":1208}}],"key":"Named","name":"multiDay","optional":false,"readonly":false,"span":{"end":1279,"start":1261},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1373,"start":1284}}],"key":"Named","name":"employees","optional":false,"readonly":false,"span":{"end":1414,"start":1378},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1496,"start":1477}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1472,"start":1419}}],"key":"Named","name":"location","optional":false,"readonly":false,"span":{"end":1525,"start":1501},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1582,"start":1530}}],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":1622,"start":1587},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1733,"start":1660}},{"args_src":"{}","name":"hiddenController","span":{"end":1655,"start":1627}}],"key":"Named","name":"colors","optional":false,"readonly":false,"span":{"end":1753,"start":1738},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1786,"start":1758}}],"key":"Named","name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1829,"start":1791},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1831,"start":417},"type_params":[]}
 
 ## Registry reads
 
 Name("Array")
 Name("Colors")
+Name("DateTime")
 Name("DateTime.DateTime")
+Name("Employee")
+Name("Gigaform")
+Name("Option")
 Name("Option.Option")
 Name("Option.Option<string>")
 Name("RecurrenceRule")
+Name("Site")
 Name("Status")
 Name("boolean")
 Name("number")
 Name("string")
 Name("string | Employee")
 Name("string | Site")
+ExportedAs("DateTime")
+ExportedAs("Gigaform")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

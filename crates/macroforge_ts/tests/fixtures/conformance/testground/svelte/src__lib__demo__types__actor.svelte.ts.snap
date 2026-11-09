@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { accountDecodeWithContext, accountHasShape, accountDefaultValue } from "./account.svelte";
-import { employeeDecodeWithContext, employeeHasShape, employeeDefaultValue } from "./employee.svelte";
-import { userDecodeWithContext, userHasShape, userDefaultValue } from "./user.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
+import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
+import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,32 +42,32 @@ export function actorEncode(value: Actor, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Actor): member is User => __mf_member(member, "__type") === "User", (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Employee => __mf_member(member, "__type") === "Employee", (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Account => __mf_member(member, "__type") === "Account", (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is User => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "email" in member && "firstName" in member && "lastName" in member && "password" in member && "metadata" in member && "settings" in member && "role" in member && "emailVerified" in member && "verificationToken" in member && "verificationExpires" in member && "passwordResetToken" in member && "passwordResetExpires" in member && "permissions" in member && "createdAt" in member && "lastLoginAt" in member, (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Employee => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "imageUrl" in member && "name" in member && "phones" in member && "role" in member && "title" in member && "email" in member && "address" in member && "username" in member && "route" in member && "ratePerHour" in member && "active" in member && "isTechnician" in member && "isSalesRep" in member && "description" in member && "linkedinUrl" in member && "attendance" in member && "settings" in member, (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Account => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "taxRate" in member && "site" in member && "salesRep" in member && "orders" in member && "activity" in member && "customFields" in member && "accountName" in member && "sector" in member && "memo" in member && "phones" in member && "email" in member && "leadSource" in member && "colors" in member && "needsReview" in member && "hasAlert" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "dateAdded" in member, (member) => accountEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = actorDecodeWithContext(data, ctx);
+        const resultOrRef = actorDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -113,6 +113,10 @@ export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function actorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => actorDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Actor | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -125,7 +129,7 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "User") {
                 return userDecodeWithContext(value, ctx) as Actor;
@@ -192,20 +196,18 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 export function actorHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
                     }
                 }
-
-                let __matchCount = 0;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (accountHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (accountHasShape(value)) return true;
+                return false;
 }
 export function actorIs(value: unknown): value is Actor {
-    return actorHasShape(value);
+    return actorHasShape(value) && actorDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -355,6 +357,7 @@ export const Actor: {
   readonly encode: typeof actorEncode;
   readonly encodeWithContext: typeof actorEncodeWithContext;
   readonly decode: typeof actorDecode;
+  readonly fromString: typeof actorFromString;
   readonly decodeWithContext: typeof actorDecodeWithContext;
   readonly hasShape: typeof actorHasShape;
   readonly is: typeof actorIs;
@@ -365,6 +368,7 @@ export const Actor: {
   encode: actorEncode,
   encodeWithContext: actorEncodeWithContext,
   decode: actorDecode,
+  fromString: actorFromString,
   decodeWithContext: actorDecodeWithContext,
   hasShape: actorHasShape,
   is: actorIs,
@@ -384,8 +388,19 @@ export declare function actorDefaultValue(): Actor;
 export declare function actorEncode(value: Actor, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function actorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Actor;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function actorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Actor;
 } | {
@@ -471,6 +486,7 @@ export declare const Actor: {
 	readonly encode: typeof actorEncode;
 	readonly encodeWithContext: typeof actorEncodeWithContext;
 	readonly decode: typeof actorDecode;
+	readonly fromString: typeof actorFromString;
 	readonly decodeWithContext: typeof actorDecodeWithContext;
 	readonly hasShape: typeof actorHasShape;
 	readonly is: typeof actorIs;
@@ -484,15 +500,15 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..202 -> expanded 845..1047
-original 251..314 -> expanded 1047..1110
-original 314..315 -> expanded 13054..13055
-generated 0..845 <- imports
-generated 1110..1189 <- Default
-generated 1189..2430 <- Encode
-generated 2430..7640 <- Decode
-generated 7640..12321 <- Gigaform
-generated 12321..13054 <- __convenience_const
+original 0..202 -> expanded 1076..1278
+original 251..314 -> expanded 1278..1341
+original 314..315 -> expanded 16233..16234
+generated 0..1076 <- imports
+generated 1341..1420 <- Default
+generated 1420..5131 <- Encode
+generated 5131..10741 <- Decode
+generated 10741..15422 <- Gigaform
+generated 15422..16233 <- __convenience_const
 
 ## Metadata
 
@@ -503,7 +519,9 @@ type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","sp
 Name("Account")
 Name("Actor")
 Name("Employee")
+Name("Gigaform")
 Name("User")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

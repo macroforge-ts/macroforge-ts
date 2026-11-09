@@ -1,0 +1,3655 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/variant-shapes.ts
+sha256 0c7e45692b83ef38a9ed63011a6c9656436b3e2014b2eed55722accca278971b
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralCompare as __mf_structuralCompare, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, spellsTemplate as __mf_spellsTemplate, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Unions whose members are objects, literals and template literal types, in
+ * every tagging mode, and a class three levels deep whose fields are typed
+ * by their initializers.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export interface VariantCircle {
+    radius: number;
+}
+
+export function variantCircleToString(value: VariantCircle): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("radius: " + String(value.radius));
+        return "VariantCircle { " + parts.join(", ") + " }";
+    });
+}
+
+export function variantCircleClone(value: VariantCircle): VariantCircle {
+    return __mf_clonedWith(value, (): VariantCircle => ({ radius: value.radius }));
+}
+
+export function variantCircleEquals(a: VariantCircle, b: VariantCircle): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius;
+    });
+}
+
+export function variantCircleHashCode(value: VariantCircle): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.radius) ? value.radius | 0 : value.radius.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function variantCirclePartialCompare(a: VariantCircle, b: VariantCircle): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    return (a.radius < b.radius ? -1 : a.radius > b.radius ? 1 : a.radius === b.radius || (a.radius !== a.radius && b.radius !== b.radius) ? 0 : null);
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantCircleEncode(value: VariantCircle, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantCircleEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantCircleEncodeWithContext(value: VariantCircle, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantCircle" });
+    variantCircleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantCircleEncodePartialWithContext(value: Partial<VariantCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCircle>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantCircle" };
+        variantCircleEncodeFields(value as VariantCircle, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantCircleEncodeFields(value: VariantCircle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("radius")) {
+        if (value.radius !== undefined) {
+            result["radius"] = value.radius;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantCircleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantCircleDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantCircle.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantCircleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantCircleDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantCircle | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantCircle> | __mf_PendingRef;
+export function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantCircle> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantCircle.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantCircle.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "VariantCircle") as VariantCircle | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantCircle.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "radius"?: number | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantCircle");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
+        const __raw_radius = obj["radius"] as number;
+
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
+            errors.push({ field: "radius", message: __raw_radius == null ? "VariantCircle.radius is required" : "expected number" });
+        } else {
+            instance.radius = __raw_radius;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as VariantCircle;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function variantCircleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantCircle>): Partial<VariantCircle> | __mf_PendingRef {
+    return variantCircleDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function variantCircleValidateField<K extends keyof VariantCircle>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function variantCircleValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function variantCircleValidateFields(partial: { readonly [K in keyof VariantCircle]?: unknown }): Array<{ field: string; message: string }>;
+export function variantCircleValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function variantCircleHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["radius"]);
+}
+
+export function variantCircleIs(obj: unknown): obj is VariantCircle {
+    return variantCircleHasShape(obj) && variantCircleDecode(obj).success;
+}
+
+export const VariantCircle: {
+  readonly toString: typeof variantCircleToString;
+  readonly clone: typeof variantCircleClone;
+  readonly equals: typeof variantCircleEquals;
+  readonly hashCode: typeof variantCircleHashCode;
+  readonly partialCompare: typeof variantCirclePartialCompare;
+  readonly encode: typeof variantCircleEncode;
+  readonly encodeWithContext: typeof variantCircleEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantCircleEncodePartialWithContext;
+  readonly decode: typeof variantCircleDecode;
+  readonly fromString: typeof variantCircleFromString;
+  readonly decodeWithContext: typeof variantCircleDecodeWithContext;
+  readonly decodePartialWithContext: typeof variantCircleDecodePartialWithContext;
+  readonly validateField: typeof variantCircleValidateField;
+  readonly validateFields: typeof variantCircleValidateFields;
+  readonly hasShape: typeof variantCircleHasShape;
+  readonly is: typeof variantCircleIs;
+} = {
+  toString: variantCircleToString,
+  clone: variantCircleClone,
+  equals: variantCircleEquals,
+  hashCode: variantCircleHashCode,
+  partialCompare: variantCirclePartialCompare,
+  encode: variantCircleEncode,
+  encodeWithContext: variantCircleEncodeWithContext,
+  encodePartialWithContext: variantCircleEncodePartialWithContext,
+  decode: variantCircleDecode,
+  fromString: variantCircleFromString,
+  decodeWithContext: variantCircleDecodeWithContext,
+  decodePartialWithContext: variantCircleDecodePartialWithContext,
+  validateField: variantCircleValidateField,
+  validateFields: variantCircleValidateFields,
+  hasShape: variantCircleHasShape,
+  is: variantCircleIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export interface VariantRect {
+    size: [number, number];
+    label?: `r-${string}`;
+}
+
+export function variantRectToString(value: VariantRect): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("size: " + __mf_structuralDebug(value.size));
+    parts.push("label: " + String(value.label));
+        return "VariantRect { " + parts.join(", ") + " }";
+    });
+}
+
+export function variantRectClone(value: VariantRect): VariantRect {
+    return __mf_clonedWith(value, (): VariantRect => ({
+	size: __mf_structuralClone(value.size),
+	..."label" in value ? { label: value.label } : {}
+}));
+}
+
+export function variantRectEquals(a: VariantRect, b: VariantRect): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.size, b.size),
+            () => a.label === b.label,
+        ].every((same) => same());
+    });
+}
+
+export function variantRectHashCode(value: VariantRect): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.size))) | 0;
+    hash = (hash * 31 + (value.label == null ? 0 : (value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function variantRectPartialCompare(a: VariantRect, b: VariantRect): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => __mf_structuralCompare(a.size, b.size),
+        () => (a.label == null || b.label == null ? __mf_structuralCompare(a.label, b.label) : (a.label < b.label ? -1 : a.label > b.label ? 1 : 0)),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantRectEncode(value: VariantRect, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantRectEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantRectEncodeWithContext(value: VariantRect, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantRect" });
+    variantRectEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantRectEncodePartialWithContext(value: Partial<VariantRect>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantRect>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantRect" };
+        variantRectEncodeFields(value as VariantRect, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantRectEncodeFields(value: VariantRect, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("size")) {
+                if (value.size !== undefined) {
+                    result["size"] = value.size;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantRectDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantRect } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantRectDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantRect.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantRectFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantRect } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantRectDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantRect | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantRect> | __mf_PendingRef;
+export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantRect> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantRect.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantRect.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "VariantRect") as VariantRect | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantRect.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["size", "size"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "size"?: [number, number] | undefined; "label"?: `r-${string}` | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantRect");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+                const __raw_size = obj["size"] as [number, number];
+                if (Array.isArray(__raw_size)) {
+                    ctx.pushScope("size");
+                    try {
+                        instance.size = (__mf_decodeTuple(__raw_size, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "size" : "size." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "size", message: __raw_size == null ? "VariantRect.size is required" : "expected [number, number]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("label"))) {
+                if (("label" in obj && obj["label"] !== undefined)) {
+                    const __raw_label = obj["label"] as `r-${string}`;
+
+                    if (!__mf_spellsTemplate(__raw_label, ["r-", ""], ["string"])) {
+                        errors.push({ field: "label", message: "expected `r-${string}`" });
+                    } else {
+                        instance.label = __raw_label;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as VariantRect;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function variantRectDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantRect>): Partial<VariantRect> | __mf_PendingRef {
+    return variantRectDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function variantRectValidateField<K extends keyof VariantRect>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function variantRectValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function variantRectValidateFields(partial: { readonly [K in keyof VariantRect]?: unknown }): Array<{ field: string; message: string }>;
+export function variantRectValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function variantRectHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["size"]);
+}
+
+export function variantRectIs(obj: unknown): obj is VariantRect {
+    return variantRectHasShape(obj) && variantRectDecode(obj).success;
+}
+
+export const VariantRect: {
+  readonly toString: typeof variantRectToString;
+  readonly clone: typeof variantRectClone;
+  readonly equals: typeof variantRectEquals;
+  readonly hashCode: typeof variantRectHashCode;
+  readonly partialCompare: typeof variantRectPartialCompare;
+  readonly encode: typeof variantRectEncode;
+  readonly encodeWithContext: typeof variantRectEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantRectEncodePartialWithContext;
+  readonly decode: typeof variantRectDecode;
+  readonly fromString: typeof variantRectFromString;
+  readonly decodeWithContext: typeof variantRectDecodeWithContext;
+  readonly decodePartialWithContext: typeof variantRectDecodePartialWithContext;
+  readonly validateField: typeof variantRectValidateField;
+  readonly validateFields: typeof variantRectValidateFields;
+  readonly hasShape: typeof variantRectHasShape;
+  readonly is: typeof variantRectIs;
+} = {
+  toString: variantRectToString,
+  clone: variantRectClone,
+  equals: variantRectEquals,
+  hashCode: variantRectHashCode,
+  partialCompare: variantRectPartialCompare,
+  encode: variantRectEncode,
+  encodeWithContext: variantRectEncodeWithContext,
+  encodePartialWithContext: variantRectEncodePartialWithContext,
+  decode: variantRectDecode,
+  fromString: variantRectFromString,
+  decodeWithContext: variantRectDecodeWithContext,
+  decodePartialWithContext: variantRectDecodePartialWithContext,
+  validateField: variantRectValidateField,
+  validateFields: variantRectValidateFields,
+  hasShape: variantRectHasShape,
+  is: variantRectIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export type VariantInternal = VariantCircle | VariantRect | 'none' | `id-${number}` | 7 | null;
+
+export function variantInternalToString(value: VariantInternal): string {
+    return "VariantInternal(" + __mf_structuralDebug(value) + ")";
+}
+
+export function variantInternalClone(value: VariantInternal): VariantInternal {
+    return __mf_structuralClone(value);
+}
+
+export function variantInternalEquals(a: VariantInternal, b: VariantInternal): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function variantInternalHashCode(value: VariantInternal): number {
+    return __mf_structuralHash(value);
+}
+
+export function variantInternalPartialCompare(a: VariantInternal, b: VariantInternal): number | null {
+    return __mf_structuralCompare(a, b);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantInternalEncode(value: VariantInternal, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantInternalEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantInternalEncodeWithContext(value: VariantInternal, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantInternal): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantInternalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantInternal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantInternalDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantInternal.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantInternalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantInternal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantInternalDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantInternalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantInternal | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantInternal.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as VariantInternal | __mf_PendingRef;
+    }
+
+    
+    const allowedLiterals = ['none', 7] as const;
+    if (allowedLiterals.some((allowed) => allowed === value)) {
+        return value as VariantInternal;
+    }
+    if (__mf_spellsTemplate(value, ["id-", ""], ["number"])) {
+        return value as VariantInternal;
+    }
+    if (value === null) {
+        return value as VariantInternal;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "__type");
+        if (typeof __typeName === "string") {
+            if (__typeName === "VariantCircle") {
+                return variantCircleDecodeWithContext(value, ctx) as VariantInternal;
+            }
+            if (__typeName === "VariantRect") {
+                return variantRectDecodeWithContext(value, ctx) as VariantInternal;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (variantCircleHasShape(value)) __shapeMatches.push("VariantCircle");
+            if (variantRectHasShape(value)) __shapeMatches.push("VariantRect");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "VariantCircle") {
+                    return variantCircleDecodeWithContext(value, ctx) as VariantInternal;
+                }
+                if (__shapeMatches[0] === "VariantRect") {
+                    return variantRectDecodeWithContext(value, ctx) as VariantInternal;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (variantCircleHasShape(value)) __shapeMatches.push("VariantCircle");
+        if (variantRectHasShape(value)) __shapeMatches.push("VariantRect");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "VariantCircle") {
+                return variantCircleDecodeWithContext(value, ctx) as VariantInternal;
+            }
+            if (__shapeMatches[0] === "VariantRect") {
+                return variantRectDecodeWithContext(value, ctx) as VariantInternal;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "VariantInternal.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function variantInternalHasShape(value: unknown): boolean {
+                const allowedLiterals = ['none', 7] as const;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
+                if (__mf_spellsTemplate(value, ["id-", ""], ["number"])) return true;
+                if (value === null) return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "__type");
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "VariantCircle" || __typeName === "VariantRect") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (variantCircleHasShape(value)) __matchCount++;
+                        if (variantRectHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (variantCircleHasShape(value)) __matchCount++;
+                    if (variantRectHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function variantInternalIs(value: unknown): value is VariantInternal {
+    return variantInternalHasShape(value) && variantInternalDecode(value).success;
+}
+
+export const VariantInternal: {
+  readonly toString: typeof variantInternalToString;
+  readonly clone: typeof variantInternalClone;
+  readonly equals: typeof variantInternalEquals;
+  readonly hashCode: typeof variantInternalHashCode;
+  readonly partialCompare: typeof variantInternalPartialCompare;
+  readonly encode: typeof variantInternalEncode;
+  readonly encodeWithContext: typeof variantInternalEncodeWithContext;
+  readonly decode: typeof variantInternalDecode;
+  readonly fromString: typeof variantInternalFromString;
+  readonly decodeWithContext: typeof variantInternalDecodeWithContext;
+  readonly hasShape: typeof variantInternalHasShape;
+  readonly is: typeof variantInternalIs;
+} = {
+  toString: variantInternalToString,
+  clone: variantInternalClone,
+  equals: variantInternalEquals,
+  hashCode: variantInternalHashCode,
+  partialCompare: variantInternalPartialCompare,
+  encode: variantInternalEncode,
+  encodeWithContext: variantInternalEncodeWithContext,
+  decode: variantInternalDecode,
+  fromString: variantInternalFromString,
+  decodeWithContext: variantInternalDecodeWithContext,
+  hasShape: variantInternalHasShape,
+  is: variantInternalIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ tag: "t", content: "c" }) */
+export type VariantAdjacent = VariantCircle | VariantRect;
+
+export function variantAdjacentToString(value: VariantAdjacent): string {
+    return "VariantAdjacent(" + __mf_structuralDebug(value) + ")";
+}
+
+export function variantAdjacentClone(value: VariantAdjacent): VariantAdjacent {
+    return __mf_structuralClone(value);
+}
+
+export function variantAdjacentEquals(a: VariantAdjacent, b: VariantAdjacent): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function variantAdjacentHashCode(value: VariantAdjacent): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantAdjacentEncode(value: VariantAdjacent, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantAdjacentEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantAdjacentEncodeWithContext(value: VariantAdjacent, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantAdjacent): member is VariantCircle => __mf_member(member, "t") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantRect => __mf_member(member, "t") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { "t": __typeName, "c": fields };
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantAdjacentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantAdjacent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantAdjacentDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantAdjacent.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantAdjacentFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantAdjacent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantAdjacentDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantAdjacentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantAdjacent | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantAdjacent.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as VariantAdjacent | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "t");
+        if (typeof __typeName === "string") {
+            const __content = __mf_member(value, "c");
+            if (__typeName === "VariantCircle") {
+                return variantCircleDecodeWithContext(__content != null && typeof __content === "object" ? __content : {}, ctx) as VariantAdjacent;
+            }
+            if (__typeName === "VariantRect") {
+                return variantRectDecodeWithContext(__content != null && typeof __content === "object" ? __content : {}, ctx) as VariantAdjacent;
+            }
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "VariantAdjacent.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: VariantCircle, VariantRect"
+            }]);
+        }
+    }
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "VariantAdjacent.decodeWithContext: expected adjacently tagged object with \"t\" and \"c\" fields"
+    }]);
+}
+export function variantAdjacentHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "t");
+                    if (typeof __typeName === "string" && "c" in value) {
+                        return __typeName === "VariantCircle" || __typeName === "VariantRect";
+                    }
+                }
+                return false;
+}
+export function variantAdjacentIs(value: unknown): value is VariantAdjacent {
+    return variantAdjacentHasShape(value) && variantAdjacentDecode(value).success;
+}
+
+export const VariantAdjacent: {
+  readonly toString: typeof variantAdjacentToString;
+  readonly clone: typeof variantAdjacentClone;
+  readonly equals: typeof variantAdjacentEquals;
+  readonly hashCode: typeof variantAdjacentHashCode;
+  readonly encode: typeof variantAdjacentEncode;
+  readonly encodeWithContext: typeof variantAdjacentEncodeWithContext;
+  readonly decode: typeof variantAdjacentDecode;
+  readonly fromString: typeof variantAdjacentFromString;
+  readonly decodeWithContext: typeof variantAdjacentDecodeWithContext;
+  readonly hasShape: typeof variantAdjacentHasShape;
+  readonly is: typeof variantAdjacentIs;
+} = {
+  toString: variantAdjacentToString,
+  clone: variantAdjacentClone,
+  equals: variantAdjacentEquals,
+  hashCode: variantAdjacentHashCode,
+  encode: variantAdjacentEncode,
+  encodeWithContext: variantAdjacentEncodeWithContext,
+  decode: variantAdjacentDecode,
+  fromString: variantAdjacentFromString,
+  decodeWithContext: variantAdjacentDecodeWithContext,
+  hasShape: variantAdjacentHasShape,
+  is: variantAdjacentIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ externallyTagged: true }) */
+export type VariantExternal = VariantCircle | VariantRect;
+
+export function variantExternalToString(value: VariantExternal): string {
+    return "VariantExternal(" + __mf_structuralDebug(value) + ")";
+}
+
+export function variantExternalClone(value: VariantExternal): VariantExternal {
+    return __mf_structuralClone(value);
+}
+
+export function variantExternalEquals(a: VariantExternal, b: VariantExternal): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function variantExternalHashCode(value: VariantExternal): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantExternalEncode(value: VariantExternal, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantExternalEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantExternalEncodeWithContext(value: VariantExternal, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantExternal): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { [__typeName]: fields };
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantExternalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantExternal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantExternalDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantExternal.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantExternalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantExternal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantExternalDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantExternalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantExternal | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantExternal.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as VariantExternal | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __keys = Object.keys(value);
+        const __variantName = __keys[0];
+        if (__variantName !== undefined) {
+            const __inner = __mf_member(value, __variantName);
+            if (__variantName === "VariantCircle") {
+                return variantCircleDecodeWithContext(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as VariantExternal;
+            }
+            if (__variantName === "VariantRect") {
+                return variantRectDecodeWithContext(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as VariantExternal;
+            }
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "VariantExternal.decodeWithContext: unknown variant \"" + __variantName + "\". Expected one of: VariantCircle, VariantRect"
+            }]);
+        }
+    }
+
+    if (typeof value === "string") {
+        if (value === "VariantCircle") {
+            return variantCircleDecodeWithContext({}, ctx) as VariantExternal;
+        }
+        if (value === "VariantRect") {
+            return variantRectDecodeWithContext({}, ctx) as VariantExternal;
+        }
+    }
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "VariantExternal.decodeWithContext: expected externally tagged object with variant key. Expected one of: VariantCircle, VariantRect"
+    }]);
+}
+export function variantExternalHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __keys = Object.keys(value);
+                    const __variantName = __keys[0];
+                    if (__variantName !== undefined) {
+                    if (__variantName === "VariantCircle" || __variantName === "VariantRect") return true;
+                    }
+                }
+                if (typeof value === "string") {
+                    if (value === "VariantCircle" || value === "VariantRect") return true;
+                }
+                return false;
+}
+export function variantExternalIs(value: unknown): value is VariantExternal {
+    return variantExternalHasShape(value) && variantExternalDecode(value).success;
+}
+
+export const VariantExternal: {
+  readonly toString: typeof variantExternalToString;
+  readonly clone: typeof variantExternalClone;
+  readonly equals: typeof variantExternalEquals;
+  readonly hashCode: typeof variantExternalHashCode;
+  readonly encode: typeof variantExternalEncode;
+  readonly encodeWithContext: typeof variantExternalEncodeWithContext;
+  readonly decode: typeof variantExternalDecode;
+  readonly fromString: typeof variantExternalFromString;
+  readonly decodeWithContext: typeof variantExternalDecodeWithContext;
+  readonly hasShape: typeof variantExternalHasShape;
+  readonly is: typeof variantExternalIs;
+} = {
+  toString: variantExternalToString,
+  clone: variantExternalClone,
+  equals: variantExternalEquals,
+  hashCode: variantExternalHashCode,
+  encode: variantExternalEncode,
+  encodeWithContext: variantExternalEncodeWithContext,
+  decode: variantExternalDecode,
+  fromString: variantExternalFromString,
+  decodeWithContext: variantExternalDecodeWithContext,
+  hasShape: variantExternalHasShape,
+  is: variantExternalIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ untagged: true }) */
+export type VariantUntagged = VariantCircle | VariantRect | string | number;
+
+export function variantUntaggedToString(value: VariantUntagged): string {
+    return "VariantUntagged(" + __mf_structuralDebug(value) + ")";
+}
+
+export function variantUntaggedClone(value: VariantUntagged): VariantUntagged {
+    return __mf_structuralClone(value);
+}
+
+export function variantUntaggedEquals(a: VariantUntagged, b: VariantUntagged): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function variantUntaggedHashCode(value: VariantUntagged): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantUntaggedEncode(value: VariantUntagged, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantUntaggedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantUntaggedEncodeWithContext(value: VariantUntagged, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantUntagged): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { ...fields };
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantUntagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = variantUntaggedDecodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantUntagged.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function variantUntaggedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantUntagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => variantUntaggedDecode(value, opts));
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantUntaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantUntagged | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantUntagged.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as VariantUntagged | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "string") {
+        return value as VariantUntagged;
+    }
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
+        return value as VariantUntagged;
+    }
+    if (variantCircleHasShape(value)) {
+        try {
+            return variantCircleDecodeWithContext(value, ctx) as VariantUntagged;
+        } catch {                        }
+    }
+    if (variantRectHasShape(value)) {
+        try {
+            return variantRectDecodeWithContext(value, ctx) as VariantUntagged;
+        } catch {                        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "VariantUntagged.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function variantUntaggedHasShape(value: unknown): boolean {
+                if (typeof value === "string") return true;
+                if ((typeof value === "number" && globalThis.Number.isFinite(value))) return true;
+                if (variantCircleHasShape(value)) return true;
+                if (variantRectHasShape(value)) return true;
+                return false;
+}
+export function variantUntaggedIs(value: unknown): value is VariantUntagged {
+    return variantUntaggedHasShape(value) && variantUntaggedDecode(value).success;
+}
+
+export const VariantUntagged: {
+  readonly toString: typeof variantUntaggedToString;
+  readonly clone: typeof variantUntaggedClone;
+  readonly equals: typeof variantUntaggedEquals;
+  readonly hashCode: typeof variantUntaggedHashCode;
+  readonly encode: typeof variantUntaggedEncode;
+  readonly encodeWithContext: typeof variantUntaggedEncodeWithContext;
+  readonly decode: typeof variantUntaggedDecode;
+  readonly fromString: typeof variantUntaggedFromString;
+  readonly decodeWithContext: typeof variantUntaggedDecodeWithContext;
+  readonly hasShape: typeof variantUntaggedHasShape;
+  readonly is: typeof variantUntaggedIs;
+} = {
+  toString: variantUntaggedToString,
+  clone: variantUntaggedClone,
+  equals: variantUntaggedEquals,
+  hashCode: variantUntaggedHashCode,
+  encode: variantUntaggedEncode,
+  encodeWithContext: variantUntaggedEncodeWithContext,
+  decode: variantUntaggedDecode,
+  fromString: variantUntaggedFromString,
+  decodeWithContext: variantUntaggedDecodeWithContext,
+  hasShape: variantUntaggedHasShape,
+  is: variantUntaggedIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class VariantBase {
+    id = '';
+    created = new Date(0);
+    protected weight = 1;
+
+    static toString(value: VariantBase): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("id: " + String(value.id));
+        parts.push("created: " + String(value.created));
+        parts.push("weight: " + String(value.weight));
+            return "VariantBase { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: VariantBase): VariantBase {
+        return __mf_clonedWith(value, () => ({
+        	id: value.id,
+        	created: new Date(value.created.getTime()),
+        	weight: value.weight
+        }));
+    }
+
+    static equals(a: VariantBase, b: VariantBase): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                ].every((same) => same());
+            });
+    }
+
+    static hashCode(value: VariantBase): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.created.getTime() | 0)) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+    static defaultValue(): VariantBase {
+        const fields: { id: string; created: Date; weight: number } = {
+            id: "",
+            created: new Date(0),
+            weight: 1,
+        };
+        return __mf_instanceOf(VariantBase.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: VariantBase, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantBase" });
+    VariantBase.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<VariantBase>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantBase" };
+        VariantBase.#encodeFields(value as VariantBase, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: VariantBase, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: VariantBase, keepMetadata?: boolean): string {
+        return variantBaseEncode(value, keepMetadata);
+    }
+
+constructor(props: { id: string; created: Date; weight: number }) {
+
+    this.id = props.id;
+    this.created = props.created;
+    this.weight = props.weight;
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = VariantBase.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantBase.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => VariantBase.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantBase | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantBase> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantBase> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantBase.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantBase.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "VariantBase") as VariantBase | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantBase.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(VariantBase.prototype);
+    const instance: { "id"?: string | undefined; "created"?: Date | undefined; "weight"?: number | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantBase");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
+
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantBase.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantBase.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantBase.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof VariantBase)) {
+        throw new TypeError("VariantBase.decodeWithContext: the value made is no VariantBase");
+    }
+    return made;
+}
+static validateField<K extends keyof VariantBase>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof VariantBase]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["id", "created", "weight"]);
+}
+
+static is(obj: unknown): obj is VariantBase {
+    if (obj instanceof VariantBase) {
+        return true;
+    }
+    if (!VariantBase.hasShape(obj)) {
+        return false;
+    }
+
+    const result = VariantBase.decode(obj);
+    return result.success;
+}
+}
+
+export function variantBaseToString(value: VariantBase): string {
+    return VariantBase.toString(value);
+}
+
+export function variantBaseClone(value: VariantBase): VariantBase {
+    return VariantBase.clone(value);
+}
+
+export function variantBaseEquals(a: VariantBase, b: VariantBase): boolean {
+    return VariantBase.equals(a, b);
+}
+
+export function variantBaseHashCode(value: VariantBase): number {
+    return VariantBase.hashCode(value);
+}
+
+export function variantBaseDefaultValue(): VariantBase {
+    return VariantBase.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantBaseEncode(value: VariantBase, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantBaseEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantBaseEncodeWithContext(value: VariantBase, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return VariantBase.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantBaseEncodePartialWithContext(value: Partial<VariantBase>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Record<string, unknown> {
+    return VariantBase.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantBaseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantBase.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantBaseFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantBase.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantBase | __mf_PendingRef {
+    return VariantBase.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function variantBaseHasShape(value: unknown): boolean {
+    return VariantBase.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function variantBaseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Partial<VariantBase> | __mf_PendingRef {
+    return VariantBase.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function variantBaseIs(value: unknown): value is VariantBase {
+    return VariantBase.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class VariantMid extends VariantBase {
+    tags = new Set<string>();
+    protected note: string | null = null;
+
+    static override toString(value: VariantMid): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("id: " + String(value.id));
+        parts.push("created: " + String(value.created));
+        parts.push("weight: " + String(value.weight));
+        parts.push("tags: " + __mf_structuralDebug(value.tags));
+        parts.push("note: " + String(value.note));
+            return "VariantMid { " + parts.join(", ") + " }";
+        });
+    }
+
+    static override clone(value: VariantMid): VariantMid {
+        return __mf_clonedWith(value, () => ({
+        	id: value.id,
+        	created: new Date(value.created.getTime()),
+        	weight: value.weight,
+        	tags: new Set(value.tags),
+        	note: value.note
+        }));
+    }
+
+    static override equals(a: VariantMid, b: VariantMid): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                    () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+                    () => a.note === b.note,
+                ].every((same) => same());
+            });
+    }
+
+    static override hashCode(value: VariantMid): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.created.getTime() | 0)) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Array.from(value.tags).reduce<number>((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.note == null ? 0 : (value.note ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+    static override defaultValue(): VariantMid {
+        const fields: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null } = {
+            id: "",
+            created: new Date(0),
+            weight: 1,
+            tags: new Set<string>(),
+            note: null,
+        };
+        return __mf_instanceOf(VariantMid.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static override encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantMid" });
+    VariantMid.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static override encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantMid" };
+        VariantMid.#encodeFields(value as VariantMid, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: VariantMid, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static override encode(value: VariantMid, keepMetadata?: boolean): string {
+        return variantMidEncode(value, keepMetadata);
+    }
+
+constructor(props: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null }) {
+    super(props);
+    this.tags = props.tags;
+    this.note = props.note;
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = VariantMid.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantMid.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static override fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => VariantMid.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantMid.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantMid.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "VariantMid") as VariantMid | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantMid.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"], ["tags", "tags"], ["note", "note"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(VariantMid.prototype);
+    const instance: { "id"?: string | undefined; "created"?: Date | undefined; "weight"?: number | undefined; "tags"?: Set<string> | undefined; "note"?: string | null | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantMid");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
+
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantMid.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantMid.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantMid.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "tags", message: __raw_tags == null ? "VariantMid.tags is required" : "expected Set<string>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | null;
+
+                if (!(typeof __raw_note === "string" || __raw_note === null)) {
+                    errors.push({ field: "note", message: "expected string | null" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof VariantMid)) {
+        throw new TypeError("VariantMid.decodeWithContext: the value made is no VariantMid");
+    }
+    return made;
+}
+static override validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static override validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static override validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{ field: string; message: string }>;
+static override validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static override hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["id", "created", "weight", "tags", "note"]);
+}
+
+static override is(obj: unknown): obj is VariantMid {
+    if (obj instanceof VariantMid) {
+        return true;
+    }
+    if (!VariantMid.hasShape(obj)) {
+        return false;
+    }
+
+    const result = VariantMid.decode(obj);
+    return result.success;
+}
+}
+
+export function variantMidToString(value: VariantMid): string {
+    return VariantMid.toString(value);
+}
+
+export function variantMidClone(value: VariantMid): VariantMid {
+    return VariantMid.clone(value);
+}
+
+export function variantMidEquals(a: VariantMid, b: VariantMid): boolean {
+    return VariantMid.equals(a, b);
+}
+
+export function variantMidHashCode(value: VariantMid): number {
+    return VariantMid.hashCode(value);
+}
+
+export function variantMidDefaultValue(): VariantMid {
+    return VariantMid.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantMidEncode(value: VariantMid, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantMidEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantMidEncodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return VariantMid.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantMidEncodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown> {
+    return VariantMid.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantMidDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantMid.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantMidFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantMid.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantMidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef {
+    return VariantMid.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function variantMidHasShape(value: unknown): boolean {
+    return VariantMid.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function variantMidDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Partial<VariantMid> | __mf_PendingRef {
+    return VariantMid.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function variantMidIs(value: unknown): value is VariantMid {
+    return VariantMid.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class VariantLeaf extends VariantMid {
+    shape: VariantInternal = null;
+    readonly kind = 'leaf';
+    children: VariantLeaf[] = [];
+
+    static override toString(value: VariantLeaf): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("id: " + String(value.id));
+        parts.push("created: " + String(value.created));
+        parts.push("weight: " + String(value.weight));
+        parts.push("tags: " + __mf_structuralDebug(value.tags));
+        parts.push("note: " + String(value.note));
+        parts.push("shape: " + variantInternalToString(value.shape));
+        parts.push("kind: " + String(value.kind));
+        parts.push("children: " + "[" + value.children.map(variantLeafToString).join(", ") + "]");
+            return "VariantLeaf { " + parts.join(", ") + " }";
+        });
+    }
+
+    static override clone(value: VariantLeaf): VariantLeaf {
+        return __mf_clonedWith(value, () => ({
+        	id: value.id,
+        	created: new Date(value.created.getTime()),
+        	weight: value.weight,
+        	tags: new Set(value.tags),
+        	note: value.note,
+        	shape: variantInternalClone(value.shape),
+        	kind: value.kind,
+        	children: value.children.map((__item0) => variantLeafClone(__item0))
+        }));
+    }
+
+    static override equals(a: VariantLeaf, b: VariantLeaf): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                    () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+                    () => a.note === b.note,
+                    () => variantInternalEquals(a.shape, b.shape),
+                    () => a.kind === b.kind,
+                    () => a.children.length === b.children.length && a.children.every((__item0, __index0) => {
+                    	const __other0 = b.children[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : variantLeafEquals(__item0, __other0);
+                    }),
+                ].every((same) => same());
+            });
+    }
+
+    static override hashCode(value: VariantLeaf): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.created.getTime() | 0)) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Array.from(value.tags).reduce<number>((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.note == null ? 0 : (value.note ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (variantInternalHashCode(value.shape))) | 0;
+        hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.children.reduce<number>((__hash0, __item0) => __hash0 * 31 + variantLeafHashCode(__item0) | 0, 1))) | 0;
+            return hash;
+        });
+    }
+
+    static override defaultValue(): VariantLeaf {
+        const fields: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null; shape: VariantInternal; kind: 'leaf'; children: VariantLeaf[] } = {
+            id: "",
+            created: new Date(0),
+            weight: 1,
+            tags: new Set<string>(),
+            note: null,
+            shape: null,
+            kind: "leaf",
+            children: [],
+        };
+        return __mf_instanceOf(VariantLeaf.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static override encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantLeaf" });
+    VariantLeaf.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static override encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantLeaf" };
+        VariantLeaf.#encodeFields(value as VariantLeaf, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: VariantLeaf, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shape")) {
+                if (value.shape !== undefined) {
+                    result["shape"] = variantInternalEncodeWithContext(value.shape, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("children")) {
+                if (value.children !== undefined) {
+                    result["children"] = value.children.map((__item0) => variantLeafEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static override encode(value: VariantLeaf, keepMetadata?: boolean): string {
+        return variantLeafEncode(value, keepMetadata);
+    }
+
+constructor(props: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null; shape: VariantInternal; kind: 'leaf'; children: VariantLeaf[] }) {
+    super(props);
+    this.shape = props.shape;
+    this.kind = props.kind;
+    this.children = props.children;
+}
+
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = VariantLeaf.decodeWithContext(input, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "VariantLeaf.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static override fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => VariantLeaf.decode(value, opts));
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantLeaf.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "VariantLeaf.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "VariantLeaf") as VariantLeaf | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "VariantLeaf.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"], ["tags", "tags"], ["note", "note"], ["shape", "shape"], ["kind", "kind"], ["children", "children"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const made: object = Object.create(VariantLeaf.prototype);
+    const instance: { "id"?: string | undefined; "created"?: Date | undefined; "weight"?: number | undefined; "tags"?: Set<string> | undefined; "note"?: string | null | undefined; "shape"?: VariantInternal | undefined; "kind"?: 'leaf' | undefined; "children"?: VariantLeaf[] | undefined } = made;
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantLeaf");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
+
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantLeaf.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantLeaf.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantLeaf.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "tags", message: __raw_tags == null ? "VariantLeaf.tags is required" : "expected Set<string>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | null;
+
+                if (!(typeof __raw_note === "string" || __raw_note === null)) {
+                    errors.push({ field: "note", message: "expected string | null" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
+                const __raw_shape = obj["shape"] as VariantInternal;
+
+                ctx.pushScope("shape");
+                try {
+                    const __result = variantInternalDecodeWithContext(__raw_shape, ctx);
+                    ctx.assignOrDefer(instance, "shape", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "shape" : "shape." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as 'leaf';
+
+                if (!(__raw_kind === "leaf")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "VariantLeaf.kind is required" : "expected 'leaf'" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
+                const __raw_children = obj["children"] as VariantLeaf[];
+                if (Array.isArray(__raw_children)) {
+                    ctx.pushScope("children");
+                    try {
+                        instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => variantLeafDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "children" : "children." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "children", message: __raw_children == null ? "VariantLeaf.children is required" : "expected VariantLeaf[]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    if (!(made instanceof VariantLeaf)) {
+        throw new TypeError("VariantLeaf.decodeWithContext: the value made is no VariantLeaf");
+    }
+    return made;
+}
+static override validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static override validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static override validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{ field: string; message: string }>;
+static override validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static override hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["id", "created", "weight", "tags", "note", "shape", "kind", "children"]);
+}
+
+static override is(obj: unknown): obj is VariantLeaf {
+    if (obj instanceof VariantLeaf) {
+        return true;
+    }
+    if (!VariantLeaf.hasShape(obj)) {
+        return false;
+    }
+
+    const result = VariantLeaf.decode(obj);
+    return result.success;
+}
+}
+
+export function variantLeafToString(value: VariantLeaf): string {
+    return VariantLeaf.toString(value);
+}
+
+export function variantLeafClone(value: VariantLeaf): VariantLeaf {
+    return VariantLeaf.clone(value);
+}
+
+export function variantLeafEquals(a: VariantLeaf, b: VariantLeaf): boolean {
+    return VariantLeaf.equals(a, b);
+}
+
+export function variantLeafHashCode(value: VariantLeaf): number {
+    return VariantLeaf.hashCode(value);
+}
+
+export function variantLeafDefaultValue(): VariantLeaf {
+    return VariantLeaf.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantLeafEncode(value: VariantLeaf, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantLeafEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantLeafEncodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return VariantLeaf.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantLeafEncodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown> {
+    return VariantLeaf.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantLeafDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantLeaf.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function variantLeafFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return VariantLeaf.fromString(text, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function variantLeafDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef {
+    return VariantLeaf.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function variantLeafHasShape(value: unknown): boolean {
+    return VariantLeaf.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function variantLeafDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Partial<VariantLeaf> | __mf_PendingRef {
+    return VariantLeaf.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function variantLeafIs(value: unknown): value is VariantLeaf {
+    return VariantLeaf.is(value);
+}
+
+/** @derive(Encode) */
+export interface VariantCat {
+    kind: 'cat';
+    born: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantCatEncode(value: VariantCat, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantCatEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantCatEncodeWithContext(value: VariantCat, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantCat" });
+    variantCatEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantCatEncodePartialWithContext(value: Partial<VariantCat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCat>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantCat" };
+        variantCatEncodeFields(value as VariantCat, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantCatEncodeFields(value: VariantCat, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("born")) {
+                if (value.born !== undefined) {
+                    result["born"] = value.born.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const VariantCat: {
+  readonly encode: typeof variantCatEncode;
+  readonly encodeWithContext: typeof variantCatEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantCatEncodePartialWithContext;
+} = {
+  encode: variantCatEncode,
+  encodeWithContext: variantCatEncodeWithContext,
+  encodePartialWithContext: variantCatEncodePartialWithContext
+};
+
+/** @derive(Encode) */
+export interface VariantFish {
+    fins: number;
+    seen: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantFishEncode(value: VariantFish, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantFishEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantFishEncodeWithContext(value: VariantFish, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantFish" });
+    variantFishEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantFishEncodePartialWithContext(value: Partial<VariantFish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantFish>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantFish" };
+        variantFishEncodeFields(value as VariantFish, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantFishEncodeFields(value: VariantFish, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("fins")) {
+                if (value.fins !== undefined) {
+                    result["fins"] = value.fins;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("seen")) {
+                if (value.seen !== undefined) {
+                    result["seen"] = value.seen.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const VariantFish: {
+  readonly encode: typeof variantFishEncode;
+  readonly encodeWithContext: typeof variantFishEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantFishEncodePartialWithContext;
+} = {
+  encode: variantFishEncode,
+  encodeWithContext: variantFishEncodeWithContext,
+  encodePartialWithContext: variantFishEncodePartialWithContext
+};
+
+/** Members that derive only `Encode`, told by their tag or by their own fields. */
+/** @derive(Encode) */
+export type VariantPet = VariantCat | VariantFish | { kind: 'bird'; at: Date };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantPetEncode(value: VariantPet, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantPetEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantPetEncodeWithContext(value: VariantPet, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantPet): member is VariantCat => __mf_member(member, "__type") === "VariantCat", (member) => variantCatEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantFish => __mf_member(member, "__type") === "VariantFish", (member) => variantFishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantCat => typeof member === "object" && member !== null && !Array.isArray(member) && "kind" in member && member["kind"] === 'cat' && "born" in member, (member) => variantCatEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantFish => typeof member === "object" && member !== null && !Array.isArray(member) && "fins" in member && "seen" in member, (member) => variantFishEncodeWithContext(member, ctx)),
+        (value: VariantPet): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'bird' && "at" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+export const VariantPet: {
+  readonly encode: typeof variantPetEncode;
+  readonly encodeWithContext: typeof variantPetEncodeWithContext;
+} = {
+  encode: variantPetEncode,
+  encodeWithContext: variantPetEncodeWithContext
+};
+
+## DTS
+
+/**
+* Unions whose members are objects, literals and template literal types, in
+* every tagging mode, and a class three levels deep whose fields are typed
+* by their initializers.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export interface VariantCircle {
+	radius: number;
+}
+export declare function variantCircleToString(value: VariantCircle): string;
+export declare function variantCircleClone(value: VariantCircle): VariantCircle;
+export declare function variantCircleEquals(a: VariantCircle, b: VariantCircle): boolean;
+export declare function variantCircleHashCode(value: VariantCircle): number;
+export declare function variantCirclePartialCompare(a: VariantCircle, b: VariantCircle): number | null;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantCircleEncode(value: VariantCircle, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantCircleEncodeWithContext(value: VariantCircle, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantCircleEncodePartialWithContext(value: Partial<VariantCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCircle>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantCircleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantCircle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantCircleFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantCircle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantCircle | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantCircle> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function variantCircleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantCircle>): Partial<VariantCircle> | __mf_PendingRef;
+export declare function variantCircleValidateField<K extends keyof VariantCircle>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function variantCircleValidateFields(partial: { readonly [K in keyof VariantCircle]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function variantCircleHasShape(obj: unknown): boolean;
+export declare function variantCircleIs(obj: unknown): obj is VariantCircle;
+export declare const VariantCircle: {
+	readonly toString: typeof variantCircleToString;
+	readonly clone: typeof variantCircleClone;
+	readonly equals: typeof variantCircleEquals;
+	readonly hashCode: typeof variantCircleHashCode;
+	readonly partialCompare: typeof variantCirclePartialCompare;
+	readonly encode: typeof variantCircleEncode;
+	readonly encodeWithContext: typeof variantCircleEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantCircleEncodePartialWithContext;
+	readonly decode: typeof variantCircleDecode;
+	readonly fromString: typeof variantCircleFromString;
+	readonly decodeWithContext: typeof variantCircleDecodeWithContext;
+	readonly decodePartialWithContext: typeof variantCircleDecodePartialWithContext;
+	readonly validateField: typeof variantCircleValidateField;
+	readonly validateFields: typeof variantCircleValidateFields;
+	readonly hasShape: typeof variantCircleHasShape;
+	readonly is: typeof variantCircleIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export interface VariantRect {
+	size: [number, number];
+	label?: `r-${string}`;
+}
+export declare function variantRectToString(value: VariantRect): string;
+export declare function variantRectClone(value: VariantRect): VariantRect;
+export declare function variantRectEquals(a: VariantRect, b: VariantRect): boolean;
+export declare function variantRectHashCode(value: VariantRect): number;
+export declare function variantRectPartialCompare(a: VariantRect, b: VariantRect): number | null;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantRectEncode(value: VariantRect, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantRectEncodeWithContext(value: VariantRect, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantRectEncodePartialWithContext(value: Partial<VariantRect>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantRect>): Record<string, unknown>;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantRectDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantRect;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantRectFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantRect;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantRect | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantRect> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function variantRectDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantRect>): Partial<VariantRect> | __mf_PendingRef;
+export declare function variantRectValidateField<K extends keyof VariantRect>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function variantRectValidateFields(partial: { readonly [K in keyof VariantRect]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function variantRectHasShape(obj: unknown): boolean;
+export declare function variantRectIs(obj: unknown): obj is VariantRect;
+export declare const VariantRect: {
+	readonly toString: typeof variantRectToString;
+	readonly clone: typeof variantRectClone;
+	readonly equals: typeof variantRectEquals;
+	readonly hashCode: typeof variantRectHashCode;
+	readonly partialCompare: typeof variantRectPartialCompare;
+	readonly encode: typeof variantRectEncode;
+	readonly encodeWithContext: typeof variantRectEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantRectEncodePartialWithContext;
+	readonly decode: typeof variantRectDecode;
+	readonly fromString: typeof variantRectFromString;
+	readonly decodeWithContext: typeof variantRectDecodeWithContext;
+	readonly decodePartialWithContext: typeof variantRectDecodePartialWithContext;
+	readonly validateField: typeof variantRectValidateField;
+	readonly validateFields: typeof variantRectValidateFields;
+	readonly hasShape: typeof variantRectHasShape;
+	readonly is: typeof variantRectIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode) */
+export type VariantInternal = VariantCircle | VariantRect | "none" | `id-${number}` | 7 | null;
+export declare function variantInternalToString(value: VariantInternal): string;
+export declare function variantInternalClone(value: VariantInternal): VariantInternal;
+export declare function variantInternalEquals(a: VariantInternal, b: VariantInternal): boolean;
+export declare function variantInternalHashCode(value: VariantInternal): number;
+export declare function variantInternalPartialCompare(a: VariantInternal, b: VariantInternal): number | null;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantInternalEncode(value: VariantInternal, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantInternalEncodeWithContext(value: VariantInternal, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantInternalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantInternal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantInternalFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantInternal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantInternalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantInternal | __mf_PendingRef;
+export declare function variantInternalHasShape(value: unknown): boolean;
+export declare function variantInternalIs(value: unknown): value is VariantInternal;
+export declare const VariantInternal: {
+	readonly toString: typeof variantInternalToString;
+	readonly clone: typeof variantInternalClone;
+	readonly equals: typeof variantInternalEquals;
+	readonly hashCode: typeof variantInternalHashCode;
+	readonly partialCompare: typeof variantInternalPartialCompare;
+	readonly encode: typeof variantInternalEncode;
+	readonly encodeWithContext: typeof variantInternalEncodeWithContext;
+	readonly decode: typeof variantInternalDecode;
+	readonly fromString: typeof variantInternalFromString;
+	readonly decodeWithContext: typeof variantInternalDecodeWithContext;
+	readonly hasShape: typeof variantInternalHasShape;
+	readonly is: typeof variantInternalIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ tag: "t", content: "c" }) */
+export type VariantAdjacent = VariantCircle | VariantRect;
+export declare function variantAdjacentToString(value: VariantAdjacent): string;
+export declare function variantAdjacentClone(value: VariantAdjacent): VariantAdjacent;
+export declare function variantAdjacentEquals(a: VariantAdjacent, b: VariantAdjacent): boolean;
+export declare function variantAdjacentHashCode(value: VariantAdjacent): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantAdjacentEncode(value: VariantAdjacent, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantAdjacentEncodeWithContext(value: VariantAdjacent, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantAdjacentDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantAdjacent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantAdjacentFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantAdjacent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantAdjacentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantAdjacent | __mf_PendingRef;
+export declare function variantAdjacentHasShape(value: unknown): boolean;
+export declare function variantAdjacentIs(value: unknown): value is VariantAdjacent;
+export declare const VariantAdjacent: {
+	readonly toString: typeof variantAdjacentToString;
+	readonly clone: typeof variantAdjacentClone;
+	readonly equals: typeof variantAdjacentEquals;
+	readonly hashCode: typeof variantAdjacentHashCode;
+	readonly encode: typeof variantAdjacentEncode;
+	readonly encodeWithContext: typeof variantAdjacentEncodeWithContext;
+	readonly decode: typeof variantAdjacentDecode;
+	readonly fromString: typeof variantAdjacentFromString;
+	readonly decodeWithContext: typeof variantAdjacentDecodeWithContext;
+	readonly hasShape: typeof variantAdjacentHasShape;
+	readonly is: typeof variantAdjacentIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ externallyTagged: true }) */
+export type VariantExternal = VariantCircle | VariantRect;
+export declare function variantExternalToString(value: VariantExternal): string;
+export declare function variantExternalClone(value: VariantExternal): VariantExternal;
+export declare function variantExternalEquals(a: VariantExternal, b: VariantExternal): boolean;
+export declare function variantExternalHashCode(value: VariantExternal): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantExternalEncode(value: VariantExternal, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantExternalEncodeWithContext(value: VariantExternal, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantExternalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantExternal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantExternalFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantExternal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantExternalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantExternal | __mf_PendingRef;
+export declare function variantExternalHasShape(value: unknown): boolean;
+export declare function variantExternalIs(value: unknown): value is VariantExternal;
+export declare const VariantExternal: {
+	readonly toString: typeof variantExternalToString;
+	readonly clone: typeof variantExternalClone;
+	readonly equals: typeof variantExternalEquals;
+	readonly hashCode: typeof variantExternalHashCode;
+	readonly encode: typeof variantExternalEncode;
+	readonly encodeWithContext: typeof variantExternalEncodeWithContext;
+	readonly decode: typeof variantExternalDecode;
+	readonly fromString: typeof variantExternalFromString;
+	readonly decodeWithContext: typeof variantExternalDecodeWithContext;
+	readonly hasShape: typeof variantExternalHasShape;
+	readonly is: typeof variantExternalIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ untagged: true }) */
+export type VariantUntagged = VariantCircle | VariantRect | string | number;
+export declare function variantUntaggedToString(value: VariantUntagged): string;
+export declare function variantUntaggedClone(value: VariantUntagged): VariantUntagged;
+export declare function variantUntaggedEquals(a: VariantUntagged, b: VariantUntagged): boolean;
+export declare function variantUntaggedHashCode(value: VariantUntagged): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantUntaggedEncode(value: VariantUntagged, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantUntaggedEncodeWithContext(value: VariantUntagged, ctx: __mf_EncodeContext): unknown;
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantUntagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function variantUntaggedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantUntagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantUntaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantUntagged | __mf_PendingRef;
+export declare function variantUntaggedHasShape(value: unknown): boolean;
+export declare function variantUntaggedIs(value: unknown): value is VariantUntagged;
+export declare const VariantUntagged: {
+	readonly toString: typeof variantUntaggedToString;
+	readonly clone: typeof variantUntaggedClone;
+	readonly equals: typeof variantUntaggedEquals;
+	readonly hashCode: typeof variantUntaggedHashCode;
+	readonly encode: typeof variantUntaggedEncode;
+	readonly encodeWithContext: typeof variantUntaggedEncodeWithContext;
+	readonly decode: typeof variantUntaggedDecode;
+	readonly fromString: typeof variantUntaggedFromString;
+	readonly decodeWithContext: typeof variantUntaggedDecodeWithContext;
+	readonly hasShape: typeof variantUntaggedHasShape;
+	readonly is: typeof variantUntaggedIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class VariantBase {
+	#private;
+	id: string;
+	created;
+	protected weight: number;
+	static toString(value: VariantBase): string;
+	static clone(value: VariantBase): VariantBase;
+	static equals(a: VariantBase, b: VariantBase): boolean;
+	static hashCode(value: VariantBase): number;
+	static defaultValue(): VariantBase;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: VariantBase, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<VariantBase>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: VariantBase, keepMetadata?: boolean): string;
+	constructor(props: {
+		id: string;
+		created: Date;
+		weight: number;
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantBase;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantBase;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantBase | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantBase> | __mf_PendingRef;
+	static validateField<K extends keyof VariantBase>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof VariantBase]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is VariantBase;
+}
+export declare function variantBaseToString(value: VariantBase): string;
+export declare function variantBaseClone(value: VariantBase): VariantBase;
+export declare function variantBaseEquals(a: VariantBase, b: VariantBase): boolean;
+export declare function variantBaseHashCode(value: VariantBase): number;
+export declare function variantBaseDefaultValue(): VariantBase;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantBaseEncode(value: VariantBase, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantBaseEncodeWithContext(value: VariantBase, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantBaseEncodePartialWithContext(value: Partial<VariantBase>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantBaseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantBase;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantBaseFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantBase;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantBase | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function variantBaseHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function variantBaseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantBase>): Partial<VariantBase> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function variantBaseIs(value: unknown): value is VariantBase;
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class VariantMid extends VariantBase {
+	#private;
+	tags;
+	protected note: string | null;
+	static override toString(value: VariantMid): string;
+	static override clone(value: VariantMid): VariantMid;
+	static override equals(a: VariantMid, b: VariantMid): boolean;
+	static override hashCode(value: VariantMid): number;
+	static override defaultValue(): VariantMid;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static override encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static override encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static override encode(value: VariantMid, keepMetadata?: boolean): string;
+	constructor(props: {
+		id: string;
+		created: Date;
+		weight: number;
+		tags: Set<string>;
+		note: string | null;
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantMid;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static override fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantMid;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
+	static override validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static override validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static override hasShape(obj: unknown): boolean;
+	static override is(obj: unknown): obj is VariantMid;
+}
+export declare function variantMidToString(value: VariantMid): string;
+export declare function variantMidClone(value: VariantMid): VariantMid;
+export declare function variantMidEquals(a: VariantMid, b: VariantMid): boolean;
+export declare function variantMidHashCode(value: VariantMid): number;
+export declare function variantMidDefaultValue(): VariantMid;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantMidEncode(value: VariantMid, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantMidEncodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantMidEncodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantMidDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantMid;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantMidFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantMid;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantMidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function variantMidHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function variantMidDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Partial<VariantMid> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function variantMidIs(value: unknown): value is VariantMid;
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class VariantLeaf extends VariantMid {
+	#private;
+	shape: VariantInternal;
+	readonly kind = "leaf";
+	children: VariantLeaf[];
+	static override toString(value: VariantLeaf): string;
+	static override clone(value: VariantLeaf): VariantLeaf;
+	static override equals(a: VariantLeaf, b: VariantLeaf): boolean;
+	static override hashCode(value: VariantLeaf): number;
+	static override defaultValue(): VariantLeaf;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static override encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static override encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static override encode(value: VariantLeaf, keepMetadata?: boolean): string;
+	constructor(props: {
+		id: string;
+		created: Date;
+		weight: number;
+		tags: Set<string>;
+		note: string | null;
+		shape: VariantInternal;
+		kind: "leaf";
+		children: VariantLeaf[];
+	});
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantLeaf;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static override fromString(text: string, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: VariantLeaf;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
+	static override validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static override validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static override hasShape(obj: unknown): boolean;
+	static override is(obj: unknown): obj is VariantLeaf;
+}
+export declare function variantLeafToString(value: VariantLeaf): string;
+export declare function variantLeafClone(value: VariantLeaf): VariantLeaf;
+export declare function variantLeafEquals(a: VariantLeaf, b: VariantLeaf): boolean;
+export declare function variantLeafHashCode(value: VariantLeaf): number;
+export declare function variantLeafDefaultValue(): VariantLeaf;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantLeafEncode(value: VariantLeaf, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantLeafEncodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantLeafEncodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown>;
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantLeafDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantLeaf;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function variantLeafFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: VariantLeaf;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function variantLeafDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function variantLeafHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function variantLeafDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Partial<VariantLeaf> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function variantLeafIs(value: unknown): value is VariantLeaf;
+/** @derive(Encode) */
+export interface VariantCat {
+	kind: "cat";
+	born: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantCatEncode(value: VariantCat, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantCatEncodeWithContext(value: VariantCat, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantCatEncodePartialWithContext(value: Partial<VariantCat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCat>): Record<string, unknown>;
+export declare const VariantCat: {
+	readonly encode: typeof variantCatEncode;
+	readonly encodeWithContext: typeof variantCatEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantCatEncodePartialWithContext;
+};
+/** @derive(Encode) */
+export interface VariantFish {
+	fins: number;
+	seen: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantFishEncode(value: VariantFish, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantFishEncodeWithContext(value: VariantFish, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantFishEncodePartialWithContext(value: Partial<VariantFish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantFish>): Record<string, unknown>;
+export declare const VariantFish: {
+	readonly encode: typeof variantFishEncode;
+	readonly encodeWithContext: typeof variantFishEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantFishEncodePartialWithContext;
+};
+/** Members that derive only `Encode`, told by their tag or by their own fields. */
+/** @derive(Encode) */
+export type VariantPet = VariantCat | VariantFish | {
+	kind: "bird";
+	at: Date;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantPetEncode(value: VariantPet, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantPetEncodeWithContext(value: VariantPet, ctx: __mf_EncodeContext): unknown;
+export declare const VariantPet: {
+	readonly encode: typeof variantPetEncode;
+	readonly encodeWithContext: typeof variantPetEncodeWithContext;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..316 -> expanded 1521..1837
+original 316..479 -> expanded 13119..13282
+original 479..650 -> expanded 26600..26771
+original 650..814 -> expanded 36906..37070
+original 814..978 -> expanded 44956..45120
+original 978..1152 -> expanded 53574..53748
+original 1152..1318 -> expanded 61238..61404
+original 1318..1319 -> expanded 73241..73242
+original 1319..1510 -> expanded 77392..77583
+original 1510..1511 -> expanded 92777..92778
+original 1511..1727 -> expanded 96883..97099
+original 1727..1728 -> expanded 117727..117728
+original 1728..1817 -> expanded 121878..121967
+original 1817..1908 -> expanded 124859..124950
+original 1908..2096 -> expanded 127864..128052
+original 2096..2097 -> expanded 131103..131104
+generated 0..1521 <- imports
+generated 1837..2112 <- Debug
+generated 2112..2273 <- Clone
+generated 2273..2527 <- PartialEq
+generated 2527..2872 <- Hash
+generated 2872..3204 <- PartialOrd
+generated 3204..5416 <- Encode
+generated 5416..11488 <- Decode
+generated 11488..13119 <- __convenience_const
+generated 13282..13610 <- Debug
+generated 13610..13834 <- Clone
+generated 13834..14142 <- PartialEq
+generated 14142..14517 <- Hash
+generated 14517..15033 <- PartialOrd
+generated 15033..17562 <- Encode
+generated 17562..25035 <- Decode
+generated 25035..26600 <- __convenience_const
+generated 26771..26915 <- Debug
+generated 26915..27038 <- Clone
+generated 27038..27200 <- PartialEq
+generated 27200..27316 <- Hash
+generated 27316..27463 <- PartialOrd
+generated 27463..29651 <- Encode
+generated 29651..35741 <- Decode
+generated 35741..36906 <- __convenience_const
+generated 37070..37214 <- Debug
+generated 37214..37337 <- Clone
+generated 37337..37499 <- PartialEq
+generated 37499..37615 <- Hash
+generated 37615..39770 <- Encode
+generated 39770..43905 <- Decode
+generated 43905..44956 <- __convenience_const
+generated 45120..45264 <- Debug
+generated 45264..45387 <- Clone
+generated 45387..45549 <- PartialEq
+generated 45549..45665 <- Hash
+generated 45665..47822 <- Encode
+generated 47822..52523 <- Decode
+generated 52523..53574 <- __convenience_const
+generated 53748..53892 <- Debug
+generated 53892..54015 <- Clone
+generated 54015..54177 <- PartialEq
+generated 54177..54293 <- Hash
+generated 54293..56439 <- Encode
+generated 56439..60187 <- Decode
+generated 60187..61238 <- __convenience_const
+generated 61404..61785 <- Debug
+generated 61785..62010 <- Clone
+generated 62010..62547 <- PartialEq
+generated 62547..63081 <- Hash
+generated 63081..63352 <- Default
+generated 63352..65521 <- Encode
+generated 65521..65850 <- Encode
+generated 65850..73241 <- Decode
+generated 73242..73351 <- Debug
+generated 73351..73459 <- Clone
+generated 73459..73576 <- PartialEq
+generated 73576..73685 <- Hash
+generated 73685..73784 <- Default
+generated 73784..75154 <- Encode
+generated 75154..77392 <- Decode
+generated 77583..78087 <- Debug
+generated 78087..78382 <- Clone
+generated 78382..79151 <- PartialEq
+generated 79151..80039 <- Hash
+generated 80039..80418 <- Default
+generated 80418..83056 <- Encode
+generated 83056..83392 <- Encode
+generated 83392..92777 <- Decode
+generated 92778..92884 <- Debug
+generated 92884..92988 <- Clone
+generated 92988..93101 <- PartialEq
+generated 93101..93207 <- Hash
+generated 93207..93303 <- Default
+generated 93303..94663 <- Encode
+generated 94663..96883 <- Decode
+generated 97099..97825 <- Debug
+generated 97825..98279 <- Clone
+generated 98279..99472 <- PartialEq
+generated 99472..100697 <- Hash
+generated 100697..101218 <- Default
+generated 101218..104656 <- Encode
+generated 104656..104994 <- Encode
+generated 104994..117727 <- Decode
+generated 117728..117837 <- Debug
+generated 117837..117945 <- Clone
+generated 117945..118062 <- PartialEq
+generated 118062..118171 <- Hash
+generated 118171..118270 <- Default
+generated 118270..119640 <- Encode
+generated 119640..121878 <- Decode
+generated 121967..124491 <- Encode
+generated 124491..124859 <- __convenience_const
+generated 124950..127489 <- Encode
+generated 127489..127864 <- __convenience_const
+generated 128052..130879 <- Encode
+generated 130879..131103 <- __convenience_const
+
+## Metadata
+
+class VariantBase: {"body_span":{"end":1320,"start":1251},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1225,"start":1155}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1265,"start":1257},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"created","optional":false,"readonly":false,"span":{"end":1292,"start":1270},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1318,"start":1297},"ts_type":"number","untyped":false,"visibility":"Protected"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"VariantBase","span":{"end":1320,"start":1233},"superclass":null,"type_params":[]}
+class VariantMid: {"body_span":{"end":1512,"start":1437},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1392,"start":1322}}],"fields":[{"accessor":false,"decorators":[],"initializer":"new Set<string>()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":1468,"start":1443},"ts_type":"Set<string>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":1510,"start":1473},"ts_type":"string | null","untyped":false,"visibility":"Protected"}],"heritage":["VariantBase"],"is_abstract":false,"is_declare":false,"methods":[],"name":"VariantMid","span":{"end":1512,"start":1400},"superclass":"VariantBase","type_params":[]}
+class VariantLeaf: {"body_span":{"end":1729,"start":1629},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1584,"start":1514}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":1665,"start":1635},"ts_type":"VariantInternal","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'leaf'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":1693,"start":1670},"ts_type":"'leaf'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":1727,"start":1698},"ts_type":"VariantLeaf[]","untyped":false,"visibility":"Public"}],"heritage":["VariantMid"],"is_abstract":false,"is_declare":false,"methods":[],"name":"VariantLeaf","span":{"end":1729,"start":1592},"superclass":"VariantMid","type_params":[]}
+interface VariantCircle: {"body_span":{"end":317,"start":294},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":262,"start":189}}],"fields":[{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":315,"start":300},"ts_type":"number"}],"heritage":[],"methods":[],"name":"VariantCircle","span":{"end":317,"start":270},"type_params":[]}
+interface VariantRect: {"body_span":{"end":480,"start":422},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":392,"start":319}}],"fields":[{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":451,"start":428},"ts_type":"[number, number]"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":478,"start":456},"ts_type":"`r-${string}`"}],"heritage":[],"methods":[],"name":"VariantRect","span":{"end":480,"start":400},"type_params":[]}
+interface VariantCat: {"body_span":{"end":1818,"start":1782},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1753,"start":1731}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1800,"start":1788},"ts_type":"'cat'"},{"decorators":[],"key":"Named","name":"born","optional":false,"readonly":false,"span":{"end":1816,"start":1805},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"VariantCat","span":{"end":1818,"start":1761},"type_params":[]}
+interface VariantFish: {"body_span":{"end":1909,"start":1872},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1842,"start":1820}}],"fields":[{"decorators":[],"key":"Named","name":"fins","optional":false,"readonly":false,"span":{"end":1891,"start":1878},"ts_type":"number"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":1907,"start":1896},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"VariantFish","span":{"end":1909,"start":1850},"type_params":[]}
+type VariantInternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}},{"decorators":[],"kind":{"Literal":"'none'"}},{"decorators":[],"kind":{"TypeRef":"`id-${number}`"}},{"decorators":[],"kind":{"Literal":"7"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":555,"start":482}}],"name":"VariantInternal","span":{"end":651,"start":563},"type_params":[]}
+type VariantAdjacent: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}}]},"decorators":[{"args_src":"{ tag: \"t\", content: \"c\" }","name":"endec","span":{"end":756,"start":715}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":714,"start":653}}],"name":"VariantAdjacent","span":{"end":815,"start":764},"type_params":[]}
+type VariantExternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":920,"start":879}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":878,"start":817}}],"name":"VariantExternal","span":{"end":979,"start":928},"type_params":[]}
+type VariantUntagged: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}},{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":1076,"start":1043}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1042,"start":981}}],"name":"VariantUntagged","span":{"end":1153,"start":1084},"type_params":[]}
+type VariantPet: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCat"}},{"decorators":[],"kind":{"TypeRef":"VariantFish"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2085,"start":2072},"ts_type":"'bird'"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2094,"start":2086},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":2017,"start":1995}}],"name":"VariantPet","span":{"end":2097,"start":2025},"type_params":[]}
+
+## Registry reads
+
+Name("'cat'")
+Name("'leaf'")
+Name("Date")
+Name("Set")
+Name("VariantAdjacent")
+Name("VariantBase")
+Name("VariantCat")
+Name("VariantCircle")
+Name("VariantExternal")
+Name("VariantFish")
+Name("VariantInternal")
+Name("VariantLeaf")
+Name("VariantMid")
+Name("VariantPet")
+Name("VariantRect")
+Name("VariantUntagged")
+Name("[number, number]")
+Name("`id-${number}`")
+Name("`r-${string}`")
+Name("null")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

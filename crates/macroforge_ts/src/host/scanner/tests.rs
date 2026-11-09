@@ -9,7 +9,7 @@ use crate::ts_syn::{collect_exported_names, collect_file_imports, lower_interfac
 #[test]
 fn test_scan_config_defaults() {
     let config = ScanConfig::default();
-    assert_eq!(config.extensions, vec![".ts", ".tsx"]);
+    assert_eq!(config.extensions, vec![".ts", ".tsx", ".mts", ".cts"]);
     assert!(config.skip_dirs.contains("node_modules"));
     assert!(config.skip_dirs.contains("dist"));
     assert!(!config.exported_only);
@@ -58,6 +58,44 @@ fn skipped_directories_are_skipped_below_the_root_only() {
     std::fs::remove_dir_all(top).expect("remove fixture");
 }
 
+#[test]
+fn every_kind_of_typescript_module_is_scanned() {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_kinds_{nanos}"));
+    std::fs::create_dir_all(&root).expect("create fixture dir");
+    // `export const` without a value is a declaration file's form only.
+    for (name, source) in [
+        ("plain.ts", "export interface Plain { id: string; }\n"),
+        ("esm.mts", "export interface Esm { id: string; }\n"),
+        ("common.cts", "export interface Common { id: string; }\n"),
+        (
+            "ambient.d.ts",
+            "export const LIMIT: number;\nexport interface Ambient { id: string; }\n",
+        ),
+        (
+            "esm-ambient.d.mts",
+            "export const LIMIT: number;\nexport interface EsmAmbient { id: string; }\n",
+        ),
+    ] {
+        std::fs::write(root.join(name), source).expect("write source");
+    }
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    std::fs::remove_dir_all(&root).expect("remove fixture");
+    assert_eq!(output.files_scanned, 5, "{:?}", output.warnings);
+    for name in ["Plain", "Esm", "Common", "Ambient", "EsmAmbient"] {
+        assert!(
+            output.registry.get(name).is_some(),
+            "{name} was not scanned"
+        );
+    }
+}
+
 fn parse<'a>(allocator: &'a Allocator, source: &'a str, file_name: &str) -> Program<'a> {
     let source_type = SourceType::from_path(file_name).expect("test file names are TypeScript");
     let parsed = Parser::new(allocator, source, source_type).parse();
@@ -82,6 +120,226 @@ fn test_collect_exported_names() {
     assert!(names.contains("Status"));
     assert!(names.contains("ID"));
     assert!(!names.contains("Internal"));
+}
+
+#[test]
+fn a_module_exports_a_declaration_under_other_names() {
+    let source = r#"
+        export default class User { name: string = ""; }
+        interface Late { note: string; }
+        class Held {}
+        export type { Late as Shown };
+        export { Held as Kept, Held };
+        export default Held;
+        export { Elsewhere as Renamed } from './elsewhere';
+    "#;
+
+    let allocator = Allocator::default();
+    let mut aliases = crate::ts_syn::collect_export_aliases(&parse(&allocator, source, "test.ts"));
+    aliases.sort();
+    let named = |declared: &str, exported: &str| (declared.to_string(), exported.to_string());
+    assert_eq!(
+        aliases,
+        vec![
+            named("Held", "Kept"),
+            named("Held", "default"),
+            named("Late", "Shown"),
+            named("User", "default"),
+        ]
+    );
+}
+
+#[test]
+fn a_module_says_what_it_exports_again() {
+    let source = r#"
+        export * from './user';
+        export { default as Chosen, User as Member } from './user';
+        export type { Late } from './late';
+        export * as space from './space';
+        export { own };
+        import Picked, { Brought, Brought as Local } from './brought';
+        import * as whole from './whole';
+        export { Brought, Local as Sent, whole };
+        export default Picked;
+    "#;
+
+    let allocator = Allocator::default();
+    let again: Vec<(String, String, String)> =
+        crate::ts_syn::collect_re_exports(&parse(&allocator, source, "test.ts"))
+            .into_iter()
+            .map(|again| (again.module_specifier, again.imported, again.exported))
+            .collect();
+    let named = |module: &str, imported: &str, exported: &str| {
+        (
+            module.to_string(),
+            imported.to_string(),
+            exported.to_string(),
+        )
+    };
+    assert_eq!(
+        again,
+        vec![
+            named("./user", "*", "*"),
+            named("./user", "default", "Chosen"),
+            named("./user", "User", "Member"),
+            named("./late", "Late", "Late"),
+            named("./brought", "Brought", "Brought"),
+            named("./brought", "Brought", "Sent"),
+            named("./brought", "default", "default"),
+        ]
+    );
+}
+
+/// A type is found through the barrels that export it again, under the name
+/// each gives it, and a barrel that exports all of a module brings its
+/// generated functions where one that names the type does not.
+#[test]
+fn an_import_is_followed_through_the_modules_that_export_it_again() {
+    use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_barrels_{nanos}"));
+    std::fs::create_dir_all(root.join("models")).expect("create fixture dir");
+    let write = |name: &str, source: &str| {
+        std::fs::write(root.join(name), source).expect("write source");
+    };
+    write(
+        "models/user.ts",
+        "export interface User { id: string; }\nexport default class Model { id = ''; }\n",
+    );
+    write(
+        "models/index.ts",
+        "export * from './user';\nexport { default as Chosen, User as Member } from './user';\n",
+    );
+    write(
+        "all.ts",
+        "export * from './models';\nexport * from './round';\n",
+    );
+    write(
+        "round.ts",
+        "export * from './all';\nexport interface Round { id: string; }\n",
+    );
+    write(
+        "passed.ts",
+        "import Model, { User as Known } from './models/user';\nexport { Known as Handed };\nexport default Model;\n",
+    );
+    // A name the project declares once elsewhere, which no import below leads to.
+    write("other.ts", "export interface Member { id: string; }\n");
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    let page = root.join("page.ts").to_string_lossy().to_string();
+    let import = |local: &str, exported: Option<&str>, module: &str| FileImportEntry {
+        local_name: local.to_string(),
+        module_specifier: module.to_string(),
+        original_name: exported.map(str::to_string),
+        is_type_only: true,
+    };
+    let resolve = |name: &str, imports: &[FileImportEntry]| {
+        output
+            .registry
+            .resolve_in_file(name, &page, imports)
+            .map(|entry| entry.name.clone())
+    };
+
+    // `export *` keeps the name, and a named re-export gives another.
+    assert_eq!(
+        resolve("User", &[import("User", None, "./models")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Member", &[import("Member", None, "./models")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Chosen", &[import("Chosen", None, "./models")]),
+        Some("Model".to_string())
+    );
+    // Through a second barrel, and renamed once more by the import.
+    assert_eq!(
+        resolve("Seen", &[import("Seen", Some("Member"), "./all")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Chosen", &[import("Chosen", None, "./all")]),
+        Some("Model".to_string())
+    );
+    // A module that imports a type and then exports it.
+    assert_eq!(
+        resolve("Handed", &[import("Handed", None, "./passed")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Mine", &[import("Mine", Some("default"), "./passed")]),
+        Some("Model".to_string())
+    );
+    // Two modules that export each other end, with what each declares.
+    assert_eq!(
+        resolve("Round", &[import("Round", None, "./all")]),
+        Some("Round".to_string())
+    );
+
+    let user = output.registry.get("User").expect("User is scanned");
+    let again = |file: &str, name: &str| {
+        user.re_exported
+            .iter()
+            .find(|again| again.file_path.ends_with(file) && again.name == name)
+            .map(|again| again.whole)
+    };
+    assert_eq!(again("models/index.ts", "User"), Some(true));
+    assert_eq!(again("models/index.ts", "Member"), Some(false));
+    assert_eq!(again("all.ts", "User"), Some(true));
+    assert_eq!(again("all.ts", "Member"), Some(false));
+
+    std::fs::remove_dir_all(&root).expect("remove fixture");
+}
+
+/// Barrels that reach one module by many ways are read once a round: forty
+/// layers of two, each exporting both of the layer below, are a million
+/// million ways down, and are linked as fast as forty files.
+#[test]
+fn barrels_that_reach_a_module_by_many_ways_are_linked_once() {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_diamond_{nanos}"));
+    std::fs::create_dir_all(&root).expect("create fixture dir");
+    let layers = 40;
+    std::fs::write(
+        root.join("left0.ts"),
+        "export interface Deep { id: string; }\n",
+    )
+    .expect("write source");
+    std::fs::write(
+        root.join("right0.ts"),
+        "export interface Wide { id: string; }\n",
+    )
+    .expect("write source");
+    for layer in 1..=layers {
+        let below = layer - 1;
+        let source = format!("export * from './left{below}';\nexport * from './right{below}';\n");
+        for side in ["left", "right"] {
+            std::fs::write(root.join(format!("{side}{layer}.ts")), &source).expect("write source");
+        }
+    }
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    let deep = output.registry.get("Deep").expect("Deep is scanned");
+    assert_eq!(deep.re_exported.len(), layers * 2);
+    assert!(
+        deep.re_exported
+            .iter()
+            .all(|again| again.whole && again.name == "Deep")
+    );
+
+    std::fs::remove_dir_all(&root).expect("remove fixture");
 }
 
 #[test]
@@ -123,6 +381,8 @@ export interface PhoneNumber {
             name: iface.name.clone(),
             file_path: "phone-number.svelte.ts".to_string(),
             is_exported: true,
+            exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::Interface(iface.clone()),
             file_imports: vec![],
         },

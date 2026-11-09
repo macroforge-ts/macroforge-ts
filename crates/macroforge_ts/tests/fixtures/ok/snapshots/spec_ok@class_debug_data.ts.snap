@@ -18,6 +18,7 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -25,14 +26,16 @@ class Data {
     val: number;
 
     static toString(value: Data): string {
-        return dataToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("val: " + String(value.val));
+            return "Data { " + parts.join(", ") + " }";
+        });
     }
 }
 
 export function dataToString(value: Data): string {
-    const parts: string[] = [];
-    parts.push("val: " + String(value.val));
-    return "Data { " + parts.join(", ") + " }";
+    return Data.toString(value);
 }
 
 ## DTS
@@ -50,16 +53,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 62..93 -> expanded 41..72
-original 93..94 -> expanded 158..159
-original 94..95 -> expanded 339..340
-generated 72..158 <- Debug
-generated 159..339 <- Debug
+original 0..41 -> expanded 85..126
+original 62..93 -> expanded 126..157
+original 93..94 -> expanded 414..415
+original 94..95 -> expanded 503..504
+generated 0..85 <- imports
+generated 157..414 <- Debug
+generated 415..503 <- Debug
 
 ## Metadata
 
-class Data: {"body_span":{"end":95,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"val","optional":false,"readonly":false,"span":{"end":93,"start":81},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":95,"start":64},"type_params":[]}
+class Data: {"body_span":{"end":95,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":93,"start":81},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Data","span":{"end":95,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

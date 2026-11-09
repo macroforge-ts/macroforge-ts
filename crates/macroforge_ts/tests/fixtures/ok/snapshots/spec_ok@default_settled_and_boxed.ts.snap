@@ -1,0 +1,97 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/default_settled_and_boxed.ts
+---
+## Input
+
+/** A promise is settled on its value's default, and a generic type defaults through its own function. */
+/** @derive(Default) */
+export interface Holder {
+    pending: Promise<string>;
+    done: Promise<void>;
+    boxed: String;
+    anything: Object;
+    wrapped: Box<string>;
+    later: [string, URL?];
+    optional: { at?: URL };
+}
+
+## Changed
+
+true
+
+## Output
+
+/** A promise is settled on its value's default, and a generic type defaults through its own function. */
+
+export interface Holder {
+    pending: Promise<string>;
+    done: Promise<void>;
+    boxed: String;
+    anything: Object;
+    wrapped: Box<string>;
+    later: [string, URL?];
+    optional: { at?: URL };
+}
+
+export function holderDefaultValue(): Holder {
+    return {
+        pending: Promise.resolve(""),
+        done: Promise.resolve(undefined),
+        boxed: "",
+        anything: ({}),
+        wrapped: boxDefaultValue<string>(),
+        later: [""],
+        optional: ({}),
+    };
+}
+
+export const Holder: {
+  readonly defaultValue: typeof holderDefaultValue;
+} = {
+  defaultValue: holderDefaultValue
+};
+
+## DTS
+
+/** A promise is settled on its value's default, and a generic type defaults through its own function. */
+export interface Holder {
+	pending: Promise<string>;
+	done: Promise<void>;
+	boxed: String;
+	anything: Object;
+	wrapped: Box<string>;
+	later: [string, URL?];
+	optional: {
+		at?: URL;
+	};
+}
+export declare function holderDefaultValue(): Holder;
+export declare const Holder: {
+	readonly defaultValue: typeof holderDefaultValue;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..106 -> expanded 0..106
+original 129..334 -> expanded 106..311
+original 334..335 -> expanded 713..714
+generated 311..593 <- Default
+generated 593..713 <- __convenience_const
+
+## Metadata
+
+interface Holder: {"body_span":{"end":335,"start":155},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":130,"start":107}}],"fields":[{"decorators":[],"key":"Named","name":"pending","optional":false,"readonly":false,"span":{"end":186,"start":161},"ts_type":"Promise<string>"},{"decorators":[],"key":"Named","name":"done","optional":false,"readonly":false,"span":{"end":211,"start":191},"ts_type":"Promise<void>"},{"decorators":[],"key":"Named","name":"boxed","optional":false,"readonly":false,"span":{"end":230,"start":216},"ts_type":"String"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":252,"start":235},"ts_type":"Object"},{"decorators":[],"key":"Named","name":"wrapped","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"Box<string>"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":305,"start":283},"ts_type":"[string, URL?]"},{"decorators":[],"key":"Named","name":"optional","optional":false,"readonly":false,"span":{"end":333,"start":310},"ts_type":"{ at?: URL }"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":335,"start":138},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

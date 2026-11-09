@@ -7,11 +7,19 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
-use super::field::statements::{Required, decode_fields, requires};
+use super::field::statements::{
+    Required, assembly_type, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
+use crate::builtin::derive::endec::coder::endec_helper;
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_coders, declared_param_guards, guarded_param_decoders, passed_param_coders,
+    required_param_coders,
+};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
     FIELD_SELECTION, PENDING_REF, decode_return_type, root_forward_reference_error, wrap_error,
@@ -25,6 +33,7 @@ pub(super) fn object_decode_functions(
     fields: &[DecodeField],
 ) -> TsStream {
     let mut result = decode_entry(names)
+        .merge(super::from_string::from_string_of(names))
         .merge(decode_with_context(names, container_opts, fields))
         .merge(field_validators(names, fields))
         .merge(shape_guards(names, fields));
@@ -35,8 +44,8 @@ pub(super) fn object_decode_functions(
     result
 }
 
-/// `{camelName}Decode`: parses JSON text, decodes through
-/// `{camelName}DecodeWithContext` and resolves forward references.
+/// `{camelName}Decode`: decodes a value through `{camelName}DecodeWithContext`
+/// and resolves forward references. Text goes through `{camelName}FromString`.
 fn decode_entry(names: &TypeNames) -> TsStream {
     let fn_decode_ident = names.generic_function("Decode");
     let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
@@ -55,15 +64,14 @@ fn decode_entry(names: &TypeNames) -> TsStream {
         .expect("decode generic error wrapper should parse");
     let error_from_ctx_expr =
         Expr::parse(&wrap_error("__errors")).expect("decode ctx error wrapper should parse");
+    let coders = declared_param_coders(Direction::Decode, &names.params);
+    let passed_coders = passed_param_coders(Direction::Decode, &names.params);
     ts_template! {
-        /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
-                // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{fn_decode_internal_expr}(data, ctx);
+                const resultOrRef = @{fn_decode_internal_expr}(input, ctx@{passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -105,14 +113,12 @@ fn decode_with_context(
     let full_type_ident = names.full_type_ident();
     let type_name = names.type_name.as_str();
     let tag_field = container_opts.tag_field_or_default();
-    let known_keys: Vec<String> = fields
-        .iter()
-        .filter(|field| !field.flatten)
-        .map(|field| js_string(&field.json_key))
+    let known_keys: Vec<String> = read_keys(fields)
+        .map(|key: String| js_string(&key))
         .collect();
-    let required_fields: Vec<&DecodeField> =
-        fields.iter().filter(|field| field.key_required()).collect();
-    let field_statements = decode_fields(fields, type_name, Required::Selected);
+    let missing_keys = missing_keys_check(fields);
+    let assembly = assembly_type(fields);
+    let field_statements = decode_fields(fields, type_name, tag_field, Required::Selected);
     let returns = rendered(ts_template! { @{&names.full_type} | @{PENDING_REF} });
     let reference = decode_selectable_reference(type_name, &returns);
     let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
@@ -120,19 +126,26 @@ fn decode_with_context(
     let field_selection_ident = ts_ident!(FIELD_SELECTION);
     let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
     let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
+    // A key is read only where the input itself has it.
+    let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
+    // The coders of the type's parameters come after the context, ahead of
+    // the requirement only this type's own partial decoder passes.
+    let coders = declared_param_coders(Direction::Decode, &names.params);
+    let passed_coders = passed_param_coders(Direction::Decode, &names.params);
+    let required_coders = required_param_coders(&names.params);
     let mut result = ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}): @{&full_type_ident} | @{&pending_ref_ident};
+        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}@{&coders}): @{&full_type_ident} | @{&pending_ref_ident};
         /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have */
-        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}, fields: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident};
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{&decode_context_ident}, __fields?: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
+        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}@{&required_coders}, fields: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident};
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{&decode_context_ident}@{&coders}, __fields?: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
             {$typescript reference}
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected an object" }]);
             }
 
-            const obj = value as Record<string, unknown>;
+            const obj = @{own_members}(value);
             const errors: Array<{ field: string; message: string }> = [];
 
             {#if container_opts.deny_unknown_fields}
@@ -144,18 +157,13 @@ fn decode_with_context(
                 }
             {/if}
 
-            {#for field in &required_fields}
-                {$let is_required: Expr = requires(field)}
-                if (@{is_required} && !("@{field.json_key}" in obj)) {
-                    errors.push({ field: "@{field.json_key}", message: "missing required field" });
-                }
-            {/for}
+            {$typescript missing_keys}
 
-            const instance: any = {};
+            const instance: @{&assembly} = {};
 
             // Only a whole value can be referred to.
-            if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
+            if (__fields === undefined && obj["__id"] !== undefined) {
+                ctx.register(obj["__id"] as number, instance, "@{type_name}");
             }
 
             ctx.trackForFreeze(instance);
@@ -168,8 +176,8 @@ fn decode_with_context(
         }
 
         /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out */
-        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&full_type_ident}>): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
-            return @{fn_decode_internal_expr}(value, ctx, @{field_requirement_expr}(fields));
+        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&full_type_ident}>@{&coders}): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
+            return @{fn_decode_internal_expr}(value, ctx@{&passed_coders}, @{field_requirement_expr}(fields));
         }
     };
     result.add_aliased_type_import("FieldSelection", crate::package::ENDEC);
@@ -212,7 +220,7 @@ fn field_validators(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             export function @{fn_validate_field_ident}(field: @{key.clone()}, value: unknown): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &validated}
-                    if (field === "@{field.field_name}") {
+                    if (field === "@{field.field_name_text()}") {
                         const __val = value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                         {$typescript validation_code}
@@ -224,8 +232,8 @@ fn field_validators(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             export function @{fn_validate_fields_ident}(partial: { readonly [@{key.clone()} in keyof @{full_type_ident.clone()}]?: unknown }): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &validated}
-                    if ("@{field.field_name}" in partial && partial.@{field.field_ident} !== undefined) {
-                        const __val = partial.@{field.field_ident} as @{field.ts_type};
+                    if ("@{field.field_name_text()}" in partial && partial@{field.member} !== undefined) {
+                        const __val = partial@{field.member} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                         {$typescript validation_code}
                     }
@@ -246,30 +254,20 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
     let fn_is_ident = names.generic_function("Is");
     let fn_decode_expr: Expr = ts_ident!(names.function("Decode")).into();
     let full_type_ident = names.full_type_ident();
-    let required_keys: Vec<String> = fields
-        .iter()
-        .filter(|field| field.key_required())
-        .map(|field| {
-            let key = js_string(&field.json_key);
-            rendered(ts_template! { @{key} in o })
-        })
-        .collect();
-    let shape_check_condition = required_keys.join(" && ");
+    let shape_check_condition = holds_required_keys(fields);
+    // A value of a type parameter is checked by the guard handed in for it.
+    let guards = declared_param_guards(&names.params);
+    let guarded = guarded_param_decoders(&names.params);
     ts_template! {
         export function @{fn_has_shape_ident}(obj: unknown): boolean {
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                 return false;
             }
-            {#if required_keys.is_empty()}
-                return true;
-            {:else}
-                const o = obj as Record<string, unknown>;
-                return @{shape_check_condition};
-            {/if}
+            return @{shape_check_condition};
         }
 
-        export function @{fn_is_ident}(obj: unknown): obj is @{full_type_ident} {
-            return @{fn_has_shape_expr}(obj) && @{fn_decode_expr}(obj).success;
+        export function @{fn_is_ident}(obj: unknown@{&guards}): obj is @{full_type_ident} {
+            return @{fn_has_shape_expr}(obj) && @{fn_decode_expr}(obj@{&guarded}).success;
         }
     }
 }

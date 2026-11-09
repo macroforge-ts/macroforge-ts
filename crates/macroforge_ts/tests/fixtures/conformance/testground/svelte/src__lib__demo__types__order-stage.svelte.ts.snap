@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,26 +35,20 @@ export function orderStageEncode(value: OrderStage, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function orderStageDecode(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
     switch (input) {
         case 'Estimate':
@@ -94,6 +88,10 @@ export function orderStageHasShape(value: unknown): boolean {
 
 export function orderStageIs(value: unknown): value is OrderStage {
     return orderStageHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function orderStageFromString(text: string): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => orderStageDecode(value));
 }
 
 /** Per-variant error types  */
@@ -246,6 +244,7 @@ export const OrderStage: {
   readonly decodeWithContext: typeof orderStageDecodeWithContext;
   readonly hasShape: typeof orderStageHasShape;
   readonly is: typeof orderStageIs;
+  readonly fromString: typeof orderStageFromString;
   readonly createForm: typeof orderStageCreateForm;
   readonly fromFormData: typeof orderStageFromFormData;
 } = {
@@ -256,6 +255,7 @@ export const OrderStage: {
   decodeWithContext: orderStageDecodeWithContext,
   hasShape: orderStageHasShape,
   is: orderStageIs,
+  fromString: orderStageFromString,
   createForm: orderStageCreateForm,
   fromFormData: orderStageFromFormData
 };
@@ -269,7 +269,7 @@ export declare function orderStageDefaultValue(): OrderStage;
 export declare function orderStageEncode(value: OrderStage, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function orderStageDecode(input: unknown): {
 	success: true;
 	value: OrderStage;
@@ -284,6 +284,17 @@ export declare function orderStageDecode(input: unknown): {
 export declare function orderStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef;
 export declare function orderStageHasShape(value: unknown): boolean;
 export declare function orderStageIs(value: unknown): value is OrderStage;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function orderStageFromString(text: string): {
+	success: true;
+	value: OrderStage;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type OrderStageEstimateErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -359,6 +370,7 @@ export declare const OrderStage: {
 	readonly decodeWithContext: typeof orderStageDecodeWithContext;
 	readonly hasShape: typeof orderStageHasShape;
 	readonly is: typeof orderStageIs;
+	readonly fromString: typeof orderStageFromString;
 	readonly createForm: typeof orderStageCreateForm;
 	readonly fromFormData: typeof orderStageFromFormData;
 };
@@ -369,15 +381,15 @@ export declare const OrderStage: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..183 -> expanded 614..690
-original 183..184 -> expanded 9681..9682
-generated 0..556 <- imports
-generated 690..771 <- Default
-generated 771..2037 <- Encode
-generated 2037..3818 <- Decode
-generated 3818..8853 <- Gigaform
-generated 8853..9681 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..183 -> expanded 769..845
+original 183..184 -> expanded 10378..10379
+generated 0..711 <- imports
+generated 845..926 <- Default
+generated 926..2231 <- Encode
+generated 2231..4427 <- Decode
+generated 4427..9462 <- Gigaform
+generated 9462..10378 <- __convenience_const
 
 ## Metadata
 
@@ -385,7 +397,9 @@ type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default
 
 ## Registry reads
 
+Name("Gigaform")
 Name("OrderStage")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

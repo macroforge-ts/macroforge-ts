@@ -90,6 +90,7 @@
 
 mod declarations;
 mod derive_requirements;
+pub(crate) mod derive_scope;
 mod derive_targets;
 mod external_loader;
 mod helpers;
@@ -105,9 +106,11 @@ mod wasm_loader;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistryEntry};
+use crate::ts_syn::abi::ir::{module_gives_functions, relative_module_specifier};
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MacroContextIR,
-    MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
+    MacroContextIR, MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
 use crate::ts_syn::{
     lower_classes, lower_enums, lower_functions, lower_interfaces, lower_type_aliases,
@@ -117,6 +120,7 @@ use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
 };
 
+use derive_scope::Declares;
 pub(crate) use derive_targets::{
     AttributeTarget, AttributeTargetIR, DeriveTargetIR, SpanKey, collect_attribute_targets,
     collect_derive_targets, diagnostic_span_for_derive, find_macro_name_span,
@@ -957,20 +961,62 @@ impl MacroExpander {
 
         let items = LoweredItems {
             classes: lower_classes(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             interfaces: lower_interfaces(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             enums: lower_enums(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             type_aliases: lower_type_aliases(&parsed.program, source)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             functions: lower_functions(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             imports: crate::host::import_registry::ImportRegistry::from_program(
                 &parsed.program,
                 source,
             ),
         };
+
+        let declared: Vec<(SpanIR, &[DecoratorIR])> = items
+            .classes
+            .iter()
+            .map(|class| (class.span, class.decorators.as_slice()))
+            .chain(
+                items
+                    .interfaces
+                    .iter()
+                    .map(|interface| (interface.span, interface.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .enums
+                    .iter()
+                    .map(|declared| (declared.span, declared.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .type_aliases
+                    .iter()
+                    .map(|alias| (alias.span, alias.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .functions
+                    .iter()
+                    .map(|function| (function.span, function.decorators.as_slice())),
+            )
+            .collect();
+        let mut unattached =
+            derive_scope::check_unattached_derives(&parsed.program.comments, source, &declared);
+        map_diagnostic_spans(&mut unattached, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut unattached);
+        let mut unclosed = derive_scope::check_unclosed_directives(
+            &parsed.program.comments,
+            source,
+            &declared,
+            &valid_annotations,
+        );
+        map_diagnostic_spans(&mut unclosed, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut unclosed);
 
         if items.is_empty() {
             return Ok(MacroExpansion {
@@ -1086,6 +1132,39 @@ impl MacroExpander {
             .map(|ta| (SpanKey::from(ta.span), ta))
             .collect();
 
+        // A name this file declares is this file's type, whether the scan
+        // read the file or not: where it did not, the declaration here
+        // answers for it.
+        let own_imports =
+            crate::host::import_registry::with_registry(|registry| registry.file_import_entries());
+        let own_entry = |name: &str, definition: TypeDefinitionIR| TypeRegistryEntry {
+            name: name.to_string(),
+            file_path: file_name.to_string(),
+            is_exported: false,
+            exported_as: Vec::new(),
+            re_exported: Vec::new(),
+            definition,
+            file_imports: own_imports.clone(),
+        };
+        let type_registry = self.type_registry.declaring(
+            file_name,
+            class_map
+                .values()
+                .map(|class| own_entry(&class.name, TypeDefinitionIR::Class(class.clone())))
+                .chain(interface_map.values().map(|interface| {
+                    own_entry(
+                        &interface.name,
+                        TypeDefinitionIR::Interface(interface.clone()),
+                    )
+                }))
+                .chain(enum_map.values().map(|declared| {
+                    own_entry(&declared.name, TypeDefinitionIR::Enum(declared.clone()))
+                }))
+                .chain(type_alias_map.values().map(|alias| {
+                    own_entry(&alias.name, TypeDefinitionIR::TypeAlias(alias.clone()))
+                })),
+        );
+
         let function_map: HashMap<SpanKey, FunctionIR> = functions
             .into_iter()
             .map(|f| (SpanKey::from(f.span), f))
@@ -1102,13 +1181,19 @@ impl MacroExpander {
             )
         });
 
-        let derive_targets = collect_derive_targets(
+        let mut derive_targets = collect_derive_targets(
             &class_map,
             &interface_map,
             &enum_map,
             &type_alias_map,
             source,
         );
+        diagnostics.extend(derive_scope::reject_unexpandable(
+            &mut derive_targets,
+            source,
+            file_name,
+        ));
+        diagnostics.extend(derive_scope::reject_deep_types(&mut derive_targets, source));
 
         trace_logs.line(|| format!("derive_targets: {}", derive_targets.len()));
         for t in &derive_targets {
@@ -1124,6 +1209,80 @@ impl MacroExpander {
             &derive_targets,
             source,
         ));
+        // What an `import macro` comment brings in names a macro, not a
+        // value or a type of the module.
+        let module_imports: Vec<_> = crate::host::import_registry::with_registry(|registry| {
+            registry
+                .source_import_entries()
+                .into_iter()
+                .filter(|import| !registry.is_macro_import(&import.local_name))
+                .collect()
+        });
+        let module_names = || {
+            derive_scope::declared_names(
+                class_map.values(),
+                Declares::TypeAndValue,
+                |class| &class.name,
+                |class| class.span,
+            )
+            .chain(derive_scope::declared_names(
+                interface_map.values(),
+                Declares::Type,
+                |interface| &interface.name,
+                |interface| interface.span,
+            ))
+            .chain(derive_scope::declared_names(
+                enum_map.values(),
+                Declares::TypeAndValue,
+                |declared| &declared.name,
+                |declared| declared.span,
+            ))
+            .chain(derive_scope::declared_names(
+                type_alias_map.values(),
+                Declares::Type,
+                |alias| &alias.name,
+                |alias| alias.span,
+            ))
+            .chain(derive_scope::declared_names(
+                function_map.values(),
+                Declares::Value,
+                |function| &function.name,
+                |function| function.span,
+            ))
+            .chain(derive_scope::imported_names(&module_imports))
+        };
+        diagnostics.extend(derive_scope::check_shadowed_globals(
+            &derive_targets,
+            module_names(),
+            source,
+        ));
+        diagnostics.extend(derive_scope::check_generated_names(
+            &derive_targets,
+            module_names(),
+            source,
+        ));
+        diagnostics.extend(derive_scope::check_unnamed_alias_members(&derive_targets));
+        let merging: Vec<(&str, SpanIR)> = class_map
+            .values()
+            .map(|class| (class.name.as_str(), class.span))
+            .chain(
+                interface_map
+                    .values()
+                    .map(|interface| (interface.name.as_str(), interface.span)),
+            )
+            .chain(
+                enum_map
+                    .values()
+                    .map(|declared| (declared.name.as_str(), declared.span)),
+            )
+            .collect();
+        diagnostics.extend(derive_scope::check_merged_declarations(
+            &derive_targets,
+            &merging,
+            source,
+        ));
+        diagnostics.extend(derive_scope::check_ambient_enums(&derive_targets, source));
+        diagnostics.extend(derive_scope::check_decorator_options(&derive_targets));
 
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
             &function_map,
@@ -1143,6 +1302,8 @@ impl MacroExpander {
             return (collector, std::mem::take(diagnostics));
         }
 
+        let file_imports =
+            crate::host::import_registry::with_registry(|registry| registry.file_import_entries());
         for target in derive_targets {
             if !self.keep_decorators {
                 let decorator_removal = Patch::Delete {
@@ -1155,7 +1316,8 @@ impl MacroExpander {
             // A circular alias has no shape to derive from; macros that follow
             // its references would recurse forever.
             if let DeriveTargetIR::TypeAlias(alias) = &target.target_ir
-                && let Some(cycle) = self.type_registry.alias_cycle(&alias.name)
+                && let Some(cycle) =
+                    type_registry.alias_cycle(&alias.name, file_name, &file_imports)
             {
                 diagnostics.push(Diagnostic {
                     level: DiagnosticLevel::Error,
@@ -1365,14 +1527,14 @@ impl MacroExpander {
                 // Enrich context with project-wide type awareness. The
                 // registry is always present (empty when no scan ran) so
                 // macros can call `resolve` unconditionally.
-                ctx.type_registry = self.type_registry.clone();
+                ctx.type_registry = type_registry.clone();
                 // The file's imports disambiguate type names that several
                 // files declare, for field resolution and for the macros.
                 ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
                 let resolved_fields = target_fields.get_or_insert_with(|| {
                     let file_imports = ctx.import_registry.file_import_entries();
                     let resolver = crate::host::type_resolver::TypeResolver::new(
-                        &self.type_registry,
+                        &type_registry,
                         &ctx.file_name,
                         &file_imports,
                     );
@@ -1537,9 +1699,54 @@ impl MacroExpander {
                     let mut type_def = type_def;
 
                     if let Some(tokens) = &result.tokens {
+                        // A type the expansion brought in from another module
+                        // has its functions imported from there, as one the
+                        // file imports itself does.
+                        let mut import_sources = import_sources.clone();
+                        import_sources.extend(crate::host::import_registry::with_registry(
+                            |registry| registry.borrowed_modules(),
+                        ));
+                        // A default or a namespace import names no export.
+                        let mut exported_names: HashMap<String, String> =
+                            crate::host::import_registry::with_registry(|registry| {
+                                registry.aliases()
+                            })
+                            .into_iter()
+                            .filter(|(_, exported)| !matches!(exported.as_str(), "default" | "*"))
+                            .collect();
+                        // A type the registry holds is the project's own,
+                        // by whatever path the file imports it.
+                        let file_imports = ctx.import_registry.file_import_entries();
+                        let mut project_types = std::collections::HashSet::new();
+                        let imported: Vec<String> = import_sources.keys().cloned().collect();
+                        for name in imported {
+                            let Some(entry) =
+                                type_registry.resolve_in_file(&name, &ctx.file_name, &file_imports)
+                            else {
+                                continue;
+                            };
+                            project_types.insert(name.clone());
+                            // Its functions carry the name it is declared
+                            // under, whatever it is exported or imported as.
+                            if entry.name != name {
+                                exported_names.insert(name.clone(), entry.name.clone());
+                            }
+                            // A module that exports the type again by name
+                            // exports the type alone: its functions are
+                            // imported from where it is declared.
+                            if let Some(specifier) = import_sources.get(&name)
+                                && !module_gives_functions(entry, &ctx.file_name, specifier)
+                                && let Some(declaring) =
+                                    relative_module_specifier(&ctx.file_name, &entry.file_path)
+                            {
+                                import_sources.insert(name, declaring);
+                            }
+                        }
                         let external_imports = external_type_function_import_patches(
                             tokens,
                             &import_sources,
+                            &exported_names,
+                            &project_types,
                             &result.cross_module_suffixes,
                             &result.cross_module_type_suffixes,
                         );
@@ -1755,11 +1962,11 @@ impl MacroExpander {
 
                 // Enrich with type registry (always present; empty when no
                 // pre-scan ran so resolve sites stay unconditional).
-                ctx.type_registry = self.type_registry.clone();
+                ctx.type_registry = type_registry.clone();
                 ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
                 let file_imports = ctx.import_registry.file_import_entries();
                 let resolver = crate::host::type_resolver::TypeResolver::new(
-                    &self.type_registry,
+                    &type_registry,
                     &ctx.file_name,
                     &file_imports,
                 );
@@ -1943,7 +2150,10 @@ impl MacroExpander {
         let (type_output, type_output_diagnostics) = match typed_source {
             Some(typed_source) => {
                 let surface = declarations::declaration_surface(&typed_source, file_name)?;
-                (Some(surface.code), surface.diagnostics)
+                let written =
+                    crate::host::patch_applicator::in_line_endings_of(source, &surface.code)
+                        .into_owned();
+                (Some(written), surface.diagnostics)
             }
             None => (None, Vec::new()),
         };
@@ -1953,20 +2163,31 @@ impl MacroExpander {
         // Emit all generated imports from the registry (namespace + type-only)
         let import_block =
             crate::host::import_registry::with_registry(|r| r.emit_generated_imports());
-        if !import_block.is_empty() {
-            code = format!("{}{}", import_block, code);
-        }
+        let import_block = crate::host::patch_applicator::in_line_endings_of(source, &import_block);
+        // The imports go below what has to stay first in the file: a `#!`
+        // line, `"use client"`, a `/// <reference>`.
+        let imports_at = crate::ts_syn::preamble_end(&code);
+        code.insert_str(imports_at, &import_block);
 
         let source_mapping = prepass_mapping
             .map_or(runtime_result.mapping.clone(), |mapping| {
                 mapping.compose(&runtime_result.mapping)
             })
-            .with_prefix(import_block.len() as u32, "imports");
+            .with_insertion(imports_at as u32, import_block.len() as u32, "imports");
         let source_mapping = (!source_mapping.is_empty()).then_some(source_mapping);
+
+        // Derives that read a declaration alike each report what is wrong
+        // with it, and once says it.
+        let mut reported: Vec<Diagnostic> = Vec::new();
+        for diagnostic in std::mem::take(diagnostics) {
+            if !reported.contains(&diagnostic) {
+                reported.push(diagnostic);
+            }
+        }
 
         let mut expansion = MacroExpansion {
             code,
-            diagnostics: std::mem::take(diagnostics),
+            diagnostics: reported,
             changed: has_patches,
             type_output,
             type_output_diagnostics,
@@ -1985,29 +2206,41 @@ impl MacroExpander {
     }
 
     fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
-        let max = self.config.max_diagnostics;
-        if max == 0 {
-            diagnostics.clear();
-            return;
-        }
-
-        if diagnostics.len() > max {
-            diagnostics.truncate(max.saturating_sub(1));
-            diagnostics.push(Diagnostic {
-                level: DiagnosticLevel::Warning,
-                message: format!(
-                    "Diagnostic output truncated to {} entries per macro host configuration",
-                    max
-                ),
-                span: None,
-                notes: vec![],
-                help: Some(
-                    "Adjust `limits.maxDiagnostics` in macroforge.config.ts to see all diagnostics"
-                        .to_string(),
-                ),
-            });
-        }
+        limit_diagnostics(diagnostics, self.config.max_diagnostics);
     }
+}
+
+/// Keeps `max` of an expansion's diagnostics at most, the errors ahead of
+/// the rest, and says in the last how many were left out. Whether an
+/// expansion failed is never lost to the limit: a notice that stands for an
+/// error is one.
+pub(crate) fn limit_diagnostics(diagnostics: &mut Vec<Diagnostic>, max: usize) {
+    if diagnostics.len() <= max {
+        return;
+    }
+    let (mut kept, others): (Vec<Diagnostic>, Vec<Diagnostic>) = std::mem::take(diagnostics)
+        .into_iter()
+        .partition(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
+    let errors = kept.len();
+    kept.extend(others);
+    let shown = max.saturating_sub(1);
+    let left_out = kept.len() - shown.min(kept.len());
+    let errors_left_out = errors.saturating_sub(shown);
+    kept.truncate(shown);
+    kept.push(Diagnostic {
+        level: if errors_left_out > 0 {
+            DiagnosticLevel::Error
+        } else {
+            DiagnosticLevel::Warning
+        },
+        message: format!(
+            "{left_out} more diagnostics are not shown, {errors_left_out} of them errors: an expansion reports {max} at most"
+        ),
+        span: None,
+        notes: vec![],
+        help: Some("fix the diagnostics shown, and the rest are shown in their turn".to_string()),
+    });
+    *diagnostics = kept;
 }
 
 impl Default for MacroExpander {

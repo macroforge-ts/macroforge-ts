@@ -86,6 +86,33 @@ fn has_build_step(repo: &Repo) -> Result<bool> {
     })
 }
 
+/// Builds every package in dependency order and this checkout's CLI, then
+/// reinstalls the testground apps against them. Each app links the built
+/// packages, so its install records them, and their version, in its lock.
+pub fn build_packages(config: &Config) -> Result<()> {
+    let repos: Vec<&Repo> = deps::topo_order(&config.deps)?
+        .iter()
+        .filter_map(|name| config.repos.get(name))
+        .collect();
+    for repo in repos {
+        if !has_build_step(repo)? {
+            continue;
+        }
+        print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
+        io::stdout().flush()?;
+        build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
+        println!("{}", "done".green());
+    }
+    // The testground macro package and the test suites run this
+    // checkout's CLI, so a stale one would test older engine code.
+    print!("  {} {}... ", "Building:".bold(), "cli".cyan());
+    io::stdout().flush()?;
+    shell::cargo::build_bin(&config.root, "macroforge_ts", "macroforge")
+        .context("Build failed for the macroforge CLI")?;
+    println!("{}", "done".green());
+    super::test::prepare_testground_apps(config)
+}
+
 /// Build a single repository. Dependencies are installed once for the whole
 /// workspace beforehand, and repos build in dependency order, which the npm
 /// packages rely on: each links the built outputs of the ones it depends on.
@@ -142,11 +169,6 @@ fn build_extensions(config: &Config) -> Result<()> {
 pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
 
-    let repos: Vec<&Repo> = deps::topo_order(&config.deps)?
-        .iter()
-        .filter_map(|name| config.repos.get(name))
-        .collect();
-
     let steps = plan(&args);
     let total = steps.len();
     for (index, step) in steps.iter().enumerate() {
@@ -163,26 +185,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             Step::InstallDependencies => {
                 shell::deno::install(&config.root).context("deno install failed")?;
             }
-            Step::BuildPackages => {
-                for repo in &repos {
-                    if !has_build_step(repo)? {
-                        continue;
-                    }
-                    print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
-                    io::stdout().flush()?;
-                    build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
-                    println!("{}", "done".green());
-                }
-                // The testground macro package and the test suites run this
-                // checkout's CLI, so a stale one would test older engine code.
-                print!("  {} {}... ", "Building:".bold(), "cli".cyan());
-                io::stdout().flush()?;
-                shell::cargo::build_bin(&config.root, "macroforge_ts", "macroforge")
-                    .context("Build failed for the macroforge CLI")?;
-                println!("{}", "done".green());
-                // The testground is type-checked next, against the packages it links.
-                super::test::prepare_testground_apps(&config)?;
-            }
+            Step::BuildPackages => build_packages(&config)?,
             Step::Diagnostics => run_diagnostics(&config, args.check)?,
             Step::PublishCheck => {
                 shell::deno::publish_check(&config.root)

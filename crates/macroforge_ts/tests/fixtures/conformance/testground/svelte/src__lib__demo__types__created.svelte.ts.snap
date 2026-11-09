@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -39,45 +39,37 @@ export function createdEncode(value: Created, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function createdEncodeWithContext(value: Created, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return createdEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function createdEncodePartialWithContext(value: Partial<Created>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Created>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "Created",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("initialData")) {
-        if (value.initialData !== undefined) {
-
-            result.initialData = value.initialData;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Created" });
+    createdEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function createdEncodePartialWithContext(value: Partial<Created>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Created>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Created" };
+        createdEncodeFields(value as Created, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function createdEncodeFields(value: Created, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("initialData")) {
+        if (value.initialData !== undefined) {
+            result["initialData"] = value.initialData;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function createdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Created } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = createdDecodeWithContext(data, ctx);
+        const resultOrRef = createdDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -123,6 +115,10 @@ export function createdDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function createdFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Created } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => createdDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Created | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -135,28 +131,32 @@ export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Created.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Created | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Created") as Created | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "Created.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("initialData")) && !("initialData" in obj)) {
-        errors.push({ field: "initialData", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["initialData", "initialData"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "initialData"?: string | null | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Created");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("initialData")) || (__fields.keeps("initialData") && obj["initialData"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("initialData")) ? "initialData" in obj : (__fields.keeps("initialData") && obj["initialData"] !== undefined)) {
         const __raw_initialData = obj["initialData"] as string | null;
 
         if (!(typeof __raw_initialData === "string" || __raw_initialData === null)) {
@@ -188,8 +188,7 @@ export function createdHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "initialData" in o;
+    return __mf_holdsAll(obj, ["initialData"]);
 }
 
 export function createdIs(obj: unknown): obj is Created {
@@ -298,6 +297,7 @@ export const Created: {
   readonly encodeWithContext: typeof createdEncodeWithContext;
   readonly encodePartialWithContext: typeof createdEncodePartialWithContext;
   readonly decode: typeof createdDecode;
+  readonly fromString: typeof createdFromString;
   readonly decodeWithContext: typeof createdDecodeWithContext;
   readonly decodePartialWithContext: typeof createdDecodePartialWithContext;
   readonly validateField: typeof createdValidateField;
@@ -312,6 +312,7 @@ export const Created: {
   encodeWithContext: createdEncodeWithContext,
   encodePartialWithContext: createdEncodePartialWithContext,
   decode: createdDecode,
+  fromString: createdFromString,
   decodeWithContext: createdDecodeWithContext,
   decodePartialWithContext: createdDecodePartialWithContext,
   validateField: createdValidateField,
@@ -333,10 +334,21 @@ export declare function createdDefaultValue(): Created;
 export declare function createdEncode(value: Created, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function createdEncodeWithContext(value: Created, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function createdEncodePartialWithContext(value: Partial<Created>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Created>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function createdDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Created;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function createdFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Created;
 } | {
@@ -400,6 +412,7 @@ export declare const Created: {
 	readonly encodeWithContext: typeof createdEncodeWithContext;
 	readonly encodePartialWithContext: typeof createdEncodePartialWithContext;
 	readonly decode: typeof createdDecode;
+	readonly fromString: typeof createdFromString;
 	readonly decodeWithContext: typeof createdDecodeWithContext;
 	readonly decodePartialWithContext: typeof createdDecodePartialWithContext;
 	readonly validateField: typeof createdValidateField;
@@ -416,23 +429,25 @@ export declare const Created: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..168 -> expanded 700..761
-original 168..169 -> expanded 12635..12636
-generated 0..642 <- imports
-generated 761..860 <- Default
-generated 860..2679 <- Encode
-generated 2679..8007 <- Decode
-generated 8007..11396 <- Gigaform
-generated 11396..12635 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..168 -> expanded 904..965
+original 168..169 -> expanded 13795..13796
+generated 0..846 <- imports
+generated 965..1064 <- Default
+generated 1064..3206 <- Encode
+generated 3206..9085 <- Decode
+generated 9085..12474 <- Gigaform
+generated 12474..13795 <- __convenience_const
 
 ## Metadata
 
-interface Created: {"body_span":{"end":169,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"initialData","optional":false,"readonly":false,"span":{"end":167,"start":140},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Created","span":{"end":169,"start":116},"type_params":[]}
+interface Created: {"body_span":{"end":169,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"initialData","optional":false,"readonly":false,"span":{"end":167,"start":140},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Created","span":{"end":169,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

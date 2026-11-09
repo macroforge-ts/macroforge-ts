@@ -124,11 +124,26 @@ fn run_testground_tests(config: &Config) -> Result<()> {
 /// The testground projects that consume the published packages.
 const TESTGROUND_APPS: [&str; 4] = ["vanilla", "svelte", "library", "tests"];
 
-/// Builds the testground's macro package, then reinstalls every testground
-/// app. Each app is its own project linking the built `npm/` packages and the
-/// macro package, and Deno copies a linked package at install time, so only a
-/// fresh install makes the testground see the current build.
+/// The packages the testground apps link from `npm/` beside `core`, which
+/// `build:rust` builds, in the order they depend on one another.
+const LINKED_PACKAGES: [&str; 4] = [
+    "shared",
+    "svelte-preprocessor",
+    "typescript-plugin",
+    "vite-plugin",
+];
+
+/// Builds the packages the testground links and its macro package, then
+/// reinstalls every testground app. Each app is its own project linking the
+/// built `npm/` packages and the macro package, and Deno copies a linked
+/// package at install time, so only a fresh build and install makes the
+/// testground run this checkout's.
 pub fn prepare_testground_apps(config: &Config) -> Result<()> {
+    for package in LINKED_PACKAGES {
+        println!("  {} building {package}...", "→".blue());
+        shell::deno::task_inherit(&config.root.join("packages").join(package), "build")
+            .with_context(|| format!("deno task build failed in packages/{package}"))?;
+    }
     let macro_dir = config.root.join("tooling/testground/macro");
     println!("  {} building the testground macro package...", "→".blue());
     shell::deno::task_inherit(&macro_dir, "build")

@@ -1,0 +1,87 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_namespace_type.ts
+---
+## Input
+
+import type * as models from './models';
+import * as shapes from './shapes';
+
+/** @derive(Encode, Decode) */
+export interface Held {
+    user: models.User;
+    points: shapes.Point[];
+    maybe: models.User | null;
+}
+
+/** A type two names deep is imported by the first of them. */
+/** @derive(Encode) */
+export interface Deep {
+    at: models.Clock.Instant;
+}
+
+## Changed
+
+true
+
+## Output
+
+import type * as models from './models';
+import * as shapes from './shapes';
+
+
+export interface Held {
+    user: models.User;
+    points: shapes.Point[];
+    maybe: models.User | null;
+}
+
+/** A type two names deep is imported by the first of them. */
+
+export interface Deep {
+    at: models.Clock.Instant;
+}
+
+## DTS
+
+import type * as models from "./models";
+import * as shapes from "./shapes";
+export interface Held {
+	user: models.User;
+	points: shapes.Point[];
+	maybe: models.User | null;
+}
+/** A type two names deep is imported by the first of them. */
+export interface Deep {
+	at: models.Clock.Instant;
+}
+
+## Diagnostics
+
+Error [138..156]: @derive(Encode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
+Error [161..184]: @derive(Encode): `shapes.Point` names a type through the namespace `shapes`, and a type's coders are found by its own name; import it by name, as in `import type { Point } from "./shapes"`
+Error [189..215]: @derive(Encode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
+Error [138..156]: @derive(Decode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
+Error [161..184]: @derive(Decode): `shapes.Point` names a type through the namespace `shapes`, and a type's coders are found by its own name; import it by name, as in `import type { Point } from "./shapes"`
+Error [189..215]: @derive(Decode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
+Error [333..358]: @derive(Encode): `models.Clock.Instant` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { Clock } from "./models"`, and write `Clock.Instant`
+
+## Mapping
+
+original 0..78 -> expanded 0..78
+original 108..281 -> expanded 78..251
+original 303..360 -> expanded 251..308
+
+## Metadata
+
+interface Held: {"body_span":{"end":217,"start":132},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":109,"start":79}}],"fields":[{"decorators":[],"key":"Named","name":"user","optional":false,"readonly":false,"span":{"end":156,"start":138},"ts_type":"models.User"},{"decorators":[],"key":"Named","name":"points","optional":false,"readonly":false,"span":{"end":184,"start":161},"ts_type":"shapes.Point[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":215,"start":189},"ts_type":"models.User | null"}],"heritage":[],"methods":[],"name":"Held","span":{"end":217,"start":117},"type_params":[]}
+interface Deep: {"body_span":{"end":360,"start":327},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":304,"start":282}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":358,"start":333},"ts_type":"models.Clock.Instant"}],"heritage":[],"methods":[],"name":"Deep","span":{"end":360,"start":312},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

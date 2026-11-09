@@ -1,5 +1,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
+import { originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
+import { compile, preprocess } from 'svelte/compiler';
 import { macroforgePreprocess } from '../src/index.ts';
 
 describe('macroforgePreprocess', () => {
@@ -52,20 +54,17 @@ describe('script preprocessor', () => {
         );
     });
 
-    test('processes JavaScript when processJavaScript is true', async () => {
-        const preprocessor = macroforgePreprocess({ processJavaScript: true });
-
-        // This will try to process but may return undefined if native bindings
-        // unavailable. Run it to confirm the language check passes; the return
-        // value is ignored because the native binding may not be available in
-        // the test environment.
-        await preprocessor.script({
-            content: '/** @derive(Debug) */ class Foo {}',
-            filename: 'test.svelte',
-            attributes: {} // no lang = JavaScript
-        });
-
-        assert.ok(true, 'Should attempt to process JavaScript blocks');
+    test('a built-in derive in a JavaScript block fails the block', async () => {
+        // The block is JavaScript and a built-in derive writes TypeScript:
+        // with `processJavaScript` it reaches the engine, which refuses it.
+        await assert.rejects(
+            macroforgePreprocess({ processJavaScript: true }).script({
+                content: '/** @derive(Debug) */ class Foo {}',
+                filename: 'test.svelte',
+                attributes: {} // no lang = JavaScript
+            }),
+            /1 macro error\(s\) in test\.svelte:\n.*is a JavaScript file/
+        );
     });
 
     test('processes TypeScript blocks with lang="ts"', async () => {
@@ -77,12 +76,8 @@ describe('script preprocessor', () => {
             attributes: { lang: 'ts' }
         });
 
-        // If native bindings are available, result should have code
-        // If not, result is undefined (graceful degradation)
-        if (result !== undefined) {
-            assert.ok(result.code, 'Result should have code property');
-            assert.strictEqual(typeof result.code, 'string');
-        }
+        assert.ok(result, 'a block with a derive is expanded');
+        assert.strictEqual(typeof result.code, 'string');
     });
 
     test('processes TypeScript blocks with lang="typescript"', async () => {
@@ -94,9 +89,7 @@ describe('script preprocessor', () => {
             attributes: { lang: 'typescript' }
         });
 
-        if (result !== undefined) {
-            assert.ok(result.code, 'Result should have code property');
-        }
+        assert.ok(result?.code, 'a block with a derive is expanded');
     });
 });
 
@@ -170,19 +163,148 @@ class Point {
 });
 
 describe('error handling', () => {
-    test('gracefully handles expansion errors', async () => {
-        const preprocessor = macroforgePreprocess();
+    test('a macro error fails the block, with every message', async () => {
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content: `/** @derive(Default) */
+interface Chain {
+    next: Chain;
+}
 
-        // Invalid syntax that might cause expansion to fail. Return value
-        // is intentionally ignored — the test only verifies the call does
-        // not throw.
-        await preprocessor.script({
-            content: `/** @derive(UnknownMacro) */
+/** @derive(Clone) */
+const unattached = 1;
+`,
+                filename: 'broken.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            (error) => {
+                assert.match(error.message, /2 macro error\(s\) in broken\.svelte/);
+                assert.match(error.message, /needs a default of 'Chain' itself/);
+                assert.match(error.message, /attached to nothing a derive expands/);
+                return true;
+            }
+        );
+    });
+
+    test('a macro error names its line and column in the component', async () => {
+        const content = `
+/** @derive(Default) */
+interface Chain {
+    next: Chain;
+}
+`;
+        const markup = `<h1>Title</h1>\n<script lang="ts">${content}</script>\n`;
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content,
+                markup,
+                filename: 'chain.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            (error) => {
+                assert.match(error.message, /chain\.svelte:5:5: @derive\(Default\)/);
+                return true;
+            }
+        );
+    });
+
+    test('a script the engine cannot read fails the block', async () => {
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content: `/** @derive(Debug) */
 class Broken {`,
-            filename: 'broken.svelte',
+                filename: 'broken.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            /broken\.svelte/
+        );
+    });
+});
+
+describe('source map', () => {
+    test('every line the expansion keeps maps back to its own line', async () => {
+        const content = `
+/** @derive(Debug) */
+interface Account {
+    id: string;
+    name: string;
+    owner: string;
+}
+`;
+        const result = await macroforgePreprocess().script({
+            content,
+            markup: `<script lang="ts">${content}</script>`,
+            filename: 'account.svelte',
             attributes: { lang: 'ts' }
         });
+        assert.ok(result?.map, 'the expanded script has a map');
+        const tracer = new TraceMap(result.map);
+        const generated = result.code.split('\n');
+        const original = content.split('\n');
+        for (const field of ['    name: string;', '    owner: string;']) {
+            const line = generated.indexOf(field);
+            assert.ok(line >= 0, `${field} is kept`);
+            const position = originalPositionFor(tracer, { line: line + 1, column: 4 });
+            assert.equal(
+                position.line,
+                original.indexOf(field) + 1,
+                `${field} maps to its own line`
+            );
+        }
+    });
+});
 
-        assert.ok(true, 'Should not throw on expansion errors');
+describe('module and instance scripts', () => {
+    test('derives in both scripts of a component compile, sharing their imports', async () => {
+        const source = `<script lang="ts" module>
+/** @derive(Debug) */
+export interface Item { id: string; }
+</script>
+<script lang="ts">
+/** @derive(Debug) */
+interface Entry { name: string; }
+const entry: Entry = { name: 'x' };
+</script>
+<p>{entry.name}</p>`;
+        const processed = await preprocess(source, [macroforgePreprocess()], {
+            filename: 'Both.svelte'
+        });
+        compile(processed.code, { filename: 'Both.svelte' });
+    });
+
+    test('a type derived in both scripts fails, naming what both would declare', async () => {
+        const source = `<script lang="ts" module>
+/** @derive(Debug) */
+export interface Item { id: string; }
+</script>
+<script lang="ts">
+/** @derive(Debug) */
+interface Item { name: string; }
+</script>`;
+        await assert.rejects(
+            preprocess(source, [macroforgePreprocess()], { filename: 'Twice.svelte' }),
+            (error) => {
+                assert.match(error.message, /both generate `itemToString`/);
+                return true;
+            }
+        );
+    });
+});
+
+describe('type parameters of a component', () => {
+    test('a field typed by a type parameter of the component is refused, naming it', async () => {
+        const source = `<script lang="ts" generics="T">
+/** @derive(Encode) */
+interface Held { value: T; }
+let { held }: { held: Held } = $props();
+</script>`;
+        await assert.rejects(
+            preprocess(source, [macroforgePreprocess()], { filename: 'Generic.svelte' }),
+            (error) => {
+                assert.match(error.message, /`T` is a type this file neither declares nor imports/);
+                assert.match(error.message, /generics/);
+                return true;
+            }
+        );
     });
 });

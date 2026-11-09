@@ -1,3 +1,7 @@
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DataInterface, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream};
 
@@ -5,7 +9,7 @@ use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
 use super::object_decoder::object_decode_functions;
 use super::types::DecodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{TypeNames, derive_interface_fields};
 
 pub(super) fn handle_interface(
     input: &DeriveInput,
@@ -14,9 +18,22 @@ pub(super) fn handle_interface(
     let container_opts = EndecContainerOptions::from_decorators(&interface.inner.decorators);
     let file_imports = input.context.import_registry.file_import_entries();
     let names = TypeNames::new(input.name(), interface.type_params());
+    let interface_fields = derive_interface_fields(input, interface, "Decode")?;
     let mut diagnostics = DiagnosticCollector::new();
-    let fields: Vec<DecodeField> = interface
-        .fields()
+    let key_scope = TypeScope {
+        registry: &input.context.type_registry,
+        file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+        type_params: &names.params,
+    };
+    check_field_keys(
+        Direction::Decode,
+        &container_opts,
+        interface_fields.iter().map(SourceField::from),
+        &key_scope,
+        &mut diagnostics,
+    );
+    let fields: Vec<DecodeField> = interface_fields
         .iter()
         .filter_map(|field| {
             to_decode_field(

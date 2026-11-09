@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MethodSigIR, SpanIR,
-    TypeAliasIR,
+    ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
+    MethodSigIR, SpanIR, TypeAliasIR,
 };
 use crate::ts_syn::jsdoc::adjacent_jsdoc;
 
@@ -67,41 +67,70 @@ pub(crate) fn collect_derive_targets(
     targets
 }
 
+/// The derive target a declaration makes: the macros every `@derive` among
+/// `decorators` names, or else those of the JSDoc directly above the
+/// declaration, which starts at `declared_at`. `covering` is the span the
+/// target's decorator has when it is not the first `@derive`'s own.
+fn collect_target(
+    decorators: &[DecoratorIR],
+    declared_at: u32,
+    covering: Option<SpanIR>,
+    source: &str,
+    import_sources: &HashMap<String, String>,
+    target_ir: impl FnOnce() -> DeriveTargetIR,
+    out: &mut Vec<DeriveTarget>,
+) {
+    let derives: Vec<&DecoratorIR> = decorators
+        .iter()
+        .filter(|decorator| decorator.name.eq_ignore_ascii_case("derive"))
+        .collect();
+    // A declaration may spread its derives over several directives.
+    let mut macro_names = Vec::new();
+    for decorator in &derives {
+        for named in parse_derive_decorator(&decorator.args_src, import_sources) {
+            if !macro_names.contains(&named) {
+                macro_names.push(named);
+            }
+        }
+    }
+    if let Some(first) = derives.first()
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: covering.unwrap_or(first.span),
+            target_ir: target_ir(),
+        });
+        return;
+    }
+
+    if let Some((span, args_src)) = find_leading_derive_comment(source, declared_at) {
+        let macro_names = parse_derive_decorator(&args_src, import_sources);
+        if !macro_names.is_empty() {
+            out.push(DeriveTarget {
+                macro_names,
+                decorator_span: span,
+                target_ir: target_ir(),
+            });
+        }
+    }
+}
+
 fn collect_from_class(
     class_ir: &ClassIR,
     source: &str,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    for decorator in &class_ir.decorators {
-        // Only process @derive decorators, skip other decorators like @enumFieldsetController
-        if !decorator.name.eq_ignore_ascii_case("derive") {
-            continue;
-        }
-        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
-            if macro_names.is_empty() {
-                continue;
-            }
-
-            out.push(DeriveTarget {
-                macro_names,
-                decorator_span: decorator.span,
-                target_ir: DeriveTargetIR::Class(class_ir.clone()),
-            });
-            return;
-        }
-    }
-
-    if let Some((span, args_src)) = find_leading_derive_comment(source, class_ir.span.start)
-        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
-        && !macro_names.is_empty()
-    {
-        out.push(DeriveTarget {
-            macro_names,
-            decorator_span: span,
-            target_ir: DeriveTargetIR::Class(class_ir.clone()),
-        });
-    }
+    collect_target(
+        &class_ir.decorators,
+        class_ir.span.start,
+        None,
+        source,
+        import_sources,
+        || DeriveTargetIR::Class(class_ir.clone()),
+        out,
+    );
 }
 
 fn collect_from_interface(
@@ -110,35 +139,15 @@ fn collect_from_interface(
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    for decorator in &interface_ir.decorators {
-        // Only process @derive decorators, skip other decorators like @enumFieldsetController
-        if !decorator.name.eq_ignore_ascii_case("derive") {
-            continue;
-        }
-        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
-            if macro_names.is_empty() {
-                continue;
-            }
-
-            out.push(DeriveTarget {
-                macro_names,
-                decorator_span: decorator.span,
-                target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
-            });
-            return;
-        }
-    }
-
-    if let Some((span, args_src)) = find_leading_derive_comment(source, interface_ir.span.start)
-        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
-        && !macro_names.is_empty()
-    {
-        out.push(DeriveTarget {
-            macro_names,
-            decorator_span: span,
-            target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
-        });
-    }
+    collect_target(
+        &interface_ir.decorators,
+        interface_ir.span.start,
+        None,
+        source,
+        import_sources,
+        || DeriveTargetIR::Interface(interface_ir.clone()),
+        out,
+    );
 }
 
 fn collect_from_enum(
@@ -147,35 +156,15 @@ fn collect_from_enum(
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    for decorator in &enum_ir.decorators {
-        // Only process @derive decorators, skip other decorators like @enumFieldsetController
-        if !decorator.name.eq_ignore_ascii_case("derive") {
-            continue;
-        }
-        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
-            if macro_names.is_empty() {
-                continue;
-            }
-
-            out.push(DeriveTarget {
-                macro_names,
-                decorator_span: decorator.span,
-                target_ir: DeriveTargetIR::Enum(enum_ir.clone()),
-            });
-            return;
-        }
-    }
-
-    if let Some((span, args_src)) = find_leading_derive_comment(source, enum_ir.span.start)
-        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
-        && !macro_names.is_empty()
-    {
-        out.push(DeriveTarget {
-            macro_names,
-            decorator_span: span,
-            target_ir: DeriveTargetIR::Enum(enum_ir.clone()),
-        });
-    }
+    collect_target(
+        &enum_ir.decorators,
+        enum_ir.span.start,
+        None,
+        source,
+        import_sources,
+        || DeriveTargetIR::Enum(enum_ir.clone()),
+        out,
+    );
 }
 
 fn collect_from_type_alias(
@@ -184,57 +173,28 @@ fn collect_from_type_alias(
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    // Compute combined span for ALL adjacent decorators (to remove all JSDoc comments)
-    let combined_span = if !type_alias_ir.decorators.is_empty() {
-        let min_start = type_alias_ir
-            .decorators
-            .iter()
-            .map(|d| d.span.start)
-            .min()
-            .unwrap_or(0);
-        let max_end = type_alias_ir
-            .decorators
-            .iter()
-            .map(|d| d.span.end)
-            .max()
-            .unwrap_or(0);
-        Some(SpanIR::new(min_start, max_end))
-    } else {
-        None
-    };
-
-    for decorator in &type_alias_ir.decorators {
-        // Only process @derive decorators, skip other decorators like @enumFieldsetController
-        if !decorator.name.eq_ignore_ascii_case("derive") {
-            continue;
-        }
-        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
-            if macro_names.is_empty() {
-                continue;
-            }
-
-            // Use combined span to remove ALL adjacent JSDoc comments
-            let decorator_span = combined_span.unwrap_or(decorator.span);
-
-            out.push(DeriveTarget {
-                macro_names,
-                decorator_span,
-                target_ir: DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
-            });
-            return;
-        }
-    }
-
-    if let Some((span, args_src)) = find_leading_derive_comment(source, type_alias_ir.span.start)
-        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
-        && !macro_names.is_empty()
-    {
-        out.push(DeriveTarget {
-            macro_names,
-            decorator_span: span,
-            target_ir: DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
-        });
-    }
+    // An alias's decorator covers every JSDoc above it, so all are removed.
+    let starts = type_alias_ir
+        .decorators
+        .iter()
+        .map(|decorator| decorator.span.start);
+    let ends = type_alias_ir
+        .decorators
+        .iter()
+        .map(|decorator| decorator.span.end);
+    let covering = starts
+        .min()
+        .zip(ends.max())
+        .map(|(start, end)| SpanIR::new(start, end));
+    collect_target(
+        &type_alias_ir.decorators,
+        type_alias_ir.span.start,
+        covering,
+        source,
+        import_sources,
+        || DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
+        out,
+    );
 }
 
 /// The 1-based span of `macro_name` among the arguments of the decorator at
@@ -288,10 +248,11 @@ pub(crate) fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
         .unwrap_or(span)
 }
 
+/// The macros a `@derive(...)` names, each with the module it comes from.
 fn parse_derive_decorator(
     args_src: &str,
     import_sources: &HashMap<String, String>,
-) -> Option<Vec<(String, String)>> {
+) -> Vec<(String, String)> {
     let args = args_src.split(',');
     let mut macros = Vec::new();
     for arg in args {
@@ -310,7 +271,7 @@ fn parse_derive_decorator(
         macros.push((name, module_path));
     }
 
-    Some(macros)
+    macros
 }
 
 /// The `@derive(...)` in the JSDoc directly above a declaration starting at
@@ -493,7 +454,7 @@ pub(crate) fn collect_attribute_targets(
 /// Check non-derive decorators on a type-like declaration for attribute macros.
 /// `target_ir` builds the declaration's IR, only for a decorator that names one.
 fn collect_attribute_from_decorators(
-    decorators: &[crate::ts_syn::abi::DecoratorIR],
+    decorators: &[DecoratorIR],
     target_ir: impl Fn() -> AttributeTargetIR,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<AttributeTarget>,

@@ -1,0 +1,107 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/class_accessor_field_built.ts
+---
+## Input
+
+/** @derive(Debug, Clone) */
+class Stepper {
+    accessor step: number = 1;
+    label: string = '';
+}
+
+/** @derive(PartialEq, Default, Decode) */
+class Dial {
+    accessor turn = 0;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+
+class Stepper {
+    accessor step: number = 1;
+    label: string = '';
+
+    static toString(value: Stepper): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("step: " + String(value.step));
+        parts.push("label: " + String(value.label));
+            return "Stepper { " + parts.join(", ") + " }";
+        });
+    }
+}
+
+export function stepperToString(value: Stepper): string {
+    return Stepper.toString(value);
+}
+
+
+class Dial {
+    accessor turn = 0;
+
+    static equals(a: Dial, b: Dial): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return a.turn === b.turn || a.turn !== a.turn && b.turn !== b.turn;
+            });
+    }
+}
+
+export function dialEquals(a: Dial, b: Dial): boolean {
+    return Dial.equals(a, b);
+}
+
+## DTS
+
+declare class Stepper {
+	accessor step: number;
+	label: string;
+	static toString(value: Stepper): string;
+}
+export declare function stepperToString(value: Stepper): string;
+declare class Dial {
+	accessor turn;
+	static equals(a: Dial, b: Dial): boolean;
+}
+export declare function dialEquals(a: Dial, b: Dial): boolean;
+export {};
+
+## Diagnostics
+
+Error [5..26]: @derive(Clone): field 'step' of class 'Stepper' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
+Error [108..143]: @derive(Default): field 'turn' of class 'Dial' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
+Error [108..143]: @derive(Decode): field 'turn' of class 'Dial' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
+
+## Mapping
+
+original 28..100 -> expanded 118..190
+original 100..101 -> expanded 508..509
+original 101..103 -> expanded 606..608
+original 145..182 -> expanded 608..645
+original 182..183 -> expanded 879..880
+original 183..184 -> expanded 969..970
+generated 0..118 <- imports
+generated 190..508 <- Debug
+generated 509..606 <- Debug
+generated 645..879 <- PartialEq
+generated 880..969 <- PartialEq
+
+## Metadata
+
+class Stepper: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":true,"decorators":[],"initializer":"1","key":"Named","name":"step","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Stepper","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
+class Dial: {"body_span":{"end":184,"start":158},"decorators":[{"args_src":"PartialEq, Default, Decode","name":"Derive","span":{"end":146,"start":104}}],"fields":[{"accessor":true,"decorators":[],"initializer":"0","key":"Named","name":"turn","optional":false,"readonly":false,"span":{"end":182,"start":164},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Dial","span":{"end":184,"start":147},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

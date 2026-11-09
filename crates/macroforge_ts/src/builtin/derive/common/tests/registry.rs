@@ -2,7 +2,8 @@
 
 use super::{make_decorator, zero_span};
 use crate::builtin::derive::common::{
-    collection_element_type, resolved_type_has_derive, standalone_fn_name, type_has_derive,
+    collection_element_type, function_prefix, resolved_type_has_derive, standalone_fn_name,
+    type_has_derive,
 };
 use crate::ts_syn::ResolvedTypeRef;
 use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
@@ -20,13 +21,17 @@ fn make_registry_with_derives() -> TypeRegistry {
         name: "User".to_string(),
         file_path: "/project/src/user.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Class(ClassIR {
             name: "User".to_string(),
             span: zero_span(),
             body_span: zero_span(),
             is_abstract: false,
+            is_declare: false,
             type_params: vec![],
             heritage: vec![],
+            superclass: None,
             decorators: vec![make_decorator(
                 "derive",
                 "Clone, Hash, PartialEq, Debug, Default",
@@ -43,6 +48,8 @@ fn make_registry_with_derives() -> TypeRegistry {
         name: "Order".to_string(),
         file_path: "/project/src/order.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "Order".to_string(),
             span: zero_span(),
@@ -62,13 +69,17 @@ fn make_registry_with_derives() -> TypeRegistry {
         name: "Product".to_string(),
         file_path: "/project/src/product.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Class(ClassIR {
             name: "Product".to_string(),
             span: zero_span(),
             body_span: zero_span(),
             is_abstract: false,
+            is_declare: false,
             type_params: vec![],
             heritage: vec![],
+            superclass: None,
             decorators: vec![],
             fields: vec![],
             methods: vec![],
@@ -114,6 +125,8 @@ fn test_type_has_derive_ambiguous_name() {
         name: "PhoneNumber".to_string(),
         file_path: "/project/src/types/phone-number.svelte.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "PhoneNumber".to_string(),
             span: zero_span(),
@@ -136,6 +149,8 @@ fn test_type_has_derive_ambiguous_name() {
         name: "PhoneNumber".to_string(),
         file_path: "/project/src/types/all-types.svelte.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "PhoneNumber".to_string(),
             span: zero_span(),
@@ -245,4 +260,29 @@ fn test_standalone_fn_name() {
         standalone_fn_name("MyLongType", "PartialCompare"),
         "myLongTypePartialCompare"
     );
+}
+
+/// Every generated function of a type starts as this says, and the name is
+/// one a function can take whatever the type's is.
+#[test]
+fn a_types_functions_are_named_by_its_name_in_camel_case() {
+    for (type_name, prefix) in [
+        ("User", "user"),
+        ("HTTPServer", "httpServer"),
+        ("IOError", "ioError"),
+        ("point2D", "point2D"),
+        ("my_type", "myType"),
+        ("Foo_Bar", "fooBar"),
+        ("lower", "lower"),
+        ("$Dollar", "$dollar"),
+        ("Ünïcode", "ünïcode"),
+        // The underscores a name opens with are kept.
+        ("_Hidden", "_hidden"),
+        ("__Double", "__double"),
+        ("_1", "_1"),
+        ("_", "_"),
+    ] {
+        assert_eq!(function_prefix(type_name), prefix, "{type_name}");
+    }
+    assert_eq!(standalone_fn_name("_Hidden", "Clone"), "_hiddenClone");
 }

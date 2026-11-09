@@ -17,16 +17,20 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
 type Point = {
     x: number;
     y: number;
 };
 
 export function pointToString(value: Point): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("x: " + String(value.x));
     parts.push("y: " + String(value.y));
-    return "Point { " + parts.join(", ") + " }";
+        return "Point { " + parts.join(", ") + " }";
+    });
 }
 
 const Point: {
@@ -50,14 +54,15 @@ export {};
 
 ## Mapping
 
-original 21..69 -> expanded 0..48
-original 69..70 -> expanded 362..363
-generated 48..268 <- Debug
-generated 268..362 <- __convenience_const
+original 21..69 -> expanded 85..133
+original 69..70 -> expanded 509..510
+generated 0..85 <- imports
+generated 133..415 <- Debug
+generated 415..509 <- __convenience_const
 
 ## Metadata
 
-type Point: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"name":"Point","span":{"end":70,"start":23},"type_params":[]}
+type Point: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"name":"Point","span":{"end":70,"start":23},"type_params":[]}
 
 ## Registry reads
 

@@ -55,6 +55,7 @@ use std::collections::HashMap;
 use crate::abi::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::abi::{ClassIR, EnumIR, FunctionIR, InterfaceIR, SpanIR, TypeAliasIR};
 use crate::import_registry::ImportRegistry;
+use crate::source_path::import_specifier_path;
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed.
@@ -567,7 +568,9 @@ impl MacroContextIR {
     /// Resolution order:
     /// 1. If the current file already imports `type_name`, return its existing
     ///    specifier (preserves aliases and the user's chosen path style).
-    /// 2. Otherwise look up `type_name` in `self.type_registry`.
+    /// 2. Otherwise look up `type_name` in `self.type_registry`, as a file
+    ///    that does not import it knows it: the type it declares itself, or
+    ///    the one type of that name the project declares.
     /// 3. If the type lives in `self.file_name`, return `None` (no import needed).
     /// 4. Compute the relative path from the current file's directory to
     ///    `entry.file_path`, strip TypeScript file extensions, and prepend
@@ -578,7 +581,9 @@ impl MacroContextIR {
         {
             return Some(existing.to_string());
         }
-        let entry = self.type_registry.types.get(type_name)?;
+        let entry = self
+            .type_registry
+            .resolve_in_file(type_name, &self.file_name, &[])?;
         if entry.file_path == self.file_name {
             return None;
         }
@@ -587,23 +592,14 @@ impl MacroContextIR {
 }
 
 /// Computes a TypeScript module specifier for `target_file` relative to the
-/// directory containing `current_file`. Strips `.svelte.ts` → `.svelte`,
-/// `.tsx` → empty, `.ts` → empty, and prepends `./` for sibling/descendant
-/// paths.
-fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
+/// directory containing `current_file`, named as [`import_specifier_path`]
+/// names it, with `./` before a sibling or descendant path.
+pub fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
     use std::path::Path;
     let from = Path::new(current_file).parent()?;
     let to = Path::new(target_file);
     let rel = pathdiff::diff_paths(to, from)?;
-    let mut s = rel.to_string_lossy().replace('\\', "/");
-
-    if let Some(stripped) = s.strip_suffix(".svelte.ts") {
-        s = format!("{stripped}.svelte");
-    } else if let Some(stripped) = s.strip_suffix(".tsx") {
-        s = stripped.to_string();
-    } else if let Some(stripped) = s.strip_suffix(".ts") {
-        s = stripped.to_string();
-    }
+    let mut s = import_specifier_path(&rel.to_string_lossy().replace('\\', "/"));
 
     if !s.starts_with('.') && !s.starts_with('/') {
         s = format!("./{s}");
@@ -659,6 +655,8 @@ mod import_specifier_tests {
                 name: name.to_string(),
                 file_path: file_path.to_string(),
                 is_exported: true,
+                exported_as: Vec::new(),
+                re_exported: Vec::new(),
                 definition: TypeDefinitionIR::Interface(empty_interface(name)),
                 file_imports: vec![],
             },
@@ -689,6 +687,33 @@ mod import_specifier_tests {
         let mut ctx = make_ctx("/foo/bar.svelte.ts");
         ctx.type_registry = registry_with("Bar", "/foo/bar.svelte.ts");
         assert_eq!(ctx.import_specifier_for("Bar"), None);
+    }
+
+    /// A name this file declares needs no import, though another file
+    /// declares it too, and one only other files declare, more than once,
+    /// has no one module to come from.
+    #[test]
+    fn a_name_several_files_declare_is_this_files_own_or_none() {
+        let entry = |file_path: &str| TypeRegistryEntry {
+            name: "Bar".to_string(),
+            file_path: file_path.to_string(),
+            is_exported: true,
+            exported_as: Vec::new(),
+            re_exported: Vec::new(),
+            definition: TypeDefinitionIR::Interface(empty_interface("Bar")),
+            file_imports: vec![],
+        };
+        let mut registry = TypeRegistry::new();
+        registry.insert(entry("/foo/other.ts"), "/foo");
+        registry.insert(entry("/foo/bar.ts"), "/foo");
+
+        let mut own = make_ctx("/foo/bar.ts");
+        own.type_registry = registry.clone();
+        assert_eq!(own.import_specifier_for("Bar"), None);
+
+        let mut third = make_ctx("/foo/third.ts");
+        third.type_registry = registry;
+        assert_eq!(third.import_specifier_for("Bar"), None);
     }
 
     #[test]
@@ -741,6 +766,21 @@ mod import_specifier_tests {
         assert_eq!(
             ctx.import_specifier_for("Component"),
             Some("./component".to_string())
+        );
+    }
+
+    #[test]
+    fn module_kinds_are_named_by_what_they_compile_to() {
+        let mut ctx = make_ctx("/foo/order.ts");
+        ctx.type_registry = registry_with("Customer", "/foo/models/customer.mts");
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./models/customer.mjs".to_string())
+        );
+        ctx.type_registry = registry_with("Customer", "/foo/models/customer.cts");
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./models/customer.cjs".to_string())
         );
     }
 }

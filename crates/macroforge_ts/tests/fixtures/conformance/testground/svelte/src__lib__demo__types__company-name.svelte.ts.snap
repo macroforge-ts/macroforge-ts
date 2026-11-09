@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -41,45 +41,37 @@ export function companyNameEncode(value: CompanyName, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return companyNameEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function companyNameEncodePartialWithContext(value: Partial<CompanyName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CompanyName>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
     }
-
-    const result: Record<string, unknown> = {
-        "__type": "CompanyName",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("companyName")) {
-
-        if (value.companyName !== undefined) {
-            result.companyName = value.companyName;
-        }
-    }
-
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CompanyName" });
+    companyNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function companyNameEncodePartialWithContext(value: Partial<CompanyName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CompanyName>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "CompanyName" };
+        companyNameEncodeFields(value as CompanyName, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function companyNameEncodeFields(value: CompanyName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("companyName")) {
+        if (value.companyName !== undefined) {
+            result["companyName"] = value.companyName;
+        }
+    }
+}
+
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = companyNameDecodeWithContext(data, ctx);
+        const resultOrRef = companyNameDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -125,6 +117,10 @@ export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function companyNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => companyNameDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CompanyName | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -137,28 +133,32 @@ export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CompanyName.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CompanyName | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CompanyName") as CompanyName | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "CompanyName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("companyName")) && !("companyName" in obj)) {
-        errors.push({ field: "companyName", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["companyName", "companyName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "companyName"?: string | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CompanyName");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("companyName")) || (__fields.keeps("companyName") && obj["companyName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("companyName")) ? "companyName" in obj : (__fields.keeps("companyName") && obj["companyName"] !== undefined)) {
         const __raw_companyName = obj["companyName"] as string;
 
         if (!(typeof __raw_companyName === "string")) {
@@ -205,8 +205,7 @@ export function companyNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "companyName" in o;
+    return __mf_holdsAll(obj, ["companyName"]);
 }
 
 export function companyNameIs(obj: unknown): obj is CompanyName {
@@ -315,6 +314,7 @@ export const CompanyName: {
   readonly encodeWithContext: typeof companyNameEncodeWithContext;
   readonly encodePartialWithContext: typeof companyNameEncodePartialWithContext;
   readonly decode: typeof companyNameDecode;
+  readonly fromString: typeof companyNameFromString;
   readonly decodeWithContext: typeof companyNameDecodeWithContext;
   readonly decodePartialWithContext: typeof companyNameDecodePartialWithContext;
   readonly validateField: typeof companyNameValidateField;
@@ -329,6 +329,7 @@ export const CompanyName: {
   encodeWithContext: companyNameEncodeWithContext,
   encodePartialWithContext: companyNameEncodePartialWithContext,
   decode: companyNameDecode,
+  fromString: companyNameFromString,
   decodeWithContext: companyNameDecodeWithContext,
   decodePartialWithContext: companyNameDecodePartialWithContext,
   validateField: companyNameValidateField,
@@ -350,10 +351,21 @@ export declare function companyNameDefaultValue(): CompanyName;
 export declare function companyNameEncode(value: CompanyName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function companyNameEncodePartialWithContext(value: Partial<CompanyName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CompanyName>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CompanyName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function companyNameFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CompanyName;
 } | {
@@ -417,6 +429,7 @@ export declare const CompanyName: {
 	readonly encodeWithContext: typeof companyNameEncodeWithContext;
 	readonly encodePartialWithContext: typeof companyNameEncodePartialWithContext;
 	readonly decode: typeof companyNameDecode;
+	readonly fromString: typeof companyNameFromString;
 	readonly decodeWithContext: typeof companyNameDecodeWithContext;
 	readonly decodePartialWithContext: typeof companyNameDecodePartialWithContext;
 	readonly validateField: typeof companyNameValidateField;
@@ -433,25 +446,27 @@ export declare const CompanyName: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..143 -> expanded 700..736
-original 192..197 -> expanded 736..741
-original 238..265 -> expanded 741..768
-original 265..266 -> expanded 14044..14045
-generated 0..642 <- imports
-generated 768..873 <- Default
-generated 873..2732 <- Encode
-generated 2732..9221 <- Decode
-generated 9221..12697 <- Gigaform
-generated 12697..14044 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..143 -> expanded 904..940
+original 192..197 -> expanded 940..945
+original 238..265 -> expanded 945..972
+original 265..266 -> expanded 15245..15246
+generated 0..846 <- imports
+generated 972..1077 <- Default
+generated 1077..3279 <- Encode
+generated 3279..10332 <- Decode
+generated 10332..13808 <- Gigaform
+generated 13808..15245 <- __convenience_const
 
 ## Metadata
 
-interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
+interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"key":"Named","name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

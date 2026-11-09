@@ -16,21 +16,18 @@ true
 
 ## Output
 
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
  export interface User {
     name: string;
     age: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userDecodeWithContext(data, ctx);
+        const resultOrRef = userDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -76,6 +73,10 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
@@ -88,47 +89,56 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["age", "age"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined } = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
-            errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -153,8 +163,7 @@ export function userHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o;
+    return __mf_holdsAll(obj, ["name", "age"]);
 }
 
 export function userIs(obj: unknown): obj is User {
@@ -163,6 +172,7 @@ export function userIs(obj: unknown): obj is User {
 
 export const User: {
   readonly decode: typeof userDecode;
+  readonly fromString: typeof userFromString;
   readonly decodeWithContext: typeof userDecodeWithContext;
   readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
@@ -171,6 +181,7 @@ export const User: {
   readonly is: typeof userIs;
 } = {
   decode: userDecode,
+  fromString: userFromString,
   decodeWithContext: userDecodeWithContext,
   decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
@@ -185,8 +196,19 @@ export interface User {
 	name: string;
 	age: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: User;
 } | {
@@ -214,6 +236,7 @@ export declare function userHasShape(obj: unknown): boolean;
 export declare function userIs(obj: unknown): obj is User;
 export declare const User: {
 	readonly decode: typeof userDecode;
+	readonly fromString: typeof userFromString;
 	readonly decodeWithContext: typeof userDecodeWithContext;
 	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
@@ -228,15 +251,15 @@ export declare const User: {
 
 ## Mapping
 
-original 22..83 -> expanded 350..411
-original 83..84 -> expanded 6759..6760
-generated 0..350 <- imports
-generated 411..6141 <- Decode
-generated 6141..6759 <- __convenience_const
+original 22..83 -> expanded 441..502
+original 83..84 -> expanded 7619..7620
+generated 0..441 <- imports
+generated 502..6925 <- Decode
+generated 6925..7619 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":84,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":65,"start":52},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":82,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":84,"start":31},"type_params":[]}
+interface User: {"body_span":{"end":84,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":65,"start":52},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":82,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":84,"start":31},"type_params":[]}
 
 ## Registry reads
 
