@@ -21,8 +21,9 @@ User.encode(user); // string
 User.encode(user, true); // keep __type/__id metadata
 User.encodeWithContext(user, ctx); // Record<string, unknown>
 
-// Decode
+// Decode: `decode` takes a value, `fromString` takes JSON text
 const r = User.decode(input);
+User.fromString(User.encode(user)); // the same result, from text
 if (r.success) {
     r.value; // User
 } else {
@@ -48,9 +49,9 @@ This distinction trips people up, so it's worth stating plainly:
 | **Enum**       | standalone `{camel}X(...)` only                    |
 
 There is no class to attach statics to for the last three, so they get functions like
-`userEncode(value)` and `userDecode(input)`. With `generateConvenienceConst` enabled (the default),
-a grouping `const`: or, for enums, a merged `namespace`: is also emitted so you can still write
-`User.encode(...)`.
+`userEncode(value)`, `userDecode(value)` and `userFromString(text)`. With `generateConvenienceConst`
+enabled (the default), a grouping `const`: or, for enums, a merged `namespace`: is also emitted so
+you can still write `User.encode(...)`.
 
 ### Primitive aliases
 

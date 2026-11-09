@@ -336,7 +336,7 @@
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/decode/overview.md",
-        "use_cases": "fromJSON, decoding, decode, class_handler, namedecode, namedecodewithcontext",
+        "use_cases": "fromJSON, decoding, decode, class_handler, namedecode, namefromstring",
         "parent_id": "decode"
     },
     {
