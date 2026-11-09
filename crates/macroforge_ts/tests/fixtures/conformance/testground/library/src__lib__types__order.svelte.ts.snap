@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Order {
@@ -75,14 +75,11 @@ function orderEncodeFields(value: Order, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = orderDecodeWithContext(data, ctx);
+        const resultOrRef = orderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -127,6 +124,10 @@ export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => orderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef;
@@ -227,6 +228,7 @@ export const Order: {
   readonly encodeWithContext: typeof orderEncodeWithContext;
   readonly encodePartialWithContext: typeof orderEncodePartialWithContext;
   readonly decode: typeof orderDecode;
+  readonly fromString: typeof orderFromString;
   readonly decodeWithContext: typeof orderDecodeWithContext;
   readonly decodePartialWithContext: typeof orderDecodePartialWithContext;
   readonly validateField: typeof orderValidateField;
@@ -239,6 +241,7 @@ export const Order: {
   encodeWithContext: orderEncodeWithContext,
   encodePartialWithContext: orderEncodePartialWithContext,
   decode: orderDecode,
+  fromString: orderFromString,
   decodeWithContext: orderDecodeWithContext,
   decodePartialWithContext: orderDecodePartialWithContext,
   validateField: orderValidateField,
@@ -260,8 +263,19 @@ export declare function orderEncode(value: Order, keepMetadata?: boolean): strin
 export declare function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Order>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function orderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Order;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Order;
 } | {
@@ -293,6 +307,7 @@ export declare const Order: {
 	readonly encodeWithContext: typeof orderEncodeWithContext;
 	readonly encodePartialWithContext: typeof orderEncodePartialWithContext;
 	readonly decode: typeof orderDecode;
+	readonly fromString: typeof orderFromString;
 	readonly decodeWithContext: typeof orderDecodeWithContext;
 	readonly decodePartialWithContext: typeof orderDecodePartialWithContext;
 	readonly validateField: typeof orderValidateField;
@@ -307,13 +322,13 @@ export declare const Order: {
 
 ## Mapping
 
-original 39..104 -> expanded 685..750
-original 104..105 -> expanded 10496..10497
-generated 0..685 <- imports
-generated 750..855 <- Default
-generated 855..3298 <- Encode
-generated 3298..9475 <- Decode
-generated 9475..10496 <- __convenience_const
+original 39..104 -> expanded 687..752
+original 104..105 -> expanded 10912..10913
+generated 0..687 <- imports
+generated 752..857 <- Default
+generated 857..3300 <- Encode
+generated 3300..9813 <- Decode
+generated 9813..10912 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ import { editedDecodeWithContext, editedHasShape, editedEncodeWithContext, edite
 import { paidDecodeWithContext, paidHasShape, paidEncodeWithContext, paidDefaultValue } from "./paid.svelte";
 import { sentDecodeWithContext, sentHasShape, sentEncodeWithContext, sentDefaultValue } from "./sent.svelte";
 import { viewedDecodeWithContext, viewedHasShape, viewedEncodeWithContext, viewedDefaultValue } from "./viewed.svelte";
-import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -81,13 +81,11 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = activityTypeDecodeWithContext(data, ctx);
+        const resultOrRef = activityTypeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -132,6 +130,10 @@ export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function activityTypeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => activityTypeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ActivityType | __mf_PendingRef {
@@ -460,6 +462,7 @@ export const ActivityType: {
   readonly encode: typeof activityTypeEncode;
   readonly encodeWithContext: typeof activityTypeEncodeWithContext;
   readonly decode: typeof activityTypeDecode;
+  readonly fromString: typeof activityTypeFromString;
   readonly decodeWithContext: typeof activityTypeDecodeWithContext;
   readonly hasShape: typeof activityTypeHasShape;
   readonly is: typeof activityTypeIs;
@@ -470,6 +473,7 @@ export const ActivityType: {
   encode: activityTypeEncode,
   encodeWithContext: activityTypeEncodeWithContext,
   decode: activityTypeDecode,
+  fromString: activityTypeFromString,
   decodeWithContext: activityTypeDecodeWithContext,
   hasShape: activityTypeHasShape,
   is: activityTypeIs,
@@ -492,8 +496,19 @@ export declare function activityTypeDefaultValue(): ActivityType;
 export declare function activityTypeEncode(value: ActivityType, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ActivityType;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function activityTypeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ActivityType;
 } | {
@@ -615,6 +630,7 @@ export declare const ActivityType: {
 	readonly encode: typeof activityTypeEncode;
 	readonly encodeWithContext: typeof activityTypeEncodeWithContext;
 	readonly decode: typeof activityTypeDecode;
+	readonly fromString: typeof activityTypeFromString;
 	readonly decodeWithContext: typeof activityTypeDecodeWithContext;
 	readonly hasShape: typeof activityTypeHasShape;
 	readonly is: typeof activityTypeIs;
@@ -628,15 +644,15 @@ export declare const ActivityType: {
 
 ## Mapping
 
-original 0..341 -> expanded 1429..1770
-original 390..512 -> expanded 1770..1892
-original 512..513 -> expanded 20956..20957
-generated 0..1429 <- imports
-generated 1892..1988 <- Default
-generated 1988..5796 <- Encode
-generated 5796..13018 <- Decode
-generated 13018..20090 <- Gigaform
-generated 20090..20956 <- __convenience_const
+original 0..341 -> expanded 1431..1772
+original 390..512 -> expanded 1772..1894
+original 512..513 -> expanded 21488..21489
+generated 0..1431 <- imports
+generated 1894..1990 <- Default
+generated 1990..5798 <- Encode
+generated 5798..13458 <- Decode
+generated 13458..20530 <- Gigaform
+generated 20530..21488 <- __convenience_const
 
 ## Metadata
 

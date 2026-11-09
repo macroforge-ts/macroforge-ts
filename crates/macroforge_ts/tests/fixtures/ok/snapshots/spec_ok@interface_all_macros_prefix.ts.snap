@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -144,14 +144,11 @@ function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = pointDecodeWithContext(data, ctx);
+        const resultOrRef = pointDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -196,6 +193,10 @@ export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pointDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
@@ -302,6 +303,7 @@ export const Point: {
   readonly encodeWithContext: typeof pointEncodeWithContext;
   readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
   readonly decode: typeof pointDecode;
+  readonly fromString: typeof pointFromString;
   readonly decodeWithContext: typeof pointDecodeWithContext;
   readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
   readonly validateField: typeof pointValidateField;
@@ -320,6 +322,7 @@ export const Point: {
   encodeWithContext: pointEncodeWithContext,
   encodePartialWithContext: pointEncodePartialWithContext,
   decode: pointDecode,
+  fromString: pointFromString,
   decodeWithContext: pointDecodeWithContext,
   decodePartialWithContext: pointDecodePartialWithContext,
   validateField: pointValidateField,
@@ -347,8 +350,19 @@ export declare function pointEncode(value: Point, keepMetadata?: boolean): strin
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Point;
 } | {
@@ -386,6 +400,7 @@ export declare const Point: {
 	readonly encodeWithContext: typeof pointEncodeWithContext;
 	readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
 	readonly decode: typeof pointDecode;
+	readonly fromString: typeof pointFromString;
 	readonly decodeWithContext: typeof pointDecodeWithContext;
 	readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
 	readonly validateField: typeof pointValidateField;
@@ -400,19 +415,19 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 908..965
-original 148..149 -> expanded 13194..13195
-generated 0..908 <- imports
-generated 965..1247 <- Debug
-generated 1247..1380 <- Clone
-generated 1380..1696 <- PartialEq
-generated 1696..2171 <- Hash
-generated 2171..2675 <- PartialOrd
-generated 2675..3165 <- Ord
-generated 3165..3261 <- Default
-generated 3261..5672 <- Encode
-generated 5672..11753 <- Decode
-generated 11753..13194 <- __convenience_const
+original 91..148 -> expanded 910..967
+original 148..149 -> expanded 13610..13611
+generated 0..910 <- imports
+generated 967..1249 <- Debug
+generated 1249..1382 <- Clone
+generated 1382..1698 <- PartialEq
+generated 1698..2173 <- Hash
+generated 2173..2677 <- PartialOrd
+generated 2677..3167 <- Ord
+generated 3167..3263 <- Default
+generated 3263..5674 <- Encode
+generated 5674..12091 <- Decode
+generated 12091..13610 <- __convenience_const
 
 ## Metadata
 

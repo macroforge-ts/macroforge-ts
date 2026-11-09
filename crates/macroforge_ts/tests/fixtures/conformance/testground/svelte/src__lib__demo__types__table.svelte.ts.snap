@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -66,11 +66,9 @@ export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): u
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function tableDecode(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, tableHasShape);
-    switch (data) {
+    switch (input) {
         case 'Account':
         case 'Did':
         case 'Appointment':
@@ -89,7 +87,7 @@ export function tableDecode(input: unknown): { success: true; value: Table } | {
         case 'Promotion':
         case 'Represents':
         case 'Ordered':
-            return { success: true, value: data as Table };
+            return { success: true, value: input as Table };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Table: expected one of " + ['Account', 'Did', 'Appointment', 'Lead', 'TaxRate', 'Site', 'Employee', 'Route', 'Company', 'Product', 'Service', 'User', 'Order', 'Payment', 'Package', 'Promotion', 'Represents', 'Ordered'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -153,6 +151,10 @@ export function tableHasShape(value: unknown): boolean {
 
 export function tableIs(value: unknown): value is Table {
     return tableHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function tableFromString(text: string): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tableDecode(value));
 }
 
 /** Per-variant error types  */
@@ -545,6 +547,7 @@ export const Table: {
   readonly decodeWithContext: typeof tableDecodeWithContext;
   readonly hasShape: typeof tableHasShape;
   readonly is: typeof tableIs;
+  readonly fromString: typeof tableFromString;
   readonly createForm: typeof tableCreateForm;
   readonly fromFormData: typeof tableFromFormData;
 } = {
@@ -555,6 +558,7 @@ export const Table: {
   decodeWithContext: tableDecodeWithContext,
   hasShape: tableHasShape,
   is: tableIs,
+  fromString: tableFromString,
   createForm: tableCreateForm,
   fromFormData: tableFromFormData
 };
@@ -568,7 +572,7 @@ export declare function tableDefaultValue(): Table;
 export declare function tableEncode(value: Table, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function tableDecode(input: unknown): {
 	success: true;
 	value: Table;
@@ -583,6 +587,17 @@ export declare function tableDecode(input: unknown): {
 export declare function tableDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Table | __mf_PendingRef;
 export declare function tableHasShape(value: unknown): boolean;
 export declare function tableIs(value: unknown): value is Table;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function tableFromString(text: string): {
+	success: true;
+	value: Table;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type TableAccountErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -838,6 +853,7 @@ export declare const Table: {
 	readonly decodeWithContext: typeof tableDecodeWithContext;
 	readonly hasShape: typeof tableHasShape;
 	readonly is: typeof tableIs;
+	readonly fromString: typeof tableFromString;
 	readonly createForm: typeof tableCreateForm;
 	readonly fromFormData: typeof tableFromFormData;
 };
@@ -850,13 +866,13 @@ export declare const Table: {
 
 original 0..58 -> expanded 711..769
 original 107..425 -> expanded 769..1087
-original 425..426 -> expanded 20363..20364
+original 425..426 -> expanded 20785..20786
 generated 0..711 <- imports
 generated 1087..1157 <- Default
 generated 1157..2437 <- Encode
-generated 2437..5589 <- Decode
-generated 5589..19630 <- Gigaform
-generated 19630..20363 <- __convenience_const
+generated 2437..5933 <- Decode
+generated 5933..19974 <- Gigaform
+generated 19974..20785 <- __convenience_const
 
 ## Metadata
 

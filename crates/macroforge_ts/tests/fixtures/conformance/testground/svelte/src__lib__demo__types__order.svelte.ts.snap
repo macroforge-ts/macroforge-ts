@@ -22,7 +22,7 @@ import { paymentDecodeWithContext, paymentEncodeWithContext } from "./payment.sv
 import { promotionDecodeWithContext, promotionEncodeWithContext } from "./promotion.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -384,14 +384,11 @@ function orderEncodeFields(value: Order, ctx: __mf_EncodeContext, result: Record
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = orderDecodeWithContext(data, ctx);
+        const resultOrRef = orderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -436,6 +433,10 @@ export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => orderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef;
@@ -2191,6 +2192,7 @@ export const Order: {
   readonly encodeWithContext: typeof orderEncodeWithContext;
   readonly encodePartialWithContext: typeof orderEncodePartialWithContext;
   readonly decode: typeof orderDecode;
+  readonly fromString: typeof orderFromString;
   readonly decodeWithContext: typeof orderDecodeWithContext;
   readonly decodePartialWithContext: typeof orderDecodePartialWithContext;
   readonly validateField: typeof orderValidateField;
@@ -2205,6 +2207,7 @@ export const Order: {
   encodeWithContext: orderEncodeWithContext,
   encodePartialWithContext: orderEncodePartialWithContext,
   decode: orderDecode,
+  fromString: orderFromString,
   decodeWithContext: orderDecodeWithContext,
   decodePartialWithContext: orderDecodePartialWithContext,
   validateField: orderValidateField,
@@ -2266,8 +2269,19 @@ export declare function orderEncode(value: Order, keepMetadata?: boolean): strin
 export declare function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Order>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function orderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Order;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Order;
 } | {
@@ -2415,6 +2429,7 @@ export declare const Order: {
 	readonly encodeWithContext: typeof orderEncodeWithContext;
 	readonly encodePartialWithContext: typeof orderEncodePartialWithContext;
 	readonly decode: typeof orderDecode;
+	readonly fromString: typeof orderFromString;
 	readonly decodeWithContext: typeof orderDecodeWithContext;
 	readonly decodePartialWithContext: typeof orderDecodePartialWithContext;
 	readonly validateField: typeof orderValidateField;
@@ -2431,55 +2446,55 @@ export declare const Order: {
 
 ## Mapping
 
-original 0..570 -> expanded 1978..2548
-original 619..649 -> expanded 2548..2578
-original 677..698 -> expanded 2578..2599
-original 796..801 -> expanded 2599..2604
-original 820..856 -> expanded 2604..2640
-original 1031..1036 -> expanded 2640..2645
-original 1063..1091 -> expanded 2645..2673
-original 1119..1144 -> expanded 2673..2698
-original 1172..1216 -> expanded 2698..2742
-original 1264..1269 -> expanded 2742..2747
-original 1310..1340 -> expanded 2747..2777
-original 1386..1391 -> expanded 2777..2782
-original 1432..1460 -> expanded 2782..2810
-original 1531..1536 -> expanded 2810..2815
-original 1577..1606 -> expanded 2815..2844
-original 1707..1712 -> expanded 2844..2849
-original 1731..1769 -> expanded 2849..2887
-original 1834..1839 -> expanded 2887..2892
-original 1880..1904 -> expanded 2892..2916
-original 1972..1977 -> expanded 2916..2921
-original 2018..2045 -> expanded 2921..2948
-original 2090..2118 -> expanded 2948..2976
-original 2169..2200 -> expanded 2976..3007
-original 2248..2253 -> expanded 3007..3012
-original 2294..2323 -> expanded 3012..3041
-original 2351..2376 -> expanded 3041..3066
-original 2404..2445 -> expanded 3066..3107
-original 2551..2556 -> expanded 3107..3112
-original 2575..2619 -> expanded 3112..3156
-original 2710..2756 -> expanded 3156..3202
-original 2784..2834 -> expanded 3202..3252
-original 2862..2916 -> expanded 3252..3306
-original 2944..2970 -> expanded 3306..3332
-original 3014..3047 -> expanded 3332..3365
-original 3075..3099 -> expanded 3365..3389
-original 3148..3153 -> expanded 3389..3394
-original 3172..3202 -> expanded 3394..3424
-original 3261..3302 -> expanded 3424..3465
-original 3347..3385 -> expanded 3465..3503
-original 3413..3440 -> expanded 3503..3530
-original 3468..3490 -> expanded 3530..3552
-original 3518..3552 -> expanded 3552..3586
-original 3552..3553 -> expanded 97168..97169
-generated 0..1978 <- imports
-generated 3586..4387 <- Default
-generated 4387..14279 <- Encode
-generated 14279..53260 <- Decode
-generated 53260..95983 <- Gigaform
-generated 95983..97168 <- __convenience_const
+original 0..570 -> expanded 1980..2550
+original 619..649 -> expanded 2550..2580
+original 677..698 -> expanded 2580..2601
+original 796..801 -> expanded 2601..2606
+original 820..856 -> expanded 2606..2642
+original 1031..1036 -> expanded 2642..2647
+original 1063..1091 -> expanded 2647..2675
+original 1119..1144 -> expanded 2675..2700
+original 1172..1216 -> expanded 2700..2744
+original 1264..1269 -> expanded 2744..2749
+original 1310..1340 -> expanded 2749..2779
+original 1386..1391 -> expanded 2779..2784
+original 1432..1460 -> expanded 2784..2812
+original 1531..1536 -> expanded 2812..2817
+original 1577..1606 -> expanded 2817..2846
+original 1707..1712 -> expanded 2846..2851
+original 1731..1769 -> expanded 2851..2889
+original 1834..1839 -> expanded 2889..2894
+original 1880..1904 -> expanded 2894..2918
+original 1972..1977 -> expanded 2918..2923
+original 2018..2045 -> expanded 2923..2950
+original 2090..2118 -> expanded 2950..2978
+original 2169..2200 -> expanded 2978..3009
+original 2248..2253 -> expanded 3009..3014
+original 2294..2323 -> expanded 3014..3043
+original 2351..2376 -> expanded 3043..3068
+original 2404..2445 -> expanded 3068..3109
+original 2551..2556 -> expanded 3109..3114
+original 2575..2619 -> expanded 3114..3158
+original 2710..2756 -> expanded 3158..3204
+original 2784..2834 -> expanded 3204..3254
+original 2862..2916 -> expanded 3254..3308
+original 2944..2970 -> expanded 3308..3334
+original 3014..3047 -> expanded 3334..3367
+original 3075..3099 -> expanded 3367..3391
+original 3148..3153 -> expanded 3391..3396
+original 3172..3202 -> expanded 3396..3426
+original 3261..3302 -> expanded 3426..3467
+original 3347..3385 -> expanded 3467..3505
+original 3413..3440 -> expanded 3505..3532
+original 3468..3490 -> expanded 3532..3554
+original 3518..3552 -> expanded 3554..3588
+original 3552..3553 -> expanded 97584..97585
+generated 0..1980 <- imports
+generated 3588..4389 <- Default
+generated 4389..14281 <- Encode
+generated 14281..53598 <- Decode
+generated 53598..96321 <- Gigaform
+generated 96321..97584 <- __convenience_const
 
 ## Metadata
 

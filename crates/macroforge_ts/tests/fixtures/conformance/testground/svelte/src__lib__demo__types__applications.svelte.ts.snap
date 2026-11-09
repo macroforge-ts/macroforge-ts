@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -55,11 +55,9 @@ export function applicationsEncodeWithContext(value: Applications, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function applicationsDecode(input: unknown): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, applicationsHasShape);
-    switch (data) {
+    switch (input) {
         case 'Sales':
         case 'Accounting':
         case 'Errand':
@@ -67,7 +65,7 @@ export function applicationsDecode(input: unknown): { success: true; value: Appl
         case 'Logistics':
         case 'Marketing':
         case 'Website':
-            return { success: true, value: data as Applications };
+            return { success: true, value: input as Applications };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Applications: expected one of " + ['Sales', 'Accounting', 'Errand', 'HumanResources', 'Logistics', 'Marketing', 'Website'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -109,6 +107,10 @@ export function applicationsHasShape(value: unknown): boolean {
 
 export function applicationsIs(value: unknown): value is Applications {
     return applicationsHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function applicationsFromString(text: string): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => applicationsDecode(value));
 }
 
 /** Per-variant error types  */
@@ -325,6 +327,7 @@ export const Applications: {
   readonly decodeWithContext: typeof applicationsDecodeWithContext;
   readonly hasShape: typeof applicationsHasShape;
   readonly is: typeof applicationsIs;
+  readonly fromString: typeof applicationsFromString;
   readonly createForm: typeof applicationsCreateForm;
   readonly fromFormData: typeof applicationsFromFormData;
 } = {
@@ -335,6 +338,7 @@ export const Applications: {
   decodeWithContext: applicationsDecodeWithContext,
   hasShape: applicationsHasShape,
   is: applicationsIs,
+  fromString: applicationsFromString,
   createForm: applicationsCreateForm,
   fromFormData: applicationsFromFormData
 };
@@ -348,7 +352,7 @@ export declare function applicationsDefaultValue(): Applications;
 export declare function applicationsEncode(value: Applications, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function applicationsEncodeWithContext(value: Applications, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function applicationsDecode(input: unknown): {
 	success: true;
 	value: Applications;
@@ -363,6 +367,17 @@ export declare function applicationsDecode(input: unknown): {
 export declare function applicationsDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Applications | __mf_PendingRef;
 export declare function applicationsHasShape(value: unknown): boolean;
 export declare function applicationsIs(value: unknown): value is Applications;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function applicationsFromString(text: string): {
+	success: true;
+	value: Applications;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type ApplicationsSalesErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -486,6 +501,7 @@ export declare const Applications: {
 	readonly decodeWithContext: typeof applicationsDecodeWithContext;
 	readonly hasShape: typeof applicationsHasShape;
 	readonly is: typeof applicationsIs;
+	readonly fromString: typeof applicationsFromString;
 	readonly createForm: typeof applicationsCreateForm;
 	readonly fromFormData: typeof applicationsFromFormData;
 };
@@ -498,13 +514,13 @@ export declare const Applications: {
 
 original 0..58 -> expanded 711..769
 original 107..274 -> expanded 769..936
-original 274..275 -> expanded 13620..13621
+original 274..275 -> expanded 14070..14071
 generated 0..711 <- imports
 generated 936..1018 <- Default
 generated 1018..2333 <- Encode
-generated 2333..4632 <- Decode
-generated 4632..12754 <- Gigaform
-generated 12754..13620 <- __convenience_const
+generated 2333..4990 <- Decode
+generated 4990..13112 <- Gigaform
+generated 13112..14070 <- __convenience_const
 
 ## Metadata
 

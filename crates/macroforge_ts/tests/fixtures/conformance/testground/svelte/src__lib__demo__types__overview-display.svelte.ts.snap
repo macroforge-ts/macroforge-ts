@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,14 +48,12 @@ export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function overviewDisplayDecode(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, overviewDisplayHasShape);
-    switch (data) {
+    switch (input) {
         case 'Card':
         case 'Table':
-            return { success: true, value: data as OverviewDisplay };
+            return { success: true, value: input as OverviewDisplay };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for OverviewDisplay: expected one of " + ['Card', 'Table'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -87,6 +85,10 @@ export function overviewDisplayHasShape(value: unknown): boolean {
 
 export function overviewDisplayIs(value: unknown): value is OverviewDisplay {
     return overviewDisplayHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function overviewDisplayFromString(text: string): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => overviewDisplayDecode(value));
 }
 
 /** Per-variant error types  */
@@ -223,6 +225,7 @@ export const OverviewDisplay: {
   readonly decodeWithContext: typeof overviewDisplayDecodeWithContext;
   readonly hasShape: typeof overviewDisplayHasShape;
   readonly is: typeof overviewDisplayIs;
+  readonly fromString: typeof overviewDisplayFromString;
   readonly createForm: typeof overviewDisplayCreateForm;
   readonly fromFormData: typeof overviewDisplayFromFormData;
 } = {
@@ -233,6 +236,7 @@ export const OverviewDisplay: {
   decodeWithContext: overviewDisplayDecodeWithContext,
   hasShape: overviewDisplayHasShape,
   is: overviewDisplayIs,
+  fromString: overviewDisplayFromString,
   createForm: overviewDisplayCreateForm,
   fromFormData: overviewDisplayFromFormData
 };
@@ -246,7 +250,7 @@ export declare function overviewDisplayDefaultValue(): OverviewDisplay;
 export declare function overviewDisplayEncode(value: OverviewDisplay, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function overviewDisplayDecode(input: unknown): {
 	success: true;
 	value: OverviewDisplay;
@@ -261,6 +265,17 @@ export declare function overviewDisplayDecode(input: unknown): {
 export declare function overviewDisplayDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef;
 export declare function overviewDisplayHasShape(value: unknown): boolean;
 export declare function overviewDisplayIs(value: unknown): value is OverviewDisplay;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function overviewDisplayFromString(text: string): {
+	success: true;
+	value: OverviewDisplay;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type OverviewDisplayCardErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -324,6 +339,7 @@ export declare const OverviewDisplay: {
 	readonly decodeWithContext: typeof overviewDisplayDecodeWithContext;
 	readonly hasShape: typeof overviewDisplayHasShape;
 	readonly is: typeof overviewDisplayIs;
+	readonly fromString: typeof overviewDisplayFromString;
 	readonly createForm: typeof overviewDisplayCreateForm;
 	readonly fromFormData: typeof overviewDisplayFromFormData;
 };
@@ -336,13 +352,13 @@ export declare const OverviewDisplay: {
 
 original 0..58 -> expanded 711..769
 original 107..171 -> expanded 769..833
-original 171..172 -> expanded 9468..9469
+original 171..172 -> expanded 9930..9931
 generated 0..711 <- imports
 generated 833..920 <- Default
 generated 920..2250 <- Encode
-generated 2250..4038 <- Decode
-generated 4038..8545 <- Gigaform
-generated 8545..9468 <- __convenience_const
+generated 2250..4402 <- Decode
+generated 4402..8909 <- Gigaform
+generated 8909..9930 <- __convenience_const
 
 ## Metadata
 

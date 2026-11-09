@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -105,14 +105,11 @@ function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = orderedDecodeWithContext(data, ctx);
+        const resultOrRef = orderedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -157,6 +154,10 @@ export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => orderedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ordered | __mf_PendingRef;
@@ -498,6 +499,7 @@ export const Ordered: {
   readonly encodeWithContext: typeof orderedEncodeWithContext;
   readonly encodePartialWithContext: typeof orderedEncodePartialWithContext;
   readonly decode: typeof orderedDecode;
+  readonly fromString: typeof orderedFromString;
   readonly decodeWithContext: typeof orderedDecodeWithContext;
   readonly decodePartialWithContext: typeof orderedDecodePartialWithContext;
   readonly validateField: typeof orderedValidateField;
@@ -512,6 +514,7 @@ export const Ordered: {
   encodeWithContext: orderedEncodeWithContext,
   encodePartialWithContext: orderedEncodePartialWithContext,
   decode: orderedDecode,
+  fromString: orderedFromString,
   decodeWithContext: orderedDecodeWithContext,
   decodePartialWithContext: orderedDecodePartialWithContext,
   validateField: orderedValidateField,
@@ -540,8 +543,19 @@ export declare function orderedEncode(value: Ordered, keepMetadata?: boolean): s
 export declare function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Ordered;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Ordered;
 } | {
@@ -614,6 +628,7 @@ export declare const Ordered: {
 	readonly encodeWithContext: typeof orderedEncodeWithContext;
 	readonly encodePartialWithContext: typeof orderedEncodePartialWithContext;
 	readonly decode: typeof orderedDecode;
+	readonly fromString: typeof orderedFromString;
 	readonly decodeWithContext: typeof orderedDecodeWithContext;
 	readonly decodePartialWithContext: typeof orderedDecodePartialWithContext;
 	readonly validateField: typeof orderedValidateField;
@@ -630,17 +645,17 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 1012..1165
-original 202..250 -> expanded 1165..1213
-original 269..300 -> expanded 1213..1244
-original 319..364 -> expanded 1244..1289
-original 364..365 -> expanded 20865..20866
-generated 0..1012 <- imports
-generated 1289..1428 <- Default
-generated 1428..4470 <- Encode
-generated 4470..13332 <- Decode
-generated 13332..19626 <- Gigaform
-generated 19626..20865 <- __convenience_const
+original 0..153 -> expanded 1014..1167
+original 202..250 -> expanded 1167..1215
+original 269..300 -> expanded 1215..1246
+original 319..364 -> expanded 1246..1291
+original 364..365 -> expanded 21291..21292
+generated 0..1014 <- imports
+generated 1291..1430 <- Default
+generated 1430..4472 <- Encode
+generated 4472..13676 <- Decode
+generated 13676..19970 <- Gigaform
+generated 19970..21291 <- __convenience_const
 
 ## Metadata
 

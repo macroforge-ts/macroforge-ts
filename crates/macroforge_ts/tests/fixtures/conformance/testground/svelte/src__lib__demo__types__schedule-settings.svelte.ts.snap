@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -102,14 +102,11 @@ function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
+        const resultOrRef = scheduleSettingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -154,6 +151,10 @@ export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function scheduleSettingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => scheduleSettingsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScheduleSettings | __mf_PendingRef;
@@ -527,6 +528,7 @@ export const ScheduleSettings: {
   readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
   readonly encodePartialWithContext: typeof scheduleSettingsEncodePartialWithContext;
   readonly decode: typeof scheduleSettingsDecode;
+  readonly fromString: typeof scheduleSettingsFromString;
   readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
   readonly decodePartialWithContext: typeof scheduleSettingsDecodePartialWithContext;
   readonly validateField: typeof scheduleSettingsValidateField;
@@ -541,6 +543,7 @@ export const ScheduleSettings: {
   encodeWithContext: scheduleSettingsEncodeWithContext,
   encodePartialWithContext: scheduleSettingsEncodePartialWithContext,
   decode: scheduleSettingsDecode,
+  fromString: scheduleSettingsFromString,
   decodeWithContext: scheduleSettingsDecodeWithContext,
   decodePartialWithContext: scheduleSettingsDecodePartialWithContext,
   validateField: scheduleSettingsValidateField,
@@ -568,8 +571,19 @@ export declare function scheduleSettingsEncode(value: ScheduleSettings, keepMeta
 export declare function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function scheduleSettingsEncodePartialWithContext(value: Partial<ScheduleSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScheduleSettings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ScheduleSettings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function scheduleSettingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ScheduleSettings;
 } | {
@@ -642,6 +656,7 @@ export declare const ScheduleSettings: {
 	readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
 	readonly encodePartialWithContext: typeof scheduleSettingsEncodePartialWithContext;
 	readonly decode: typeof scheduleSettingsDecode;
+	readonly fromString: typeof scheduleSettingsFromString;
 	readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
 	readonly decodePartialWithContext: typeof scheduleSettingsDecodePartialWithContext;
 	readonly validateField: typeof scheduleSettingsValidateField;
@@ -658,16 +673,16 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 1028..1141
-original 162..228 -> expanded 1141..1207
-original 253..343 -> expanded 1207..1297
-original 343..344 -> expanded 24774..24775
-generated 0..1028 <- imports
-generated 1297..1497 <- Default
-generated 1497..4697 <- Encode
-generated 4697..14235 <- Decode
-generated 14235..23292 <- Gigaform
-generated 23292..24774 <- __convenience_const
+original 0..113 -> expanded 1030..1143
+original 162..228 -> expanded 1143..1209
+original 253..343 -> expanded 1209..1299
+original 343..344 -> expanded 25245..25246
+generated 0..1030 <- imports
+generated 1299..1499 <- Default
+generated 1499..4699 <- Encode
+generated 4699..14606 <- Decode
+generated 14606..23663 <- Gigaform
+generated 23663..25245 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export class Account {
@@ -85,14 +85,11 @@ constructor(props: { name: string; balance: number }) {
     this.balance = props.balance;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Account.decodeWithContext(data, ctx);
+        const resultOrRef = Account.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -137,6 +134,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Account.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -261,9 +263,14 @@ export function accountEncodePartialWithContext(value: Partial<Account>, ctx: __
     return Account.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Account.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function accountFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Account.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -303,8 +310,19 @@ export declare class Account {
 		name: string;
 		balance: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Account;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Account;
 	} | {
@@ -336,8 +354,19 @@ export declare function accountEncode(value: Account, keepMetadata?: boolean): s
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Account;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function accountFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Account;
 } | {
@@ -362,17 +391,17 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 762..834
-original 111..112 -> expanded 9338..9339
-original 112..113 -> expanded 12523..12524
-generated 0..762 <- imports
-generated 834..1054 <- Default
-generated 1054..2949 <- Encode
-generated 2949..3270 <- Encode
-generated 3270..9338 <- Decode
-generated 9339..9426 <- Default
-generated 9426..10756 <- Encode
-generated 10756..12523 <- Decode
+original 39..111 -> expanded 764..836
+original 111..112 -> expanded 9687..9688
+original 112..113 -> expanded 13271..13272
+generated 0..764 <- imports
+generated 836..1056 <- Default
+generated 1056..2951 <- Encode
+generated 2951..3272 <- Encode
+generated 3272..9687 <- Decode
+generated 9688..9775 <- Default
+generated 9775..11105 <- Encode
+generated 11105..13271 <- Decode
 
 ## Metadata
 

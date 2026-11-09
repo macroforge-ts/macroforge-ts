@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -82,14 +82,11 @@ function commissionsEncodeFields(value: Commissions, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = commissionsDecodeWithContext(data, ctx);
+        const resultOrRef = commissionsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -134,6 +131,10 @@ export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function commissionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => commissionsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef;
@@ -389,6 +390,7 @@ export const Commissions: {
   readonly encodeWithContext: typeof commissionsEncodeWithContext;
   readonly encodePartialWithContext: typeof commissionsEncodePartialWithContext;
   readonly decode: typeof commissionsDecode;
+  readonly fromString: typeof commissionsFromString;
   readonly decodeWithContext: typeof commissionsDecodeWithContext;
   readonly decodePartialWithContext: typeof commissionsDecodePartialWithContext;
   readonly validateField: typeof commissionsValidateField;
@@ -403,6 +405,7 @@ export const Commissions: {
   encodeWithContext: commissionsEncodeWithContext,
   encodePartialWithContext: commissionsEncodePartialWithContext,
   decode: commissionsDecode,
+  fromString: commissionsFromString,
   decodeWithContext: commissionsDecodeWithContext,
   decodePartialWithContext: commissionsDecodePartialWithContext,
   validateField: commissionsValidateField,
@@ -427,8 +430,19 @@ export declare function commissionsEncode(value: Commissions, keepMetadata?: boo
 export declare function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function commissionsEncodePartialWithContext(value: Partial<Commissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commissions>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Commissions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function commissionsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Commissions;
 } | {
@@ -495,6 +509,7 @@ export declare const Commissions: {
 	readonly encodeWithContext: typeof commissionsEncodeWithContext;
 	readonly encodePartialWithContext: typeof commissionsEncodePartialWithContext;
 	readonly decode: typeof commissionsDecode;
+	readonly fromString: typeof commissionsFromString;
 	readonly decodeWithContext: typeof commissionsDecodeWithContext;
 	readonly decodePartialWithContext: typeof commissionsDecodePartialWithContext;
 	readonly validateField: typeof commissionsValidateField;
@@ -511,17 +526,17 @@ export declare const Commissions: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..143 -> expanded 902..938
-original 184..213 -> expanded 938..967
-original 254..278 -> expanded 967..991
-original 278..279 -> expanded 18124..18125
-generated 0..844 <- imports
-generated 991..1117 <- Default
-generated 1117..3682 <- Encode
-generated 3682..12190 <- Decode
-generated 12190..16777 <- Gigaform
-generated 16777..18124 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..143 -> expanded 904..940
+original 184..213 -> expanded 940..969
+original 254..278 -> expanded 969..993
+original 278..279 -> expanded 18570..18571
+generated 0..846 <- imports
+generated 993..1119 <- Default
+generated 1119..3684 <- Encode
+generated 3684..12546 <- Decode
+generated 12546..17133 <- Gigaform
+generated 17133..18570 <- __convenience_const
 
 ## Metadata
 

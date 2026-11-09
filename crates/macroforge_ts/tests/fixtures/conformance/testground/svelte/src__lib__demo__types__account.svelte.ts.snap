@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -309,14 +309,11 @@ function accountEncodeFields(value: Account, ctx: __mf_EncodeContext, result: Re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = accountDecodeWithContext(data, ctx);
+        const resultOrRef = accountDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -361,6 +358,10 @@ export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function accountFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => accountDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
@@ -1890,6 +1891,7 @@ export const Account: {
   readonly encodeWithContext: typeof accountEncodeWithContext;
   readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
   readonly decode: typeof accountDecode;
+  readonly fromString: typeof accountFromString;
   readonly decodeWithContext: typeof accountDecodeWithContext;
   readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
   readonly validateField: typeof accountValidateField;
@@ -1904,6 +1906,7 @@ export const Account: {
   encodeWithContext: accountEncodeWithContext,
   encodePartialWithContext: accountEncodePartialWithContext,
   decode: accountDecode,
+  fromString: accountFromString,
   decodeWithContext: accountDecodeWithContext,
   decodePartialWithContext: accountDecodePartialWithContext,
   validateField: accountValidateField,
@@ -1958,8 +1961,19 @@ export declare function accountEncode(value: Account, keepMetadata?: boolean): s
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Account;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function accountFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Account;
 } | {
@@ -2086,6 +2100,7 @@ export declare const Account: {
 	readonly encodeWithContext: typeof accountEncodeWithContext;
 	readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
 	readonly decode: typeof accountDecode;
+	readonly fromString: typeof accountFromString;
 	readonly decodeWithContext: typeof accountDecodeWithContext;
 	readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
 	readonly validateField: typeof accountValidateField;
@@ -2102,44 +2117,44 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1904..2455
-original 600..632 -> expanded 2455..2487
-original 660..681 -> expanded 2487..2508
-original 781..786 -> expanded 2508..2513
-original 805..841 -> expanded 2513..2549
-original 890..895 -> expanded 2549..2554
-original 914..944 -> expanded 2554..2584
-original 1033..1078 -> expanded 2584..2629
-original 1106..1139 -> expanded 2629..2662
-original 1167..1198 -> expanded 2662..2693
-original 1258..1306 -> expanded 2693..2741
-original 1438..1473 -> expanded 2741..2776
-original 1654..1659 -> expanded 2776..2781
-original 1689..1714 -> expanded 2781..2806
-original 1759..1789 -> expanded 2806..2836
-original 1842..1879 -> expanded 2836..2873
-original 1927..1950 -> expanded 2873..2896
-original 2021..2026 -> expanded 2896..2901
-original 2067..2096 -> expanded 2901..2930
-original 2124..2149 -> expanded 2930..2955
-original 2200..2231 -> expanded 2955..2986
-original 2279..2307 -> expanded 2986..3014
-original 2379..2384 -> expanded 3014..3019
-original 2425..2455 -> expanded 3019..3049
-original 2522..2527 -> expanded 3049..3054
-original 2568..2594 -> expanded 3054..3080
-original 2643..2674 -> expanded 3080..3111
-original 2747..2752 -> expanded 3111..3116
-original 2793..2824 -> expanded 3116..3147
-original 2865..2895 -> expanded 3147..3177
-original 2923..2948 -> expanded 3177..3202
-original 2948..2949 -> expanded 82765..82766
-generated 0..1904 <- imports
-generated 3202..3832 <- Default
-generated 3832..11645 <- Encode
-generated 11645..43807 <- Decode
-generated 43807..81526 <- Gigaform
-generated 81526..82765 <- __convenience_const
+original 0..551 -> expanded 1906..2457
+original 600..632 -> expanded 2457..2489
+original 660..681 -> expanded 2489..2510
+original 781..786 -> expanded 2510..2515
+original 805..841 -> expanded 2515..2551
+original 890..895 -> expanded 2551..2556
+original 914..944 -> expanded 2556..2586
+original 1033..1078 -> expanded 2586..2631
+original 1106..1139 -> expanded 2631..2664
+original 1167..1198 -> expanded 2664..2695
+original 1258..1306 -> expanded 2695..2743
+original 1438..1473 -> expanded 2743..2778
+original 1654..1659 -> expanded 2778..2783
+original 1689..1714 -> expanded 2783..2808
+original 1759..1789 -> expanded 2808..2838
+original 1842..1879 -> expanded 2838..2875
+original 1927..1950 -> expanded 2875..2898
+original 2021..2026 -> expanded 2898..2903
+original 2067..2096 -> expanded 2903..2932
+original 2124..2149 -> expanded 2932..2957
+original 2200..2231 -> expanded 2957..2988
+original 2279..2307 -> expanded 2988..3016
+original 2379..2384 -> expanded 3016..3021
+original 2425..2455 -> expanded 3021..3051
+original 2522..2527 -> expanded 3051..3056
+original 2568..2594 -> expanded 3056..3082
+original 2643..2674 -> expanded 3082..3113
+original 2747..2752 -> expanded 3113..3118
+original 2793..2824 -> expanded 3118..3149
+original 2865..2895 -> expanded 3149..3179
+original 2923..2948 -> expanded 3179..3204
+original 2948..2949 -> expanded 83191..83192
+generated 0..1906 <- imports
+generated 3204..3834 <- Default
+generated 3834..11647 <- Encode
+generated 11647..44151 <- Decode
+generated 44151..81870 <- Gigaform
+generated 81870..83191 <- __convenience_const
 
 ## Metadata
 

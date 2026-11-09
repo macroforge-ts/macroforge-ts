@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -52,16 +52,14 @@ export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeConte
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function jobTitleDecode(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, jobTitleHasShape);
-    switch (data) {
+    switch (input) {
         case 'Technician':
         case 'SalesRepresentative':
         case 'HumanResources':
         case 'InformationTechnology':
-            return { success: true, value: data as JobTitle };
+            return { success: true, value: input as JobTitle };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -97,6 +95,10 @@ export function jobTitleHasShape(value: unknown): boolean {
 
 export function jobTitleIs(value: unknown): value is JobTitle {
     return jobTitleHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function jobTitleFromString(text: string): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => jobTitleDecode(value));
 }
 
 /** Per-variant error types  */
@@ -265,6 +267,7 @@ export const JobTitle: {
   readonly decodeWithContext: typeof jobTitleDecodeWithContext;
   readonly hasShape: typeof jobTitleHasShape;
   readonly is: typeof jobTitleIs;
+  readonly fromString: typeof jobTitleFromString;
   readonly createForm: typeof jobTitleCreateForm;
   readonly fromFormData: typeof jobTitleFromFormData;
 } = {
@@ -275,6 +278,7 @@ export const JobTitle: {
   decodeWithContext: jobTitleDecodeWithContext,
   hasShape: jobTitleHasShape,
   is: jobTitleIs,
+  fromString: jobTitleFromString,
   createForm: jobTitleCreateForm,
   fromFormData: jobTitleFromFormData
 };
@@ -288,7 +292,7 @@ export declare function jobTitleDefaultValue(): JobTitle;
 export declare function jobTitleEncode(value: JobTitle, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function jobTitleDecode(input: unknown): {
 	success: true;
 	value: JobTitle;
@@ -303,6 +307,17 @@ export declare function jobTitleDecode(input: unknown): {
 export declare function jobTitleDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef;
 export declare function jobTitleHasShape(value: unknown): boolean;
 export declare function jobTitleIs(value: unknown): value is JobTitle;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function jobTitleFromString(text: string): {
+	success: true;
+	value: JobTitle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type JobTitleTechnicianErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -390,6 +405,7 @@ export declare const JobTitle: {
 	readonly decodeWithContext: typeof jobTitleDecodeWithContext;
 	readonly hasShape: typeof jobTitleHasShape;
 	readonly is: typeof jobTitleIs;
+	readonly fromString: typeof jobTitleFromString;
 	readonly createForm: typeof jobTitleCreateForm;
 	readonly fromFormData: typeof jobTitleFromFormData;
 };
@@ -402,13 +418,13 @@ export declare const JobTitle: {
 
 original 0..58 -> expanded 711..769
 original 107..247 -> expanded 769..909
-original 247..248 -> expanded 11494..11495
+original 247..248 -> expanded 11928..11929
 generated 0..711 <- imports
 generated 909..988 <- Default
 generated 988..2283 <- Encode
-generated 2283..4373 <- Decode
-generated 4373..10704 <- Gigaform
-generated 10704..11494 <- __convenience_const
+generated 2283..4723 <- Decode
+generated 4723..11054 <- Gigaform
+generated 11054..11928 <- __convenience_const
 
 ## Metadata
 

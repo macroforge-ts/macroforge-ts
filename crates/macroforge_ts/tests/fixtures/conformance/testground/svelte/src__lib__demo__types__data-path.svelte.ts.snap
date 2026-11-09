@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -80,14 +80,11 @@ function dataPathEncodeFields(value: DataPath, _ctx: __mf_EncodeContext, result:
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = dataPathDecodeWithContext(data, ctx);
+        const resultOrRef = dataPathDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -132,6 +129,10 @@ export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function dataPathFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => dataPathDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef;
@@ -384,6 +385,7 @@ export const DataPath: {
   readonly encodeWithContext: typeof dataPathEncodeWithContext;
   readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
   readonly decode: typeof dataPathDecode;
+  readonly fromString: typeof dataPathFromString;
   readonly decodeWithContext: typeof dataPathDecodeWithContext;
   readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
   readonly validateField: typeof dataPathValidateField;
@@ -398,6 +400,7 @@ export const DataPath: {
   encodeWithContext: dataPathEncodeWithContext,
   encodePartialWithContext: dataPathEncodePartialWithContext,
   decode: dataPathDecode,
+  fromString: dataPathFromString,
   decodeWithContext: dataPathDecodeWithContext,
   decodePartialWithContext: dataPathDecodePartialWithContext,
   validateField: dataPathValidateField,
@@ -422,8 +425,19 @@ export declare function dataPathEncode(value: DataPath, keepMetadata?: boolean):
 export declare function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DataPath;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function dataPathFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DataPath;
 } | {
@@ -490,6 +504,7 @@ export declare const DataPath: {
 	readonly encodeWithContext: typeof dataPathEncodeWithContext;
 	readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
 	readonly decode: typeof dataPathDecode;
+	readonly fromString: typeof dataPathFromString;
 	readonly decodeWithContext: typeof dataPathDecodeWithContext;
 	readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
 	readonly validateField: typeof dataPathValidateField;
@@ -506,15 +521,15 @@ export declare const DataPath: {
 
 ## Mapping
 
-original 0..58 -> expanded 934..992
-original 107..192 -> expanded 992..1077
-original 192..193 -> expanded 17052..17053
-generated 0..934 <- imports
-generated 1077..1194 <- Default
-generated 1194..3694 <- Encode
-generated 3694..10715 <- Decode
-generated 10715..15786 <- Gigaform
-generated 15786..17052 <- __convenience_const
+original 0..58 -> expanded 936..994
+original 107..192 -> expanded 994..1079
+original 192..193 -> expanded 17483..17484
+generated 0..936 <- imports
+generated 1079..1196 <- Default
+generated 1196..3696 <- Encode
+generated 3696..11062 <- Decode
+generated 11062..16133 <- Gigaform
+generated 16133..17483 <- __convenience_const
 
 ## Metadata
 

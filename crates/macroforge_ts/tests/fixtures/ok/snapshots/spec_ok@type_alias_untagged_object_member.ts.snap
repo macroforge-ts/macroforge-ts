@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -70,13 +70,11 @@ export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unk
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, linkHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = linkDecodeWithContext(data, ctx);
+        const resultOrRef = linkDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -122,6 +120,10 @@ export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function linkFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => linkDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Link | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -164,6 +166,7 @@ export const Link: {
   readonly encode: typeof linkEncode;
   readonly encodeWithContext: typeof linkEncodeWithContext;
   readonly decode: typeof linkDecode;
+  readonly fromString: typeof linkFromString;
   readonly decodeWithContext: typeof linkDecodeWithContext;
   readonly hasShape: typeof linkHasShape;
   readonly is: typeof linkIs;
@@ -171,6 +174,7 @@ export const Link: {
   encode: linkEncode,
   encodeWithContext: linkEncodeWithContext,
   decode: linkDecode,
+  fromString: linkFromString,
   decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
@@ -186,8 +190,19 @@ export type Link = string | {
 export declare function linkEncode(value: Link, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function linkDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Link;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function linkFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Link;
 } | {
@@ -205,6 +220,7 @@ export declare const Link: {
 	readonly encode: typeof linkEncode;
 	readonly encodeWithContext: typeof linkEncodeWithContext;
 	readonly decode: typeof linkDecode;
+	readonly fromString: typeof linkFromString;
 	readonly decodeWithContext: typeof linkDecodeWithContext;
 	readonly hasShape: typeof linkHasShape;
 	readonly is: typeof linkIs;
@@ -218,11 +234,11 @@ export declare const Link: {
 
 original 0..185 -> expanded 715..900
 original 215..275 -> expanded 900..960
-original 275..276 -> expanded 6467..6468
+original 275..276 -> expanded 6978..6979
 generated 0..715 <- imports
 generated 960..2912 <- Encode
-generated 2912..5997 <- Decode
-generated 5997..6467 <- __convenience_const
+generated 2912..6432 <- Decode
+generated 6432..6978 <- __convenience_const
 
 ## Metadata
 

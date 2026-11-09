@@ -20,7 +20,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type ContactInfo = {
@@ -31,14 +31,11 @@ type ContactInfo = {
     address: string;
 };
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = contactInfoDecodeWithContext(data, ctx);
+        const resultOrRef = contactInfoDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -83,6 +80,10 @@ export function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function contactInfoFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => contactInfoDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ContactInfo | __mf_PendingRef;
@@ -212,6 +213,7 @@ export function contactInfoIs(obj: unknown): obj is ContactInfo {
 
 const ContactInfo: {
   readonly decode: typeof contactInfoDecode;
+  readonly fromString: typeof contactInfoFromString;
   readonly decodeWithContext: typeof contactInfoDecodeWithContext;
   readonly decodePartialWithContext: typeof contactInfoDecodePartialWithContext;
   readonly validateField: typeof contactInfoValidateField;
@@ -220,6 +222,7 @@ const ContactInfo: {
   readonly is: typeof contactInfoIs;
 } = {
   decode: contactInfoDecode,
+  fromString: contactInfoFromString,
   decodeWithContext: contactInfoDecodeWithContext,
   decodePartialWithContext: contactInfoDecodePartialWithContext,
   validateField: contactInfoValidateField,
@@ -236,8 +239,19 @@ type ContactInfo = {
 	/** @endec(minLength(1), maxLength(100)) */
 	address: string;
 };
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ContactInfo;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function contactInfoFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ContactInfo;
 } | {
@@ -271,11 +285,11 @@ export {};
 
 ## Mapping
 
-original 22..167 -> expanded 439..584
-original 167..168 -> expanded 10399..10400
-generated 0..439 <- imports
-generated 584..9683 <- Decode
-generated 9683..10399 <- __convenience_const
+original 22..167 -> expanded 441..586
+original 167..168 -> expanded 10845..10846
+generated 0..441 <- imports
+generated 586..10039 <- Decode
+generated 10039..10845 <- __convenience_const
 
 ## Metadata
 

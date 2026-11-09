@@ -37,7 +37,7 @@ const box = (held, other) => ({
 Deno.test('a value of a type parameter is carried as it is, wherever it is held', () => {
     for (const [held, other] of [['text', 'other'], [1, 2], [true, false]]) {
         const source = box(held, other);
-        const value = decoded(mod.genericBoxDecode(mod.genericBoxEncode(source)));
+        const value = decoded(mod.genericBoxFromString(mod.genericBoxEncode(source)));
         assertEquals(value, source);
         assert(value.byName instanceof Map);
         assert(value.set instanceof Set);
@@ -51,7 +51,9 @@ Deno.test('a value of a type parameter is carried as it is, wherever it is held'
     }
 
     const { optional: _optional, ...rest } = box('text', 'other');
-    const sparse = decoded(mod.genericBoxDecode(mod.genericBoxEncode({ ...rest, maybe: null })));
+    const sparse = decoded(
+        mod.genericBoxFromString(mod.genericBoxEncode({ ...rest, maybe: null }))
+    );
     assertStrictEquals(sparse.maybe, null);
     assert(!('optional' in sparse));
     const encoded = JSON.parse(mod.genericBoxEncode(rest));
@@ -60,14 +62,14 @@ Deno.test('a value of a type parameter is carried as it is, wherever it is held'
 
 Deno.test('several parameters, defaults and constraints each keep their own fields', () => {
     const pair = { left: 'l', right: 2 };
-    assertEquals(decoded(mod.genericPairDecode(mod.genericPairEncode(pair))), pair);
+    assertEquals(decoded(mod.genericPairFromString(mod.genericPairEncode(pair))), pair);
     assert(mod.genericPairEquals(pair, mod.genericPairClone(pair)));
     assert(!mod.genericPairEquals(pair, { left: 'l', right: 3 }));
     assertEquals(errorFields(mod.genericPairDecode({ left: 'l' })), ['right']);
 
     const constrained = { item: item('a', 1), name: 'n', items: [item('b', 2)] };
     assertEquals(
-        decoded(mod.genericConstrainedDecode(mod.genericConstrainedEncode(constrained))),
+        decoded(mod.genericConstrainedFromString(mod.genericConstrainedEncode(constrained))),
         constrained
     );
     assert(mod.genericConstrainedEquals(constrained, mod.genericConstrainedClone(constrained)));
@@ -94,14 +96,14 @@ Deno.test('a generic class is built, coded and compared as an instance', () => {
 Deno.test('generic unions, lists and nullable aliases are coded by their bodies', () => {
     const ok = { ok: true, value: 1 };
     const failed = { ok: false, failure: 'reason' };
-    assertEquals(decoded(mod.genericResultDecode(mod.genericResultEncode(ok))), ok);
-    assertEquals(decoded(mod.genericResultDecode(mod.genericResultEncode(failed))), failed);
+    assertEquals(decoded(mod.genericResultFromString(mod.genericResultEncode(ok))), ok);
+    assertEquals(decoded(mod.genericResultFromString(mod.genericResultEncode(failed))), failed);
     assert(mod.genericResultEquals(ok, mod.genericResultClone(ok)));
     assert(!mod.genericResultEquals(ok, failed));
 
-    assertEquals(decoded(mod.genericListDecode(mod.genericListEncode([1, 2]))), [1, 2]);
-    assertEquals(decoded(mod.genericMaybeDecode(mod.genericMaybeEncode('text'))), 'text');
-    assertStrictEquals(decoded(mod.genericMaybeDecode(mod.genericMaybeEncode(null))), null);
+    assertEquals(decoded(mod.genericListFromString(mod.genericListEncode([1, 2]))), [1, 2]);
+    assertEquals(decoded(mod.genericMaybeFromString(mod.genericMaybeEncode('text'))), 'text');
+    assertStrictEquals(decoded(mod.genericMaybeFromString(mod.genericMaybeEncode(null))), null);
 });
 
 const uses = () => ({
@@ -118,7 +120,7 @@ const uses = () => ({
 });
 
 Deno.test('a field that instantiates a generic type is coded through that type', () => {
-    const value = decoded(mod.genericUsesDecode(mod.genericUsesEncode(uses())));
+    const value = decoded(mod.genericUsesFromString(mod.genericUsesEncode(uses())));
     assertEquals(value, uses());
     assert(value.stack instanceof mod.GenericStack);
     assert(value.stacks[0] instanceof mod.GenericStack);
@@ -296,7 +298,7 @@ Deno.test('every kind of generic type takes the coders of its arguments', () => 
 
 Deno.test('a generic type given no coder carries its parameter as it is', () => {
     const at = '2024-02-03T04:05:06.000Z';
-    const value = decoded(mod.genericBoxDecode(mod.genericBoxEncode(box(at, at))));
+    const value = decoded(mod.genericBoxFromString(mod.genericBoxEncode(box(at, at))));
     assertStrictEquals(value.held, at);
     const stack = decoded(mod.GenericStack.decode({ items: [at], top: at, depth: 1 }));
     assertStrictEquals(stack.top, at);
@@ -312,7 +314,7 @@ Deno.test('a generic type encoded and decoded from the top takes the coders of i
 
     const text = mod.genericBoxEncode(box(at, at), false, toText);
     assertStrictEquals(JSON.parse(text).held, '2024-02-03T04:05:06.000Z');
-    const value = decoded(mod.genericBoxDecode(text, undefined, toDate));
+    const value = decoded(mod.genericBoxFromString(text, undefined, toDate));
     assertEquals(value, box(at, at));
     assert(value.byName.get('k') instanceof Date);
     assertEquals(
@@ -328,13 +330,21 @@ Deno.test('a generic type encoded and decoded from the top takes the coders of i
     assertEquals(JSON.parse(mod.GenericStack.encode(stack, false, toText)).items, [toText(at)]);
     assert(
         decoded(
-            mod.genericStackDecode(mod.genericStackEncode(stack, false, toText), undefined, toDate)
+            mod.genericStackFromString(
+                mod.genericStackEncode(stack, false, toText),
+                undefined,
+                toDate
+            )
         ).items[0] instanceof Date
     );
 
     const pair = { left: at, right: [at] };
     const outcome = decoded(
-        mod.genericOutcomeDecode(mod.genericOutcomeEncode(pair, false, toText), undefined, toDate)
+        mod.genericOutcomeFromString(
+            mod.genericOutcomeEncode(pair, false, toText),
+            undefined,
+            toDate
+        )
     );
     assert(outcome.left instanceof Date);
     assert(outcome.right[0] instanceof Date);
@@ -342,7 +352,7 @@ Deno.test('a generic type encoded and decoded from the top takes the coders of i
 
 Deno.test('a union alias hands its parameter on to a member written with it', () => {
     const pair = { left: 1, right: [2, 3] };
-    const back = (value) => mod.genericOutcomeDecode(mod.genericOutcomeEncode(value));
+    const back = (value) => mod.genericOutcomeFromString(mod.genericOutcomeEncode(value));
     assertEquals(decoded(back(pair)), pair);
     assertStrictEquals(decoded(back('none')), 'none');
     assert(!mod.genericOutcomeDecode({ left: 1 }).success);

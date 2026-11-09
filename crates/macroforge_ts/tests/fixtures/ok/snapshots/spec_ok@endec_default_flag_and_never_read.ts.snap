@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Settings {
@@ -88,14 +88,11 @@ function settingsEncodeFields(value: Settings, _ctx: __mf_EncodeContext, result:
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = settingsDecodeWithContext(data, ctx);
+        const resultOrRef = settingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -140,6 +137,10 @@ export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function settingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => settingsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
@@ -249,6 +250,7 @@ const Settings: {
   readonly encodeWithContext: typeof settingsEncodeWithContext;
   readonly encodePartialWithContext: typeof settingsEncodePartialWithContext;
   readonly decode: typeof settingsDecode;
+  readonly fromString: typeof settingsFromString;
   readonly decodeWithContext: typeof settingsDecodeWithContext;
   readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
   readonly validateField: typeof settingsValidateField;
@@ -260,6 +262,7 @@ const Settings: {
   encodeWithContext: settingsEncodeWithContext,
   encodePartialWithContext: settingsEncodePartialWithContext,
   decode: settingsDecode,
+  fromString: settingsFromString,
   decodeWithContext: settingsDecodeWithContext,
   decodePartialWithContext: settingsDecodePartialWithContext,
   validateField: settingsValidateField,
@@ -281,8 +284,19 @@ export declare function settingsEncode(value: Settings, keepMetadata?: boolean):
 export declare function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function settingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Settings;
 } | {
@@ -316,15 +330,15 @@ export {};
 
 ## Mapping
 
-original 30..56 -> expanded 658..684
-original 88..114 -> expanded 684..710
-original 176..201 -> expanded 710..735
-original 235..259 -> expanded 735..759
-original 259..260 -> expanded 11040..11041
-generated 0..658 <- imports
-generated 759..3495 <- Encode
-generated 3495..10049 <- Decode
-generated 10049..11040 <- __convenience_const
+original 30..56 -> expanded 660..686
+original 88..114 -> expanded 686..712
+original 176..201 -> expanded 712..737
+original 235..259 -> expanded 737..761
+original 259..260 -> expanded 11471..11472
+generated 0..660 <- imports
+generated 761..3497 <- Encode
+generated 3497..10396 <- Decode
+generated 10396..11471 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { productDefaultsDecodeWithContext, productDefaultsEncodeWithContext, productDefaultsDefaultValue } from "./product-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -166,14 +166,11 @@ function productEncodeFields(value: Product, ctx: __mf_EncodeContext, result: Re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = productDecodeWithContext(data, ctx);
+        const resultOrRef = productDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -218,6 +215,10 @@ export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function productFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => productDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef;
@@ -836,6 +837,7 @@ export const Product: {
   readonly encodeWithContext: typeof productEncodeWithContext;
   readonly encodePartialWithContext: typeof productEncodePartialWithContext;
   readonly decode: typeof productDecode;
+  readonly fromString: typeof productFromString;
   readonly decodeWithContext: typeof productDecodeWithContext;
   readonly decodePartialWithContext: typeof productDecodePartialWithContext;
   readonly validateField: typeof productValidateField;
@@ -850,6 +852,7 @@ export const Product: {
   encodeWithContext: productEncodeWithContext,
   encodePartialWithContext: productEncodePartialWithContext,
   decode: productDecode,
+  fromString: productFromString,
   decodeWithContext: productDecodeWithContext,
   decodePartialWithContext: productDecodePartialWithContext,
   validateField: productValidateField,
@@ -883,8 +886,19 @@ export declare function productEncode(value: Product, keepMetadata?: boolean): s
 export declare function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function productDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Product;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function productFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Product;
 } | {
@@ -975,6 +989,7 @@ export declare const Product: {
 	readonly encodeWithContext: typeof productEncodeWithContext;
 	readonly encodePartialWithContext: typeof productEncodePartialWithContext;
 	readonly decode: typeof productDecode;
+	readonly fromString: typeof productFromString;
 	readonly decodeWithContext: typeof productDecodeWithContext;
 	readonly decodePartialWithContext: typeof productDecodePartialWithContext;
 	readonly validateField: typeof productValidateField;
@@ -991,26 +1006,26 @@ export declare const Product: {
 
 ## Mapping
 
-original 0..125 -> expanded 985..1110
-original 174..206 -> expanded 1110..1142
-original 234..255 -> expanded 1142..1163
-original 296..301 -> expanded 1163..1168
-original 342..365 -> expanded 1168..1191
-original 412..417 -> expanded 1191..1196
-original 458..486 -> expanded 1196..1224
-original 551..582 -> expanded 1224..1255
-original 650..684 -> expanded 1255..1289
-original 748..778 -> expanded 1289..1319
-original 823..849 -> expanded 1319..1345
-original 898..928 -> expanded 1345..1375
-original 975..1031 -> expanded 1375..1431
-original 1031..1032 -> expanded 35333..35334
-generated 0..985 <- imports
-generated 1431..1749 <- Default
-generated 1749..6140 <- Encode
-generated 6140..19825 <- Decode
-generated 19825..34094 <- Gigaform
-generated 34094..35333 <- __convenience_const
+original 0..125 -> expanded 987..1112
+original 174..206 -> expanded 1112..1144
+original 234..255 -> expanded 1144..1165
+original 296..301 -> expanded 1165..1170
+original 342..365 -> expanded 1170..1193
+original 412..417 -> expanded 1193..1198
+original 458..486 -> expanded 1198..1226
+original 551..582 -> expanded 1226..1257
+original 650..684 -> expanded 1257..1291
+original 748..778 -> expanded 1291..1321
+original 823..849 -> expanded 1321..1347
+original 898..928 -> expanded 1347..1377
+original 975..1031 -> expanded 1377..1433
+original 1031..1032 -> expanded 35759..35760
+generated 0..987 <- imports
+generated 1433..1751 <- Default
+generated 1751..6142 <- Encode
+generated 6142..20169 <- Decode
+generated 20169..34438 <- Gigaform
+generated 34438..35759 <- __convenience_const
 
 ## Metadata
 

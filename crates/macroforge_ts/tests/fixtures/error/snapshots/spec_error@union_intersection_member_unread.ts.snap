@@ -49,7 +49,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, withTag as __mf_withTag, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, withTag as __mf_withTag, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A union member that is an intersection no coder reads is an error, not a member left out. */
 
@@ -92,14 +92,11 @@ function accountEncodeFields(value: Account, _ctx: __mf_EncodeContext, result: R
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = accountDecodeWithContext(data, ctx);
+        const resultOrRef = accountDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -144,6 +141,10 @@ export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function accountFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => accountDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
@@ -226,6 +227,7 @@ export const Account: {
   readonly encodeWithContext: typeof accountEncodeWithContext;
   readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
   readonly decode: typeof accountDecode;
+  readonly fromString: typeof accountFromString;
   readonly decodeWithContext: typeof accountDecodeWithContext;
   readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
   readonly validateField: typeof accountValidateField;
@@ -237,6 +239,7 @@ export const Account: {
   encodeWithContext: accountEncodeWithContext,
   encodePartialWithContext: accountEncodePartialWithContext,
   decode: accountDecode,
+  fromString: accountFromString,
   decodeWithContext: accountDecodeWithContext,
   decodePartialWithContext: accountDecodePartialWithContext,
   validateField: accountValidateField,
@@ -285,14 +288,11 @@ function ownerEncodeFields(value: Owner, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function ownerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Owner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ownerDecodeWithContext(data, ctx);
+        const resultOrRef = ownerDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -337,6 +337,10 @@ export function ownerDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function ownerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Owner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ownerDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function ownerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Owner | __mf_PendingRef;
@@ -419,6 +423,7 @@ export const Owner: {
   readonly encodeWithContext: typeof ownerEncodeWithContext;
   readonly encodePartialWithContext: typeof ownerEncodePartialWithContext;
   readonly decode: typeof ownerDecode;
+  readonly fromString: typeof ownerFromString;
   readonly decodeWithContext: typeof ownerDecodeWithContext;
   readonly decodePartialWithContext: typeof ownerDecodePartialWithContext;
   readonly validateField: typeof ownerValidateField;
@@ -430,6 +435,7 @@ export const Owner: {
   encodeWithContext: ownerEncodeWithContext,
   encodePartialWithContext: ownerEncodePartialWithContext,
   decode: ownerDecode,
+  fromString: ownerFromString,
   decodeWithContext: ownerDecodeWithContext,
   decodePartialWithContext: ownerDecodePartialWithContext,
   validateField: ownerValidateField,
@@ -487,13 +493,11 @@ export function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): unk
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function readDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Read } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = readDecodeWithContext(data, ctx);
+        const resultOrRef = readDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -538,6 +542,10 @@ export function readDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function readFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Read } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => readDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Read | __mf_PendingRef {
@@ -590,6 +598,7 @@ export const Read: {
   readonly encode: typeof readEncode;
   readonly encodeWithContext: typeof readEncodeWithContext;
   readonly decode: typeof readDecode;
+  readonly fromString: typeof readFromString;
   readonly decodeWithContext: typeof readDecodeWithContext;
   readonly hasShape: typeof readHasShape;
   readonly is: typeof readIs;
@@ -599,6 +608,7 @@ export const Read: {
   encode: readEncode,
   encodeWithContext: readEncodeWithContext,
   decode: readDecode,
+  fromString: readFromString,
   decodeWithContext: readDecodeWithContext,
   hasShape: readHasShape,
   is: readIs,
@@ -618,8 +628,19 @@ export declare function accountEncode(value: Account, keepMetadata?: boolean): s
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Account;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function accountFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Account;
 } | {
@@ -650,6 +671,7 @@ export declare const Account: {
 	readonly encodeWithContext: typeof accountEncodeWithContext;
 	readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
 	readonly decode: typeof accountDecode;
+	readonly fromString: typeof accountFromString;
 	readonly decodeWithContext: typeof accountDecodeWithContext;
 	readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
 	readonly validateField: typeof accountValidateField;
@@ -666,8 +688,19 @@ export declare function ownerEncode(value: Owner, keepMetadata?: boolean): strin
 export declare function ownerEncodeWithContext(value: Owner, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function ownerEncodePartialWithContext(value: Partial<Owner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Owner>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function ownerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Owner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function ownerFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Owner;
 } | {
@@ -698,6 +731,7 @@ export declare const Owner: {
 	readonly encodeWithContext: typeof ownerEncodeWithContext;
 	readonly encodePartialWithContext: typeof ownerEncodePartialWithContext;
 	readonly decode: typeof ownerDecode;
+	readonly fromString: typeof ownerFromString;
 	readonly decodeWithContext: typeof ownerDecodeWithContext;
 	readonly decodePartialWithContext: typeof ownerDecodePartialWithContext;
 	readonly validateField: typeof ownerValidateField;
@@ -745,8 +779,19 @@ export type Read = ({
 export declare function readEncode(value: Read, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function readDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Read;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function readFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Read;
 } | {
@@ -770,6 +815,7 @@ export declare const Read: {
 	readonly encode: typeof readEncode;
 	readonly encodeWithContext: typeof readEncodeWithContext;
 	readonly decode: typeof readDecode;
+	readonly fromString: typeof readFromString;
 	readonly decodeWithContext: typeof readDecodeWithContext;
 	readonly hasShape: typeof readHasShape;
 	readonly is: typeof readIs;
@@ -789,29 +835,29 @@ Error [984..1089]: @derive(Decode) on 'NoFields': a member of the union is an in
 
 ## Mapping
 
-original 0..97 -> expanded 914..1011
-original 127..172 -> expanded 1011..1056
-original 172..174 -> expanded 9545..9547
-original 204..249 -> expanded 9547..9592
-original 249..328 -> expanded 17983..18062
-original 358..446 -> expanded 18062..18150
-original 468..532 -> expanded 18150..18214
-original 554..628 -> expanded 18214..18288
-original 681..785 -> expanded 18288..18392
-original 838..922 -> expanded 18392..18476
-original 975..1154 -> expanded 18476..18655
-original 1215..1297 -> expanded 18655..18737
-original 1297..1298 -> expanded 24652..24653
-generated 0..914 <- imports
-generated 1056..3162 <- Encode
-generated 3162..8568 <- Decode
-generated 8568..9545 <- __convenience_const
-generated 9592..11676 <- Encode
-generated 11676..17048 <- Decode
-generated 17048..17983 <- __convenience_const
-generated 18737..20584 <- Encode
-generated 20584..24046 <- Decode
-generated 24046..24652 <- __convenience_const
+original 0..97 -> expanded 916..1013
+original 127..172 -> expanded 1013..1058
+original 172..174 -> expanded 9971..9973
+original 204..249 -> expanded 9973..10018
+original 249..328 -> expanded 18823..18902
+original 358..446 -> expanded 18902..18990
+original 468..532 -> expanded 18990..19054
+original 554..628 -> expanded 19054..19128
+original 681..785 -> expanded 19128..19232
+original 838..922 -> expanded 19232..19316
+original 975..1154 -> expanded 19316..19495
+original 1215..1297 -> expanded 19495..19577
+original 1297..1298 -> expanded 25982..25983
+generated 0..916 <- imports
+generated 1058..3164 <- Encode
+generated 3164..8912 <- Decode
+generated 8912..9971 <- __convenience_const
+generated 10018..12102 <- Encode
+generated 12102..17810 <- Decode
+generated 17810..18823 <- __convenience_const
+generated 19577..21424 <- Encode
+generated 21424..25300 <- Decode
+generated 25300..25982 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -83,14 +83,11 @@ function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = columnConfigDecodeWithContext(data, ctx);
+        const resultOrRef = columnConfigDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -135,6 +132,10 @@ export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function columnConfigFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => columnConfigDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ColumnConfig | __mf_PendingRef;
@@ -409,6 +410,7 @@ export const ColumnConfig: {
   readonly encodeWithContext: typeof columnConfigEncodeWithContext;
   readonly encodePartialWithContext: typeof columnConfigEncodePartialWithContext;
   readonly decode: typeof columnConfigDecode;
+  readonly fromString: typeof columnConfigFromString;
   readonly decodeWithContext: typeof columnConfigDecodeWithContext;
   readonly decodePartialWithContext: typeof columnConfigDecodePartialWithContext;
   readonly validateField: typeof columnConfigValidateField;
@@ -423,6 +425,7 @@ export const ColumnConfig: {
   encodeWithContext: columnConfigEncodeWithContext,
   encodePartialWithContext: columnConfigEncodePartialWithContext,
   decode: columnConfigDecode,
+  fromString: columnConfigFromString,
   decodeWithContext: columnConfigDecodeWithContext,
   decodePartialWithContext: columnConfigDecodePartialWithContext,
   validateField: columnConfigValidateField,
@@ -448,8 +451,19 @@ export declare function columnConfigEncode(value: ColumnConfig, keepMetadata?: b
 export declare function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ColumnConfig>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ColumnConfig;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function columnConfigFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ColumnConfig;
 } | {
@@ -516,6 +530,7 @@ export declare const ColumnConfig: {
 	readonly encodeWithContext: typeof columnConfigEncodeWithContext;
 	readonly encodePartialWithContext: typeof columnConfigEncodePartialWithContext;
 	readonly decode: typeof columnConfigDecode;
+	readonly fromString: typeof columnConfigFromString;
 	readonly decodeWithContext: typeof columnConfigDecodeWithContext;
 	readonly decodePartialWithContext: typeof columnConfigDecodePartialWithContext;
 	readonly validateField: typeof columnConfigValidateField;
@@ -532,16 +547,16 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 957..1067
-original 159..196 -> expanded 1067..1104
-original 237..284 -> expanded 1104..1151
-original 284..285 -> expanded 18551..18552
-generated 0..957 <- imports
-generated 1151..1296 <- Default
-generated 1296..3895 <- Encode
-generated 3895..11897 <- Decode
-generated 11897..17177 <- Gigaform
-generated 17177..18551 <- __convenience_const
+original 0..110 -> expanded 959..1069
+original 159..196 -> expanded 1069..1106
+original 237..284 -> expanded 1106..1153
+original 284..285 -> expanded 19002..19003
+generated 0..959 <- imports
+generated 1153..1298 <- Default
+generated 1298..3897 <- Encode
+generated 3897..12256 <- Decode
+generated 12256..17536 <- Gigaform
+generated 17536..19002 <- __convenience_const
 
 ## Metadata
 

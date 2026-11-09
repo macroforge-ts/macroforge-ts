@@ -44,7 +44,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Merged {
@@ -101,14 +101,11 @@ function mergedEncodeFields(value: Merged, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function mergedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Merged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = mergedDecodeWithContext(data, ctx);
+        const resultOrRef = mergedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -153,6 +150,10 @@ export function mergedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function mergedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Merged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => mergedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Merged | __mf_PendingRef;
@@ -237,6 +238,7 @@ export const Merged: {
   readonly encodeWithContext: typeof mergedEncodeWithContext;
   readonly encodePartialWithContext: typeof mergedEncodePartialWithContext;
   readonly decode: typeof mergedDecode;
+  readonly fromString: typeof mergedFromString;
   readonly decodeWithContext: typeof mergedDecodeWithContext;
   readonly decodePartialWithContext: typeof mergedDecodePartialWithContext;
   readonly validateField: typeof mergedValidateField;
@@ -250,6 +252,7 @@ export const Merged: {
   encodeWithContext: mergedEncodeWithContext,
   encodePartialWithContext: mergedEncodePartialWithContext,
   decode: mergedDecode,
+  fromString: mergedFromString,
   decodeWithContext: mergedDecodeWithContext,
   decodePartialWithContext: mergedDecodePartialWithContext,
   validateField: mergedValidateField,
@@ -345,8 +348,19 @@ export declare function mergedEncode(value: Merged, keepMetadata?: boolean): str
 export declare function mergedEncodeWithContext(value: Merged, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function mergedEncodePartialWithContext(value: Partial<Merged>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Merged>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function mergedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Merged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function mergedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Merged;
 } | {
@@ -379,6 +393,7 @@ export declare const Merged: {
 	readonly encodeWithContext: typeof mergedEncodeWithContext;
 	readonly encodePartialWithContext: typeof mergedEncodePartialWithContext;
 	readonly decode: typeof mergedDecode;
+	readonly fromString: typeof mergedFromString;
 	readonly decodeWithContext: typeof mergedDecodeWithContext;
 	readonly decodePartialWithContext: typeof mergedDecodePartialWithContext;
 	readonly validateField: typeof mergedValidateField;
@@ -428,29 +443,29 @@ Error [272..286]: 'Level' is declared 2 times in this module, which TypeScript m
 
 ## Mapping
 
-original 48..95 -> expanded 834..881
-original 95..146 -> expanded 9930..9981
-original 174..218 -> expanded 9981..10025
-original 218..219 -> expanded 10398..10399
-original 219..267 -> expanded 10567..10615
-original 288..318 -> expanded 10615..10645
-original 318..356 -> expanded 10937..10975
-original 377..423 -> expanded 10975..11021
-original 423..424 -> expanded 11375..11376
-generated 0..834 <- imports
-generated 881..1133 <- Debug
-generated 1133..1314 <- PartialEq
-generated 1314..3417 <- Encode
-generated 3417..8838 <- Decode
-generated 8838..9930 <- __convenience_const
-generated 10025..10284 <- Debug
-generated 10284..10398 <- Clone
-generated 10399..10487 <- Debug
-generated 10487..10567 <- Clone
-generated 10645..10846 <- Debug
-generated 10846..10937 <- __convenience_const
-generated 11021..11271 <- Debug
-generated 11271..11375 <- __convenience_const
+original 48..95 -> expanded 836..883
+original 95..146 -> expanded 10351..10402
+original 174..218 -> expanded 10402..10446
+original 218..219 -> expanded 10819..10820
+original 219..267 -> expanded 10988..11036
+original 288..318 -> expanded 11036..11066
+original 318..356 -> expanded 11358..11396
+original 377..423 -> expanded 11396..11442
+original 423..424 -> expanded 11796..11797
+generated 0..836 <- imports
+generated 883..1135 <- Debug
+generated 1135..1316 <- PartialEq
+generated 1316..3419 <- Encode
+generated 3419..9179 <- Decode
+generated 9179..10351 <- __convenience_const
+generated 10446..10705 <- Debug
+generated 10705..10819 <- Clone
+generated 10820..10908 <- Debug
+generated 10908..10988 <- Clone
+generated 11066..11267 <- Debug
+generated 11267..11358 <- __convenience_const
+generated 11442..11692 <- Debug
+generated 11692..11796 <- __convenience_const
 
 ## Metadata
 

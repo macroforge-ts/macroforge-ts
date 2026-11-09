@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Directives whose arguments hold what a scan for brackets, commas and
@@ -126,14 +126,11 @@ function directiveTextsEncodeFields(value: DirectiveTexts, _ctx: __mf_EncodeCont
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function directiveTextsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = directiveTextsDecodeWithContext(data, ctx);
+        const resultOrRef = directiveTextsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -178,6 +175,10 @@ export function directiveTextsDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveTextsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveTextsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveTexts | __mf_PendingRef;
@@ -357,6 +358,7 @@ export const DirectiveTexts: {
   readonly encodeWithContext: typeof directiveTextsEncodeWithContext;
   readonly encodePartialWithContext: typeof directiveTextsEncodePartialWithContext;
   readonly decode: typeof directiveTextsDecode;
+  readonly fromString: typeof directiveTextsFromString;
   readonly decodeWithContext: typeof directiveTextsDecodeWithContext;
   readonly decodePartialWithContext: typeof directiveTextsDecodePartialWithContext;
   readonly validateField: typeof directiveTextsValidateField;
@@ -370,6 +372,7 @@ export const DirectiveTexts: {
   encodeWithContext: directiveTextsEncodeWithContext,
   encodePartialWithContext: directiveTextsEncodePartialWithContext,
   decode: directiveTextsDecode,
+  fromString: directiveTextsFromString,
   decodeWithContext: directiveTextsDecodeWithContext,
   decodePartialWithContext: directiveTextsDecodePartialWithContext,
   validateField: directiveTextsValidateField,
@@ -523,14 +526,11 @@ function directiveSkippedEncodeFields(value: DirectiveSkipped, _ctx: __mf_Encode
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function directiveSkippedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkipped } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = directiveSkippedDecodeWithContext(data, ctx);
+        const resultOrRef = directiveSkippedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -575,6 +575,10 @@ export function directiveSkippedDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveSkippedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkipped } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveSkippedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveSkipped | __mf_PendingRef;
@@ -688,6 +692,7 @@ export const DirectiveSkipped: {
   readonly encodeWithContext: typeof directiveSkippedEncodeWithContext;
   readonly encodePartialWithContext: typeof directiveSkippedEncodePartialWithContext;
   readonly decode: typeof directiveSkippedDecode;
+  readonly fromString: typeof directiveSkippedFromString;
   readonly decodeWithContext: typeof directiveSkippedDecodeWithContext;
   readonly decodePartialWithContext: typeof directiveSkippedDecodePartialWithContext;
   readonly validateField: typeof directiveSkippedValidateField;
@@ -699,6 +704,7 @@ export const DirectiveSkipped: {
   encodeWithContext: directiveSkippedEncodeWithContext,
   encodePartialWithContext: directiveSkippedEncodePartialWithContext,
   decode: directiveSkippedDecode,
+  fromString: directiveSkippedFromString,
   decodeWithContext: directiveSkippedDecodeWithContext,
   decodePartialWithContext: directiveSkippedDecodePartialWithContext,
   validateField: directiveSkippedValidateField,
@@ -772,14 +778,11 @@ constructor(props: { name: string; cache?: Map<string, number>; derived?: number
     }
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = DirectiveSkippedClass.decodeWithContext(data, ctx);
+        const resultOrRef = DirectiveSkippedClass.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -824,6 +827,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => DirectiveSkippedClass.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -943,9 +951,14 @@ export function directiveSkippedClassEncodePartialWithContext(value: Partial<Dir
     return DirectiveSkippedClass.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function directiveSkippedClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     return DirectiveSkippedClass.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function directiveSkippedClassFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveSkippedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return DirectiveSkippedClass.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1008,14 +1021,11 @@ function directiveInnerEncodeFields(value: DirectiveInner, _ctx: __mf_EncodeCont
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function directiveInnerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveInner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = directiveInnerDecodeWithContext(data, ctx);
+        const resultOrRef = directiveInnerDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1060,6 +1070,10 @@ export function directiveInnerDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveInnerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveInner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveInnerDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveInner | __mf_PendingRef;
@@ -1142,6 +1156,7 @@ export const DirectiveInner: {
   readonly encodeWithContext: typeof directiveInnerEncodeWithContext;
   readonly encodePartialWithContext: typeof directiveInnerEncodePartialWithContext;
   readonly decode: typeof directiveInnerDecode;
+  readonly fromString: typeof directiveInnerFromString;
   readonly decodeWithContext: typeof directiveInnerDecodeWithContext;
   readonly decodePartialWithContext: typeof directiveInnerDecodePartialWithContext;
   readonly validateField: typeof directiveInnerValidateField;
@@ -1153,6 +1168,7 @@ export const DirectiveInner: {
   encodeWithContext: directiveInnerEncodeWithContext,
   encodePartialWithContext: directiveInnerEncodePartialWithContext,
   decode: directiveInnerDecode,
+  fromString: directiveInnerFromString,
   decodeWithContext: directiveInnerDecodeWithContext,
   decodePartialWithContext: directiveInnerDecodePartialWithContext,
   validateField: directiveInnerValidateField,
@@ -1218,14 +1234,11 @@ function directiveFlatEncodeFields(value: DirectiveFlat, ctx: __mf_EncodeContext
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function directiveFlatDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectiveFlat } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = directiveFlatDecodeWithContext(data, ctx);
+        const resultOrRef = directiveFlatDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1270,6 +1283,10 @@ export function directiveFlatDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directiveFlatFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: DirectiveFlat } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => directiveFlatDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectiveFlat | __mf_PendingRef;
@@ -1378,6 +1395,7 @@ export const DirectiveFlat: {
   readonly encodeWithContext: typeof directiveFlatEncodeWithContext;
   readonly encodePartialWithContext: typeof directiveFlatEncodePartialWithContext;
   readonly decode: typeof directiveFlatDecode;
+  readonly fromString: typeof directiveFlatFromString;
   readonly decodeWithContext: typeof directiveFlatDecodeWithContext;
   readonly decodePartialWithContext: typeof directiveFlatDecodePartialWithContext;
   readonly validateField: typeof directiveFlatValidateField;
@@ -1389,6 +1407,7 @@ export const DirectiveFlat: {
   encodeWithContext: directiveFlatEncodeWithContext,
   encodePartialWithContext: directiveFlatEncodePartialWithContext,
   decode: directiveFlatDecode,
+  fromString: directiveFlatFromString,
   decodeWithContext: directiveFlatDecodeWithContext,
   decodePartialWithContext: directiveFlatDecodePartialWithContext,
   validateField: directiveFlatValidateField,
@@ -1425,8 +1444,19 @@ export declare function directiveTextsEncode(value: DirectiveTexts, keepMetadata
 export declare function directiveTextsEncodeWithContext(value: DirectiveTexts, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function directiveTextsEncodePartialWithContext(value: Partial<DirectiveTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveTexts>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function directiveTextsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveTexts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveTextsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DirectiveTexts;
 } | {
@@ -1459,6 +1489,7 @@ export declare const DirectiveTexts: {
 	readonly encodeWithContext: typeof directiveTextsEncodeWithContext;
 	readonly encodePartialWithContext: typeof directiveTextsEncodePartialWithContext;
 	readonly decode: typeof directiveTextsDecode;
+	readonly fromString: typeof directiveTextsFromString;
 	readonly decodeWithContext: typeof directiveTextsDecodeWithContext;
 	readonly decodePartialWithContext: typeof directiveTextsDecodePartialWithContext;
 	readonly validateField: typeof directiveTextsValidateField;
@@ -1517,8 +1548,19 @@ export declare function directiveSkippedEncode(value: DirectiveSkipped, keepMeta
 export declare function directiveSkippedEncodeWithContext(value: DirectiveSkipped, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function directiveSkippedEncodePartialWithContext(value: Partial<DirectiveSkipped>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkipped>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function directiveSkippedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkipped;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveSkippedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DirectiveSkipped;
 } | {
@@ -1549,6 +1591,7 @@ export declare const DirectiveSkipped: {
 	readonly encodeWithContext: typeof directiveSkippedEncodeWithContext;
 	readonly encodePartialWithContext: typeof directiveSkippedEncodePartialWithContext;
 	readonly decode: typeof directiveSkippedDecode;
+	readonly fromString: typeof directiveSkippedFromString;
 	readonly decodeWithContext: typeof directiveSkippedDecodeWithContext;
 	readonly decodePartialWithContext: typeof directiveSkippedDecodePartialWithContext;
 	readonly validateField: typeof directiveSkippedValidateField;
@@ -1575,8 +1618,19 @@ export declare class DirectiveSkippedClass {
 		cache?: Map<string, number>;
 		derived?: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: DirectiveSkippedClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: DirectiveSkippedClass;
 	} | {
@@ -1607,8 +1661,19 @@ export declare function directiveSkippedClassEncode(value: DirectiveSkippedClass
 export declare function directiveSkippedClassEncodeWithContext(value: DirectiveSkippedClass, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function directiveSkippedClassEncodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveSkippedClass>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function directiveSkippedClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveSkippedClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function directiveSkippedClassFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DirectiveSkippedClass;
 } | {
@@ -1636,8 +1701,19 @@ export declare function directiveInnerEncode(value: DirectiveInner, keepMetadata
 export declare function directiveInnerEncodeWithContext(value: DirectiveInner, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function directiveInnerEncodePartialWithContext(value: Partial<DirectiveInner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveInner>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function directiveInnerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveInner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveInnerFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DirectiveInner;
 } | {
@@ -1668,6 +1744,7 @@ export declare const DirectiveInner: {
 	readonly encodeWithContext: typeof directiveInnerEncodeWithContext;
 	readonly encodePartialWithContext: typeof directiveInnerEncodePartialWithContext;
 	readonly decode: typeof directiveInnerDecode;
+	readonly fromString: typeof directiveInnerFromString;
 	readonly decodeWithContext: typeof directiveInnerDecodeWithContext;
 	readonly decodePartialWithContext: typeof directiveInnerDecodePartialWithContext;
 	readonly validateField: typeof directiveInnerValidateField;
@@ -1687,8 +1764,19 @@ export declare function directiveFlatEncode(value: DirectiveFlat, keepMetadata?:
 export declare function directiveFlatEncodeWithContext(value: DirectiveFlat, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function directiveFlatEncodePartialWithContext(value: Partial<DirectiveFlat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DirectiveFlat>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function directiveFlatDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectiveFlat;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directiveFlatFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: DirectiveFlat;
 } | {
@@ -1719,6 +1807,7 @@ export declare const DirectiveFlat: {
 	readonly encodeWithContext: typeof directiveFlatEncodeWithContext;
 	readonly encodePartialWithContext: typeof directiveFlatEncodePartialWithContext;
 	readonly decode: typeof directiveFlatDecode;
+	readonly fromString: typeof directiveFlatFromString;
 	readonly decodeWithContext: typeof directiveFlatDecodeWithContext;
 	readonly decodePartialWithContext: typeof directiveFlatDecodePartialWithContext;
 	readonly validateField: typeof directiveFlatValidateField;
@@ -1733,43 +1822,43 @@ export declare const DirectiveFlat: {
 
 ## Mapping
 
-original 0..678 -> expanded 943..1621
-original 678..790 -> expanded 17514..17626
-original 790..959 -> expanded 18582..18751
-original 959..1414 -> expanded 19736..20191
-original 1414..1665 -> expanded 31100..31351
-original 1665..1666 -> expanded 40036..40037
-original 1666..1753 -> expanded 43484..43571
-original 1753..1900 -> expanded 52646..52793
-original 1900..1901 -> expanded 63408..63409
-generated 0..943 <- imports
-generated 1621..2116 <- Debug
-generated 2116..2308 <- Default
-generated 2308..5583 <- Encode
-generated 5583..16198 <- Decode
-generated 16198..17514 <- __convenience_const
-generated 17626..17795 <- Clone
-generated 17795..18004 <- PartialEq
-generated 18004..18284 <- Debug
-generated 18284..18582 <- __convenience_const
-generated 18751..19028 <- Debug
-generated 19028..19195 <- Clone
-generated 19195..19431 <- PartialEq
-generated 19431..19736 <- __convenience_const
-generated 20191..23023 <- Encode
-generated 23023..29934 <- Decode
-generated 29934..31100 <- __convenience_const
-generated 31351..33372 <- Encode
-generated 33372..33721 <- Encode
-generated 33721..40036 <- Decode
-generated 40037..41507 <- Encode
-generated 41507..43484 <- Decode
-generated 43571..45794 <- Encode
-generated 45794..51522 <- Decode
-generated 51522..52646 <- __convenience_const
-generated 52793..55580 <- Encode
-generated 55580..62305 <- Decode
-generated 62305..63408 <- __convenience_const
+original 0..678 -> expanded 945..1623
+original 678..790 -> expanded 17975..18087
+original 790..959 -> expanded 19043..19212
+original 959..1414 -> expanded 20197..20652
+original 1414..1665 -> expanded 32030..32281
+original 1665..1666 -> expanded 41341..41342
+original 1666..1753 -> expanded 45230..45317
+original 1753..1900 -> expanded 54851..54998
+original 1900..1901 -> expanded 66067..66068
+generated 0..945 <- imports
+generated 1623..2118 <- Debug
+generated 2118..2310 <- Default
+generated 2310..5585 <- Encode
+generated 5585..16563 <- Decode
+generated 16563..17975 <- __convenience_const
+generated 18087..18256 <- Clone
+generated 18256..18465 <- PartialEq
+generated 18465..18745 <- Debug
+generated 18745..19043 <- __convenience_const
+generated 19212..19489 <- Debug
+generated 19489..19656 <- Clone
+generated 19656..19892 <- PartialEq
+generated 19892..20197 <- __convenience_const
+generated 20652..23484 <- Encode
+generated 23484..30764 <- Decode
+generated 30764..32030 <- __convenience_const
+generated 32281..34302 <- Encode
+generated 34302..34651 <- Encode
+generated 34651..41341 <- Decode
+generated 41342..42812 <- Encode
+generated 42812..45230 <- Decode
+generated 45317..47540 <- Encode
+generated 47540..53631 <- Decode
+generated 53631..54851 <- __convenience_const
+generated 54998..57785 <- Encode
+generated 57785..64870 <- Decode
+generated 64870..66067 <- __convenience_const
 
 ## Metadata
 

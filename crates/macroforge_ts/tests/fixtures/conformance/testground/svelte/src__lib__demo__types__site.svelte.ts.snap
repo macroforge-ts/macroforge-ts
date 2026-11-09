@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -178,14 +178,11 @@ function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<s
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = siteDecodeWithContext(data, ctx);
+        const resultOrRef = siteDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -230,6 +227,10 @@ export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function siteFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => siteDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Site | __mf_PendingRef;
@@ -964,6 +965,7 @@ export const Site: {
   readonly encodeWithContext: typeof siteEncodeWithContext;
   readonly encodePartialWithContext: typeof siteEncodePartialWithContext;
   readonly decode: typeof siteDecode;
+  readonly fromString: typeof siteFromString;
   readonly decodeWithContext: typeof siteDecodeWithContext;
   readonly decodePartialWithContext: typeof siteDecodePartialWithContext;
   readonly validateField: typeof siteValidateField;
@@ -978,6 +980,7 @@ export const Site: {
   encodeWithContext: siteEncodeWithContext,
   encodePartialWithContext: siteEncodePartialWithContext,
   decode: siteDecode,
+  fromString: siteFromString,
   decodeWithContext: siteDecodeWithContext,
   decodePartialWithContext: siteDecodePartialWithContext,
   validateField: siteValidateField,
@@ -1013,8 +1016,19 @@ export declare function siteEncode(value: Site, keepMetadata?: boolean): string;
 export declare function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function siteDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Site;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function siteFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Site;
 } | {
@@ -1111,6 +1125,7 @@ export declare const Site: {
 	readonly encodeWithContext: typeof siteEncodeWithContext;
 	readonly encodePartialWithContext: typeof siteEncodePartialWithContext;
 	readonly decode: typeof siteDecode;
+	readonly fromString: typeof siteFromString;
 	readonly decodeWithContext: typeof siteDecodeWithContext;
 	readonly decodePartialWithContext: typeof siteDecodePartialWithContext;
 	readonly validateField: typeof siteValidateField;
@@ -1127,20 +1142,20 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 968..1084
-original 165..210 -> expanded 1084..1129
-original 251..353 -> expanded 1129..1231
-original 394..511 -> expanded 1231..1348
-original 552..595 -> expanded 1348..1391
-original 636..662 -> expanded 1391..1417
-original 703..796 -> expanded 1417..1510
-original 796..797 -> expanded 45689..45690
-generated 0..968 <- imports
-generated 1510..1944 <- Default
-generated 1944..7114 <- Encode
-generated 7114..26599 <- Decode
-generated 26599..44531 <- Gigaform
-generated 44531..45689 <- __convenience_const
+original 0..116 -> expanded 970..1086
+original 165..210 -> expanded 1086..1131
+original 251..353 -> expanded 1131..1233
+original 394..511 -> expanded 1233..1350
+original 552..595 -> expanded 1350..1393
+original 636..662 -> expanded 1393..1419
+original 703..796 -> expanded 1419..1512
+original 796..797 -> expanded 46100..46101
+generated 0..970 <- imports
+generated 1512..1946 <- Default
+generated 1946..7116 <- Encode
+generated 7116..26934 <- Decode
+generated 26934..44866 <- Gigaform
+generated 44866..46100 <- __convenience_const
 
 ## Metadata
 

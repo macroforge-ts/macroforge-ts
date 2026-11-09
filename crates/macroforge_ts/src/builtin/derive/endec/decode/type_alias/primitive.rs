@@ -61,24 +61,6 @@ pub(super) fn handle_primitive_type_alias(
             .config
             .and_then(|foreign| foreign.handler_callee(ForeignHandler::Decode))
             .map(|callee| Expr::parse(&callee).expect("foreign decode expression should parse"));
-    // A string input is the value itself, not JSON: always for `string`, and for
-    // a wire-converted base, where parsing would round `bigint` digits.
-    let data_init_expr = if primitive == "string" || wire_decode.is_some() {
-        // A string is the value itself, or the JSON text of a string, which
-        // is what `encode` writes for it.
-        let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
-            "textOrValue"
-        ))
-        .into();
-        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
-            @{text_or_value}(input, (__spelled) => typeof __spelled === "string")
-        }))
-    } else {
-        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
-        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
-            typeof input === "string" ? @{parsed_text}(input) : input
-        }))
-    };
 
     if let Some(misapplied) = validators
         .iter()
@@ -107,13 +89,11 @@ pub(super) fn handle_primitive_type_alias(
     let value_is_primitive = Expr::Source(decoded_keyword_test(primitive, "value"));
 
     let mut result = ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const result = @{fn_decode_internal_expr}(data, ctx);
+                const result = @{fn_decode_internal_expr}(input, ctx);
                 if (opts?.freeze) {
                     ctx.freezeAll();
                 }
@@ -171,6 +151,19 @@ pub(super) fn handle_primitive_type_alias(
             return @{&value_is_primitive} && @{fn_decode_expr}(value).success;
         }
     };
+    let from_string_name = format!("{camel}FromString{generic_decl}");
+    let decode_call = format!("{camel}Decode{generic_args}");
+    let return_type = decode_return_type(full_type_name);
+    result = result.merge(super::super::from_string::from_string_function(
+        &super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: "",
+            passed_coders: "",
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ));
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);

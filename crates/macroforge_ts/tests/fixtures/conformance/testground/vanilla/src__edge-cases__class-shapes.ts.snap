@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Class members a derive has to tell from plain fields: visibility
@@ -185,14 +185,11 @@ constructor(props: { open: string; fixed: string; optional?: string; definite: n
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassMembers.decodeWithContext(data, ctx);
+        const resultOrRef = ClassMembers.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -237,6 +234,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassMembers.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -427,9 +429,14 @@ export function classMembersEncodePartialWithContext(value: Partial<ClassMembers
     return ClassMembers.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classMembersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassMembers.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classMembersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassMembers.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -616,14 +623,11 @@ constructor(props: { name: string; guarded: number; hidden: boolean; sealed: str
     this.sealed = props.sealed;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassGuarded } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassGuarded.decodeWithContext(data, ctx);
+        const resultOrRef = ClassGuarded.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -668,6 +672,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassGuarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassGuarded.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -838,9 +847,14 @@ export function classGuardedEncodePartialWithContext(value: Partial<ClassGuarded
     return ClassGuarded.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classGuardedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassGuarded } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassGuarded.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classGuardedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassGuarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassGuarded.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -990,14 +1004,11 @@ static #encodeFields(value: ClassConstructed, _ctx: __mf_EncodeContext, result: 
         return classConstructedEncode(value, keepMetadata);
     }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassConstructed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassConstructed.decodeWithContext(data, ctx);
+        const resultOrRef = ClassConstructed.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1042,6 +1053,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassConstructed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassConstructed.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1190,9 +1206,14 @@ export function classConstructedEncodePartialWithContext(value: Partial<ClassCon
     return ClassConstructed.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classConstructedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassConstructed } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassConstructed.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classConstructedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassConstructed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassConstructed.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1328,14 +1349,11 @@ static #encodeFields(value: ClassParameters, _ctx: __mf_EncodeContext, result: R
         return classParametersEncode(value, keepMetadata);
     }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassParameters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassParameters.decodeWithContext(data, ctx);
+        const resultOrRef = ClassParameters.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1380,6 +1398,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassParameters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassParameters.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1531,9 +1554,14 @@ export function classParametersEncodePartialWithContext(value: Partial<ClassPara
     return ClassParameters.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classParametersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassParameters } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassParameters.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classParametersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassParameters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassParameters.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1632,14 +1660,11 @@ constructor(props: { id: string }) {
     this.id = props.id;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassBase } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassBase.decodeWithContext(data, ctx);
+        const resultOrRef = ClassBase.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1684,6 +1709,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassBase.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1807,9 +1837,14 @@ export function classBaseEncodePartialWithContext(value: Partial<ClassBase>, ctx
     return ClassBase.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classBaseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassBase } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassBase.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classBaseFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassBase } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassBase.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1930,14 +1965,11 @@ constructor(props: { id: string; extra: number }) {
     this.extra = props.extra;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassDerived.decodeWithContext(data, ctx);
+        const resultOrRef = ClassDerived.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1982,6 +2014,11 @@ static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: tr
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static override fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassDerived.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2122,9 +2159,14 @@ export function classDerivedEncodePartialWithContext(value: Partial<ClassDerived
     return ClassDerived.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classDerivedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassDerived.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classDerivedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassDerived.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2382,14 +2424,11 @@ constructor(props: { card: ClassMembers; cards: ClassMembers[]; byName: Map<stri
     this.maybe = props.maybe;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassHolder.decodeWithContext(data, ctx);
+        const resultOrRef = ClassHolder.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2434,6 +2473,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassHolder.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2658,9 +2702,14 @@ export function classHolderEncodePartialWithContext(value: Partial<ClassHolder>,
     return ClassHolder.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassHolder.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classHolderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassHolder.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -2927,14 +2976,11 @@ static #encodeFields(value: ClassInferred, _ctx: __mf_EncodeContext, result: Rec
         return classInferredEncode(value, keepMetadata);
     }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassInferred.decodeWithContext(data, ctx);
+        const resultOrRef = ClassInferred.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2979,6 +3025,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassInferred.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -3262,9 +3313,14 @@ export function classInferredEncodePartialWithContext(value: Partial<ClassInferr
     return ClassInferred.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classInferredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassInferred.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classInferredFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassInferred.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -3452,14 +3508,11 @@ function classEntityEncodeFields(value: ClassEntity, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function classEntityDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassEntity } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = classEntityDecodeWithContext(data, ctx);
+        const resultOrRef = classEntityDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3504,6 +3557,10 @@ export function classEntityDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function classEntityFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassEntity } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => classEntityDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassEntity | __mf_PendingRef;
@@ -3608,6 +3665,7 @@ export const ClassEntity: {
   readonly encodeWithContext: typeof classEntityEncodeWithContext;
   readonly encodePartialWithContext: typeof classEntityEncodePartialWithContext;
   readonly decode: typeof classEntityDecode;
+  readonly fromString: typeof classEntityFromString;
   readonly decodeWithContext: typeof classEntityDecodeWithContext;
   readonly decodePartialWithContext: typeof classEntityDecodePartialWithContext;
   readonly validateField: typeof classEntityValidateField;
@@ -3624,6 +3682,7 @@ export const ClassEntity: {
   encodeWithContext: classEntityEncodeWithContext,
   encodePartialWithContext: classEntityEncodePartialWithContext,
   decode: classEntityDecode,
+  fromString: classEntityFromString,
   decodeWithContext: classEntityDecodeWithContext,
   decodePartialWithContext: classEntityDecodePartialWithContext,
   validateField: classEntityValidateField,
@@ -3705,14 +3764,11 @@ function classDatedEncodeFields(value: ClassDated, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function classDatedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDated } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = classDatedDecodeWithContext(data, ctx);
+        const resultOrRef = classDatedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3757,6 +3813,10 @@ export function classDatedDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function classDatedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassDated } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => classDatedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function classDatedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassDated | __mf_PendingRef;
@@ -3847,6 +3907,7 @@ export const ClassDated: {
   readonly encodeWithContext: typeof classDatedEncodeWithContext;
   readonly encodePartialWithContext: typeof classDatedEncodePartialWithContext;
   readonly decode: typeof classDatedDecode;
+  readonly fromString: typeof classDatedFromString;
   readonly decodeWithContext: typeof classDatedDecodeWithContext;
   readonly decodePartialWithContext: typeof classDatedDecodePartialWithContext;
   readonly validateField: typeof classDatedValidateField;
@@ -3863,6 +3924,7 @@ export const ClassDated: {
   encodeWithContext: classDatedEncodeWithContext,
   encodePartialWithContext: classDatedEncodePartialWithContext,
   decode: classDatedDecode,
+  fromString: classDatedFromString,
   decodeWithContext: classDatedDecodeWithContext,
   decodePartialWithContext: classDatedDecodePartialWithContext,
   validateField: classDatedValidateField,
@@ -3991,14 +4053,11 @@ function classAccountEncodeFields(value: ClassAccount, _ctx: __mf_EncodeContext,
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function classAccountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassAccount } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = classAccountDecodeWithContext(data, ctx);
+        const resultOrRef = classAccountDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4043,6 +4102,10 @@ export function classAccountDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function classAccountFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassAccount } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => classAccountDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassAccount | __mf_PendingRef;
@@ -4172,6 +4235,7 @@ export const ClassAccount: {
   readonly encodeWithContext: typeof classAccountEncodeWithContext;
   readonly encodePartialWithContext: typeof classAccountEncodePartialWithContext;
   readonly decode: typeof classAccountDecode;
+  readonly fromString: typeof classAccountFromString;
   readonly decodeWithContext: typeof classAccountDecodeWithContext;
   readonly decodePartialWithContext: typeof classAccountDecodePartialWithContext;
   readonly validateField: typeof classAccountValidateField;
@@ -4188,6 +4252,7 @@ export const ClassAccount: {
   encodeWithContext: classAccountEncodeWithContext,
   encodePartialWithContext: classAccountEncodePartialWithContext,
   decode: classAccountDecode,
+  fromString: classAccountFromString,
   decodeWithContext: classAccountDecodeWithContext,
   decodePartialWithContext: classAccountDecodePartialWithContext,
   validateField: classAccountValidateField,
@@ -4315,14 +4380,11 @@ constructor(props: { kind: string; id: string; radius: number }) {
     this.radius = props.radius;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ClassCircle.decodeWithContext(data, ctx);
+        const resultOrRef = ClassCircle.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4367,6 +4429,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ClassCircle.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -4518,9 +4585,14 @@ export function classCircleEncodePartialWithContext(value: Partial<ClassCircle>,
     return ClassCircle.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function classCircleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ClassCircle.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classCircleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassCircle.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -4583,8 +4655,19 @@ export declare class ClassMembers {
 		definite: number;
 		items: EdgeItem[];
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassMembers;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassMembers;
 	} | {
@@ -4620,8 +4703,19 @@ export declare function classMembersEncode(value: ClassMembers, keepMetadata?: b
 export declare function classMembersEncodeWithContext(value: ClassMembers, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classMembersEncodePartialWithContext(value: Partial<ClassMembers>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassMembers>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classMembersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassMembers;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classMembersFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassMembers;
 } | {
@@ -4666,8 +4760,19 @@ export declare class ClassGuarded {
 		hidden: boolean;
 		sealed: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassGuarded;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassGuarded;
 	} | {
@@ -4705,8 +4810,19 @@ export declare function classGuardedEncode(value: ClassGuarded, keepMetadata?: b
 export declare function classGuardedEncodeWithContext(value: ClassGuarded, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classGuardedEncodePartialWithContext(value: Partial<ClassGuarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassGuarded>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classGuardedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassGuarded;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classGuardedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassGuarded;
 } | {
@@ -4743,8 +4859,19 @@ export declare class ClassConstructed {
 	static encodePartialWithContext(value: Partial<ClassConstructed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassConstructed>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: ClassConstructed, keepMetadata?: boolean): string;
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassConstructed;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassConstructed;
 	} | {
@@ -4782,8 +4909,19 @@ export declare function classConstructedEncode(value: ClassConstructed, keepMeta
 export declare function classConstructedEncodeWithContext(value: ClassConstructed, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classConstructedEncodePartialWithContext(value: Partial<ClassConstructed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassConstructed>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classConstructedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassConstructed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classConstructedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassConstructed;
 } | {
@@ -4820,8 +4958,19 @@ export declare class ClassParameters {
 	static encodePartialWithContext(value: Partial<ClassParameters>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassParameters>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: ClassParameters, keepMetadata?: boolean): string;
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassParameters;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassParameters;
 	} | {
@@ -4857,8 +5006,19 @@ export declare function classParametersEncode(value: ClassParameters, keepMetada
 export declare function classParametersEncodeWithContext(value: ClassParameters, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classParametersEncodePartialWithContext(value: Partial<ClassParameters>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassParameters>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classParametersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassParameters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classParametersFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassParameters;
 } | {
@@ -4894,8 +5054,19 @@ export declare class ClassBase {
 	constructor(props: {
 		id: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassBase;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassBase;
 	} | {
@@ -4931,8 +5102,19 @@ export declare function classBaseEncode(value: ClassBase, keepMetadata?: boolean
 export declare function classBaseEncodeWithContext(value: ClassBase, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classBaseEncodePartialWithContext(value: Partial<ClassBase>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassBase>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classBaseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassBase;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classBaseFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassBase;
 } | {
@@ -4969,8 +5151,19 @@ export declare class ClassDerived extends ClassBase {
 		id: string;
 		extra: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassDerived;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static override fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassDerived;
 	} | {
@@ -5006,8 +5199,19 @@ export declare function classDerivedEncode(value: ClassDerived, keepMetadata?: b
 export declare function classDerivedEncodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classDerivedEncodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classDerivedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassDerived;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classDerivedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassDerived;
 } | {
@@ -5076,8 +5280,19 @@ export declare class ClassHolder {
 		byName: Map<string, ClassBase>;
 		maybe: ClassBase | null;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassHolder;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassHolder;
 	} | {
@@ -5113,8 +5328,19 @@ export declare function classHolderEncode(value: ClassHolder, keepMetadata?: boo
 export declare function classHolderEncodeWithContext(value: ClassHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classHolderEncodePartialWithContext(value: Partial<ClassHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassHolder>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classHolderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassHolder;
 } | {
@@ -5161,8 +5387,19 @@ export declare class ClassInferred {
 	static encodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: ClassInferred, keepMetadata?: boolean): string;
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassInferred;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassInferred;
 	} | {
@@ -5198,8 +5435,19 @@ export declare function classInferredEncode(value: ClassInferred, keepMetadata?:
 export declare function classInferredEncodeWithContext(value: ClassInferred, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classInferredEncodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classInferredDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassInferred;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classInferredFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassInferred;
 } | {
@@ -5248,8 +5496,19 @@ export declare function classEntityEncode(value: ClassEntity, keepMetadata?: boo
 export declare function classEntityEncodeWithContext(value: ClassEntity, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classEntityEncodePartialWithContext(value: Partial<ClassEntity>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassEntity>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function classEntityDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassEntity;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function classEntityFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassEntity;
 } | {
@@ -5285,6 +5544,7 @@ export declare const ClassEntity: {
 	readonly encodeWithContext: typeof classEntityEncodeWithContext;
 	readonly encodePartialWithContext: typeof classEntityEncodePartialWithContext;
 	readonly decode: typeof classEntityDecode;
+	readonly fromString: typeof classEntityFromString;
 	readonly decodeWithContext: typeof classEntityDecodeWithContext;
 	readonly decodePartialWithContext: typeof classEntityDecodePartialWithContext;
 	readonly validateField: typeof classEntityValidateField;
@@ -5307,8 +5567,19 @@ export declare function classDatedEncode(value: ClassDated, keepMetadata?: boole
 export declare function classDatedEncodeWithContext(value: ClassDated, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classDatedEncodePartialWithContext(value: Partial<ClassDated>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDated>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function classDatedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassDated;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function classDatedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassDated;
 } | {
@@ -5344,6 +5615,7 @@ export declare const ClassDated: {
 	readonly encodeWithContext: typeof classDatedEncodeWithContext;
 	readonly encodePartialWithContext: typeof classDatedEncodePartialWithContext;
 	readonly decode: typeof classDatedDecode;
+	readonly fromString: typeof classDatedFromString;
 	readonly decodeWithContext: typeof classDatedDecodeWithContext;
 	readonly decodePartialWithContext: typeof classDatedDecodePartialWithContext;
 	readonly validateField: typeof classDatedValidateField;
@@ -5367,8 +5639,19 @@ export declare function classAccountEncode(value: ClassAccount, keepMetadata?: b
 export declare function classAccountEncodeWithContext(value: ClassAccount, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classAccountEncodePartialWithContext(value: Partial<ClassAccount>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassAccount>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function classAccountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassAccount;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function classAccountFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassAccount;
 } | {
@@ -5404,6 +5687,7 @@ export declare const ClassAccount: {
 	readonly encodeWithContext: typeof classAccountEncodeWithContext;
 	readonly encodePartialWithContext: typeof classAccountEncodePartialWithContext;
 	readonly decode: typeof classAccountDecode;
+	readonly fromString: typeof classAccountFromString;
 	readonly decodeWithContext: typeof classAccountDecodeWithContext;
 	readonly decodePartialWithContext: typeof classAccountDecodePartialWithContext;
 	readonly validateField: typeof classAccountValidateField;
@@ -5437,8 +5721,19 @@ export declare class ClassCircle extends ClassShapeBase {
 		id: string;
 		radius: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassCircle;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassCircle;
 	} | {
@@ -5474,8 +5769,19 @@ export declare function classCircleEncode(value: ClassCircle, keepMetadata?: boo
 export declare function classCircleEncodeWithContext(value: ClassCircle, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function classCircleEncodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function classCircleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassCircle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classCircleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ClassCircle;
 } | {
@@ -5500,226 +5806,226 @@ export declare function classCircleIs(value: unknown): value is ClassCircle;
 
 ## Mapping
 
-original 0..936 -> expanded 1258..2194
-original 936..937 -> expanded 17068..17069
-original 937..1307 -> expanded 20850..21220
-original 1307..1308 -> expanded 35039..35040
-original 1308..1587 -> expanded 39086..39365
-original 1587..1588 -> expanded 50611..50612
-original 1588..1878 -> expanded 54858..55148
-original 1878..1879 -> expanded 66267..66268
-original 1879..1998 -> expanded 70175..70294
-original 1998..1999 -> expanded 78414..78415
-original 1999..2141 -> expanded 82070..82212
-original 2141..2142 -> expanded 92286..92287
-original 2142..2398 -> expanded 96068..96324
-original 2398..2399 -> expanded 96837..96838
-original 2399..2554 -> expanded 97083..97238
-original 2554..2555 -> expanded 98350..98351
-original 2555..2825 -> expanded 98927..99197
-original 2825..2826 -> expanded 115901..115902
-original 2826..3305 -> expanded 119641..120120
-original 3305..3306 -> expanded 144202..144203
-original 3306..3464 -> expanded 148026..148184
-original 3464..3465 -> expanded 149627..149628
-original 3465..3604 -> expanded 150204..150343
-original 3604..3722 -> expanded 161868..161986
-original 3722..3902 -> expanded 172329..172509
-original 3902..4230 -> expanded 186730..187058
-original 4230..4231 -> expanded 198129..198130
-original 4231..4232 -> expanded 201869..201870
-generated 0..1258 <- imports
-generated 2194..2730 <- Debug
-generated 2730..3080 <- Clone
-generated 3080..3865 <- PartialEq
-generated 3865..4758 <- Hash
-generated 4758..5079 <- Default
-generated 5079..7776 <- Encode
-generated 7776..8107 <- Encode
-generated 8107..17068 <- Decode
-generated 17069..17181 <- Debug
-generated 17181..17293 <- Clone
-generated 17293..17414 <- PartialEq
-generated 17414..17526 <- Hash
-generated 17526..17628 <- Default
-generated 17628..19008 <- Encode
-generated 19008..20850 <- Decode
-generated 21220..21662 <- Debug
-generated 21662..21904 <- Clone
-generated 21904..22386 <- PartialEq
-generated 22386..23050 <- Hash
-generated 23050..23768 <- PartialOrd
-generated 23768..24466 <- Ord
-generated 24466..24785 <- Default
-generated 24785..27189 <- Encode
-generated 27189..27520 <- Encode
-generated 27520..35039 <- Decode
-generated 35040..35152 <- Debug
-generated 35152..35264 <- Clone
-generated 35264..35385 <- PartialEq
-generated 35385..35497 <- Hash
-generated 35497..35640 <- PartialOrd
-generated 35640..35762 <- Ord
-generated 35762..35864 <- Default
-generated 35864..37244 <- Encode
-generated 37244..39086 <- Decode
-generated 39365..39705 <- Debug
-generated 39705..39893 <- Clone
-generated 39893..40281 <- PartialEq
-generated 40281..40759 <- Hash
-generated 40759..41336 <- PartialOrd
-generated 41336..41897 <- Ord
-generated 41897..42135 <- Default
-generated 42135..44111 <- Encode
-generated 44111..44450 <- Encode
-generated 44450..50611 <- Decode
-generated 50612..50736 <- Debug
-generated 50736..50864 <- Clone
-generated 50864..51001 <- PartialEq
-generated 51001..51125 <- Hash
-generated 51125..51284 <- PartialOrd
-generated 51284..51422 <- Ord
-generated 51422..51536 <- Default
-generated 51536..52956 <- Encode
-generated 52956..54858 <- Decode
-generated 55148..55535 <- Debug
-generated 55535..55746 <- Clone
-generated 55746..56167 <- PartialEq
-generated 56167..56762 <- Hash
-generated 56762..57038 <- Default
-generated 57038..59225 <- Encode
-generated 59225..59562 <- Encode
-generated 59562..66267 <- Decode
-generated 66268..66389 <- Debug
-generated 66389..66513 <- Clone
-generated 66513..66646 <- PartialEq
-generated 66646..66767 <- Hash
-generated 66767..66878 <- Default
-generated 66878..68288 <- Encode
-generated 68288..70175 <- Decode
-generated 70294..70559 <- Debug
-generated 70559..70679 <- Clone
-generated 70679..70877 <- PartialEq
-generated 70877..71165 <- Hash
-generated 71165..71344 <- Default
-generated 71344..72886 <- Encode
-generated 72886..73211 <- Encode
-generated 73211..78414 <- Decode
-generated 78415..78518 <- Debug
-generated 78518..78618 <- Clone
-generated 78618..78727 <- PartialEq
-generated 78727..78830 <- Hash
-generated 78830..78923 <- Default
-generated 78923..80273 <- Encode
-generated 80273..82070 <- Decode
-generated 82212..82545 <- Debug
-generated 82545..82726 <- Clone
-generated 82726..83103 <- PartialEq
-generated 83103..83580 <- Hash
-generated 83580..83811 <- Default
-generated 83811..85753 <- Encode
-generated 85753..86093 <- Encode
-generated 86093..92286 <- Decode
-generated 92287..92399 <- Debug
-generated 92399..92511 <- Clone
-generated 92511..92632 <- PartialEq
-generated 92632..92744 <- Hash
-generated 92744..92846 <- Default
-generated 92846..94226 <- Encode
-generated 94226..96068 <- Decode
-generated 96324..96661 <- Debug
-generated 96661..96837 <- Clone
-generated 96838..96959 <- Debug
-generated 96959..97083 <- Clone
-generated 97238..97515 <- Debug
-generated 97515..97647 <- Clone
-generated 97647..97857 <- PartialEq
-generated 97857..98151 <- Hash
-generated 98151..98350 <- Default
-generated 98351..98466 <- Debug
-generated 98466..98582 <- Clone
-generated 98582..98707 <- PartialEq
-generated 98707..98822 <- Hash
-generated 98822..98927 <- Default
-generated 99197..99757 <- Debug
-generated 99757..100294 <- Clone
-generated 100294..101343 <- PartialEq
-generated 101343..102061 <- Hash
-generated 102061..102438 <- Default
-generated 102438..105088 <- Encode
-generated 105088..105417 <- Encode
-generated 105417..115901 <- Decode
-generated 115902..116011 <- Debug
-generated 116011..116119 <- Clone
-generated 116119..116236 <- PartialEq
-generated 116236..116345 <- Hash
-generated 116345..116444 <- Default
-generated 116444..117814 <- Encode
-generated 117814..119641 <- Decode
-generated 120120..121031 <- Debug
-generated 121031..121541 <- Clone
-generated 121541..122833 <- PartialEq
-generated 122833..124828 <- Hash
-generated 124828..125442 <- Default
-generated 125442..129905 <- Encode
-generated 129905..130238 <- Encode
-generated 130238..144202 <- Decode
-generated 144203..144318 <- Debug
-generated 144318..144434 <- Clone
-generated 144434..144559 <- PartialEq
-generated 144559..144674 <- Hash
-generated 144674..144779 <- Default
-generated 144779..146169 <- Encode
-generated 146169..148026 <- Decode
-generated 148184..148520 <- Debug
-generated 148520..148704 <- Clone
-generated 148704..149038 <- PartialEq
-generated 149038..149370 <- Hash
-generated 149370..149627 <- Default
-generated 149628..149743 <- Debug
-generated 149743..149859 <- Clone
-generated 149859..149984 <- PartialEq
-generated 149984..150099 <- Hash
-generated 150099..150204 <- Default
-generated 150343..150651 <- Debug
-generated 150651..150816 <- Clone
-generated 150816..151098 <- PartialEq
-generated 151098..151499 <- Hash
-generated 151499..151613 <- Default
-generated 151613..154130 <- Encode
-generated 154130..160401 <- Decode
-generated 160401..161868 <- __convenience_const
-generated 161986..162244 <- Debug
-generated 162244..162405 <- Clone
-generated 162405..162686 <- PartialEq
-generated 162686..162904 <- Hash
-generated 162904..163006 <- Default
-generated 163006..165171 <- Encode
-generated 165171..170893 <- Decode
-generated 170893..172329 <- __convenience_const
-generated 172509..172916 <- Debug
-generated 172916..173145 <- Clone
-generated 173145..173654 <- PartialEq
-generated 173654..174291 <- Hash
-generated 174291..174458 <- Default
-generated 174458..177456 <- Encode
-generated 177456..185232 <- Decode
-generated 185232..186730 <- __convenience_const
-generated 187058..187442 <- Debug
-generated 187442..187641 <- Clone
-generated 187641..188058 <- PartialEq
-generated 188058..188651 <- Hash
-generated 188651..188915 <- Default
-generated 188915..191058 <- Encode
-generated 191058..191387 <- Encode
-generated 191387..198129 <- Decode
-generated 198130..198239 <- Debug
-generated 198239..198347 <- Clone
-generated 198347..198464 <- PartialEq
-generated 198464..198573 <- Hash
-generated 198573..198672 <- Default
-generated 198672..200042 <- Encode
-generated 200042..201869 <- Decode
+original 0..936 -> expanded 1260..2196
+original 936..937 -> expanded 17427..17428
+original 937..1307 -> expanded 21623..21993
+original 1307..1308 -> expanded 36169..36170
+original 1308..1587 -> expanded 40630..40909
+original 1587..1588 -> expanded 52520..52521
+original 1588..1878 -> expanded 57193..57483
+original 1878..1879 -> expanded 68965..68966
+original 1879..1998 -> expanded 73296..73415
+original 1998..1999 -> expanded 81886..81887
+original 1999..2141 -> expanded 85947..86089
+original 2141..2142 -> expanded 96529..96530
+original 2142..2398 -> expanded 100725..100981
+original 2398..2399 -> expanded 101494..101495
+original 2399..2554 -> expanded 101740..101895
+original 2554..2555 -> expanded 103007..103008
+original 2555..2825 -> expanded 103584..103854
+original 2825..2826 -> expanded 120913..120914
+original 2826..3305 -> expanded 125064..125543
+original 3305..3306 -> expanded 149984..149985
+original 3306..3464 -> expanded 154225..154383
+original 3464..3465 -> expanded 155826..155827
+original 3465..3604 -> expanded 156403..156542
+original 3604..3722 -> expanded 168511..168629
+original 3722..3902 -> expanded 179411..179591
+original 3902..4230 -> expanded 194261..194589
+original 4230..4231 -> expanded 206015..206016
+original 4231..4232 -> expanded 210166..210167
+generated 0..1260 <- imports
+generated 2196..2732 <- Debug
+generated 2732..3082 <- Clone
+generated 3082..3867 <- PartialEq
+generated 3867..4760 <- Hash
+generated 4760..5081 <- Default
+generated 5081..7778 <- Encode
+generated 7778..8109 <- Encode
+generated 8109..17427 <- Decode
+generated 17428..17540 <- Debug
+generated 17540..17652 <- Clone
+generated 17652..17773 <- PartialEq
+generated 17773..17885 <- Hash
+generated 17885..17987 <- Default
+generated 17987..19367 <- Encode
+generated 19367..21623 <- Decode
+generated 21993..22435 <- Debug
+generated 22435..22677 <- Clone
+generated 22677..23159 <- PartialEq
+generated 23159..23823 <- Hash
+generated 23823..24541 <- PartialOrd
+generated 24541..25239 <- Ord
+generated 25239..25558 <- Default
+generated 25558..27962 <- Encode
+generated 27962..28293 <- Encode
+generated 28293..36169 <- Decode
+generated 36170..36282 <- Debug
+generated 36282..36394 <- Clone
+generated 36394..36515 <- PartialEq
+generated 36515..36627 <- Hash
+generated 36627..36770 <- PartialOrd
+generated 36770..36892 <- Ord
+generated 36892..36994 <- Default
+generated 36994..38374 <- Encode
+generated 38374..40630 <- Decode
+generated 40909..41249 <- Debug
+generated 41249..41437 <- Clone
+generated 41437..41825 <- PartialEq
+generated 41825..42303 <- Hash
+generated 42303..42880 <- PartialOrd
+generated 42880..43441 <- Ord
+generated 43441..43679 <- Default
+generated 43679..45655 <- Encode
+generated 45655..45994 <- Encode
+generated 45994..52520 <- Decode
+generated 52521..52645 <- Debug
+generated 52645..52773 <- Clone
+generated 52773..52910 <- PartialEq
+generated 52910..53034 <- Hash
+generated 53034..53193 <- PartialOrd
+generated 53193..53331 <- Ord
+generated 53331..53445 <- Default
+generated 53445..54865 <- Encode
+generated 54865..57193 <- Decode
+generated 57483..57870 <- Debug
+generated 57870..58081 <- Clone
+generated 58081..58502 <- PartialEq
+generated 58502..59097 <- Hash
+generated 59097..59373 <- Default
+generated 59373..61560 <- Encode
+generated 61560..61897 <- Encode
+generated 61897..68965 <- Decode
+generated 68966..69087 <- Debug
+generated 69087..69211 <- Clone
+generated 69211..69344 <- PartialEq
+generated 69344..69465 <- Hash
+generated 69465..69576 <- Default
+generated 69576..70986 <- Encode
+generated 70986..73296 <- Decode
+generated 73415..73680 <- Debug
+generated 73680..73800 <- Clone
+generated 73800..73998 <- PartialEq
+generated 73998..74286 <- Hash
+generated 74286..74465 <- Default
+generated 74465..76007 <- Encode
+generated 76007..76332 <- Encode
+generated 76332..81886 <- Decode
+generated 81887..81990 <- Debug
+generated 81990..82090 <- Clone
+generated 82090..82199 <- PartialEq
+generated 82199..82302 <- Hash
+generated 82302..82395 <- Default
+generated 82395..83745 <- Encode
+generated 83745..85947 <- Decode
+generated 86089..86422 <- Debug
+generated 86422..86603 <- Clone
+generated 86603..86980 <- PartialEq
+generated 86980..87457 <- Hash
+generated 87457..87688 <- Default
+generated 87688..89630 <- Encode
+generated 89630..89970 <- Encode
+generated 89970..96529 <- Decode
+generated 96530..96642 <- Debug
+generated 96642..96754 <- Clone
+generated 96754..96875 <- PartialEq
+generated 96875..96987 <- Hash
+generated 96987..97089 <- Default
+generated 97089..98469 <- Encode
+generated 98469..100725 <- Decode
+generated 100981..101318 <- Debug
+generated 101318..101494 <- Clone
+generated 101495..101616 <- Debug
+generated 101616..101740 <- Clone
+generated 101895..102172 <- Debug
+generated 102172..102304 <- Clone
+generated 102304..102514 <- PartialEq
+generated 102514..102808 <- Hash
+generated 102808..103007 <- Default
+generated 103008..103123 <- Debug
+generated 103123..103239 <- Clone
+generated 103239..103364 <- PartialEq
+generated 103364..103479 <- Hash
+generated 103479..103584 <- Default
+generated 103854..104414 <- Debug
+generated 104414..104951 <- Clone
+generated 104951..106000 <- PartialEq
+generated 106000..106718 <- Hash
+generated 106718..107095 <- Default
+generated 107095..109745 <- Encode
+generated 109745..110074 <- Encode
+generated 110074..120913 <- Decode
+generated 120914..121023 <- Debug
+generated 121023..121131 <- Clone
+generated 121131..121248 <- PartialEq
+generated 121248..121357 <- Hash
+generated 121357..121456 <- Default
+generated 121456..122826 <- Encode
+generated 122826..125064 <- Decode
+generated 125543..126454 <- Debug
+generated 126454..126964 <- Clone
+generated 126964..128256 <- PartialEq
+generated 128256..130251 <- Hash
+generated 130251..130865 <- Default
+generated 130865..135328 <- Encode
+generated 135328..135661 <- Encode
+generated 135661..149984 <- Decode
+generated 149985..150100 <- Debug
+generated 150100..150216 <- Clone
+generated 150216..150341 <- PartialEq
+generated 150341..150456 <- Hash
+generated 150456..150561 <- Default
+generated 150561..151951 <- Encode
+generated 151951..154225 <- Decode
+generated 154383..154719 <- Debug
+generated 154719..154903 <- Clone
+generated 154903..155237 <- PartialEq
+generated 155237..155569 <- Hash
+generated 155569..155826 <- Default
+generated 155827..155942 <- Debug
+generated 155942..156058 <- Clone
+generated 156058..156183 <- PartialEq
+generated 156183..156298 <- Hash
+generated 156298..156403 <- Default
+generated 156542..156850 <- Debug
+generated 156850..157015 <- Clone
+generated 157015..157297 <- PartialEq
+generated 157297..157698 <- Hash
+generated 157698..157812 <- Default
+generated 157812..160329 <- Encode
+generated 160329..166954 <- Decode
+generated 166954..168511 <- __convenience_const
+generated 168629..168887 <- Debug
+generated 168887..169048 <- Clone
+generated 169048..169329 <- PartialEq
+generated 169329..169547 <- Hash
+generated 169547..169649 <- Default
+generated 169649..171814 <- Encode
+generated 171814..177887 <- Decode
+generated 177887..179411 <- __convenience_const
+generated 179591..179998 <- Debug
+generated 179998..180227 <- Clone
+generated 180227..180736 <- PartialEq
+generated 180736..181373 <- Hash
+generated 181373..181540 <- Default
+generated 181540..184538 <- Encode
+generated 184538..192671 <- Decode
+generated 192671..194261 <- __convenience_const
+generated 194589..194973 <- Debug
+generated 194973..195172 <- Clone
+generated 195172..195589 <- PartialEq
+generated 195589..196182 <- Hash
+generated 196182..196446 <- Default
+generated 196446..198589 <- Encode
+generated 198589..198918 <- Encode
+generated 198918..206015 <- Decode
+generated 206016..206125 <- Debug
+generated 206125..206233 <- Clone
+generated 206233..206350 <- PartialEq
+generated 206350..206459 <- Hash
+generated 206459..206558 <- Default
+generated 206558..207928 <- Encode
+generated 207928..210166 <- Decode
 
 ## Metadata
 

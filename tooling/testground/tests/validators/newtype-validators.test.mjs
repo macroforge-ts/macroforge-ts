@@ -138,7 +138,7 @@ describe('Newtype Validators', () => {
         test('round-trips through encode and decode', () => {
             const decoded = mod.Run.decode(run);
             assertValidationSuccess(decoded, 'Run');
-            assertEquals(mod.Run.decode(mod.Run.encode(decoded.value)).value, decoded.value);
+            assertEquals(mod.Run.fromString(mod.Run.encode(decoded.value)).value, decoded.value);
         });
 
         test('reports alias validator failures under the field name', () => {

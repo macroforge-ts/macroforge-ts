@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeNumberKey as __mf_decodeNumberKey, decodeBoolean as __mf_decodeBoolean, decodeObject as __mf_decodeObject, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeNumberKey as __mf_decodeNumberKey, decodeBoolean as __mf_decodeBoolean, decodeObject as __mf_decodeObject, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types at the edge of what a type can say: template literal types, `object`,
@@ -157,14 +157,11 @@ function exoticScalarsEncodeFields(value: ExoticScalars, _ctx: __mf_EncodeContex
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticScalarsDecodeWithContext(data, ctx);
+        const resultOrRef = exoticScalarsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -209,6 +206,10 @@ export function exoticScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticScalarsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticScalarsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticScalars | __mf_PendingRef;
@@ -350,6 +351,7 @@ export const ExoticScalars: {
   readonly encodeWithContext: typeof exoticScalarsEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticScalarsEncodePartialWithContext;
   readonly decode: typeof exoticScalarsDecode;
+  readonly fromString: typeof exoticScalarsFromString;
   readonly decodeWithContext: typeof exoticScalarsDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticScalarsDecodePartialWithContext;
   readonly validateField: typeof exoticScalarsValidateField;
@@ -366,6 +368,7 @@ export const ExoticScalars: {
   encodeWithContext: exoticScalarsEncodeWithContext,
   encodePartialWithContext: exoticScalarsEncodePartialWithContext,
   decode: exoticScalarsDecode,
+  fromString: exoticScalarsFromString,
   decodeWithContext: exoticScalarsDecodeWithContext,
   decodePartialWithContext: exoticScalarsDecodePartialWithContext,
   validateField: exoticScalarsValidateField,
@@ -411,13 +414,11 @@ export function exoticCodeEncodeWithContext(value: ExoticCode): unknown {
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticCodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticCode } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, exoticCodeHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const result = exoticCodeDecodeWithContext(data, ctx);
+        const result = exoticCodeDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -485,6 +486,10 @@ export function exoticCodeDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 export function exoticCodeHasShape(value: unknown): boolean {
     return value != null;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticCodeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticCode } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticCodeDecode(value, opts));
+}
 
 export const ExoticCode: {
   readonly toString: typeof exoticCodeToString;
@@ -497,6 +502,7 @@ export const ExoticCode: {
   readonly is: typeof exoticCodeIs;
   readonly decodeWithContext: typeof exoticCodeDecodeWithContext;
   readonly hasShape: typeof exoticCodeHasShape;
+  readonly fromString: typeof exoticCodeFromString;
 } = {
   toString: exoticCodeToString,
   clone: exoticCodeClone,
@@ -507,7 +513,8 @@ export const ExoticCode: {
   decode: exoticCodeDecode,
   is: exoticCodeIs,
   decodeWithContext: exoticCodeDecodeWithContext,
-  hasShape: exoticCodeHasShape
+  hasShape: exoticCodeHasShape,
+  fromString: exoticCodeFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -547,13 +554,11 @@ export function exoticNoneEncodeWithContext(_value: ExoticNone): unknown {
     return [];
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticNoneDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticNone } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = exoticNoneDecodeWithContext(data, ctx);
+        const result = exoticNoneDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -624,6 +629,10 @@ export function exoticNoneDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 export function exoticNoneHasShape(value: unknown): boolean {
     return Array.isArray(value) && value.length >= 0 && value.length <= 0;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticNoneFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticNone } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticNoneDecode(value, opts));
+}
 
 export const ExoticNone: {
   readonly toString: typeof exoticNoneToString;
@@ -637,6 +646,7 @@ export const ExoticNone: {
   readonly is: typeof exoticNoneIs;
   readonly decodeWithContext: typeof exoticNoneDecodeWithContext;
   readonly hasShape: typeof exoticNoneHasShape;
+  readonly fromString: typeof exoticNoneFromString;
 } = {
   toString: exoticNoneToString,
   clone: exoticNoneClone,
@@ -648,7 +658,8 @@ export const ExoticNone: {
   decode: exoticNoneDecode,
   is: exoticNoneIs,
   decodeWithContext: exoticNoneDecodeWithContext,
-  hasShape: exoticNoneHasShape
+  hasShape: exoticNoneHasShape,
+  fromString: exoticNoneFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -712,14 +723,11 @@ function exoticEmptyEncodeFields(_value: ExoticEmpty, _ctx: __mf_EncodeContext, 
 
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticEmptyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticEmpty } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticEmptyDecodeWithContext(data, ctx);
+        const resultOrRef = exoticEmptyDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -764,6 +772,10 @@ export function exoticEmptyDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticEmptyFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticEmpty } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticEmptyDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticEmpty | __mf_PendingRef;
@@ -838,6 +850,7 @@ export const ExoticEmpty: {
   readonly encodeWithContext: typeof exoticEmptyEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticEmptyEncodePartialWithContext;
   readonly decode: typeof exoticEmptyDecode;
+  readonly fromString: typeof exoticEmptyFromString;
   readonly decodeWithContext: typeof exoticEmptyDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticEmptyDecodePartialWithContext;
   readonly validateField: typeof exoticEmptyValidateField;
@@ -854,6 +867,7 @@ export const ExoticEmpty: {
   encodeWithContext: exoticEmptyEncodeWithContext,
   encodePartialWithContext: exoticEmptyEncodePartialWithContext,
   decode: exoticEmptyDecode,
+  fromString: exoticEmptyFromString,
   decodeWithContext: exoticEmptyDecodeWithContext,
   decodePartialWithContext: exoticEmptyDecodePartialWithContext,
   validateField: exoticEmptyValidateField,
@@ -925,14 +939,11 @@ constructor(_props: {  }) {
 
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ExoticBlank.decodeWithContext(data, ctx);
+        const resultOrRef = ExoticBlank.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -977,6 +988,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ExoticBlank.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1087,9 +1103,14 @@ export function exoticBlankEncodePartialWithContext(value: Partial<ExoticBlank>,
     return ExoticBlank.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function exoticBlankDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ExoticBlank.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function exoticBlankFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ExoticBlank.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1212,13 +1233,11 @@ export function exoticLabelsEncodeWithContext(value: ExoticLabels, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticLabelsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticLabels } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, exoticLabelsHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticLabelsDecodeWithContext(data, ctx);
+        const resultOrRef = exoticLabelsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1263,6 +1282,10 @@ export function exoticLabelsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticLabelsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticLabels } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticLabelsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticLabelsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticLabels | __mf_PendingRef {
@@ -1309,6 +1332,7 @@ export const ExoticLabels: {
   readonly encode: typeof exoticLabelsEncode;
   readonly encodeWithContext: typeof exoticLabelsEncodeWithContext;
   readonly decode: typeof exoticLabelsDecode;
+  readonly fromString: typeof exoticLabelsFromString;
   readonly decodeWithContext: typeof exoticLabelsDecodeWithContext;
   readonly hasShape: typeof exoticLabelsHasShape;
   readonly is: typeof exoticLabelsIs;
@@ -1320,6 +1344,7 @@ export const ExoticLabels: {
   encode: exoticLabelsEncode,
   encodeWithContext: exoticLabelsEncodeWithContext,
   decode: exoticLabelsDecode,
+  fromString: exoticLabelsFromString,
   decodeWithContext: exoticLabelsDecodeWithContext,
   hasShape: exoticLabelsHasShape,
   is: exoticLabelsIs
@@ -1456,14 +1481,11 @@ function exoticTextsEncodeFields(value: ExoticTexts, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticTextsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticTextsDecodeWithContext(data, ctx);
+        const resultOrRef = exoticTextsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1508,6 +1530,10 @@ export function exoticTextsDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticTextsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticTextsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticTexts | __mf_PendingRef;
@@ -1676,6 +1702,7 @@ export const ExoticTexts: {
   readonly encodeWithContext: typeof exoticTextsEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticTextsEncodePartialWithContext;
   readonly decode: typeof exoticTextsDecode;
+  readonly fromString: typeof exoticTextsFromString;
   readonly decodeWithContext: typeof exoticTextsDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticTextsDecodePartialWithContext;
   readonly validateField: typeof exoticTextsValidateField;
@@ -1691,6 +1718,7 @@ export const ExoticTexts: {
   encodeWithContext: exoticTextsEncodeWithContext,
   encodePartialWithContext: exoticTextsEncodePartialWithContext,
   decode: exoticTextsDecode,
+  fromString: exoticTextsFromString,
   decodeWithContext: exoticTextsDecodeWithContext,
   decodePartialWithContext: exoticTextsDecodePartialWithContext,
   validateField: exoticTextsValidateField,
@@ -1824,14 +1852,11 @@ function exoticKeyedEncodeFields(value: ExoticKeyed, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticKeyedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticKeyed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticKeyedDecodeWithContext(data, ctx);
+        const resultOrRef = exoticKeyedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1876,6 +1901,10 @@ export function exoticKeyedDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticKeyedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticKeyed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticKeyedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticKeyed | __mf_PendingRef;
@@ -2062,6 +2091,7 @@ export const ExoticKeyed: {
   readonly encodeWithContext: typeof exoticKeyedEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticKeyedEncodePartialWithContext;
   readonly decode: typeof exoticKeyedDecode;
+  readonly fromString: typeof exoticKeyedFromString;
   readonly decodeWithContext: typeof exoticKeyedDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticKeyedDecodePartialWithContext;
   readonly validateField: typeof exoticKeyedValidateField;
@@ -2078,6 +2108,7 @@ export const ExoticKeyed: {
   encodeWithContext: exoticKeyedEncodeWithContext,
   encodePartialWithContext: exoticKeyedEncodePartialWithContext,
   decode: exoticKeyedDecode,
+  fromString: exoticKeyedFromString,
   decodeWithContext: exoticKeyedDecodeWithContext,
   decodePartialWithContext: exoticKeyedDecodePartialWithContext,
   validateField: exoticKeyedValidateField,
@@ -2196,14 +2227,11 @@ function exoticAccessorsEncodeFields(value: ExoticAccessors, _ctx: __mf_EncodeCo
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticAccessorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticAccessors } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticAccessorsDecodeWithContext(data, ctx);
+        const resultOrRef = exoticAccessorsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2248,6 +2276,10 @@ export function exoticAccessorsDecode(input: unknown, opts?: __mf_DecodeOptions)
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticAccessorsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticAccessors } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticAccessorsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticAccessors | __mf_PendingRef;
@@ -2366,6 +2398,7 @@ export const ExoticAccessors: {
   readonly encodeWithContext: typeof exoticAccessorsEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticAccessorsEncodePartialWithContext;
   readonly decode: typeof exoticAccessorsDecode;
+  readonly fromString: typeof exoticAccessorsFromString;
   readonly decodeWithContext: typeof exoticAccessorsDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticAccessorsDecodePartialWithContext;
   readonly validateField: typeof exoticAccessorsValidateField;
@@ -2382,6 +2415,7 @@ export const ExoticAccessors: {
   encodeWithContext: exoticAccessorsEncodeWithContext,
   encodePartialWithContext: exoticAccessorsEncodePartialWithContext,
   decode: exoticAccessorsDecode,
+  fromString: exoticAccessorsFromString,
   decodeWithContext: exoticAccessorsDecodeWithContext,
   decodePartialWithContext: exoticAccessorsDecodePartialWithContext,
   validateField: exoticAccessorsValidateField,
@@ -2565,14 +2599,11 @@ function exoticDeepEncodeFields(value: ExoticDeep, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function exoticDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = exoticDeepDecodeWithContext(data, ctx);
+        const resultOrRef = exoticDeepDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2617,6 +2648,10 @@ export function exoticDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticDeepFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ExoticDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => exoticDeepDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticDeep | __mf_PendingRef;
@@ -2985,6 +3020,7 @@ export const ExoticDeep: {
   readonly encodeWithContext: typeof exoticDeepEncodeWithContext;
   readonly encodePartialWithContext: typeof exoticDeepEncodePartialWithContext;
   readonly decode: typeof exoticDeepDecode;
+  readonly fromString: typeof exoticDeepFromString;
   readonly decodeWithContext: typeof exoticDeepDecodeWithContext;
   readonly decodePartialWithContext: typeof exoticDeepDecodePartialWithContext;
   readonly validateField: typeof exoticDeepValidateField;
@@ -3001,6 +3037,7 @@ export const ExoticDeep: {
   encodeWithContext: exoticDeepEncodeWithContext,
   encodePartialWithContext: exoticDeepEncodePartialWithContext,
   decode: exoticDeepDecode,
+  fromString: exoticDeepFromString,
   decodeWithContext: exoticDeepDecodeWithContext,
   decodePartialWithContext: exoticDeepDecodePartialWithContext,
   validateField: exoticDeepValidateField,
@@ -3036,8 +3073,19 @@ export declare function exoticScalarsEncode(value: ExoticScalars, keepMetadata?:
 export declare function exoticScalarsEncodeWithContext(value: ExoticScalars, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticScalarsEncodePartialWithContext(value: Partial<ExoticScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticScalars>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticScalars;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticScalarsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticScalars;
 } | {
@@ -3073,6 +3121,7 @@ export declare const ExoticScalars: {
 	readonly encodeWithContext: typeof exoticScalarsEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticScalarsEncodePartialWithContext;
 	readonly decode: typeof exoticScalarsDecode;
+	readonly fromString: typeof exoticScalarsFromString;
 	readonly decodeWithContext: typeof exoticScalarsDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticScalarsDecodePartialWithContext;
 	readonly validateField: typeof exoticScalarsValidateField;
@@ -3090,7 +3139,7 @@ export declare function exoticCodeHashCode(value: ExoticCode): number;
 export declare function exoticCodeEncode(value: ExoticCode, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function exoticCodeEncodeWithContext(value: ExoticCode, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticCodeDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticCode;
@@ -3105,6 +3154,17 @@ export declare function exoticCodeIs(value: unknown): value is ExoticCode;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function exoticCodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticCode;
 export declare function exoticCodeHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticCodeFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticCode;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const ExoticCode: {
 	readonly toString: typeof exoticCodeToString;
 	readonly clone: typeof exoticCodeClone;
@@ -3116,6 +3176,7 @@ export declare const ExoticCode: {
 	readonly is: typeof exoticCodeIs;
 	readonly decodeWithContext: typeof exoticCodeDecodeWithContext;
 	readonly hasShape: typeof exoticCodeHasShape;
+	readonly fromString: typeof exoticCodeFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type ExoticNone = [];
@@ -3128,7 +3189,7 @@ export declare function exoticNoneDefaultValue(): ExoticNone;
 export declare function exoticNoneEncode(value: ExoticNone, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function exoticNoneEncodeWithContext(value: ExoticNone, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticNoneDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticNone;
@@ -3143,6 +3204,17 @@ export declare function exoticNoneIs(value: unknown): value is ExoticNone;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function exoticNoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticNone;
 export declare function exoticNoneHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticNoneFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticNone;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const ExoticNone: {
 	readonly toString: typeof exoticNoneToString;
 	readonly clone: typeof exoticNoneClone;
@@ -3155,6 +3227,7 @@ export declare const ExoticNone: {
 	readonly is: typeof exoticNoneIs;
 	readonly decodeWithContext: typeof exoticNoneDecodeWithContext;
 	readonly hasShape: typeof exoticNoneHasShape;
+	readonly fromString: typeof exoticNoneFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type ExoticEmpty = {};
@@ -3169,8 +3242,19 @@ export declare function exoticEmptyEncode(value: ExoticEmpty, keepMetadata?: boo
 export declare function exoticEmptyEncodeWithContext(value: ExoticEmpty, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticEmptyEncodePartialWithContext(value: Partial<ExoticEmpty>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticEmpty>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticEmptyDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticEmpty;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticEmptyFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticEmpty;
 } | {
@@ -3206,6 +3290,7 @@ export declare const ExoticEmpty: {
 	readonly encodeWithContext: typeof exoticEmptyEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticEmptyEncodePartialWithContext;
 	readonly decode: typeof exoticEmptyDecode;
+	readonly fromString: typeof exoticEmptyFromString;
 	readonly decodeWithContext: typeof exoticEmptyDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticEmptyDecodePartialWithContext;
 	readonly validateField: typeof exoticEmptyValidateField;
@@ -3228,8 +3313,19 @@ export declare class ExoticBlank {
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: ExoticBlank, keepMetadata?: boolean): string;
 	constructor(_props: {});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ExoticBlank;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ExoticBlank;
 	} | {
@@ -3265,8 +3361,19 @@ export declare function exoticBlankEncode(value: ExoticBlank, keepMetadata?: boo
 export declare function exoticBlankEncodeWithContext(value: ExoticBlank, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticBlankEncodePartialWithContext(value: Partial<ExoticBlank>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function exoticBlankDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticBlank;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function exoticBlankFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticBlank;
 } | {
@@ -3310,8 +3417,19 @@ export declare function exoticLabelsHashCode(value: ExoticLabels): number;
 export declare function exoticLabelsEncode(value: ExoticLabels, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function exoticLabelsEncodeWithContext(value: ExoticLabels, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticLabelsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticLabels;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticLabelsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticLabels;
 } | {
@@ -3333,6 +3451,7 @@ export declare const ExoticLabels: {
 	readonly encode: typeof exoticLabelsEncode;
 	readonly encodeWithContext: typeof exoticLabelsEncodeWithContext;
 	readonly decode: typeof exoticLabelsDecode;
+	readonly fromString: typeof exoticLabelsFromString;
 	readonly decodeWithContext: typeof exoticLabelsDecodeWithContext;
 	readonly hasShape: typeof exoticLabelsHasShape;
 	readonly is: typeof exoticLabelsIs;
@@ -3355,8 +3474,19 @@ export declare function exoticTextsEncode(value: ExoticTexts, keepMetadata?: boo
 export declare function exoticTextsEncodeWithContext(value: ExoticTexts, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticTextsEncodePartialWithContext(value: Partial<ExoticTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticTexts>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticTextsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticTexts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticTextsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticTexts;
 } | {
@@ -3391,6 +3521,7 @@ export declare const ExoticTexts: {
 	readonly encodeWithContext: typeof exoticTextsEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticTextsEncodePartialWithContext;
 	readonly decode: typeof exoticTextsDecode;
+	readonly fromString: typeof exoticTextsFromString;
 	readonly decodeWithContext: typeof exoticTextsDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticTextsDecodePartialWithContext;
 	readonly validateField: typeof exoticTextsValidateField;
@@ -3416,8 +3547,19 @@ export declare function exoticKeyedEncode(value: ExoticKeyed, keepMetadata?: boo
 export declare function exoticKeyedEncodeWithContext(value: ExoticKeyed, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticKeyedEncodePartialWithContext(value: Partial<ExoticKeyed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticKeyed>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticKeyedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticKeyed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticKeyedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticKeyed;
 } | {
@@ -3453,6 +3595,7 @@ export declare const ExoticKeyed: {
 	readonly encodeWithContext: typeof exoticKeyedEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticKeyedEncodePartialWithContext;
 	readonly decode: typeof exoticKeyedDecode;
+	readonly fromString: typeof exoticKeyedFromString;
 	readonly decodeWithContext: typeof exoticKeyedDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticKeyedDecodePartialWithContext;
 	readonly validateField: typeof exoticKeyedValidateField;
@@ -3478,8 +3621,19 @@ export declare function exoticAccessorsEncode(value: ExoticAccessors, keepMetada
 export declare function exoticAccessorsEncodeWithContext(value: ExoticAccessors, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticAccessorsEncodePartialWithContext(value: Partial<ExoticAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticAccessors>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticAccessorsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticAccessors;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticAccessorsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticAccessors;
 } | {
@@ -3515,6 +3669,7 @@ export declare const ExoticAccessors: {
 	readonly encodeWithContext: typeof exoticAccessorsEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticAccessorsEncodePartialWithContext;
 	readonly decode: typeof exoticAccessorsDecode;
+	readonly fromString: typeof exoticAccessorsFromString;
 	readonly decodeWithContext: typeof exoticAccessorsDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticAccessorsDecodePartialWithContext;
 	readonly validateField: typeof exoticAccessorsValidateField;
@@ -3585,8 +3740,19 @@ export declare function exoticDeepEncode(value: ExoticDeep, keepMetadata?: boole
 export declare function exoticDeepEncodeWithContext(value: ExoticDeep, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function exoticDeepEncodePartialWithContext(value: Partial<ExoticDeep>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticDeep>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function exoticDeepDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticDeep;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticDeepFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ExoticDeep;
 } | {
@@ -3622,6 +3788,7 @@ export declare const ExoticDeep: {
 	readonly encodeWithContext: typeof exoticDeepEncodeWithContext;
 	readonly encodePartialWithContext: typeof exoticDeepEncodePartialWithContext;
 	readonly decode: typeof exoticDeepDecode;
+	readonly fromString: typeof exoticDeepFromString;
 	readonly decodeWithContext: typeof exoticDeepDecodeWithContext;
 	readonly decodePartialWithContext: typeof exoticDeepDecodePartialWithContext;
 	readonly validateField: typeof exoticDeepValidateField;
@@ -3636,115 +3803,115 @@ export declare const ExoticDeep: {
 
 ## Mapping
 
-original 0..533 -> expanded 1618..2151
-original 533..639 -> expanded 17366..17472
-original 639..740 -> expanded 22410..22511
-original 740..842 -> expanded 27479..27581
-original 842..941 -> expanded 36489..36588
-original 941..942 -> expanded 43494..43495
-original 942..1084 -> expanded 47236..47378
-original 1084..1219 -> expanded 49034..49169
-original 1219..1492 -> expanded 54967..55240
-original 1492..1754 -> expanded 72876..73138
-original 1754..1955 -> expanded 90855..91056
-original 1955..2074 -> expanded 104502..104621
-original 2074..3203 -> expanded 106137..107266
-original 3203..3204 -> expanded 137462..137463
-generated 0..1618 <- imports
-generated 2151..2642 <- Debug
-generated 2642..2924 <- Clone
-generated 2924..3371 <- PartialEq
-generated 3371..3939 <- Hash
-generated 3939..4130 <- Default
-generated 4130..7365 <- Encode
-generated 7365..15837 <- Decode
-generated 15837..17366 <- __convenience_const
-generated 17472..17601 <- Debug
-generated 17601..17709 <- Clone
-generated 17709..17856 <- PartialEq
-generated 17856..17962 <- Hash
-generated 17962..18971 <- Encode
-generated 18971..21562 <- Decode
-generated 21562..22410 <- __convenience_const
-generated 22511..22640 <- Debug
-generated 22640..22724 <- Clone
-generated 22724..22820 <- PartialEq
-generated 22820..22923 <- Hash
-generated 22923..23018 <- Default
-generated 23018..23838 <- Encode
-generated 23838..26535 <- Decode
-generated 26535..27479 <- __convenience_const
-generated 27581..27680 <- Debug
-generated 27680..27811 <- Clone
-generated 27811..27984 <- PartialEq
-generated 27984..28149 <- Hash
-generated 28149..28229 <- Default
-generated 28229..30250 <- Encode
-generated 30250..35022 <- Decode
-generated 35022..36489 <- __convenience_const
-generated 36588..36679 <- Debug
-generated 36679..36789 <- Clone
-generated 36789..36982 <- PartialEq
-generated 36982..37151 <- Hash
-generated 37151..37304 <- Default
-generated 37304..38723 <- Encode
-generated 38723..39052 <- Encode
-generated 39052..43494 <- Decode
-generated 43495..43606 <- Debug
-generated 43606..43714 <- Clone
-generated 43714..43831 <- PartialEq
-generated 43831..43940 <- Hash
-generated 43940..44039 <- Default
-generated 44039..45409 <- Encode
-generated 45409..47236 <- Decode
-generated 47378..47749 <- Debug
-generated 47749..47982 <- Clone
-generated 47982..48317 <- PartialEq
-generated 48317..48671 <- Hash
-generated 48671..49034 <- __convenience_const
-generated 49169..49304 <- Debug
-generated 49304..49418 <- Clone
-generated 49418..49571 <- PartialEq
-generated 49571..49681 <- Hash
-generated 49681..50996 <- Encode
-generated 50996..54077 <- Decode
-generated 54077..54967 <- __convenience_const
-generated 55240..55745 <- Debug
-generated 55745..56043 <- Clone
-generated 56043..56922 <- PartialEq
-generated 56922..58001 <- Hash
-generated 58001..61276 <- Encode
-generated 61276..71507 <- Decode
-generated 71507..72876 <- __convenience_const
-generated 73138..73620 <- Debug
-generated 73620..73935 <- Clone
-generated 73935..74395 <- PartialEq
-generated 74395..74826 <- Hash
-generated 74826..75014 <- Default
-generated 75014..78027 <- Encode
-generated 78027..89388 <- Decode
-generated 89388..90855 <- __convenience_const
-generated 91056..91425 <- Debug
-generated 91425..91647 <- Clone
-generated 91647..92128 <- PartialEq
-generated 92128..92646 <- Hash
-generated 92646..92794 <- Default
-generated 92794..95613 <- Encode
-generated 95613..102911 <- Decode
-generated 102911..104502 <- __convenience_const
-generated 104621..104945 <- Debug
-generated 104945..105132 <- Clone
-generated 105132..105410 <- PartialEq
-generated 105410..105738 <- Hash
-generated 105738..106137 <- __convenience_const
-generated 107266..107611 <- Debug
-generated 107611..107828 <- Clone
-generated 107828..108159 <- PartialEq
-generated 108159..108454 <- Hash
-generated 108454..108764 <- Default
-generated 108764..111290 <- Encode
-generated 111290..136026 <- Decode
-generated 136026..137462 <- __convenience_const
+original 0..533 -> expanded 1587..2120
+original 533..639 -> expanded 17789..17895
+original 639..740 -> expanded 23368..23469
+original 740..842 -> expanded 28957..29059
+original 842..941 -> expanded 38411..38510
+original 941..942 -> expanded 45771..45772
+original 942..1084 -> expanded 49924..50066
+original 1084..1219 -> expanded 51722..51857
+original 1219..1492 -> expanded 58198..58471
+original 1492..1754 -> expanded 76551..76813
+original 1754..1955 -> expanded 94974..95175
+original 1955..2074 -> expanded 109085..109204
+original 2074..3203 -> expanded 110720..111849
+original 3203..3204 -> expanded 142484..142485
+generated 0..1587 <- imports
+generated 2120..2611 <- Debug
+generated 2611..2893 <- Clone
+generated 2893..3340 <- PartialEq
+generated 3340..3908 <- Hash
+generated 3908..4099 <- Default
+generated 4099..7334 <- Encode
+generated 7334..16166 <- Decode
+generated 16166..17789 <- __convenience_const
+generated 17895..18024 <- Debug
+generated 18024..18132 <- Clone
+generated 18132..18279 <- PartialEq
+generated 18279..18385 <- Hash
+generated 18385..19394 <- Encode
+generated 19394..22432 <- Decode
+generated 22432..23368 <- __convenience_const
+generated 23469..23598 <- Debug
+generated 23598..23682 <- Clone
+generated 23682..23778 <- PartialEq
+generated 23778..23881 <- Hash
+generated 23881..23976 <- Default
+generated 23976..24796 <- Encode
+generated 24796..27925 <- Decode
+generated 27925..28957 <- __convenience_const
+generated 29059..29158 <- Debug
+generated 29158..29289 <- Clone
+generated 29289..29462 <- PartialEq
+generated 29462..29627 <- Hash
+generated 29627..29707 <- Default
+generated 29707..31728 <- Encode
+generated 31728..36854 <- Decode
+generated 36854..38411 <- __convenience_const
+generated 38510..38601 <- Debug
+generated 38601..38711 <- Clone
+generated 38711..38904 <- PartialEq
+generated 38904..39073 <- Hash
+generated 39073..39226 <- Default
+generated 39226..40645 <- Encode
+generated 40645..40974 <- Encode
+generated 40974..45771 <- Decode
+generated 45772..45883 <- Debug
+generated 45883..45991 <- Clone
+generated 45991..46108 <- PartialEq
+generated 46108..46217 <- Hash
+generated 46217..46316 <- Default
+generated 46316..47686 <- Encode
+generated 47686..49924 <- Decode
+generated 50066..50437 <- Debug
+generated 50437..50670 <- Clone
+generated 50670..51005 <- PartialEq
+generated 51005..51359 <- Hash
+generated 51359..51722 <- __convenience_const
+generated 51857..51992 <- Debug
+generated 51992..52106 <- Clone
+generated 52106..52259 <- PartialEq
+generated 52259..52369 <- Hash
+generated 52369..53684 <- Encode
+generated 53684..57216 <- Decode
+generated 57216..58198 <- __convenience_const
+generated 58471..58976 <- Debug
+generated 58976..59274 <- Clone
+generated 59274..60153 <- PartialEq
+generated 60153..61232 <- Hash
+generated 61232..64507 <- Encode
+generated 64507..75092 <- Decode
+generated 75092..76551 <- __convenience_const
+generated 76813..77295 <- Debug
+generated 77295..77610 <- Clone
+generated 77610..78070 <- PartialEq
+generated 78070..78501 <- Hash
+generated 78501..78689 <- Default
+generated 78689..81702 <- Encode
+generated 81702..93417 <- Decode
+generated 93417..94974 <- __convenience_const
+generated 95175..95544 <- Debug
+generated 95544..95766 <- Clone
+generated 95766..96247 <- PartialEq
+generated 96247..96765 <- Hash
+generated 96765..96913 <- Default
+generated 96913..99732 <- Encode
+generated 99732..107396 <- Decode
+generated 107396..109085 <- __convenience_const
+generated 109204..109528 <- Debug
+generated 109528..109715 <- Clone
+generated 109715..109993 <- PartialEq
+generated 109993..110321 <- Hash
+generated 110321..110720 <- __convenience_const
+generated 111849..112194 <- Debug
+generated 112194..112411 <- Clone
+generated 112411..112742 <- PartialEq
+generated 112742..113037 <- Hash
+generated 113037..113347 <- Default
+generated 113347..115873 <- Encode
+generated 115873..140960 <- Decode
+generated 140960..142484 <- __convenience_const
 
 ## Metadata
 

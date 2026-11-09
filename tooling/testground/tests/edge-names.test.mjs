@@ -45,7 +45,7 @@ const locals = () => ({
 Deno.test("fields named like the generated code's own locals are fields like any other", () => {
     const source = locals();
     assertEquals(JSON.parse(mod.nameLocalsEncode(source)), source);
-    assertEquals(decoded(mod.nameLocalsDecode(mod.nameLocalsEncode(source))), source);
+    assertEquals(decoded(mod.nameLocalsFromString(mod.nameLocalsEncode(source))), source);
 
     const copy = mod.nameLocalsClone(source);
     assertEquals(copy, source);
@@ -87,7 +87,7 @@ const quoted = () => ({
 Deno.test('keys that are not identifiers and reserved words are fields like any other', () => {
     const source = quoted();
     assertEquals(JSON.parse(mod.nameQuotedEncode(source)), source);
-    assertEquals(decoded(mod.nameQuotedDecode(mod.nameQuotedEncode(source))), source);
+    assertEquals(decoded(mod.nameQuotedFromString(mod.nameQuotedEncode(source))), source);
     assertEquals(mod.nameQuotedClone(source), source);
     assert(mod.nameQuotedEquals(source, quoted()));
     assertStrictEquals(mod.nameQuotedHashCode(source), mod.nameQuotedHashCode(quoted()));
@@ -147,7 +147,7 @@ Deno.test('acronym and lowercase type names give functions that find one another
         point: { x: 1, y: 2 },
         points: new Map([['origin', { x: 0, y: 0 }]])
     };
-    const value = decoded(mod.nameHolderDecode(mod.nameHolderEncode(holder)));
+    const value = decoded(mod.nameHolderFromString(mod.nameHolderEncode(holder)));
     assertEquals(value, holder);
 
     const copy = mod.nameHolderClone(holder);
@@ -181,7 +181,7 @@ Deno.test('acronym and lowercase type names give functions that find one another
 
 Deno.test('type parameters named like generated ones do not collide with them', () => {
     const params = { key: 'k', other: 1, held: { nested: true }, values: [1, 2] };
-    assertEquals(decoded(mod.nameParamsDecode(mod.nameParamsEncode(params))), params);
+    assertEquals(decoded(mod.nameParamsFromString(mod.nameParamsEncode(params))), params);
     const copy = mod.nameParamsClone(params);
     assert(mod.nameParamsEquals(params, copy));
     assertNotStrictEquals(copy.values, params.values);
@@ -208,7 +208,7 @@ Deno.test('a type named in lowercase is coded through its functions from another
         byName: new Map([['a', point(5, 6)]]),
         maybe: point(7, 8)
     };
-    const value = decoded(imports.nameImportsDecode(imports.nameImportsEncode(source)));
+    const value = decoded(imports.nameImportsFromString(imports.nameImportsEncode(source)));
     assertEquals(value, source);
     assert(value.byName instanceof Map);
 
@@ -419,7 +419,7 @@ Deno.test('an intersection takes the fields of a type imported under another nam
     );
     const source = { id: 'a', score: 1, extra: 'more' };
     assertEquals(JSON.parse(imports.nameMixedEncode(source)), source);
-    assertEquals(decoded(imports.nameMixedDecode(imports.nameMixedEncode(source))), source);
+    assertEquals(decoded(imports.nameMixedFromString(imports.nameMixedEncode(source))), source);
     assertEquals(errorFields(imports.nameMixedDecode({ id: 'a', extra: 'more' })), ['score']);
     assertEquals(errorFields(imports.nameMixedDecode({ id: 1, score: 1, extra: 'more' })), ['id']);
 

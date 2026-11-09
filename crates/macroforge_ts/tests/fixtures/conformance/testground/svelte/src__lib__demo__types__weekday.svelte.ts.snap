@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -55,11 +55,9 @@ export function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function weekdayDecode(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, weekdayHasShape);
-    switch (data) {
+    switch (input) {
         case 'Monday':
         case 'Tuesday':
         case 'Wednesday':
@@ -67,7 +65,7 @@ export function weekdayDecode(input: unknown): { success: true; value: Weekday }
         case 'Friday':
         case 'Saturday':
         case 'Sunday':
-            return { success: true, value: data as Weekday };
+            return { success: true, value: input as Weekday };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Weekday: expected one of " + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -109,6 +107,10 @@ export function weekdayHasShape(value: unknown): boolean {
 
 export function weekdayIs(value: unknown): value is Weekday {
     return weekdayHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function weekdayFromString(text: string): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => weekdayDecode(value));
 }
 
 /** Per-variant error types  */
@@ -325,6 +327,7 @@ export const Weekday: {
   readonly decodeWithContext: typeof weekdayDecodeWithContext;
   readonly hasShape: typeof weekdayHasShape;
   readonly is: typeof weekdayIs;
+  readonly fromString: typeof weekdayFromString;
   readonly createForm: typeof weekdayCreateForm;
   readonly fromFormData: typeof weekdayFromFormData;
 } = {
@@ -335,6 +338,7 @@ export const Weekday: {
   decodeWithContext: weekdayDecodeWithContext,
   hasShape: weekdayHasShape,
   is: weekdayIs,
+  fromString: weekdayFromString,
   createForm: weekdayCreateForm,
   fromFormData: weekdayFromFormData
 };
@@ -348,7 +352,7 @@ export declare function weekdayDefaultValue(): Weekday;
 export declare function weekdayEncode(value: Weekday, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function weekdayDecode(input: unknown): {
 	success: true;
 	value: Weekday;
@@ -363,6 +367,17 @@ export declare function weekdayDecode(input: unknown): {
 export declare function weekdayDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Weekday | __mf_PendingRef;
 export declare function weekdayHasShape(value: unknown): boolean;
 export declare function weekdayIs(value: unknown): value is Weekday;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function weekdayFromString(text: string): {
+	success: true;
+	value: Weekday;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type WeekdayMondayErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -486,6 +501,7 @@ export declare const Weekday: {
 	readonly decodeWithContext: typeof weekdayDecodeWithContext;
 	readonly hasShape: typeof weekdayHasShape;
 	readonly is: typeof weekdayIs;
+	readonly fromString: typeof weekdayFromString;
 	readonly createForm: typeof weekdayCreateForm;
 	readonly fromFormData: typeof weekdayFromFormData;
 };
@@ -498,13 +514,13 @@ export declare const Weekday: {
 
 original 0..58 -> expanded 711..769
 original 107..259 -> expanded 769..921
-original 259..260 -> expanded 12698..12699
+original 259..260 -> expanded 13128..13129
 generated 0..711 <- imports
 generated 921..994 <- Default
 generated 994..2284 <- Encode
-generated 2284..4468 <- Decode
-generated 4468..11927 <- Gigaform
-generated 11927..12698 <- __convenience_const
+generated 2284..4816 <- Decode
+generated 4816..12275 <- Gigaform
+generated 12275..13128 <- __convenience_const
 
 ## Metadata
 

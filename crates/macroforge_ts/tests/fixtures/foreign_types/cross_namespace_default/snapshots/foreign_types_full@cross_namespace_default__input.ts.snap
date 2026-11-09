@@ -21,7 +21,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -87,14 +87,11 @@ function fooEncodeFields(value: Foo, _ctx: __mf_EncodeContext, result: Record<st
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = fooDecodeWithContext(data, ctx);
+        const resultOrRef = fooDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -139,6 +136,10 @@ export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fooFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => fooDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Foo | __mf_PendingRef;
@@ -237,6 +238,7 @@ export const Foo: {
   readonly encodeWithContext: typeof fooEncodeWithContext;
   readonly encodePartialWithContext: typeof fooEncodePartialWithContext;
   readonly decode: typeof fooDecode;
+  readonly fromString: typeof fooFromString;
   readonly decodeWithContext: typeof fooDecodeWithContext;
   readonly decodePartialWithContext: typeof fooDecodePartialWithContext;
   readonly validateField: typeof fooValidateField;
@@ -249,6 +251,7 @@ export const Foo: {
   encodeWithContext: fooEncodeWithContext,
   encodePartialWithContext: fooEncodePartialWithContext,
   decode: fooDecode,
+  fromString: fooFromString,
   decodeWithContext: fooDecodeWithContext,
   decodePartialWithContext: fooDecodePartialWithContext,
   validateField: fooValidateField,
@@ -271,8 +274,19 @@ export declare function fooEncode(value: Foo, keepMetadata?: boolean): string;
 export declare function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function fooEncodePartialWithContext(value: Partial<Foo>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Foo>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function fooDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Foo;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fooFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Foo;
 } | {
@@ -304,6 +318,7 @@ export declare const Foo: {
 	readonly encodeWithContext: typeof fooEncodeWithContext;
 	readonly encodePartialWithContext: typeof fooEncodePartialWithContext;
 	readonly decode: typeof fooDecode;
+	readonly fromString: typeof fooFromString;
 	readonly decodeWithContext: typeof fooDecodeWithContext;
 	readonly decodePartialWithContext: typeof fooDecodePartialWithContext;
 	readonly validateField: typeof fooValidateField;
@@ -318,15 +333,15 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 813..849
-original 75..103 -> expanded 849..877
-original 134..181 -> expanded 877..924
-original 181..182 -> expanded 10540..10541
-generated 0..813 <- imports
-generated 924..1068 <- Default
-generated 1068..3515 <- Encode
-generated 3515..9565 <- Decode
-generated 9565..10540 <- __convenience_const
+original 0..36 -> expanded 815..851
+original 75..103 -> expanded 851..879
+original 134..181 -> expanded 879..926
+original 181..182 -> expanded 10946..10947
+generated 0..815 <- imports
+generated 926..1070 <- Default
+generated 1070..3517 <- Encode
+generated 3517..9897 <- Decode
+generated 9897..10946 <- __convenience_const
 
 ## Metadata
 

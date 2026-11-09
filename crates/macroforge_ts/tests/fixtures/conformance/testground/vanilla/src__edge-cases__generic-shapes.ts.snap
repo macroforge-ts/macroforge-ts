@@ -15,7 +15,7 @@ true
 import { edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue, withTag as __mf_withTag } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, withTag as __mf_withTag } from "@macroforge/core/endec";
 /**
  * Generic types: parameters with constraints and defaults, parameters used
  * in every position a field can hold one, and fields that instantiate
@@ -195,14 +195,11 @@ function genericBoxEncodeFields<T>(value: GenericBox<T>, ctx: __mf_EncodeContext
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericBox<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericBoxDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = genericBoxDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -247,6 +244,10 @@ export function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, _
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericBoxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericBox<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericBoxDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericBox<T> | __mf_PendingRef;
@@ -537,6 +538,7 @@ export const GenericBox: {
   readonly encodeWithContext: typeof genericBoxEncodeWithContext;
   readonly encodePartialWithContext: typeof genericBoxEncodePartialWithContext;
   readonly decode: typeof genericBoxDecode;
+  readonly fromString: typeof genericBoxFromString;
   readonly decodeWithContext: typeof genericBoxDecodeWithContext;
   readonly decodePartialWithContext: typeof genericBoxDecodePartialWithContext;
   readonly validateField: typeof genericBoxValidateField;
@@ -552,6 +554,7 @@ export const GenericBox: {
   encodeWithContext: genericBoxEncodeWithContext,
   encodePartialWithContext: genericBoxEncodePartialWithContext,
   decode: genericBoxDecode,
+  fromString: genericBoxFromString,
   decodeWithContext: genericBoxDecodeWithContext,
   decodePartialWithContext: genericBoxDecodePartialWithContext,
   validateField: genericBoxValidateField,
@@ -649,14 +652,11 @@ function genericPairEncodeFields<Left, Right = Left>(value: GenericPair<Left, Ri
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericPairDecode<Left, Right = Left>(input: unknown, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): { success: true; value: GenericPair<Left, Right> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericPairDecodeWithContext<Left, Right>(data, ctx, __decodeLeft, __decodeRight);
+        const resultOrRef = genericPairDecodeWithContext<Left, Right>(input, ctx, __decodeLeft, __decodeRight);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -701,6 +701,10 @@ export function genericPairDecode<Left, Right = Left>(input: unknown, opts?: __m
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericPairFromString<Left, Right = Left>(text: string, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): { success: true; value: GenericPair<Left, Right> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericPairDecode<Left, Right>(value, opts, __decodeLeft, __decodeRight));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericPairDecodeWithContext<Left, Right = Left>(value: unknown, ctx: __mf_DecodeContext, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): GenericPair<Left, Right> | __mf_PendingRef;
@@ -830,6 +834,7 @@ export const GenericPair: {
   readonly encodeWithContext: typeof genericPairEncodeWithContext;
   readonly encodePartialWithContext: typeof genericPairEncodePartialWithContext;
   readonly decode: typeof genericPairDecode;
+  readonly fromString: typeof genericPairFromString;
   readonly decodeWithContext: typeof genericPairDecodeWithContext;
   readonly decodePartialWithContext: typeof genericPairDecodePartialWithContext;
   readonly validateField: typeof genericPairValidateField;
@@ -845,6 +850,7 @@ export const GenericPair: {
   encodeWithContext: genericPairEncodeWithContext,
   encodePartialWithContext: genericPairEncodePartialWithContext,
   decode: genericPairDecode,
+  fromString: genericPairFromString,
   decodeWithContext: genericPairDecodeWithContext,
   decodePartialWithContext: genericPairDecodePartialWithContext,
   validateField: genericPairValidateField,
@@ -957,14 +963,11 @@ function genericConstrainedEncodeFields<Item extends EdgeItem, Name extends stri
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericConstrainedDecode<Item extends EdgeItem, Name extends string = string>(input: unknown, opts?: __mf_DecodeOptions, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): { success: true; value: GenericConstrained<Item, Name> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericConstrainedDecodeWithContext<Item, Name>(data, ctx, __decodeItem, __decodeName);
+        const resultOrRef = genericConstrainedDecodeWithContext<Item, Name>(input, ctx, __decodeItem, __decodeName);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1009,6 +1012,10 @@ export function genericConstrainedDecode<Item extends EdgeItem, Name extends str
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericConstrainedFromString<Item extends EdgeItem, Name extends string = string>(text: string, opts?: __mf_DecodeOptions, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): { success: true; value: GenericConstrained<Item, Name> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericConstrainedDecode<Item, Name>(value, opts, __decodeItem, __decodeName));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericConstrainedDecodeWithContext<Item extends EdgeItem, Name extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): GenericConstrained<Item, Name> | __mf_PendingRef;
@@ -1164,6 +1171,7 @@ export const GenericConstrained: {
   readonly encodeWithContext: typeof genericConstrainedEncodeWithContext;
   readonly encodePartialWithContext: typeof genericConstrainedEncodePartialWithContext;
   readonly decode: typeof genericConstrainedDecode;
+  readonly fromString: typeof genericConstrainedFromString;
   readonly decodeWithContext: typeof genericConstrainedDecodeWithContext;
   readonly decodePartialWithContext: typeof genericConstrainedDecodePartialWithContext;
   readonly validateField: typeof genericConstrainedValidateField;
@@ -1179,6 +1187,7 @@ export const GenericConstrained: {
   encodeWithContext: genericConstrainedEncodeWithContext,
   encodePartialWithContext: genericConstrainedEncodePartialWithContext,
   decode: genericConstrainedDecode,
+  fromString: genericConstrainedFromString,
   decodeWithContext: genericConstrainedDecodeWithContext,
   decodePartialWithContext: genericConstrainedDecodePartialWithContext,
   validateField: genericConstrainedValidateField,
@@ -1304,14 +1313,11 @@ constructor(props: { items: T[]; top: T | null; depth: number }) {
     this.depth = props.depth;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GenericStack.decodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = GenericStack.decodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1356,6 +1362,11 @@ static decode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Dec
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GenericStack.decode<T>(value, opts, __decodeT));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1537,9 +1548,14 @@ export function genericStackEncodePartialWithContext<T>(value: Partial<GenericSt
     return GenericStack.encodePartialWithContext<T>(value, ctx, fields, __encodeT);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function genericStackDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GenericStack.decode<T>(input, opts, __decodeT);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function genericStackFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GenericStack.fromString<T>(text, opts, __decodeT);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1642,13 +1658,11 @@ export function genericResultEncodeWithContext<Value, Failure>(value: GenericRes
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericResultDecode<Value, Failure>(input: unknown, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): { success: true; value: GenericResult<Value, Failure> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericResultDecodeWithContext<Value, Failure>(data, ctx, __decodeValue, __decodeFailure);
+        const resultOrRef = genericResultDecodeWithContext<Value, Failure>(input, ctx, __decodeValue, __decodeFailure);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1694,6 +1708,10 @@ export function genericResultDecode<Value, Failure>(input: unknown, opts?: __mf_
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericResultFromString<Value, Failure>(text: string, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): { success: true; value: GenericResult<Value, Failure> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericResultDecode<Value, Failure>(value, opts, __decodeValue, __decodeFailure));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericResultDecodeWithContext<Value, Failure>(value: unknown, ctx: __mf_DecodeContext, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): GenericResult<Value, Failure> | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -1738,6 +1756,7 @@ export const GenericResult: {
   readonly encode: typeof genericResultEncode;
   readonly encodeWithContext: typeof genericResultEncodeWithContext;
   readonly decode: typeof genericResultDecode;
+  readonly fromString: typeof genericResultFromString;
   readonly decodeWithContext: typeof genericResultDecodeWithContext;
   readonly hasShape: typeof genericResultHasShape;
   readonly is: typeof genericResultIs;
@@ -1749,6 +1768,7 @@ export const GenericResult: {
   encode: genericResultEncode,
   encodeWithContext: genericResultEncodeWithContext,
   decode: genericResultDecode,
+  fromString: genericResultFromString,
   decodeWithContext: genericResultDecodeWithContext,
   hasShape: genericResultHasShape,
   is: genericResultIs
@@ -1790,13 +1810,11 @@ export function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericList<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = genericListDecodeWithContext<T>(data, ctx, __decodeT);
+        const result = genericListDecodeWithContext<T>(input, ctx, __decodeT);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1879,6 +1897,10 @@ export function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_Decode
 export function genericListHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericListFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericList<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericListDecode<T>(value, opts, __decodeT));
+}
 
 export const GenericList: {
   readonly toString: typeof genericListToString;
@@ -1891,6 +1913,7 @@ export const GenericList: {
   readonly is: typeof genericListIs;
   readonly decodeWithContext: typeof genericListDecodeWithContext;
   readonly hasShape: typeof genericListHasShape;
+  readonly fromString: typeof genericListFromString;
 } = {
   toString: genericListToString,
   clone: genericListClone,
@@ -1901,7 +1924,8 @@ export const GenericList: {
   decode: genericListDecode,
   is: genericListIs,
   decodeWithContext: genericListDecodeWithContext,
-  hasShape: genericListHasShape
+  hasShape: genericListHasShape,
+  fromString: genericListFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1949,13 +1973,11 @@ export function genericMaybeEncodeWithContext<T>(value: GenericMaybe<T>, ctx: __
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericMaybe<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericMaybeDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = genericMaybeDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2001,6 +2023,10 @@ export function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions,
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericMaybeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericMaybe<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericMaybeDecode<T>(value, opts, __decodeT));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericMaybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericMaybe<T> | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -2034,6 +2060,7 @@ export const GenericMaybe: {
   readonly encode: typeof genericMaybeEncode;
   readonly encodeWithContext: typeof genericMaybeEncodeWithContext;
   readonly decode: typeof genericMaybeDecode;
+  readonly fromString: typeof genericMaybeFromString;
   readonly decodeWithContext: typeof genericMaybeDecodeWithContext;
   readonly hasShape: typeof genericMaybeHasShape;
   readonly is: typeof genericMaybeIs;
@@ -2045,6 +2072,7 @@ export const GenericMaybe: {
   encode: genericMaybeEncode,
   encodeWithContext: genericMaybeEncodeWithContext,
   decode: genericMaybeDecode,
+  fromString: genericMaybeFromString,
   decodeWithContext: genericMaybeDecodeWithContext,
   hasShape: genericMaybeHasShape,
   is: genericMaybeIs
@@ -2245,14 +2273,11 @@ function genericUsesEncodeFields(value: GenericUses, ctx: __mf_EncodeContext, re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericUses } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericUsesDecodeWithContext(data, ctx);
+        const resultOrRef = genericUsesDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2297,6 +2322,10 @@ export function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericUsesFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GenericUses } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericUsesDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericUses | __mf_PendingRef;
@@ -2635,6 +2664,7 @@ export const GenericUses: {
   readonly encodeWithContext: typeof genericUsesEncodeWithContext;
   readonly encodePartialWithContext: typeof genericUsesEncodePartialWithContext;
   readonly decode: typeof genericUsesDecode;
+  readonly fromString: typeof genericUsesFromString;
   readonly decodeWithContext: typeof genericUsesDecodeWithContext;
   readonly decodePartialWithContext: typeof genericUsesDecodePartialWithContext;
   readonly validateField: typeof genericUsesValidateField;
@@ -2650,6 +2680,7 @@ export const GenericUses: {
   encodeWithContext: genericUsesEncodeWithContext,
   encodePartialWithContext: genericUsesEncodePartialWithContext,
   decode: genericUsesDecode,
+  fromString: genericUsesFromString,
   decodeWithContext: genericUsesDecodeWithContext,
   decodePartialWithContext: genericUsesDecodePartialWithContext,
   validateField: genericUsesValidateField,
@@ -2750,14 +2781,11 @@ function genericWrapperEncodeFields<T>(value: GenericWrapper<T>, ctx: __mf_Encod
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericWrapperDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericWrapper<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericWrapperDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = genericWrapperDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2802,6 +2830,10 @@ export function genericWrapperDecode<T>(input: unknown, opts?: __mf_DecodeOption
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericWrapperFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericWrapper<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericWrapperDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericWrapperDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericWrapper<T> | __mf_PendingRef;
@@ -2934,6 +2966,7 @@ export const GenericWrapper: {
   readonly encodeWithContext: typeof genericWrapperEncodeWithContext;
   readonly encodePartialWithContext: typeof genericWrapperEncodePartialWithContext;
   readonly decode: typeof genericWrapperDecode;
+  readonly fromString: typeof genericWrapperFromString;
   readonly decodeWithContext: typeof genericWrapperDecodeWithContext;
   readonly decodePartialWithContext: typeof genericWrapperDecodePartialWithContext;
   readonly validateField: typeof genericWrapperValidateField;
@@ -2949,6 +2982,7 @@ export const GenericWrapper: {
   encodeWithContext: genericWrapperEncodeWithContext,
   encodePartialWithContext: genericWrapperEncodePartialWithContext,
   decode: genericWrapperDecode,
+  fromString: genericWrapperFromString,
   decodeWithContext: genericWrapperDecodeWithContext,
   decodePartialWithContext: genericWrapperDecodePartialWithContext,
   validateField: genericWrapperValidateField,
@@ -3003,13 +3037,11 @@ export function genericOutcomeEncodeWithContext<T>(value: GenericOutcome<T>, ctx
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericOutcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericOutcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, genericOutcomeHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericOutcomeDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = genericOutcomeDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3054,6 +3086,10 @@ export function genericOutcomeDecode<T>(input: unknown, opts?: __mf_DecodeOption
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericOutcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericOutcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericOutcomeDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericOutcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericOutcome<T> | __mf_PendingRef {
@@ -3135,6 +3171,7 @@ export const GenericOutcome: {
   readonly encode: typeof genericOutcomeEncode;
   readonly encodeWithContext: typeof genericOutcomeEncodeWithContext;
   readonly decode: typeof genericOutcomeDecode;
+  readonly fromString: typeof genericOutcomeFromString;
   readonly decodeWithContext: typeof genericOutcomeDecodeWithContext;
   readonly hasShape: typeof genericOutcomeHasShape;
   readonly is: typeof genericOutcomeIs;
@@ -3146,6 +3183,7 @@ export const GenericOutcome: {
   encode: genericOutcomeEncode,
   encodeWithContext: genericOutcomeEncodeWithContext,
   decode: genericOutcomeDecode,
+  fromString: genericOutcomeFromString,
   decodeWithContext: genericOutcomeDecodeWithContext,
   hasShape: genericOutcomeHasShape,
   is: genericOutcomeIs
@@ -3387,14 +3425,11 @@ function genericArgumentsEncodeFields(value: GenericArguments, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericArgumentsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericArguments } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericArgumentsDecodeWithContext(data, ctx);
+        const resultOrRef = genericArgumentsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3439,6 +3474,10 @@ export function genericArgumentsDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericArgumentsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GenericArguments } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericArgumentsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericArgumentsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericArguments | __mf_PendingRef;
@@ -3892,6 +3931,7 @@ export const GenericArguments: {
   readonly encodeWithContext: typeof genericArgumentsEncodeWithContext;
   readonly encodePartialWithContext: typeof genericArgumentsEncodePartialWithContext;
   readonly decode: typeof genericArgumentsDecode;
+  readonly fromString: typeof genericArgumentsFromString;
   readonly decodeWithContext: typeof genericArgumentsDecodeWithContext;
   readonly decodePartialWithContext: typeof genericArgumentsDecodePartialWithContext;
   readonly validateField: typeof genericArgumentsValidateField;
@@ -3907,6 +3947,7 @@ export const GenericArguments: {
   encodeWithContext: genericArgumentsEncodeWithContext,
   encodePartialWithContext: genericArgumentsEncodePartialWithContext,
   decode: genericArgumentsDecode,
+  fromString: genericArgumentsFromString,
   decodeWithContext: genericArgumentsDecodeWithContext,
   decodePartialWithContext: genericArgumentsDecodePartialWithContext,
   validateField: genericArgumentsValidateField,
@@ -4029,14 +4070,11 @@ constructor(props: { value: T | null; many: U | null; pair: [T, T] | null }) {
     this.pair = props.pair;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode<T extends string | number = string, U = T[]>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GenericDefaults.decodeWithContext<T, U>(data, ctx, __decodeT, __decodeU);
+        const resultOrRef = GenericDefaults.decodeWithContext<T, U>(input, ctx, __decodeT, __decodeU);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4081,6 +4119,11 @@ static decode<T extends string | number = string, U = T[]>(input: unknown, opts?
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString<T extends string | number = string, U = T[]>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GenericDefaults.decode<T, U>(value, opts, __decodeT, __decodeU));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -4278,9 +4321,14 @@ export function genericDefaultsEncodePartialWithContext<T extends string | numbe
     return GenericDefaults.encodePartialWithContext<T, U>(value, ctx, fields, __encodeT, __encodeU);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function genericDefaultsDecode<T extends string | number = string, U = T[]>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GenericDefaults.decode<T, U>(input, opts, __decodeT, __decodeU);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function genericDefaultsFromString<T extends string | number = string, U = T[]>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GenericDefaults.fromString<T, U>(text, opts, __decodeT, __decodeU);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -4404,14 +4452,11 @@ function genericDefaultedEncodeFields(value: GenericDefaulted, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericDefaultedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericDefaulted } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericDefaultedDecodeWithContext(data, ctx);
+        const resultOrRef = genericDefaultedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4456,6 +4501,10 @@ export function genericDefaultedDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericDefaultedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GenericDefaulted } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericDefaultedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericDefaulted | __mf_PendingRef;
@@ -4612,6 +4661,7 @@ export const GenericDefaulted: {
   readonly encodeWithContext: typeof genericDefaultedEncodeWithContext;
   readonly encodePartialWithContext: typeof genericDefaultedEncodePartialWithContext;
   readonly decode: typeof genericDefaultedDecode;
+  readonly fromString: typeof genericDefaultedFromString;
   readonly decodeWithContext: typeof genericDefaultedDecodeWithContext;
   readonly decodePartialWithContext: typeof genericDefaultedDecodePartialWithContext;
   readonly validateField: typeof genericDefaultedValidateField;
@@ -4627,6 +4677,7 @@ export const GenericDefaulted: {
   encodeWithContext: genericDefaultedEncodeWithContext,
   encodePartialWithContext: genericDefaultedEncodePartialWithContext,
   decode: genericDefaultedDecode,
+  fromString: genericDefaultedFromString,
   decodeWithContext: genericDefaultedDecodeWithContext,
   decodePartialWithContext: genericDefaultedDecodePartialWithContext,
   validateField: genericDefaultedValidateField,
@@ -4682,13 +4733,11 @@ export function genericTaggedEncodeWithContext<T>(value: GenericTagged<T>, ctx: 
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericTaggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericTagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = genericTaggedDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = genericTaggedDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4733,6 +4782,10 @@ export function genericTaggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericTaggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericTagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => genericTaggedDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericTaggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericTagged<T> | __mf_PendingRef {
@@ -4785,6 +4838,7 @@ export const GenericTagged: {
   readonly encode: typeof genericTaggedEncode;
   readonly encodeWithContext: typeof genericTaggedEncodeWithContext;
   readonly decode: typeof genericTaggedDecode;
+  readonly fromString: typeof genericTaggedFromString;
   readonly decodeWithContext: typeof genericTaggedDecodeWithContext;
   readonly hasShape: typeof genericTaggedHasShape;
   readonly is: typeof genericTaggedIs;
@@ -4794,6 +4848,7 @@ export const GenericTagged: {
   encode: genericTaggedEncode,
   encodeWithContext: genericTaggedEncodeWithContext,
   decode: genericTaggedDecode,
+  fromString: genericTaggedFromString,
   decodeWithContext: genericTaggedDecodeWithContext,
   hasShape: genericTaggedHasShape,
   is: genericTaggedIs,
@@ -4830,8 +4885,19 @@ export declare function genericBoxEncode<T>(value: GenericBox<T>, keepMetadata?:
 export declare function genericBoxEncodeWithContext<T>(value: GenericBox<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericBoxEncodePartialWithContext<T>(value: Partial<GenericBox<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericBox<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericBox<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericBoxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericBox<T>;
 } | {
@@ -4869,6 +4935,7 @@ export declare const GenericBox: {
 	readonly encodeWithContext: typeof genericBoxEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericBoxEncodePartialWithContext;
 	readonly decode: typeof genericBoxDecode;
+	readonly fromString: typeof genericBoxFromString;
 	readonly decodeWithContext: typeof genericBoxDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericBoxDecodePartialWithContext;
 	readonly validateField: typeof genericBoxValidateField;
@@ -4915,11 +4982,25 @@ export declare function genericPairEncodePartialWithContext<
 	Left,
 	Right = Left
 >(value: Partial<GenericPair<Left, Right>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericPair<Left, Right>>, __encodeLeft?: __mf_Encoder<Left>, __encodeRight?: __mf_Encoder<Right>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericPairDecode<
 	Left,
 	Right = Left
 >(input: unknown, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): {
+	success: true;
+	value: GenericPair<Left, Right>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericPairFromString<
+	Left,
+	Right = Left
+>(text: string, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): {
 	success: true;
 	value: GenericPair<Left, Right>;
 } | {
@@ -4973,6 +5054,7 @@ export declare const GenericPair: {
 	readonly encodeWithContext: typeof genericPairEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericPairEncodePartialWithContext;
 	readonly decode: typeof genericPairDecode;
+	readonly fromString: typeof genericPairFromString;
 	readonly decodeWithContext: typeof genericPairDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericPairDecodePartialWithContext;
 	readonly validateField: typeof genericPairValidateField;
@@ -5020,11 +5102,25 @@ export declare function genericConstrainedEncodePartialWithContext<
 	Item extends EdgeItem,
 	Name extends string = string
 >(value: Partial<GenericConstrained<Item, Name>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericConstrained<Item, Name>>, __encodeItem?: __mf_Encoder<Item>, __encodeName?: __mf_Encoder<Name>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericConstrainedDecode<
 	Item extends EdgeItem,
 	Name extends string = string
 >(input: unknown, opts?: __mf_DecodeOptions, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): {
+	success: true;
+	value: GenericConstrained<Item, Name>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericConstrainedFromString<
+	Item extends EdgeItem,
+	Name extends string = string
+>(text: string, opts?: __mf_DecodeOptions, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): {
 	success: true;
 	value: GenericConstrained<Item, Name>;
 } | {
@@ -5078,6 +5174,7 @@ export declare const GenericConstrained: {
 	readonly encodeWithContext: typeof genericConstrainedEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericConstrainedEncodePartialWithContext;
 	readonly decode: typeof genericConstrainedDecode;
+	readonly fromString: typeof genericConstrainedFromString;
 	readonly decodeWithContext: typeof genericConstrainedDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericConstrainedDecodePartialWithContext;
 	readonly validateField: typeof genericConstrainedValidateField;
@@ -5107,8 +5204,19 @@ export declare class GenericStack<T> {
 		top: T | null;
 		depth: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+		success: true;
+		value: GenericStack<T>;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 		success: true;
 		value: GenericStack<T>;
 	} | {
@@ -5147,8 +5255,19 @@ export declare function genericStackEncode<T>(value: GenericStack<T>, keepMetada
 export declare function genericStackEncodeWithContext<T>(value: GenericStack<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericStackEncodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function genericStackDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericStack<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function genericStackFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericStack<T>;
 } | {
@@ -5203,11 +5322,25 @@ export declare function genericResultEncodeWithContext<
 	Value,
 	Failure
 >(value: GenericResult<Value, Failure>, ctx: __mf_EncodeContext, __encodeValue?: __mf_Encoder<Value>, __encodeFailure?: __mf_Encoder<Failure>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericResultDecode<
 	Value,
 	Failure
 >(input: unknown, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): {
+	success: true;
+	value: GenericResult<Value, Failure>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericResultFromString<
+	Value,
+	Failure
+>(text: string, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): {
 	success: true;
 	value: GenericResult<Value, Failure>;
 } | {
@@ -5235,6 +5368,7 @@ export declare const GenericResult: {
 	readonly encode: typeof genericResultEncode;
 	readonly encodeWithContext: typeof genericResultEncodeWithContext;
 	readonly decode: typeof genericResultDecode;
+	readonly fromString: typeof genericResultFromString;
 	readonly decodeWithContext: typeof genericResultDecodeWithContext;
 	readonly hasShape: typeof genericResultHasShape;
 	readonly is: typeof genericResultIs;
@@ -5249,7 +5383,7 @@ export declare function genericListHashCode<T>(value: GenericList<T>): number;
 export declare function genericListEncode<T>(value: GenericList<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericList<T>;
@@ -5264,6 +5398,17 @@ export declare function genericListIs<T>(value: unknown, __isT: (value: unknown)
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericList<T>;
 export declare function genericListHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericListFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericList<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const GenericList: {
 	readonly toString: typeof genericListToString;
 	readonly clone: typeof genericListClone;
@@ -5275,6 +5420,7 @@ export declare const GenericList: {
 	readonly is: typeof genericListIs;
 	readonly decodeWithContext: typeof genericListDecodeWithContext;
 	readonly hasShape: typeof genericListHasShape;
+	readonly fromString: typeof genericListFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type GenericMaybe<T> = T | null;
@@ -5286,8 +5432,19 @@ export declare function genericMaybeHashCode<T>(value: GenericMaybe<T>): number;
 export declare function genericMaybeEncode<T>(value: GenericMaybe<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function genericMaybeEncodeWithContext<T>(value: GenericMaybe<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericMaybe<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericMaybeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericMaybe<T>;
 } | {
@@ -5309,6 +5466,7 @@ export declare const GenericMaybe: {
 	readonly encode: typeof genericMaybeEncode;
 	readonly encodeWithContext: typeof genericMaybeEncodeWithContext;
 	readonly decode: typeof genericMaybeDecode;
+	readonly fromString: typeof genericMaybeFromString;
 	readonly decodeWithContext: typeof genericMaybeDecodeWithContext;
 	readonly hasShape: typeof genericMaybeHasShape;
 	readonly is: typeof genericMaybeIs;
@@ -5336,8 +5494,19 @@ export declare function genericUsesEncode(value: GenericUses, keepMetadata?: boo
 export declare function genericUsesEncodeWithContext(value: GenericUses, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericUsesEncodePartialWithContext(value: Partial<GenericUses>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericUses>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericUses;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericUsesFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GenericUses;
 } | {
@@ -5372,6 +5541,7 @@ export declare const GenericUses: {
 	readonly encodeWithContext: typeof genericUsesEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericUsesEncodePartialWithContext;
 	readonly decode: typeof genericUsesDecode;
+	readonly fromString: typeof genericUsesFromString;
 	readonly decodeWithContext: typeof genericUsesDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericUsesDecodePartialWithContext;
 	readonly validateField: typeof genericUsesValidateField;
@@ -5394,8 +5564,19 @@ export declare function genericWrapperEncode<T>(value: GenericWrapper<T>, keepMe
 export declare function genericWrapperEncodeWithContext<T>(value: GenericWrapper<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericWrapperEncodePartialWithContext<T>(value: Partial<GenericWrapper<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericWrapper<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericWrapperDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericWrapper<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericWrapperFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericWrapper<T>;
 } | {
@@ -5433,6 +5614,7 @@ export declare const GenericWrapper: {
 	readonly encodeWithContext: typeof genericWrapperEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericWrapperEncodePartialWithContext;
 	readonly decode: typeof genericWrapperDecode;
+	readonly fromString: typeof genericWrapperFromString;
 	readonly decodeWithContext: typeof genericWrapperDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericWrapperDecodePartialWithContext;
 	readonly validateField: typeof genericWrapperValidateField;
@@ -5450,8 +5632,19 @@ export declare function genericOutcomeHashCode<T>(value: GenericOutcome<T>): num
 export declare function genericOutcomeEncode<T>(value: GenericOutcome<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function genericOutcomeEncodeWithContext<T>(value: GenericOutcome<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericOutcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericOutcome<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericOutcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericOutcome<T>;
 } | {
@@ -5473,6 +5666,7 @@ export declare const GenericOutcome: {
 	readonly encode: typeof genericOutcomeEncode;
 	readonly encodeWithContext: typeof genericOutcomeEncodeWithContext;
 	readonly decode: typeof genericOutcomeDecode;
+	readonly fromString: typeof genericOutcomeFromString;
 	readonly decodeWithContext: typeof genericOutcomeDecodeWithContext;
 	readonly hasShape: typeof genericOutcomeHasShape;
 	readonly is: typeof genericOutcomeIs;
@@ -5504,8 +5698,19 @@ export declare function genericArgumentsEncode(value: GenericArguments, keepMeta
 export declare function genericArgumentsEncodeWithContext(value: GenericArguments, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericArgumentsEncodePartialWithContext(value: Partial<GenericArguments>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericArguments>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericArgumentsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericArguments;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericArgumentsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GenericArguments;
 } | {
@@ -5540,6 +5745,7 @@ export declare const GenericArguments: {
 	readonly encodeWithContext: typeof genericArgumentsEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericArgumentsEncodePartialWithContext;
 	readonly decode: typeof genericArgumentsDecode;
+	readonly fromString: typeof genericArgumentsFromString;
 	readonly decodeWithContext: typeof genericArgumentsDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericArgumentsDecodePartialWithContext;
 	readonly validateField: typeof genericArgumentsValidateField;
@@ -5596,11 +5802,25 @@ export declare class GenericDefaults<
 		many: U | null;
 		pair: [T, T] | null;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode<
 		T extends string | number = string,
 		U = T[]
 	>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
+		success: true;
+		value: GenericDefaults<T, U>;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString<
+		T extends string | number = string,
+		U = T[]
+	>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
 		success: true;
 		value: GenericDefaults<T, U>;
 	} | {
@@ -5676,11 +5896,25 @@ export declare function genericDefaultsEncodePartialWithContext<
 	T extends string | number = string,
 	U = T[]
 >(value: Partial<GenericDefaults<T, U>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function genericDefaultsDecode<
 	T extends string | number = string,
 	U = T[]
 >(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
+	success: true;
+	value: GenericDefaults<T, U>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function genericDefaultsFromString<
+	T extends string | number = string,
+	U = T[]
+>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
 	success: true;
 	value: GenericDefaults<T, U>;
 } | {
@@ -5723,8 +5957,19 @@ export declare function genericDefaultedEncode(value: GenericDefaulted, keepMeta
 export declare function genericDefaultedEncodeWithContext(value: GenericDefaulted, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function genericDefaultedEncodePartialWithContext(value: Partial<GenericDefaulted>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaulted>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericDefaultedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericDefaulted;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericDefaultedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GenericDefaulted;
 } | {
@@ -5759,6 +6004,7 @@ export declare const GenericDefaulted: {
 	readonly encodeWithContext: typeof genericDefaultedEncodeWithContext;
 	readonly encodePartialWithContext: typeof genericDefaultedEncodePartialWithContext;
 	readonly decode: typeof genericDefaultedDecode;
+	readonly fromString: typeof genericDefaultedFromString;
 	readonly decodeWithContext: typeof genericDefaultedDecodeWithContext;
 	readonly decodePartialWithContext: typeof genericDefaultedDecodePartialWithContext;
 	readonly validateField: typeof genericDefaultedValidateField;
@@ -5779,8 +6025,19 @@ export type GenericTagged<T> = ({
 export declare function genericTaggedEncode<T>(value: GenericTagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function genericTaggedEncodeWithContext<T>(value: GenericTagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function genericTaggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericTagged<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericTaggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: GenericTagged<T>;
 } | {
@@ -5804,6 +6061,7 @@ export declare const GenericTagged: {
 	readonly encode: typeof genericTaggedEncode;
 	readonly encodeWithContext: typeof genericTaggedEncodeWithContext;
 	readonly decode: typeof genericTaggedDecode;
+	readonly fromString: typeof genericTaggedFromString;
 	readonly decodeWithContext: typeof genericTaggedDecodeWithContext;
 	readonly hasShape: typeof genericTaggedHasShape;
 	readonly is: typeof genericTaggedIs;
@@ -5817,134 +6075,134 @@ export declare const GenericTagged: {
 
 ## Mapping
 
-original 0..519 -> expanded 1907..2426
-original 519..669 -> expanded 28873..29023
-original 669..876 -> expanded 43503..43710
-original 876..1050 -> expanded 61504..61678
-original 1050..1051 -> expanded 75328..75329
-original 1051..1230 -> expanded 79513..79692
-original 1230..1327 -> expanded 88831..88928
-original 1327..1430 -> expanded 95080..95183
-original 1430..1885 -> expanded 100890..101345
-original 1885..2047 -> expanded 130168..130330
-original 2047..2172 -> expanded 144948..145073
-original 2172..2817 -> expanded 154494..155139
-original 2817..3053 -> expanded 193590..193826
-original 3053..3054 -> expanded 209265..209266
-original 3054..3269 -> expanded 214447..214662
-original 3269..3514 -> expanded 229981..230226
-original 3514..3515 -> expanded 237283..237284
-generated 0..1907 <- imports
-generated 2426..3151 <- Debug
-generated 3151..3876 <- Clone
-generated 3876..5156 <- PartialEq
-generated 5156..6169 <- Hash
-generated 6169..11039 <- Encode
-generated 11039..27533 <- Decode
-generated 27533..28873 <- __convenience_const
-generated 29023..29398 <- Debug
-generated 29398..29672 <- Clone
-generated 29672..30046 <- PartialEq
-generated 30046..30373 <- Hash
-generated 30373..33602 <- Encode
-generated 33602..42134 <- Decode
-generated 42134..43503 <- __convenience_const
-generated 43710..44199 <- Debug
-generated 44199..44598 <- Clone
-generated 44598..45292 <- PartialEq
-generated 45292..45797 <- Hash
-generated 45797..49550 <- Encode
-generated 49550..59932 <- Decode
-generated 59932..61504 <- __convenience_const
-generated 61678..62091 <- Debug
-generated 62091..62373 <- Clone
-generated 62373..63074 <- PartialEq
-generated 63074..63631 <- Hash
-generated 63631..63900 <- Default
-generated 63900..66358 <- Encode
-generated 66358..66735 <- Encode
-generated 66735..75328 <- Decode
-generated 75329..75450 <- Debug
-generated 75450..75574 <- Clone
-generated 75574..75707 <- PartialEq
-generated 75707..75828 <- Hash
-generated 75828..75939 <- Default
-generated 75939..77466 <- Encode
-generated 77466..79513 <- Decode
-generated 79692..79862 <- Debug
-generated 79862..80027 <- Clone
-generated 80027..80231 <- PartialEq
-generated 80231..80375 <- Hash
-generated 80375..83396 <- Encode
-generated 83396..87920 <- Decode
-generated 87920..88831 <- __convenience_const
-generated 88928..89066 <- Debug
-generated 89066..89212 <- Clone
-generated 89212..89534 <- PartialEq
-generated 89534..89716 <- Hash
-generated 89716..90805 <- Encode
-generated 90805..94211 <- Decode
-generated 94211..95080 <- __convenience_const
-generated 95183..95324 <- Debug
-generated 95324..95447 <- Clone
-generated 95447..95609 <- PartialEq
-generated 95609..95725 <- Hash
-generated 95725..97311 <- Encode
-generated 97311..100000 <- Decode
-generated 100000..100890 <- __convenience_const
-generated 101345..102205 <- Debug
-generated 102205..102883 <- Clone
-generated 102883..104097 <- PartialEq
-generated 104097..105157 <- Hash
-generated 105157..110318 <- Encode
-generated 110318..128799 <- Decode
-generated 128799..130168 <- __convenience_const
-generated 130330..130713 <- Debug
-generated 130713..130971 <- Clone
-generated 130971..131521 <- PartialEq
-generated 131521..131895 <- Hash
-generated 131895..135012 <- Encode
-generated 135012..143492 <- Decode
-generated 143492..144948 <- __convenience_const
-generated 145073..145220 <- Debug
-generated 145220..145349 <- Clone
-generated 145349..145517 <- PartialEq
-generated 145517..145637 <- Hash
-generated 145637..148038 <- Encode
-generated 148038..153562 <- Decode
-generated 153562..154494 <- __convenience_const
-generated 155139..156411 <- Debug
-generated 156411..157304 <- Clone
-generated 157304..158706 <- PartialEq
-generated 158706..159939 <- Hash
-generated 159939..167077 <- Encode
-generated 167077..192076 <- Decode
-generated 192076..193590 <- __convenience_const
-generated 193826..194304 <- Debug
-generated 194304..194636 <- Clone
-generated 194636..195130 <- PartialEq
-generated 195130..195559 <- Hash
-generated 195559..195896 <- Default
-generated 195896..198816 <- Encode
-generated 198816..199284 <- Encode
-generated 199284..209265 <- Decode
-generated 209266..209444 <- Debug
-generated 209444..209631 <- Clone
-generated 209631..209827 <- PartialEq
-generated 209827..210005 <- Hash
-generated 210005..210173 <- Default
-generated 210173..211994 <- Encode
-generated 211994..214447 <- Decode
-generated 214662..215101 <- Debug
-generated 215101..215389 <- Clone
-generated 215389..215801 <- PartialEq
-generated 215801..216187 <- Hash
-generated 216187..219155 <- Encode
-generated 219155..228467 <- Decode
-generated 228467..229981 <- __convenience_const
-generated 230226..232594 <- Encode
-generated 232594..236536 <- Decode
-generated 236536..237283 <- __convenience_const
+original 0..519 -> expanded 1876..2395
+original 519..669 -> expanded 29330..29480
+original 669..876 -> expanded 44551..44758
+original 876..1050 -> expanded 63206..63380
+original 1050..1051 -> expanded 77436..77437
+original 1051..1230 -> expanded 82084..82263
+original 1230..1327 -> expanded 92095..92192
+original 1327..1430 -> expanded 98918..99021
+original 1430..1885 -> expanded 105307..105762
+original 1885..2047 -> expanded 135029..135191
+original 2047..2172 -> expanded 150317..150442
+original 2172..2817 -> expanded 160463..161108
+original 2817..3053 -> expanded 200028..200264
+original 3053..3054 -> expanded 216203..216204
+original 3054..3269 -> expanded 221945..222160
+original 3269..3514 -> expanded 237948..238193
+original 3514..3515 -> expanded 245834..245835
+generated 0..1876 <- imports
+generated 2395..3120 <- Debug
+generated 3120..3845 <- Clone
+generated 3845..5125 <- PartialEq
+generated 5125..6138 <- Hash
+generated 6138..11008 <- Encode
+generated 11008..27902 <- Decode
+generated 27902..29330 <- __convenience_const
+generated 29480..29855 <- Debug
+generated 29855..30129 <- Clone
+generated 30129..30503 <- PartialEq
+generated 30503..30830 <- Hash
+generated 30830..34059 <- Encode
+generated 34059..43092 <- Decode
+generated 43092..44551 <- __convenience_const
+generated 44758..45247 <- Debug
+generated 45247..45646 <- Clone
+generated 45646..46340 <- PartialEq
+generated 46340..46845 <- Hash
+generated 46845..50598 <- Encode
+generated 50598..61530 <- Decode
+generated 61530..63206 <- __convenience_const
+generated 63380..63793 <- Debug
+generated 63793..64075 <- Clone
+generated 64075..64776 <- PartialEq
+generated 64776..65333 <- Hash
+generated 65333..65602 <- Default
+generated 65602..68060 <- Encode
+generated 68060..68437 <- Encode
+generated 68437..77436 <- Decode
+generated 77437..77558 <- Debug
+generated 77558..77682 <- Clone
+generated 77682..77815 <- PartialEq
+generated 77815..77936 <- Hash
+generated 77936..78047 <- Default
+generated 78047..79574 <- Encode
+generated 79574..82084 <- Decode
+generated 82263..82433 <- Debug
+generated 82433..82598 <- Clone
+generated 82598..82802 <- PartialEq
+generated 82802..82946 <- Hash
+generated 82946..85967 <- Encode
+generated 85967..91090 <- Decode
+generated 91090..92095 <- __convenience_const
+generated 92192..92330 <- Debug
+generated 92330..92476 <- Clone
+generated 92476..92798 <- PartialEq
+generated 92798..92980 <- Hash
+generated 92980..94069 <- Encode
+generated 94069..97959 <- Decode
+generated 97959..98918 <- __convenience_const
+generated 99021..99162 <- Debug
+generated 99162..99285 <- Clone
+generated 99285..99447 <- PartialEq
+generated 99447..99563 <- Hash
+generated 99563..101149 <- Encode
+generated 101149..104325 <- Decode
+generated 104325..105307 <- __convenience_const
+generated 105762..106622 <- Debug
+generated 106622..107300 <- Clone
+generated 107300..108514 <- PartialEq
+generated 108514..109574 <- Hash
+generated 109574..114735 <- Encode
+generated 114735..133570 <- Decode
+generated 133570..135029 <- __convenience_const
+generated 135191..135574 <- Debug
+generated 135574..135832 <- Clone
+generated 135832..136382 <- PartialEq
+generated 136382..136756 <- Hash
+generated 136756..139873 <- Encode
+generated 139873..148765 <- Decode
+generated 148765..150317 <- __convenience_const
+generated 150442..150589 <- Debug
+generated 150589..150718 <- Clone
+generated 150718..150886 <- PartialEq
+generated 150886..151006 <- Hash
+generated 151006..153407 <- Encode
+generated 153407..159435 <- Decode
+generated 159435..160463 <- __convenience_const
+generated 161108..162380 <- Debug
+generated 162380..163273 <- Clone
+generated 163273..164675 <- PartialEq
+generated 164675..165908 <- Hash
+generated 165908..173046 <- Encode
+generated 173046..198414 <- Decode
+generated 198414..200028 <- __convenience_const
+generated 200264..200742 <- Debug
+generated 200742..201074 <- Clone
+generated 201074..201568 <- PartialEq
+generated 201568..201997 <- Hash
+generated 201997..202334 <- Default
+generated 202334..205254 <- Encode
+generated 205254..205722 <- Encode
+generated 205722..216203 <- Decode
+generated 216204..216382 <- Debug
+generated 216382..216569 <- Clone
+generated 216569..216765 <- PartialEq
+generated 216765..216943 <- Hash
+generated 216943..217111 <- Default
+generated 217111..218932 <- Encode
+generated 218932..221945 <- Decode
+generated 222160..222599 <- Debug
+generated 222599..222887 <- Clone
+generated 222887..223299 <- PartialEq
+generated 223299..223685 <- Hash
+generated 223685..226653 <- Encode
+generated 226653..236334 <- Decode
+generated 236334..237948 <- __convenience_const
+generated 238193..240561 <- Encode
+generated 240561..244993 <- Decode
+generated 244993..245834 <- __convenience_const
 
 ## Metadata
 
@@ -5990,7 +6248,6 @@ Name("Record")
 Name("Right")
 Name("Set")
 Name("T")
-Name("T[]")
 Name("U")
 Name("Value")
 Name("[T, T]")

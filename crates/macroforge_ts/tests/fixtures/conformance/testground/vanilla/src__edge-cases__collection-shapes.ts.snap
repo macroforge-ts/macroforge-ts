@@ -13,7 +13,7 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeCardHashCode, edgeCardEquals, edgeCardClone, edgeItemToString } from "./edge-types";
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -84,10 +84,14 @@ export function collectionKindEncodeWithContext(value: CollectionKind): string |
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function collectionKindDecode(input: unknown): CollectionKind {
+    return collectionKindDecodeWithContext(input);
+}
 
-    return collectionKindDecodeWithContext(__mf_textOrValue(input, collectionKindIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function collectionKindFromString(text: string): CollectionKind {
+    return collectionKindDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -123,6 +127,7 @@ export namespace CollectionKind {
   export const encode: typeof collectionKindEncode = collectionKindEncode;
   export const encodeWithContext: typeof collectionKindEncodeWithContext = collectionKindEncodeWithContext;
   export const decode: typeof collectionKindDecode = collectionKindDecode;
+  export const fromString: typeof collectionKindFromString = collectionKindFromString;
   export const decodeWithContext: typeof collectionKindDecodeWithContext = collectionKindDecodeWithContext;
   export const is: typeof collectionKindIs = collectionKindIs;
 }
@@ -400,14 +405,11 @@ function collectionNestedEncodeFields(value: CollectionNested, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionNestedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionNested } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionNestedDecodeWithContext(data, ctx);
+        const resultOrRef = collectionNestedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -452,6 +454,10 @@ export function collectionNestedDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionNestedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionNested } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionNestedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionNested | __mf_PendingRef;
@@ -831,6 +837,7 @@ export const CollectionNested: {
   readonly encodeWithContext: typeof collectionNestedEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionNestedEncodePartialWithContext;
   readonly decode: typeof collectionNestedDecode;
+  readonly fromString: typeof collectionNestedFromString;
   readonly decodeWithContext: typeof collectionNestedDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionNestedDecodePartialWithContext;
   readonly validateField: typeof collectionNestedValidateField;
@@ -847,6 +854,7 @@ export const CollectionNested: {
   encodeWithContext: collectionNestedEncodeWithContext,
   encodePartialWithContext: collectionNestedEncodePartialWithContext,
   decode: collectionNestedDecode,
+  fromString: collectionNestedFromString,
   decodeWithContext: collectionNestedDecodeWithContext,
   decodePartialWithContext: collectionNestedDecodePartialWithContext,
   validateField: collectionNestedValidateField,
@@ -1070,14 +1078,11 @@ function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeConte
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionKeysDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionKeys } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionKeysDecodeWithContext(data, ctx);
+        const resultOrRef = collectionKeysDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1122,6 +1127,10 @@ export function collectionKeysDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionKeysFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionKeys } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionKeysDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionKeys | __mf_PendingRef;
@@ -1464,6 +1473,7 @@ export const CollectionKeys: {
   readonly encodeWithContext: typeof collectionKeysEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionKeysEncodePartialWithContext;
   readonly decode: typeof collectionKeysDecode;
+  readonly fromString: typeof collectionKeysFromString;
   readonly decodeWithContext: typeof collectionKeysDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionKeysDecodePartialWithContext;
   readonly validateField: typeof collectionKeysValidateField;
@@ -1480,6 +1490,7 @@ export const CollectionKeys: {
   encodeWithContext: collectionKeysEncodeWithContext,
   encodePartialWithContext: collectionKeysEncodePartialWithContext,
   decode: collectionKeysDecode,
+  fromString: collectionKeysFromString,
   decodeWithContext: collectionKeysDecodeWithContext,
   decodePartialWithContext: collectionKeysDecodePartialWithContext,
   validateField: collectionKeysValidateField,
@@ -1668,14 +1679,11 @@ function collectionUnionsEncodeFields(value: CollectionUnions, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionUnionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionUnions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionUnionsDecodeWithContext(data, ctx);
+        const resultOrRef = collectionUnionsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1720,6 +1728,10 @@ export function collectionUnionsDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionUnionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionUnions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionUnionsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionUnions | __mf_PendingRef;
@@ -1984,6 +1996,7 @@ export const CollectionUnions: {
   readonly encodeWithContext: typeof collectionUnionsEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionUnionsEncodePartialWithContext;
   readonly decode: typeof collectionUnionsDecode;
+  readonly fromString: typeof collectionUnionsFromString;
   readonly decodeWithContext: typeof collectionUnionsDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionUnionsDecodePartialWithContext;
   readonly validateField: typeof collectionUnionsValidateField;
@@ -2000,6 +2013,7 @@ export const CollectionUnions: {
   encodeWithContext: collectionUnionsEncodeWithContext,
   encodePartialWithContext: collectionUnionsEncodePartialWithContext,
   decode: collectionUnionsDecode,
+  fromString: collectionUnionsFromString,
   decodeWithContext: collectionUnionsDecodeWithContext,
   decodePartialWithContext: collectionUnionsDecodePartialWithContext,
   validateField: collectionUnionsValidateField,
@@ -2185,14 +2199,11 @@ function collectionTuplesEncodeFields(value: CollectionTuples, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionTuplesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionTuples } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionTuplesDecodeWithContext(data, ctx);
+        const resultOrRef = collectionTuplesDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2237,6 +2248,10 @@ export function collectionTuplesDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionTuplesFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionTuples } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionTuplesDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionTuples | __mf_PendingRef;
@@ -2530,6 +2545,7 @@ export const CollectionTuples: {
   readonly encodeWithContext: typeof collectionTuplesEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionTuplesEncodePartialWithContext;
   readonly decode: typeof collectionTuplesDecode;
+  readonly fromString: typeof collectionTuplesFromString;
   readonly decodeWithContext: typeof collectionTuplesDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionTuplesDecodePartialWithContext;
   readonly validateField: typeof collectionTuplesValidateField;
@@ -2546,6 +2562,7 @@ export const CollectionTuples: {
   encodeWithContext: collectionTuplesEncodeWithContext,
   encodePartialWithContext: collectionTuplesEncodePartialWithContext,
   decode: collectionTuplesDecode,
+  fromString: collectionTuplesFromString,
   decodeWithContext: collectionTuplesDecodeWithContext,
   decodePartialWithContext: collectionTuplesDecodePartialWithContext,
   validateField: collectionTuplesValidateField,
@@ -2689,14 +2706,11 @@ function collectionLengthsEncodeFields(value: CollectionLengths, ctx: __mf_Encod
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionLengthsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionLengths } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionLengthsDecodeWithContext(data, ctx);
+        const resultOrRef = collectionLengthsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2741,6 +2755,10 @@ export function collectionLengthsDecode(input: unknown, opts?: __mf_DecodeOption
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionLengthsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionLengths } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionLengthsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionLengths | __mf_PendingRef;
@@ -2956,6 +2974,7 @@ export const CollectionLengths: {
   readonly encodeWithContext: typeof collectionLengthsEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionLengthsEncodePartialWithContext;
   readonly decode: typeof collectionLengthsDecode;
+  readonly fromString: typeof collectionLengthsFromString;
   readonly decodeWithContext: typeof collectionLengthsDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionLengthsDecodePartialWithContext;
   readonly validateField: typeof collectionLengthsValidateField;
@@ -2972,6 +2991,7 @@ export const CollectionLengths: {
   encodeWithContext: collectionLengthsEncodeWithContext,
   encodePartialWithContext: collectionLengthsEncodePartialWithContext,
   decode: collectionLengthsDecode,
+  fromString: collectionLengthsFromString,
   decodeWithContext: collectionLengthsDecodeWithContext,
   decodePartialWithContext: collectionLengthsDecodePartialWithContext,
   validateField: collectionLengthsValidateField,
@@ -3099,14 +3119,11 @@ function collectionBigEncodeFields(value: CollectionBig, _ctx: __mf_EncodeContex
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function collectionBigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionBig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = collectionBigDecodeWithContext(data, ctx);
+        const resultOrRef = collectionBigDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3151,6 +3168,10 @@ export function collectionBigDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionBigFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: CollectionBig } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => collectionBigDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionBig | __mf_PendingRef;
@@ -3328,6 +3349,7 @@ export const CollectionBig: {
   readonly encodeWithContext: typeof collectionBigEncodeWithContext;
   readonly encodePartialWithContext: typeof collectionBigEncodePartialWithContext;
   readonly decode: typeof collectionBigDecode;
+  readonly fromString: typeof collectionBigFromString;
   readonly decodeWithContext: typeof collectionBigDecodeWithContext;
   readonly decodePartialWithContext: typeof collectionBigDecodePartialWithContext;
   readonly validateField: typeof collectionBigValidateField;
@@ -3343,6 +3365,7 @@ export const CollectionBig: {
   encodeWithContext: collectionBigEncodeWithContext,
   encodePartialWithContext: collectionBigEncodePartialWithContext,
   decode: collectionBigDecode,
+  fromString: collectionBigFromString,
   decodeWithContext: collectionBigDecodeWithContext,
   decodePartialWithContext: collectionBigDecodePartialWithContext,
   validateField: collectionBigValidateField,
@@ -3376,8 +3399,10 @@ export declare function collectionKindDefaultValue(): CollectionKind;
 export declare function collectionKindEncode(value: CollectionKind): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function collectionKindEncodeWithContext(value: CollectionKind, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function collectionKindDecode(input: unknown): CollectionKind;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function collectionKindFromString(text: string): CollectionKind;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function collectionKindDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): CollectionKind;
 export declare function collectionKindIs(value: unknown): value is CollectionKind;
@@ -3392,6 +3417,7 @@ export declare namespace CollectionKind {
 	const encode: typeof collectionKindEncode;
 	const encodeWithContext: typeof collectionKindEncodeWithContext;
 	const decode: typeof collectionKindDecode;
+	const fromString: typeof collectionKindFromString;
 	const decodeWithContext: typeof collectionKindDecodeWithContext;
 	const is: typeof collectionKindIs;
 }
@@ -3420,8 +3446,19 @@ export declare function collectionNestedEncode(value: CollectionNested, keepMeta
 export declare function collectionNestedEncodeWithContext(value: CollectionNested, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionNestedEncodePartialWithContext(value: Partial<CollectionNested>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionNested>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionNestedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionNested;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionNestedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionNested;
 } | {
@@ -3457,6 +3494,7 @@ export declare const CollectionNested: {
 	readonly encodeWithContext: typeof collectionNestedEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionNestedEncodePartialWithContext;
 	readonly decode: typeof collectionNestedDecode;
+	readonly fromString: typeof collectionNestedFromString;
 	readonly decodeWithContext: typeof collectionNestedDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionNestedDecodePartialWithContext;
 	readonly validateField: typeof collectionNestedValidateField;
@@ -3488,8 +3526,19 @@ export declare function collectionKeysEncode(value: CollectionKeys, keepMetadata
 export declare function collectionKeysEncodeWithContext(value: CollectionKeys, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionKeysEncodePartialWithContext(value: Partial<CollectionKeys>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionKeys>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionKeysDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionKeys;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionKeysFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionKeys;
 } | {
@@ -3525,6 +3574,7 @@ export declare const CollectionKeys: {
 	readonly encodeWithContext: typeof collectionKeysEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionKeysEncodePartialWithContext;
 	readonly decode: typeof collectionKeysDecode;
+	readonly fromString: typeof collectionKeysFromString;
 	readonly decodeWithContext: typeof collectionKeysDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionKeysDecodePartialWithContext;
 	readonly validateField: typeof collectionKeysValidateField;
@@ -3553,8 +3603,19 @@ export declare function collectionUnionsEncode(value: CollectionUnions, keepMeta
 export declare function collectionUnionsEncodeWithContext(value: CollectionUnions, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionUnionsEncodePartialWithContext(value: Partial<CollectionUnions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionUnions>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionUnionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionUnions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionUnionsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionUnions;
 } | {
@@ -3590,6 +3651,7 @@ export declare const CollectionUnions: {
 	readonly encodeWithContext: typeof collectionUnionsEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionUnionsEncodePartialWithContext;
 	readonly decode: typeof collectionUnionsDecode;
+	readonly fromString: typeof collectionUnionsFromString;
 	readonly decodeWithContext: typeof collectionUnionsDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionUnionsDecodePartialWithContext;
 	readonly validateField: typeof collectionUnionsValidateField;
@@ -3619,8 +3681,19 @@ export declare function collectionTuplesEncode(value: CollectionTuples, keepMeta
 export declare function collectionTuplesEncodeWithContext(value: CollectionTuples, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionTuplesEncodePartialWithContext(value: Partial<CollectionTuples>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionTuples>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionTuplesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionTuples;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionTuplesFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionTuples;
 } | {
@@ -3656,6 +3729,7 @@ export declare const CollectionTuples: {
 	readonly encodeWithContext: typeof collectionTuplesEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionTuplesEncodePartialWithContext;
 	readonly decode: typeof collectionTuplesDecode;
+	readonly fromString: typeof collectionTuplesFromString;
 	readonly decodeWithContext: typeof collectionTuplesDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionTuplesDecodePartialWithContext;
 	readonly validateField: typeof collectionTuplesValidateField;
@@ -3682,8 +3756,19 @@ export declare function collectionLengthsEncode(value: CollectionLengths, keepMe
 export declare function collectionLengthsEncodeWithContext(value: CollectionLengths, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionLengthsEncodePartialWithContext(value: Partial<CollectionLengths>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionLengths>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionLengthsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionLengths;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionLengthsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionLengths;
 } | {
@@ -3719,6 +3804,7 @@ export declare const CollectionLengths: {
 	readonly encodeWithContext: typeof collectionLengthsEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionLengthsEncodePartialWithContext;
 	readonly decode: typeof collectionLengthsDecode;
+	readonly fromString: typeof collectionLengthsFromString;
 	readonly decodeWithContext: typeof collectionLengthsDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionLengthsDecodePartialWithContext;
 	readonly validateField: typeof collectionLengthsValidateField;
@@ -3743,8 +3829,19 @@ export declare function collectionBigEncode(value: CollectionBig, keepMetadata?:
 export declare function collectionBigEncodeWithContext(value: CollectionBig, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function collectionBigEncodePartialWithContext(value: Partial<CollectionBig>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionBig>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function collectionBigDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionBig;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionBigFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: CollectionBig;
 } | {
@@ -3779,6 +3876,7 @@ export declare const CollectionBig: {
 	readonly encodeWithContext: typeof collectionBigEncodeWithContext;
 	readonly encodePartialWithContext: typeof collectionBigEncodePartialWithContext;
 	readonly decode: typeof collectionBigDecode;
+	readonly fromString: typeof collectionBigFromString;
 	readonly decodeWithContext: typeof collectionBigDecodeWithContext;
 	readonly decodePartialWithContext: typeof collectionBigDecodePartialWithContext;
 	readonly validateField: typeof collectionBigValidateField;
@@ -3794,13 +3892,13 @@ export declare const CollectionBig: {
 ## Mapping
 
 original 0..433 -> expanded 1681..2114
-original 433..948 -> expanded 5986..6501
-original 948..1410 -> expanded 47776..48238
-original 1410..1804 -> expanded 81897..82291
-original 1804..2219 -> expanded 109829..110244
-original 2219..2478 -> expanded 137315..137574
-original 2478..2681 -> expanded 157944..158147
-original 2681..2682 -> expanded 176448..176449
+original 433..948 -> expanded 6405..6920
+original 948..1410 -> expanded 48664..49126
+original 1410..1804 -> expanded 83244..83638
+original 1804..2219 -> expanded 111645..112060
+original 2219..2478 -> expanded 139600..139859
+original 2478..2681 -> expanded 160703..160906
+original 2681..2682 -> expanded 179661..179662
 generated 0..1681 <- imports
 generated 2114..2453 <- Debug
 generated 2453..2551 <- Clone
@@ -3810,55 +3908,55 @@ generated 2831..3055 <- PartialOrd
 generated 3055..3265 <- Ord
 generated 3265..3364 <- Default
 generated 3364..3822 <- Encode
-generated 3822..4941 <- Decode
-generated 4941..5986 <- __convenience_const
-generated 6501..7770 <- Debug
-generated 7770..9402 <- Clone
-generated 9402..14513 <- PartialEq
-generated 14513..17443 <- Hash
-generated 17443..17804 <- Default
-generated 17804..23600 <- Encode
-generated 23600..46154 <- Decode
-generated 46154..47776 <- __convenience_const
-generated 48238..49151 <- Debug
-generated 49151..49945 <- Clone
-generated 49945..52585 <- PartialEq
-generated 52585..54444 <- Hash
-generated 54444..54854 <- Default
-generated 54854..60037 <- Encode
-generated 60037..80337 <- Decode
-generated 80337..81897 <- __convenience_const
-generated 82291..83025 <- Debug
-generated 83025..83827 <- Clone
-generated 83827..85900 <- PartialEq
-generated 85900..87185 <- Hash
-generated 87185..87454 <- Default
-generated 87454..91916 <- Encode
-generated 91916..108207 <- Decode
-generated 108207..109829 <- __convenience_const
-generated 110244..111013 <- Debug
-generated 111013..111566 <- Clone
-generated 111566..112508 <- PartialEq
-generated 112508..113287 <- Hash
-generated 113287..113624 <- Default
-generated 113624..117960 <- Encode
-generated 117960..135693 <- Decode
-generated 135693..137315 <- __convenience_const
-generated 137574..138141 <- Debug
-generated 138141..138527 <- Clone
-generated 138527..139068 <- PartialEq
-generated 139068..139578 <- Hash
-generated 139578..139819 <- Default
-generated 139819..143525 <- Encode
-generated 143525..156291 <- Decode
-generated 156291..157944 <- __convenience_const
-generated 158147..158609 <- Debug
-generated 158609..158860 <- Clone
-generated 158860..159710 <- PartialEq
-generated 159710..160658 <- Hash
-generated 160658..163920 <- Encode
-generated 163920..175021 <- Decode
-generated 175021..176448 <- __convenience_const
+generated 3822..5273 <- Decode
+generated 5273..6405 <- __convenience_const
+generated 6920..8189 <- Debug
+generated 8189..9821 <- Clone
+generated 9821..14932 <- PartialEq
+generated 14932..17862 <- Hash
+generated 17862..18223 <- Default
+generated 18223..24019 <- Encode
+generated 24019..46942 <- Decode
+generated 46942..48664 <- __convenience_const
+generated 49126..50039 <- Debug
+generated 50039..50833 <- Clone
+generated 50833..53473 <- PartialEq
+generated 53473..55332 <- Hash
+generated 55332..55742 <- Default
+generated 55742..60925 <- Encode
+generated 60925..81588 <- Decode
+generated 81588..83244 <- __convenience_const
+generated 83638..84372 <- Debug
+generated 84372..85174 <- Clone
+generated 85174..87247 <- PartialEq
+generated 87247..88532 <- Hash
+generated 88532..88801 <- Default
+generated 88801..93263 <- Encode
+generated 93263..109923 <- Decode
+generated 109923..111645 <- __convenience_const
+generated 112060..112829 <- Debug
+generated 112829..113382 <- Clone
+generated 113382..114324 <- PartialEq
+generated 114324..115103 <- Hash
+generated 115103..115440 <- Default
+generated 115440..119776 <- Encode
+generated 119776..137878 <- Decode
+generated 137878..139600 <- __convenience_const
+generated 139859..140426 <- Debug
+generated 140426..140812 <- Clone
+generated 140812..141353 <- PartialEq
+generated 141353..141863 <- Hash
+generated 141863..142104 <- Default
+generated 142104..145810 <- Encode
+generated 145810..158948 <- Decode
+generated 158948..160703 <- __convenience_const
+generated 160906..161368 <- Debug
+generated 161368..161619 <- Clone
+generated 161619..162469 <- PartialEq
+generated 162469..163417 <- Hash
+generated 163417..166679 <- Encode
+generated 166679..178140 <- Decode
+generated 178140..179661 <- __convenience_const
 
 ## Metadata
 

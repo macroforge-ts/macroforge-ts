@@ -17,7 +17,7 @@ import { jobTitleDecodeWithContext, jobTitleEncodeWithContext } from "./job-titl
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { routeDecodeWithContext, routeEncodeWithContext } from "./route.svelte";
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -241,14 +241,11 @@ function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = employeeDecodeWithContext(data, ctx);
+        const resultOrRef = employeeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -293,6 +290,10 @@ export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function employeeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => employeeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Employee | __mf_PendingRef;
@@ -1427,6 +1428,7 @@ export const Employee: {
   readonly encodeWithContext: typeof employeeEncodeWithContext;
   readonly encodePartialWithContext: typeof employeeEncodePartialWithContext;
   readonly decode: typeof employeeDecode;
+  readonly fromString: typeof employeeFromString;
   readonly decodeWithContext: typeof employeeDecodeWithContext;
   readonly decodePartialWithContext: typeof employeeDecodePartialWithContext;
   readonly validateField: typeof employeeValidateField;
@@ -1441,6 +1443,7 @@ export const Employee: {
   encodeWithContext: employeeEncodeWithContext,
   encodePartialWithContext: employeeEncodePartialWithContext,
   decode: employeeDecode,
+  fromString: employeeFromString,
   decodeWithContext: employeeDecodeWithContext,
   decodePartialWithContext: employeeDecodePartialWithContext,
   validateField: employeeValidateField,
@@ -1486,8 +1489,19 @@ export declare function employeeEncode(value: Employee, keepMetadata?: boolean):
 export declare function employeeEncodeWithContext(value: Employee, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Employee>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Employee;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function employeeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Employee;
 } | {
@@ -1602,6 +1616,7 @@ export declare const Employee: {
 	readonly encodeWithContext: typeof employeeEncodeWithContext;
 	readonly encodePartialWithContext: typeof employeeEncodePartialWithContext;
 	readonly decode: typeof employeeDecode;
+	readonly fromString: typeof employeeFromString;
 	readonly decodeWithContext: typeof employeeDecodeWithContext;
 	readonly decodePartialWithContext: typeof employeeDecodePartialWithContext;
 	readonly validateField: typeof employeeValidateField;
@@ -1618,21 +1633,21 @@ export declare const Employee: {
 
 ## Mapping
 
-original 0..310 -> expanded 1418..1728
-original 359..437 -> expanded 1728..1806
-original 478..533 -> expanded 1806..1861
-original 574..597 -> expanded 1861..1884
-original 626..670 -> expanded 1884..1928
-original 711..737 -> expanded 1928..1954
-original 778..805 -> expanded 1954..1981
-original 824..1070 -> expanded 1981..2227
-original 1070..1071 -> expanded 62293..62294
-generated 0..1418 <- imports
-generated 2227..2747 <- Default
-generated 2747..9287 <- Encode
-generated 9287..33710 <- Decode
-generated 33710..61027 <- Gigaform
-generated 61027..62293 <- __convenience_const
+original 0..310 -> expanded 1420..1730
+original 359..437 -> expanded 1730..1808
+original 478..533 -> expanded 1808..1863
+original 574..597 -> expanded 1863..1886
+original 626..670 -> expanded 1886..1930
+original 711..737 -> expanded 1930..1956
+original 778..805 -> expanded 1956..1983
+original 824..1070 -> expanded 1983..2229
+original 1070..1071 -> expanded 62724..62725
+generated 0..1420 <- imports
+generated 2229..2749 <- Default
+generated 2749..9289 <- Encode
+generated 9289..34057 <- Decode
+generated 34057..61374 <- Gigaform
+generated 61374..62724 <- __convenience_const
 
 ## Metadata
 

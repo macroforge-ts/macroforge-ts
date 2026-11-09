@@ -21,35 +21,35 @@ describe('Custom Validators', () => {
     // ============================================================================
     describe('CustomNumberValidator (isEven)', () => {
         test('accepts even number', () => {
-            const result = mod.CustomNumberValidator.decode(
+            const result = mod.CustomNumberValidator.fromString(
                 JSON.stringify({ evenNumber: 2 })
             );
             assertValidationSuccess(result, 'evenNumber');
         });
 
         test('accepts zero', () => {
-            const result = mod.CustomNumberValidator.decode(
+            const result = mod.CustomNumberValidator.fromString(
                 JSON.stringify({ evenNumber: 0 })
             );
             assertValidationSuccess(result, 'evenNumber');
         });
 
         test('accepts negative even number', () => {
-            const result = mod.CustomNumberValidator.decode(
+            const result = mod.CustomNumberValidator.fromString(
                 JSON.stringify({ evenNumber: -4 })
             );
             assertValidationSuccess(result, 'evenNumber');
         });
 
         test('rejects odd number', () => {
-            const result = mod.CustomNumberValidator.decode(
+            const result = mod.CustomNumberValidator.fromString(
                 JSON.stringify({ evenNumber: 3 })
             );
             assertValidationError(result, 'evenNumber', '');
         });
 
         test('rejects negative odd number', () => {
-            const result = mod.CustomNumberValidator.decode(
+            const result = mod.CustomNumberValidator.fromString(
                 JSON.stringify({ evenNumber: -5 })
             );
             assertValidationError(result, 'evenNumber', '');
@@ -61,63 +61,63 @@ describe('Custom Validators', () => {
     // ============================================================================
     describe('CustomStringValidator (isValidUsername)', () => {
         test('accepts valid username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'john_doe' })
             );
             assertValidationSuccess(result, 'username');
         });
 
         test('accepts username with numbers', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'user123' })
             );
             assertValidationSuccess(result, 'username');
         });
 
         test('accepts 3 character username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'abc' })
             );
             assertValidationSuccess(result, 'username');
         });
 
         test('accepts 16 character username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'a'.repeat(16) })
             );
             assertValidationSuccess(result, 'username');
         });
 
         test('rejects 2 character username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'ab' })
             );
             assertValidationError(result, 'username', '');
         });
 
         test('rejects 17 character username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'a'.repeat(17) })
             );
             assertValidationError(result, 'username', '');
         });
 
         test('rejects username with spaces', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'john doe' })
             );
             assertValidationError(result, 'username', '');
         });
 
         test('rejects username starting with number', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: '1john' })
             );
             assertValidationError(result, 'username', '');
         });
 
         test('rejects uppercase username', () => {
-            const result = mod.CustomStringValidator.decode(
+            const result = mod.CustomStringValidator.fromString(
                 JSON.stringify({ username: 'JohnDoe' })
             );
             assertValidationError(result, 'username', '');
@@ -129,14 +129,14 @@ describe('Custom Validators', () => {
     // ============================================================================
     describe('CustomWithMessageValidator', () => {
         test('accepts even number', () => {
-            const result = mod.CustomWithMessageValidator.decode(
+            const result = mod.CustomWithMessageValidator.fromString(
                 JSON.stringify({ evenNumber: 4 })
             );
             assertValidationSuccess(result, 'evenNumber');
         });
 
         test('rejects odd with custom message', () => {
-            const result = mod.CustomWithMessageValidator.decode(
+            const result = mod.CustomWithMessageValidator.fromString(
                 JSON.stringify({ evenNumber: 3 })
             );
             assertValidationError(result, 'evenNumber', 'Number must be even');
@@ -148,14 +148,14 @@ describe('Custom Validators', () => {
     // ============================================================================
     describe('ImportedCustomValidator (isMultipleOfThree from ./shared-validators)', () => {
         test('accepts a multiple of three', () => {
-            const result = mod.ImportedCustomValidator.decode(
+            const result = mod.ImportedCustomValidator.fromString(
                 JSON.stringify({ count: 9 })
             );
             assertValidationSuccess(result, 'count');
         });
 
         test('rejects anything else, naming the function', () => {
-            const result = mod.ImportedCustomValidator.decode(
+            const result = mod.ImportedCustomValidator.fromString(
                 JSON.stringify({ count: 10 })
             );
             assertValidationError(result, 'count', 'isMultipleOfThree');

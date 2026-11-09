@@ -20,7 +20,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Guarded {
@@ -182,14 +182,11 @@ constructor(props: { name: string; level: number; secret: boolean; sealed: strin
     this.sealed = props.sealed;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Guarded.decodeWithContext(data, ctx);
+        const resultOrRef = Guarded.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -234,6 +231,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Guarded.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -404,9 +406,14 @@ export function guardedEncodePartialWithContext(value: Partial<Guarded>, ctx: __
     return Guarded.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function guardedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Guarded.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function guardedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Guarded } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Guarded.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -456,8 +463,19 @@ declare class Guarded {
 		secret: boolean;
 		sealed: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Guarded;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Guarded;
 	} | {
@@ -495,8 +513,19 @@ export declare function guardedEncode(value: Guarded, keepMetadata?: boolean): s
 export declare function guardedEncodeWithContext(value: Guarded, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function guardedEncodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Guarded>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function guardedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Guarded;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function guardedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Guarded;
 } | {
@@ -522,29 +551,29 @@ export {};
 
 ## Mapping
 
-original 91..248 -> expanded 939..1096
-original 248..249 -> expanded 14547..14548
-original 249..250 -> expanded 18344..18345
-generated 0..939 <- imports
-generated 1096..1524 <- Debug
-generated 1524..1752 <- Clone
-generated 1752..2212 <- PartialEq
-generated 2212..2865 <- Hash
-generated 2865..3553 <- PartialOrd
-generated 3553..4221 <- Ord
-generated 4221..4526 <- Default
-generated 4526..6877 <- Encode
-generated 6877..7198 <- Encode
-generated 7198..14547 <- Decode
-generated 14548..14645 <- Debug
-generated 14645..14737 <- Clone
-generated 14737..14838 <- PartialEq
-generated 14838..14935 <- Hash
-generated 14935..15058 <- PartialOrd
-generated 15058..15160 <- Ord
-generated 15160..15247 <- Default
-generated 15247..16577 <- Encode
-generated 16577..18344 <- Decode
+original 91..248 -> expanded 941..1098
+original 248..249 -> expanded 14896..14897
+original 249..250 -> expanded 19092..19093
+generated 0..941 <- imports
+generated 1098..1526 <- Debug
+generated 1526..1754 <- Clone
+generated 1754..2214 <- PartialEq
+generated 2214..2867 <- Hash
+generated 2867..3555 <- PartialOrd
+generated 3555..4223 <- Ord
+generated 4223..4528 <- Default
+generated 4528..6879 <- Encode
+generated 6879..7200 <- Encode
+generated 7200..14896 <- Decode
+generated 14897..14994 <- Debug
+generated 14994..15086 <- Clone
+generated 15086..15187 <- PartialEq
+generated 15187..15284 <- Hash
+generated 15284..15407 <- PartialOrd
+generated 15407..15509 <- Ord
+generated 15509..15596 <- Default
+generated 15596..16926 <- Encode
+generated 16926..19092 <- Decode
 
 ## Metadata
 

@@ -24,7 +24,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A parameter property takes the decorators written above it, like a field. */
 
@@ -100,14 +100,11 @@ static #encodeFields(value: Tagged, _ctx: __mf_EncodeContext, result: Record<str
         return taggedEncode(value, keepMetadata);
     }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Tagged.decodeWithContext(data, ctx);
+        const resultOrRef = Tagged.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -152,6 +149,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Tagged.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -292,9 +294,14 @@ export function taggedEncodePartialWithContext(value: Partial<Tagged>, ctx: __mf
     return Tagged.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Tagged.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function taggedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Tagged.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -334,8 +341,19 @@ declare class Tagged {
 	static encodePartialWithContext(value: Partial<Tagged>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Tagged>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: Tagged, keepMetadata?: boolean): string;
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Tagged;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Tagged;
 	} | {
@@ -367,8 +385,19 @@ export declare function taggedEncode(value: Tagged, keepMetadata?: boolean): str
 export declare function taggedEncodeWithContext(value: Tagged, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function taggedEncodePartialWithContext(value: Partial<Tagged>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Tagged>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function taggedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Tagged;
 } | {
@@ -394,21 +423,21 @@ export {};
 
 ## Mapping
 
-original 0..81 -> expanded 762..843
-original 120..161 -> expanded 843..884
-original 179..214 -> expanded 884..919
-original 248..298 -> expanded 919..969
-original 327..405 -> expanded 969..1047
-original 405..406 -> expanded 10465..10466
-original 406..407 -> expanded 13622..13623
-generated 0..762 <- imports
-generated 1047..1347 <- Default
-generated 1347..3454 <- Encode
-generated 3454..3773 <- Encode
-generated 3773..10465 <- Decode
-generated 10466..10550 <- Default
-generated 10550..11870 <- Encode
-generated 11870..13622 <- Decode
+original 0..81 -> expanded 764..845
+original 120..161 -> expanded 845..886
+original 179..214 -> expanded 886..921
+original 248..298 -> expanded 921..971
+original 327..405 -> expanded 971..1049
+original 405..406 -> expanded 10812..10813
+original 406..407 -> expanded 14365..14366
+generated 0..764 <- imports
+generated 1049..1349 <- Default
+generated 1349..3456 <- Encode
+generated 3456..3775 <- Encode
+generated 3775..10812 <- Decode
+generated 10813..10897 <- Default
+generated 10897..12217 <- Encode
+generated 12217..14365 <- Decode
 
 ## Metadata
 

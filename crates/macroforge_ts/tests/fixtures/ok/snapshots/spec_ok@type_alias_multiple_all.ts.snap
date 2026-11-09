@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -109,14 +109,11 @@ function coordinateEncodeFields(value: Coordinate, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = coordinateDecodeWithContext(data, ctx);
+        const resultOrRef = coordinateDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -161,6 +158,10 @@ export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function coordinateFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => coordinateDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef;
@@ -264,6 +265,7 @@ const Coordinate: {
   readonly encodeWithContext: typeof coordinateEncodeWithContext;
   readonly encodePartialWithContext: typeof coordinateEncodePartialWithContext;
   readonly decode: typeof coordinateDecode;
+  readonly fromString: typeof coordinateFromString;
   readonly decodeWithContext: typeof coordinateDecodeWithContext;
   readonly decodePartialWithContext: typeof coordinateDecodePartialWithContext;
   readonly validateField: typeof coordinateValidateField;
@@ -279,6 +281,7 @@ const Coordinate: {
   encodeWithContext: coordinateEncodeWithContext,
   encodePartialWithContext: coordinateEncodePartialWithContext,
   decode: coordinateDecode,
+  fromString: coordinateFromString,
   decodeWithContext: coordinateDecodeWithContext,
   decodePartialWithContext: coordinateDecodePartialWithContext,
   validateField: coordinateValidateField,
@@ -303,8 +306,19 @@ export declare function coordinateEncode(value: Coordinate, keepMetadata?: boole
 export declare function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function coordinateEncodePartialWithContext(value: Partial<Coordinate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinate>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Coordinate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function coordinateFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Coordinate;
 } | {
@@ -338,16 +352,16 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 869..926
-original 118..119 -> expanded 12378..12379
-generated 0..869 <- imports
-generated 926..1231 <- Debug
-generated 1231..1392 <- Clone
-generated 1392..1727 <- PartialEq
-generated 1727..2224 <- Hash
-generated 2224..4726 <- Encode
-generated 4726..11045 <- Decode
-generated 11045..12378 <- __convenience_const
+original 61..118 -> expanded 871..928
+original 118..119 -> expanded 12819..12820
+generated 0..871 <- imports
+generated 928..1233 <- Debug
+generated 1233..1394 <- Clone
+generated 1394..1729 <- PartialEq
+generated 1729..2226 <- Hash
+generated 2226..4728 <- Encode
+generated 4728..11398 <- Decode
+generated 11398..12819 <- __convenience_const
 
 ## Metadata
 

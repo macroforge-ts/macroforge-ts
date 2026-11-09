@@ -12,17 +12,13 @@ use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_
 
 use super::encodable::encodable_dispatch;
 use super::mixed::mixed_dispatch;
-use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
 use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::builtin::return_types::{PENDING_REF, decode_return_type, wrap_error, wrap_success};
 
-/// `{camelName}Decode`: parses JSON text unless a string is itself a member
-/// value, then decodes through the context-taking decoder.
+/// `{camelName}Decode`: decodes a value through the context-taking decoder,
+/// and `{camelName}FromString`, which decodes JSON text.
 pub(super) fn decode_entry(u: &Union) -> TsStream {
     let Union {
-        has_literals,
-        primitive_types,
-        encodable_types,
         type_name,
         decode_context_expr,
         decode_error_expr,
@@ -33,10 +29,6 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         coders,
         passed_coders,
         full_type_name,
-        foreign_types_config,
-        type_registry,
-        caller_file_path,
-        file_imports,
         ..
     } = u;
     let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
@@ -69,49 +61,12 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
     let error_from_ctx_expr =
         Expr::parse(&error_from_ctx).expect("decode ctx error wrapper should parse");
 
-    // A string input is the value itself when a member accepts strings, and
-    // JSON text otherwise. A foreign member's hasShape decides that at runtime,
-    // since its handler is imported rather than visible here.
-    let has_string_variant = primitive_types.iter().any(|p| p == "string")
-        || *has_literals
-        || type_accepts_string(
-            type_name,
-            type_registry,
-            caller_file_path,
-            file_imports,
-            foreign_types_config,
-        );
-    let foreign_shape_checks: Vec<String> = encodable_types
-        .iter()
-        .filter(|member| member.is_foreign)
-        .filter_map(|member| member.foreign_has_shape_callee.as_deref())
-        .map(|callee| rendered(ts_template! { @{callee}(input) }))
-        .collect();
-    let data_init = if has_string_variant {
-        // A string may be a member itself or the JSON text of one.
-        let text_or_value = crate::builtin::derive::endec::coder::endec_helper("textOrValue");
-        let has_shape = format!("{}HasShape", function_prefix(type_name));
-        rendered(ts_template! { @{text_or_value}(input, @{has_shape}) })
-    } else {
-        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
-        if foreign_shape_checks.is_empty() {
-            rendered(ts_template! { typeof input === "string" ? @{parsed_text}(input) : input })
-        } else {
-            let shaped = foreign_shape_checks.join(" || ");
-            rendered(ts_template! {
-                typeof input === "string" && !(@{shaped}) ? @{parsed_text}(input) : input
-            })
-        }
-    };
-    let data_init_expr = Expr::parse(&data_init).expect("data init expr should parse");
-    ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+    let decode = ts_template! {
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{fn_decode_internal_expr}(data, ctx@{passed_coders});
+                const resultOrRef = @{fn_decode_internal_expr}(input, ctx@{passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -136,7 +91,19 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
                 return @{error_generic_message_expr};
             }
         }
-    }
+    };
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode{}", function_prefix(type_name), generic_args);
+    decode.merge(super::super::super::from_string::from_string_function(
+        &super::super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders,
+            passed_coders,
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ))
 }
 
 /// `{camelName}DecodeWithContext`: resolves references, then decodes by the

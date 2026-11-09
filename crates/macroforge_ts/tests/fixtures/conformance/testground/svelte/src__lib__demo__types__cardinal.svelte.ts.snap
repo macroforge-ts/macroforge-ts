@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -98,14 +98,11 @@ function cardinalEncodeFields(value: Cardinal, _ctx: __mf_EncodeContext, result:
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = cardinalDecodeWithContext(data, ctx);
+        const resultOrRef = cardinalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -150,6 +147,10 @@ export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function cardinalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => cardinalDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef;
@@ -471,6 +472,7 @@ export const Cardinal: {
   readonly encodeWithContext: typeof cardinalEncodeWithContext;
   readonly encodePartialWithContext: typeof cardinalEncodePartialWithContext;
   readonly decode: typeof cardinalDecode;
+  readonly fromString: typeof cardinalFromString;
   readonly decodeWithContext: typeof cardinalDecodeWithContext;
   readonly decodePartialWithContext: typeof cardinalDecodePartialWithContext;
   readonly validateField: typeof cardinalValidateField;
@@ -485,6 +487,7 @@ export const Cardinal: {
   encodeWithContext: cardinalEncodeWithContext,
   encodePartialWithContext: cardinalEncodePartialWithContext,
   decode: cardinalDecode,
+  fromString: cardinalFromString,
   decodeWithContext: cardinalDecodeWithContext,
   decodePartialWithContext: cardinalDecodePartialWithContext,
   validateField: cardinalValidateField,
@@ -511,8 +514,19 @@ export declare function cardinalEncode(value: Cardinal, keepMetadata?: boolean):
 export declare function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function cardinalEncodePartialWithContext(value: Partial<Cardinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Cardinal>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Cardinal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function cardinalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Cardinal;
 } | {
@@ -585,6 +599,7 @@ export declare const Cardinal: {
 	readonly encodeWithContext: typeof cardinalEncodeWithContext;
 	readonly encodePartialWithContext: typeof cardinalEncodePartialWithContext;
 	readonly decode: typeof cardinalDecode;
+	readonly fromString: typeof cardinalFromString;
 	readonly decodeWithContext: typeof cardinalDecodeWithContext;
 	readonly decodePartialWithContext: typeof cardinalDecodePartialWithContext;
 	readonly validateField: typeof cardinalValidateField;
@@ -601,15 +616,15 @@ export declare const Cardinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..211 -> expanded 902..1006
-original 211..212 -> expanded 19998..19999
-generated 0..844 <- imports
-generated 1006..1150 <- Default
-generated 1150..4086 <- Encode
-generated 4086..11647 <- Decode
-generated 11647..18732 <- Gigaform
-generated 18732..19998 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..211 -> expanded 904..1008
+original 211..212 -> expanded 20429..20430
+generated 0..846 <- imports
+generated 1008..1152 <- Default
+generated 1152..4088 <- Encode
+generated 4088..11994 <- Decode
+generated 11994..19079 <- Gigaform
+generated 19079..20429 <- __convenience_const
 
 ## Metadata
 

@@ -19,7 +19,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -69,14 +69,11 @@ function tickEncodeFields(value: Tick, _ctx: __mf_EncodeContext, result: Record<
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = tickDecodeWithContext(data, ctx);
+        const resultOrRef = tickDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -121,6 +118,10 @@ export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tickFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tickDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function tickDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tick | __mf_PendingRef;
@@ -202,6 +203,7 @@ export const Tick: {
   readonly encodeWithContext: typeof tickEncodeWithContext;
   readonly encodePartialWithContext: typeof tickEncodePartialWithContext;
   readonly decode: typeof tickDecode;
+  readonly fromString: typeof tickFromString;
   readonly decodeWithContext: typeof tickDecodeWithContext;
   readonly decodePartialWithContext: typeof tickDecodePartialWithContext;
   readonly validateField: typeof tickValidateField;
@@ -214,6 +216,7 @@ export const Tick: {
   encodeWithContext: tickEncodeWithContext,
   encodePartialWithContext: tickEncodePartialWithContext,
   decode: tickDecode,
+  fromString: tickFromString,
   decodeWithContext: tickDecodeWithContext,
   decodePartialWithContext: tickDecodePartialWithContext,
   validateField: tickValidateField,
@@ -235,8 +238,19 @@ export declare function tickEncode(value: Tick, keepMetadata?: boolean): string;
 export declare function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function tickEncodePartialWithContext(value: Partial<Tick>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Tick>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function tickDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tick;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tickFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Tick;
 } | {
@@ -268,6 +282,7 @@ export declare const Tick: {
 	readonly encodeWithContext: typeof tickEncodeWithContext;
 	readonly encodePartialWithContext: typeof tickEncodePartialWithContext;
 	readonly decode: typeof tickDecode;
+	readonly fromString: typeof tickFromString;
 	readonly decodeWithContext: typeof tickDecodeWithContext;
 	readonly decodePartialWithContext: typeof tickDecodePartialWithContext;
 	readonly validateField: typeof tickValidateField;
@@ -282,14 +297,14 @@ export declare const Tick: {
 
 ## Mapping
 
-original 0..36 -> expanded 813..849
-original 75..123 -> expanded 849..897
-original 123..124 -> expanded 9417..9418
-generated 0..813 <- imports
-generated 897..1008 <- Default
-generated 1008..3099 <- Encode
-generated 3099..8419 <- Decode
-generated 8419..9417 <- __convenience_const
+original 0..36 -> expanded 815..851
+original 75..123 -> expanded 851..899
+original 123..124 -> expanded 9828..9829
+generated 0..815 <- imports
+generated 899..1010 <- Default
+generated 1010..3101 <- Encode
+generated 3101..8754 <- Decode
+generated 8754..9828 <- __convenience_const
 
 ## Metadata
 

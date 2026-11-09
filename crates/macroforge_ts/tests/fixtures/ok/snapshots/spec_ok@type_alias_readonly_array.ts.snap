@@ -19,7 +19,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A clone that spreads its value reads it. */
 
@@ -63,13 +63,11 @@ export function tagsEncodeWithContext(value: Tags): unknown {
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function tagsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tags } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = tagsDecodeWithContext(data, ctx);
+        const result = tagsDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -152,6 +150,10 @@ export function tagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 export function tagsHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tagsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tags } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tagsDecode(value, opts));
+}
 
 export const Tags: {
   readonly toString: typeof tagsToString;
@@ -165,6 +167,7 @@ export const Tags: {
   readonly is: typeof tagsIs;
   readonly decodeWithContext: typeof tagsDecodeWithContext;
   readonly hasShape: typeof tagsHasShape;
+  readonly fromString: typeof tagsFromString;
 } = {
   toString: tagsToString,
   clone: tagsClone,
@@ -176,7 +179,8 @@ export const Tags: {
   decode: tagsDecode,
   is: tagsIs,
   decodeWithContext: tagsDecodeWithContext,
-  hasShape: tagsHasShape
+  hasShape: tagsHasShape,
+  fromString: tagsFromString
 };
 
 
@@ -205,7 +209,7 @@ export declare function tagsDefaultValue(): Tags;
 export declare function tagsEncode(value: Tags, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function tagsEncodeWithContext(value: Tags, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function tagsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Tags;
@@ -220,6 +224,17 @@ export declare function tagsIs(value: unknown): value is Tags;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function tagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tags;
 export declare function tagsHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tagsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tags;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const Tags: {
 	readonly toString: typeof tagsToString;
 	readonly clone: typeof tagsClone;
@@ -232,6 +247,7 @@ export declare const Tags: {
 	readonly is: typeof tagsIs;
 	readonly decodeWithContext: typeof tagsDecodeWithContext;
 	readonly hasShape: typeof tagsHasShape;
+	readonly fromString: typeof tagsFromString;
 };
 export type Counts = number[];
 export declare function countsClone(value: Counts): Counts;
@@ -245,22 +261,22 @@ export declare const Counts: {
 
 ## Mapping
 
-original 0..48 -> expanded 513..561
-original 118..156 -> expanded 561..599
-original 156..158 -> expanded 6250..6252
-original 179..210 -> expanded 6252..6283
-original 210..211 -> expanded 6454..6455
-generated 0..513 <- imports
-generated 599..710 <- Debug
-generated 710..783 <- Clone
-generated 783..1055 <- PartialEq
-generated 1055..1272 <- Hash
-generated 1272..1364 <- Default
-generated 1364..2332 <- Encode
-generated 2332..5444 <- Decode
-generated 5444..6250 <- __convenience_const
-generated 6283..6362 <- Clone
-generated 6362..6454 <- __convenience_const
+original 0..48 -> expanded 515..563
+original 118..156 -> expanded 563..601
+original 156..158 -> expanded 6742..6744
+original 179..210 -> expanded 6744..6775
+original 210..211 -> expanded 6946..6947
+generated 0..515 <- imports
+generated 601..712 <- Debug
+generated 712..785 <- Clone
+generated 785..1057 <- PartialEq
+generated 1057..1274 <- Hash
+generated 1274..1366 <- Default
+generated 1366..2334 <- Encode
+generated 2334..5860 <- Decode
+generated 5860..6742 <- __convenience_const
+generated 6775..6854 <- Clone
+generated 6854..6946 <- __convenience_const
 
 ## Metadata
 

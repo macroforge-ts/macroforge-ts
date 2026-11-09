@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "src/edge-cases/edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * A type held from another module by a path that is not a relative one, as
@@ -135,14 +135,11 @@ function namePathsEncodeFields(value: NamePaths, ctx: __mf_EncodeContext, result
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function namePathsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NamePaths } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = namePathsDecodeWithContext(data, ctx);
+        const resultOrRef = namePathsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -187,6 +184,10 @@ export function namePathsDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function namePathsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: NamePaths } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => namePathsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function namePathsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NamePaths | __mf_PendingRef;
@@ -349,6 +350,7 @@ export const NamePaths: {
   readonly encodeWithContext: typeof namePathsEncodeWithContext;
   readonly encodePartialWithContext: typeof namePathsEncodePartialWithContext;
   readonly decode: typeof namePathsDecode;
+  readonly fromString: typeof namePathsFromString;
   readonly decodeWithContext: typeof namePathsDecodeWithContext;
   readonly decodePartialWithContext: typeof namePathsDecodePartialWithContext;
   readonly validateField: typeof namePathsValidateField;
@@ -365,6 +367,7 @@ export const NamePaths: {
   encodeWithContext: namePathsEncodeWithContext,
   encodePartialWithContext: namePathsEncodePartialWithContext,
   decode: namePathsDecode,
+  fromString: namePathsFromString,
   decodeWithContext: namePathsDecodeWithContext,
   decodePartialWithContext: namePathsDecodePartialWithContext,
   validateField: namePathsValidateField,
@@ -397,8 +400,19 @@ export declare function namePathsEncode(value: NamePaths, keepMetadata?: boolean
 export declare function namePathsEncodeWithContext(value: NamePaths, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function namePathsEncodePartialWithContext(value: Partial<NamePaths>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NamePaths>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function namePathsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NamePaths;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function namePathsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: NamePaths;
 } | {
@@ -434,6 +448,7 @@ export declare const NamePaths: {
 	readonly encodeWithContext: typeof namePathsEncodeWithContext;
 	readonly encodePartialWithContext: typeof namePathsEncodePartialWithContext;
 	readonly decode: typeof namePathsDecode;
+	readonly fromString: typeof namePathsFromString;
 	readonly decodeWithContext: typeof namePathsDecodeWithContext;
 	readonly decodePartialWithContext: typeof namePathsDecodePartialWithContext;
 	readonly validateField: typeof namePathsValidateField;
@@ -448,17 +463,17 @@ export declare const NamePaths: {
 
 ## Mapping
 
-original 0..392 -> expanded 1089..1481
-original 392..393 -> expanded 16780..16781
-generated 0..1089 <- imports
-generated 1481..1943 <- Debug
-generated 1943..2236 <- Clone
-generated 2236..2870 <- PartialEq
-generated 2870..3311 <- Hash
-generated 3311..3466 <- Default
-generated 3466..6348 <- Encode
-generated 6348..15375 <- Decode
-generated 15375..16780 <- __convenience_const
+original 0..392 -> expanded 1091..1483
+original 392..393 -> expanded 17216..17217
+generated 0..1091 <- imports
+generated 1483..1945 <- Debug
+generated 1945..2238 <- Clone
+generated 2238..2872 <- PartialEq
+generated 2872..3313 <- Hash
+generated 3313..3468 <- Default
+generated 3468..6350 <- Encode
+generated 6350..15725 <- Decode
+generated 15725..17216 <- __convenience_const
 
 ## Metadata
 

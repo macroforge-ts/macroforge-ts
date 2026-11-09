@@ -13,25 +13,29 @@ const mod = await expandAndCompile(join(vanillaRoot, 'src', 'edge-cases', 'scann
 
 Deno.test('a backslash literal is one member of its union', () => {
     for (const separator of ['\\', '/']) {
-        const decoded = mod.scannedTextDecode(
+        const decoded = mod.scannedTextFromString(
             JSON.stringify({ separator, key: 'key-a', note: '' })
         );
         assert(decoded.success, JSON.stringify(decoded));
         assertStrictEquals(decoded.value.separator, separator);
     }
     assert(
-        !mod.scannedTextDecode(JSON.stringify({ separator: '|', key: 'key-a', note: '' })).success
+        !mod.scannedTextFromString(JSON.stringify({ separator: '|', key: 'key-a', note: '' }))
+            .success
     );
     assert(mod.scannedTextIs({ separator: '\\', key: 'key-b', note: '' }));
 });
 
 Deno.test('a template literal alias is checked with its argument in place', () => {
     assert(
-        mod.scannedTextDecode(JSON.stringify({ separator: '/', key: 'key-b', note: 'any text' }))
+        mod.scannedTextFromString(
+            JSON.stringify({ separator: '/', key: 'key-b', note: 'any text' })
+        )
             .success
     );
     assert(
-        !mod.scannedTextDecode(JSON.stringify({ separator: '/', key: 'key-c', note: '' })).success
+        !mod.scannedTextFromString(JSON.stringify({ separator: '/', key: 'key-c', note: '' }))
+            .success
     );
     assert(!mod.scannedTextIs({ separator: '/', key: 'key-T', note: '' }));
 });
@@ -53,7 +57,8 @@ Deno.test('a function returning a union is held and compared as one function', (
 Deno.test('an empty pattern takes any text', () => {
     for (const note of ['', 'text', '//', '\n']) {
         assert(
-            mod.scannedTextDecode(JSON.stringify({ separator: '/', key: 'key-a', note })).success,
+            mod.scannedTextFromString(JSON.stringify({ separator: '/', key: 'key-a', note }))
+                .success,
             note
         );
     }
@@ -62,13 +67,14 @@ Deno.test('an empty pattern takes any text', () => {
 Deno.test('a type in parentheses or holding brackets in a string is read as written', () => {
     const groups = mod.scannedGroupsDefaultValue();
     assertEquals(groups, { shade: 'light', either: '', pair: [']?)'] });
-    const decoded = mod.scannedGroupsDecode(
+    const decoded = mod.scannedGroupsFromString(
         JSON.stringify({ shade: 'dark', either: { a: '' }, pair: [']?)', 4] })
     );
     assert(decoded.success, JSON.stringify(decoded));
     assertEquals(decoded.value, { shade: 'dark', either: { a: '' }, pair: [']?)', 4] });
     assert(
-        !mod.scannedGroupsDecode(JSON.stringify({ shade: 'dark', either: '', pair: [']'] })).success
+        !mod.scannedGroupsFromString(JSON.stringify({ shade: 'dark', either: '', pair: [']'] }))
+            .success
     );
     assert(mod.scannedGroupsEquals(groups, mod.scannedGroupsDefaultValue()));
 });
@@ -81,7 +87,7 @@ Deno.test('a union of a primitive and a tuple is coded as its values are', () =>
             { pair: [2], rest: ['a'] }
         ]
     ) {
-        const decoded = mod.scannedUnionsDecode(mod.scannedUnionsEncode(value));
+        const decoded = mod.scannedUnionsFromString(mod.scannedUnionsEncode(value));
         assert(decoded.success, JSON.stringify(decoded));
         assert(
             mod.scannedUnionsEquals(decoded.value, value),
@@ -90,7 +96,7 @@ Deno.test('a union of a primitive and a tuple is coded as its values are', () =>
     }
     for (const pair of [[1, 2], ['one'], [1, 'one', 'two']]) {
         assert(
-            !mod.scannedUnionsDecode(JSON.stringify({ pair, rest: 'r' })).success,
+            !mod.scannedUnionsFromString(JSON.stringify({ pair, rest: 'r' })).success,
             JSON.stringify(pair)
         );
     }
@@ -101,20 +107,23 @@ Deno.test('a bigint literal is coded as its bigint, and checked to be the litera
         const value of [{ one: 1n, some: -1n, maybe: null }, { one: 1n, some: 1000n, maybe: 2n }]
     ) {
         const encoded = mod.scannedBigintsEncode(value);
-        const decoded = mod.scannedBigintsDecode(encoded);
+        const decoded = mod.scannedBigintsFromString(encoded);
         assert(decoded.success, decoded.success ? '' : JSON.stringify(decoded.errors));
         assert(mod.scannedBigintsEquals(decoded.value, value), encoded);
     }
     assert(
-        !mod.scannedBigintsDecode(JSON.stringify({ one: '2', some: '-1', maybe: null })).success
+        !mod.scannedBigintsFromString(JSON.stringify({ one: '2', some: '-1', maybe: null })).success
     );
-    assert(!mod.scannedBigintsDecode(JSON.stringify({ one: '1', some: '5', maybe: null })).success);
+    assert(
+        !mod.scannedBigintsFromString(JSON.stringify({ one: '1', some: '5', maybe: null })).success
+    );
 });
 
 Deno.test('a field of nothing but undefined takes no value', () => {
-    assert(mod.scannedNothingDecode(JSON.stringify({ nothing: null, other: 'x' })).success);
+    assert(mod.scannedNothingFromString(JSON.stringify({ nothing: null, other: 'x' })).success);
     assert(
-        !mod.scannedNothingDecode(JSON.stringify({ none: 1, nothing: null, other: 'x' })).success
+        !mod.scannedNothingFromString(JSON.stringify({ none: 1, nothing: null, other: 'x' }))
+            .success
     );
 });
 

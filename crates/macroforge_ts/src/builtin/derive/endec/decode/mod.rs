@@ -7,14 +7,15 @@
 //! ## Generated Output
 //!
 //! For **classes** (`class_handler`), the macro generates static methods plus
-//! standalone functions (`{name}Decode`, `{name}DecodeWithContext`,
-//! `{name}Is`) that delegate to them:
+//! standalone functions (`{name}Decode`, `{name}FromString`,
+//! `{name}DecodeWithContext`, `{name}Is`) that delegate to them:
 //!
 //! - `static decode(input: unknown, opts?: DecodeOptions):
 //!   { success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }` -
-//!   Auto-detects JSON string vs object; never throws. `opts.freeze` freezes all
-//!   decoded objects, arrays, tuples and records; a `Map` and a `Set` have no
-//!   frozen form.
+//!   Decodes a value; never throws. `opts.freeze` freezes all decoded objects,
+//!   arrays, tuples and records; a `Map` and a `Set` have no frozen form.
+//! - `static fromString(text: string, opts?: DecodeOptions)` - Decodes JSON text,
+//!   as `encode` writes it, with the same result.
 //! - `static decodeWithContext(value, ctx): T | PendingRef` - Internal method used
 //!   for nested/cyclic graphs; throws `DecodeError` on structural errors
 //! - `static hasShape(obj): boolean` - Checks all required JSON keys are present
@@ -26,12 +27,11 @@
 //!   has no constructor of its own. A subclass's hands them to its superclass's
 //!   when that derives `Decode`
 //!
-//! `decode` takes JSON text or a value already parsed from it. Where the type
-//! itself takes a string, as an alias of `string` or of `Date`, an enum of
-//! strings and a union with a string or a string-literal member do, a string
-//! is the JSON text of a value when it spells one the type takes, and the
-//! value itself otherwise. So `decode(encode(value))` reads back what was
-//! encoded, and `decode("small")` is still the member `small`.
+//! `decode` takes a value and never reads a string as JSON text: a string is
+//! the value it is. `fromString` takes JSON text, so `fromString(encode(value))`
+//! reads back what was encoded. The two are kept apart as serde keeps
+//! `from_str` apart from a value, so a string that happens to spell JSON, such
+//! as `"hello"` with its quotes, is never unwrapped.
 //!
 //! Decoding builds an instance without running its constructor, so a class
 //! keeps whatever constructor it has. Its `private`, `protected` and `readonly`
@@ -42,7 +42,7 @@
 //! surface (there is no class to attach statics to), except that only an object-shaped
 //! alias has fields to validate, so no other alias gets `validateField`/`validateFields`.
 //! **Enums** (`enum_handler`) get
-//! `{name}Decode`/`{name}DecodeWithContext`/`{name}Is`; unlike the other
+//! `{name}Decode`/`{name}FromString`/`{name}DecodeWithContext`/`{name}Is`; unlike the other
 //! shapes, the enum `decode` function **throws** a `DecodeError` on invalid
 //! values rather than returning a result union.
 //!
@@ -159,6 +159,7 @@
 mod class_handler;
 mod enum_handler;
 mod field;
+mod from_string;
 pub(crate) mod helpers;
 mod interface_handler;
 mod object_decoder;

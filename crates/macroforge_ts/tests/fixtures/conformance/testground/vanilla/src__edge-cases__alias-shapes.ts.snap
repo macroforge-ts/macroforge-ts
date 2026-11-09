@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemDecodePartialWithContext, edgeItemEncodePartialWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeBoolean as __mf_decodeBoolean, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, notTheMember as __mf_notTheMember, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedMember as __mf_decodedMember, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked, holds as __mf_holds } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeBoolean as __mf_decodeBoolean, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, notTheMember as __mf_notTheMember, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedMember as __mf_decodedMember, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked, holds as __mf_holds } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type aliases of every body a derive has to dispatch on: objects, tuples,
@@ -162,14 +162,11 @@ function aliasObjectEncodeFields(value: AliasObject, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasObjectDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasObject } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasObjectDecodeWithContext(data, ctx);
+        const resultOrRef = aliasObjectDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -214,6 +211,10 @@ export function aliasObjectDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasObjectFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasObject } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasObjectDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasObject | __mf_PendingRef;
@@ -336,6 +337,7 @@ export const AliasObject: {
   readonly encodeWithContext: typeof aliasObjectEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasObjectEncodePartialWithContext;
   readonly decode: typeof aliasObjectDecode;
+  readonly fromString: typeof aliasObjectFromString;
   readonly decodeWithContext: typeof aliasObjectDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasObjectDecodePartialWithContext;
   readonly validateField: typeof aliasObjectValidateField;
@@ -354,6 +356,7 @@ export const AliasObject: {
   encodeWithContext: aliasObjectEncodeWithContext,
   encodePartialWithContext: aliasObjectEncodePartialWithContext,
   decode: aliasObjectDecode,
+  fromString: aliasObjectFromString,
   decodeWithContext: aliasObjectDecodeWithContext,
   decodePartialWithContext: aliasObjectDecodePartialWithContext,
   validateField: aliasObjectValidateField,
@@ -430,13 +433,11 @@ export function aliasTupleEncodeWithContext(value: AliasTuple, ctx: __mf_EncodeC
     })(__view);
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasTupleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasTuple } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasTupleDecodeWithContext(data, ctx);
+        const result = aliasTupleDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -588,6 +589,10 @@ export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 export function aliasTupleHasShape(value: unknown): boolean {
     return Array.isArray(value) && value.length >= 3 && value.length <= 3;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasTupleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasTuple } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasTupleDecode(value, opts));
+}
 
 export const AliasTuple: {
   readonly toString: typeof aliasTupleToString;
@@ -600,6 +605,7 @@ export const AliasTuple: {
   readonly is: typeof aliasTupleIs;
   readonly decodeWithContext: typeof aliasTupleDecodeWithContext;
   readonly hasShape: typeof aliasTupleHasShape;
+  readonly fromString: typeof aliasTupleFromString;
 } = {
   toString: aliasTupleToString,
   clone: aliasTupleClone,
@@ -610,7 +616,8 @@ export const AliasTuple: {
   decode: aliasTupleDecode,
   is: aliasTupleIs,
   decodeWithContext: aliasTupleDecodeWithContext,
-  hasShape: aliasTupleHasShape
+  hasShape: aliasTupleHasShape,
+  fromString: aliasTupleFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -649,13 +656,11 @@ export function aliasArrayEncodeWithContext(value: AliasArray, ctx: __mf_EncodeC
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasArrayDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasArray } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasArrayDecodeWithContext(data, ctx);
+        const result = aliasArrayDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -738,6 +743,10 @@ export function aliasArrayDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 export function aliasArrayHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasArrayFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasArray } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasArrayDecode(value, opts));
+}
 
 export const AliasArray: {
   readonly toString: typeof aliasArrayToString;
@@ -750,6 +759,7 @@ export const AliasArray: {
   readonly is: typeof aliasArrayIs;
   readonly decodeWithContext: typeof aliasArrayDecodeWithContext;
   readonly hasShape: typeof aliasArrayHasShape;
+  readonly fromString: typeof aliasArrayFromString;
 } = {
   toString: aliasArrayToString,
   clone: aliasArrayClone,
@@ -760,7 +770,8 @@ export const AliasArray: {
   decode: aliasArrayDecode,
   is: aliasArrayIs,
   decodeWithContext: aliasArrayDecodeWithContext,
-  hasShape: aliasArrayHasShape
+  hasShape: aliasArrayHasShape,
+  fromString: aliasArrayFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -804,13 +815,11 @@ export function aliasReadonlyStringsEncodeWithContext(value: AliasReadonlyString
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasReadonlyStringsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasReadonlyStrings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasReadonlyStringsDecodeWithContext(data, ctx);
+        const result = aliasReadonlyStringsDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -893,6 +902,10 @@ export function aliasReadonlyStringsDecodeWithContext(value: unknown, ctx: __mf_
 export function aliasReadonlyStringsHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasReadonlyStringsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasReadonlyStrings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasReadonlyStringsDecode(value, opts));
+}
 
 export const AliasReadonlyStrings: {
   readonly toString: typeof aliasReadonlyStringsToString;
@@ -906,6 +919,7 @@ export const AliasReadonlyStrings: {
   readonly is: typeof aliasReadonlyStringsIs;
   readonly decodeWithContext: typeof aliasReadonlyStringsDecodeWithContext;
   readonly hasShape: typeof aliasReadonlyStringsHasShape;
+  readonly fromString: typeof aliasReadonlyStringsFromString;
 } = {
   toString: aliasReadonlyStringsToString,
   clone: aliasReadonlyStringsClone,
@@ -917,7 +931,8 @@ export const AliasReadonlyStrings: {
   decode: aliasReadonlyStringsDecode,
   is: aliasReadonlyStringsIs,
   decodeWithContext: aliasReadonlyStringsDecodeWithContext,
-  hasShape: aliasReadonlyStringsHasShape
+  hasShape: aliasReadonlyStringsHasShape,
+  fromString: aliasReadonlyStringsFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -990,13 +1005,11 @@ export function aliasRowEncodeWithContext(value: AliasRow): unknown {
     })(__view);
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasRowDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasRow } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasRowDecodeWithContext(data, ctx);
+        const result = aliasRowDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1141,6 +1154,10 @@ export function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function aliasRowHasShape(value: unknown): boolean {
     return Array.isArray(value) && value.length >= 1;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasRowFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasRow } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasRowDecode(value, opts));
+}
 
 export const AliasRow: {
   readonly toString: typeof aliasRowToString;
@@ -1154,6 +1171,7 @@ export const AliasRow: {
   readonly is: typeof aliasRowIs;
   readonly decodeWithContext: typeof aliasRowDecodeWithContext;
   readonly hasShape: typeof aliasRowHasShape;
+  readonly fromString: typeof aliasRowFromString;
 } = {
   toString: aliasRowToString,
   clone: aliasRowClone,
@@ -1165,7 +1183,8 @@ export const AliasRow: {
   decode: aliasRowDecode,
   is: aliasRowIs,
   decodeWithContext: aliasRowDecodeWithContext,
-  hasShape: aliasRowHasShape
+  hasShape: aliasRowHasShape,
+  fromString: aliasRowFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1205,13 +1224,11 @@ export function aliasDatesEncodeWithContext(value: AliasDates): unknown {
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDatesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDates } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasDatesDecodeWithContext(data, ctx);
+        const result = aliasDatesDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1294,6 +1311,10 @@ export function aliasDatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 export function aliasDatesHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasDatesFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasDates } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasDatesDecode(value, opts));
+}
 
 export const AliasDates: {
   readonly toString: typeof aliasDatesToString;
@@ -1306,6 +1327,7 @@ export const AliasDates: {
   readonly is: typeof aliasDatesIs;
   readonly decodeWithContext: typeof aliasDatesDecodeWithContext;
   readonly hasShape: typeof aliasDatesHasShape;
+  readonly fromString: typeof aliasDatesFromString;
 } = {
   toString: aliasDatesToString,
   clone: aliasDatesClone,
@@ -1316,7 +1338,8 @@ export const AliasDates: {
   decode: aliasDatesDecode,
   is: aliasDatesIs,
   decodeWithContext: aliasDatesDecodeWithContext,
-  hasShape: aliasDatesHasShape
+  hasShape: aliasDatesHasShape,
+  fromString: aliasDatesFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1355,13 +1378,11 @@ export function aliasRecordEncodeWithContext(value: AliasRecord, ctx: __mf_Encod
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasRecordDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasRecord } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasRecordDecodeWithContext(data, ctx);
+        const result = aliasRecordDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1444,6 +1465,10 @@ export function aliasRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 export function aliasRecordHasShape(value: unknown): boolean {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasRecordFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasRecord } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasRecordDecode(value, opts));
+}
 
 export const AliasRecord: {
   readonly toString: typeof aliasRecordToString;
@@ -1456,6 +1481,7 @@ export const AliasRecord: {
   readonly is: typeof aliasRecordIs;
   readonly decodeWithContext: typeof aliasRecordDecodeWithContext;
   readonly hasShape: typeof aliasRecordHasShape;
+  readonly fromString: typeof aliasRecordFromString;
 } = {
   toString: aliasRecordToString,
   clone: aliasRecordClone,
@@ -1466,7 +1492,8 @@ export const AliasRecord: {
   decode: aliasRecordDecode,
   is: aliasRecordIs,
   decodeWithContext: aliasRecordDecodeWithContext,
-  hasShape: aliasRecordHasShape
+  hasShape: aliasRecordHasShape,
+  fromString: aliasRecordFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1509,13 +1536,11 @@ export function aliasMapEncodeWithContext(value: AliasMap, ctx: __mf_EncodeConte
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasMapDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasMap } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasMapDecodeWithContext(data, ctx);
+        const result = aliasMapDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1598,6 +1623,10 @@ export function aliasMapDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function aliasMapHasShape(value: unknown): boolean {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasMapFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasMap } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasMapDecode(value, opts));
+}
 
 export const AliasMap: {
   readonly toString: typeof aliasMapToString;
@@ -1610,6 +1639,7 @@ export const AliasMap: {
   readonly is: typeof aliasMapIs;
   readonly decodeWithContext: typeof aliasMapDecodeWithContext;
   readonly hasShape: typeof aliasMapHasShape;
+  readonly fromString: typeof aliasMapFromString;
 } = {
   toString: aliasMapToString,
   clone: aliasMapClone,
@@ -1620,7 +1650,8 @@ export const AliasMap: {
   decode: aliasMapDecode,
   is: aliasMapIs,
   decodeWithContext: aliasMapDecodeWithContext,
-  hasShape: aliasMapHasShape
+  hasShape: aliasMapHasShape,
+  fromString: aliasMapFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1659,13 +1690,11 @@ export function aliasSetEncodeWithContext(value: AliasSet, ctx: __mf_EncodeConte
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasSetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasSet } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasSetDecodeWithContext(data, ctx);
+        const result = aliasSetDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -1748,6 +1777,10 @@ export function aliasSetDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function aliasSetHasShape(value: unknown): boolean {
     return Array.isArray(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasSetFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasSet } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasSetDecode(value, opts));
+}
 
 export const AliasSet: {
   readonly toString: typeof aliasSetToString;
@@ -1760,6 +1793,7 @@ export const AliasSet: {
   readonly is: typeof aliasSetIs;
   readonly decodeWithContext: typeof aliasSetDecodeWithContext;
   readonly hasShape: typeof aliasSetHasShape;
+  readonly fromString: typeof aliasSetFromString;
 } = {
   toString: aliasSetToString,
   clone: aliasSetClone,
@@ -1770,7 +1804,8 @@ export const AliasSet: {
   decode: aliasSetDecode,
   is: aliasSetIs,
   decodeWithContext: aliasSetDecodeWithContext,
-  hasShape: aliasSetHasShape
+  hasShape: aliasSetHasShape,
+  fromString: aliasSetFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1870,14 +1905,11 @@ function aliasIntersectionEncodeFields(value: AliasIntersection, _ctx: __mf_Enco
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasIntersectionDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasIntersection } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasIntersectionDecodeWithContext(data, ctx);
+        const resultOrRef = aliasIntersectionDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1922,6 +1954,10 @@ export function aliasIntersectionDecode(input: unknown, opts?: __mf_DecodeOption
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasIntersectionFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasIntersection } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasIntersectionDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasIntersection | __mf_PendingRef;
@@ -2036,6 +2072,7 @@ export const AliasIntersection: {
   readonly encodeWithContext: typeof aliasIntersectionEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasIntersectionEncodePartialWithContext;
   readonly decode: typeof aliasIntersectionDecode;
+  readonly fromString: typeof aliasIntersectionFromString;
   readonly decodeWithContext: typeof aliasIntersectionDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasIntersectionDecodePartialWithContext;
   readonly validateField: typeof aliasIntersectionValidateField;
@@ -2051,6 +2088,7 @@ export const AliasIntersection: {
   encodeWithContext: aliasIntersectionEncodeWithContext,
   encodePartialWithContext: aliasIntersectionEncodePartialWithContext,
   decode: aliasIntersectionDecode,
+  fromString: aliasIntersectionFromString,
   decodeWithContext: aliasIntersectionDecodeWithContext,
   decodePartialWithContext: aliasIntersectionDecodePartialWithContext,
   validateField: aliasIntersectionValidateField,
@@ -2145,14 +2183,11 @@ function aliasIntersectionOfObjectsEncodeFields(value: AliasIntersectionOfObject
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasIntersectionOfObjectsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasIntersectionOfObjects } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasIntersectionOfObjectsDecodeWithContext(data, ctx);
+        const resultOrRef = aliasIntersectionOfObjectsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2197,6 +2232,10 @@ export function aliasIntersectionOfObjectsDecode(input: unknown, opts?: __mf_Dec
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasIntersectionOfObjectsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasIntersectionOfObjects } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasIntersectionOfObjectsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasIntersectionOfObjectsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasIntersectionOfObjects | __mf_PendingRef;
@@ -2300,6 +2339,7 @@ export const AliasIntersectionOfObjects: {
   readonly encodeWithContext: typeof aliasIntersectionOfObjectsEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasIntersectionOfObjectsEncodePartialWithContext;
   readonly decode: typeof aliasIntersectionOfObjectsDecode;
+  readonly fromString: typeof aliasIntersectionOfObjectsFromString;
   readonly decodeWithContext: typeof aliasIntersectionOfObjectsDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasIntersectionOfObjectsDecodePartialWithContext;
   readonly validateField: typeof aliasIntersectionOfObjectsValidateField;
@@ -2315,6 +2355,7 @@ export const AliasIntersectionOfObjects: {
   encodeWithContext: aliasIntersectionOfObjectsEncodeWithContext,
   encodePartialWithContext: aliasIntersectionOfObjectsEncodePartialWithContext,
   decode: aliasIntersectionOfObjectsDecode,
+  fromString: aliasIntersectionOfObjectsFromString,
   decodeWithContext: aliasIntersectionOfObjectsDecodeWithContext,
   decodePartialWithContext: aliasIntersectionOfObjectsDecodePartialWithContext,
   validateField: aliasIntersectionOfObjectsValidateField,
@@ -2376,15 +2417,13 @@ export function aliasLiteralsEncodeWithContext(value: AliasLiterals, ctx: __mf_E
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function aliasLiteralsDecode(input: unknown): { success: true; value: AliasLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, aliasLiteralsHasShape);
-    switch (data) {
+    switch (input) {
         case 'small':
         case 'medium':
         case 'large':
-            return { success: true, value: data as AliasLiterals };
+            return { success: true, value: input as AliasLiterals };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for AliasLiterals: expected one of " + ['small', 'medium', 'large'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -2419,6 +2458,10 @@ export function aliasLiteralsHasShape(value: unknown): boolean {
 export function aliasLiteralsIs(value: unknown): value is AliasLiterals {
     return aliasLiteralsHasShape(value);
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function aliasLiteralsFromString(text: string): { success: true; value: AliasLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasLiteralsDecode(value));
+}
 
 export const AliasLiterals: {
   readonly toString: typeof aliasLiteralsToString;
@@ -2434,6 +2477,7 @@ export const AliasLiterals: {
   readonly decodeWithContext: typeof aliasLiteralsDecodeWithContext;
   readonly hasShape: typeof aliasLiteralsHasShape;
   readonly is: typeof aliasLiteralsIs;
+  readonly fromString: typeof aliasLiteralsFromString;
 } = {
   toString: aliasLiteralsToString,
   clone: aliasLiteralsClone,
@@ -2447,7 +2491,8 @@ export const AliasLiterals: {
   decode: aliasLiteralsDecode,
   decodeWithContext: aliasLiteralsDecodeWithContext,
   hasShape: aliasLiteralsHasShape,
-  is: aliasLiteralsIs
+  is: aliasLiteralsIs,
+  fromString: aliasLiteralsFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -2495,13 +2540,11 @@ export function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, c
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasMixedLiteralsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasMixedLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, aliasMixedLiteralsHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasMixedLiteralsDecodeWithContext(data, ctx);
+        const resultOrRef = aliasMixedLiteralsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2547,6 +2590,10 @@ export function aliasMixedLiteralsDecode(input: unknown, opts?: __mf_DecodeOptio
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasMixedLiteralsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasMixedLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasMixedLiteralsDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasMixedLiteralsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasMixedLiterals | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -2589,6 +2636,7 @@ export const AliasMixedLiterals: {
   readonly encode: typeof aliasMixedLiteralsEncode;
   readonly encodeWithContext: typeof aliasMixedLiteralsEncodeWithContext;
   readonly decode: typeof aliasMixedLiteralsDecode;
+  readonly fromString: typeof aliasMixedLiteralsFromString;
   readonly decodeWithContext: typeof aliasMixedLiteralsDecodeWithContext;
   readonly hasShape: typeof aliasMixedLiteralsHasShape;
   readonly is: typeof aliasMixedLiteralsIs;
@@ -2601,6 +2649,7 @@ export const AliasMixedLiterals: {
   encode: aliasMixedLiteralsEncode,
   encodeWithContext: aliasMixedLiteralsEncodeWithContext,
   decode: aliasMixedLiteralsDecode,
+  fromString: aliasMixedLiteralsFromString,
   decodeWithContext: aliasMixedLiteralsDecodeWithContext,
   hasShape: aliasMixedLiteralsHasShape,
   is: aliasMixedLiteralsIs
@@ -2652,13 +2701,11 @@ export function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_E
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasNullableDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasNullable } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasNullableDecodeWithContext(data, ctx);
+        const resultOrRef = aliasNullableDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2703,6 +2750,10 @@ export function aliasNullableDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasNullableFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasNullable } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasNullableDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasNullableDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasNullable | __mf_PendingRef {
@@ -2782,6 +2833,7 @@ export const AliasNullable: {
   readonly encode: typeof aliasNullableEncode;
   readonly encodeWithContext: typeof aliasNullableEncodeWithContext;
   readonly decode: typeof aliasNullableDecode;
+  readonly fromString: typeof aliasNullableFromString;
   readonly decodeWithContext: typeof aliasNullableDecodeWithContext;
   readonly hasShape: typeof aliasNullableHasShape;
   readonly is: typeof aliasNullableIs;
@@ -2793,6 +2845,7 @@ export const AliasNullable: {
   encode: aliasNullableEncode,
   encodeWithContext: aliasNullableEncodeWithContext,
   decode: aliasNullableDecode,
+  fromString: aliasNullableFromString,
   decodeWithContext: aliasNullableDecodeWithContext,
   hasShape: aliasNullableHasShape,
   is: aliasNullableIs
@@ -2844,13 +2897,11 @@ export function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_E
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasOptionalDecodeWithContext(data, ctx);
+        const resultOrRef = aliasOptionalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2895,6 +2946,10 @@ export function aliasOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasOptionalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasOptionalDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasOptional | __mf_PendingRef {
@@ -2974,6 +3029,7 @@ export const AliasOptional: {
   readonly encode: typeof aliasOptionalEncode;
   readonly encodeWithContext: typeof aliasOptionalEncodeWithContext;
   readonly decode: typeof aliasOptionalDecode;
+  readonly fromString: typeof aliasOptionalFromString;
   readonly decodeWithContext: typeof aliasOptionalDecodeWithContext;
   readonly hasShape: typeof aliasOptionalHasShape;
   readonly is: typeof aliasOptionalIs;
@@ -2985,6 +3041,7 @@ export const AliasOptional: {
   encode: aliasOptionalEncode,
   encodeWithContext: aliasOptionalEncodeWithContext,
   decode: aliasOptionalDecode,
+  fromString: aliasOptionalFromString,
   decodeWithContext: aliasOptionalDecodeWithContext,
   hasShape: aliasOptionalHasShape,
   is: aliasOptionalIs
@@ -3027,13 +3084,11 @@ export function aliasDateEncodeWithContext(value: AliasDate): unknown {
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, aliasDateHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasDateDecodeWithContext(data, ctx);
+        const result = aliasDateDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -3104,6 +3159,10 @@ export function aliasDateDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 export function aliasDateHasShape(value: unknown): boolean {
     return value instanceof Date || typeof value === "string";
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasDateFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasDate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasDateDecode(value, opts));
+}
 
 export const AliasDate: {
   readonly toString: typeof aliasDateToString;
@@ -3116,6 +3175,7 @@ export const AliasDate: {
   readonly is: typeof aliasDateIs;
   readonly decodeWithContext: typeof aliasDateDecodeWithContext;
   readonly hasShape: typeof aliasDateHasShape;
+  readonly fromString: typeof aliasDateFromString;
 } = {
   toString: aliasDateToString,
   clone: aliasDateClone,
@@ -3126,7 +3186,8 @@ export const AliasDate: {
   decode: aliasDateDecode,
   is: aliasDateIs,
   decodeWithContext: aliasDateDecodeWithContext,
-  hasShape: aliasDateHasShape
+  hasShape: aliasDateHasShape,
+  fromString: aliasDateFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -3171,13 +3232,11 @@ export function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDateOrNullDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDateOrNull } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, aliasDateOrNullHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasDateOrNullDecodeWithContext(data, ctx);
+        const resultOrRef = aliasDateOrNullDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3222,6 +3281,10 @@ export function aliasDateOrNullDecode(input: unknown, opts?: __mf_DecodeOptions)
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasDateOrNullFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasDateOrNull } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasDateOrNullDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasDateOrNullDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDateOrNull | __mf_PendingRef {
@@ -3268,6 +3331,7 @@ export const AliasDateOrNull: {
   readonly encode: typeof aliasDateOrNullEncode;
   readonly encodeWithContext: typeof aliasDateOrNullEncodeWithContext;
   readonly decode: typeof aliasDateOrNullDecode;
+  readonly fromString: typeof aliasDateOrNullFromString;
   readonly decodeWithContext: typeof aliasDateOrNullDecodeWithContext;
   readonly hasShape: typeof aliasDateOrNullHasShape;
   readonly is: typeof aliasDateOrNullIs;
@@ -3279,6 +3343,7 @@ export const AliasDateOrNull: {
   encode: aliasDateOrNullEncode,
   encodeWithContext: aliasDateOrNullEncodeWithContext,
   decode: aliasDateOrNullDecode,
+  fromString: aliasDateOrNullFromString,
   decodeWithContext: aliasDateOrNullDecodeWithContext,
   hasShape: aliasDateOrNullHasShape,
   is: aliasDateOrNullIs
@@ -3332,13 +3397,11 @@ export function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasMembersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasMembersDecodeWithContext(data, ctx);
+        const resultOrRef = aliasMembersDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3383,6 +3446,10 @@ export function aliasMembersDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasMembersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasMembersDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasMembersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasMembers | __mf_PendingRef {
@@ -3472,6 +3539,7 @@ export const AliasMembers: {
   readonly encode: typeof aliasMembersEncode;
   readonly encodeWithContext: typeof aliasMembersEncodeWithContext;
   readonly decode: typeof aliasMembersDecode;
+  readonly fromString: typeof aliasMembersFromString;
   readonly decodeWithContext: typeof aliasMembersDecodeWithContext;
   readonly hasShape: typeof aliasMembersHasShape;
   readonly is: typeof aliasMembersIs;
@@ -3483,6 +3551,7 @@ export const AliasMembers: {
   encode: aliasMembersEncode,
   encodeWithContext: aliasMembersEncodeWithContext,
   decode: aliasMembersDecode,
+  fromString: aliasMembersFromString,
   decodeWithContext: aliasMembersDecodeWithContext,
   hasShape: aliasMembersHasShape,
   is: aliasMembersIs
@@ -3590,13 +3659,11 @@ export function aliasTaggedEncodeWithContext(value: AliasTagged, ctx: __mf_Encod
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasTaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasTagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasTaggedDecodeWithContext(data, ctx);
+        const resultOrRef = aliasTaggedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3641,6 +3708,10 @@ export function aliasTaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasTaggedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasTagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasTaggedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasTagged | __mf_PendingRef {
@@ -3701,6 +3772,7 @@ export const AliasTagged: {
   readonly encode: typeof aliasTaggedEncode;
   readonly encodeWithContext: typeof aliasTaggedEncodeWithContext;
   readonly decode: typeof aliasTaggedDecode;
+  readonly fromString: typeof aliasTaggedFromString;
   readonly decodeWithContext: typeof aliasTaggedDecodeWithContext;
   readonly hasShape: typeof aliasTaggedHasShape;
   readonly is: typeof aliasTaggedIs;
@@ -3715,6 +3787,7 @@ export const AliasTagged: {
   encode: aliasTaggedEncode,
   encodeWithContext: aliasTaggedEncodeWithContext,
   decode: aliasTaggedDecode,
+  fromString: aliasTaggedFromString,
   decodeWithContext: aliasTaggedDecodeWithContext,
   hasShape: aliasTaggedHasShape,
   is: aliasTaggedIs,
@@ -3771,13 +3844,11 @@ export function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_E
     return __outer;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasAdjacentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasAdjacent } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasAdjacentDecodeWithContext(data, ctx);
+        const resultOrRef = aliasAdjacentDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3822,6 +3893,10 @@ export function aliasAdjacentDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasAdjacentFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasAdjacent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasAdjacentDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasAdjacentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasAdjacent | __mf_PendingRef {
@@ -3877,6 +3952,7 @@ export const AliasAdjacent: {
   readonly encode: typeof aliasAdjacentEncode;
   readonly encodeWithContext: typeof aliasAdjacentEncodeWithContext;
   readonly decode: typeof aliasAdjacentDecode;
+  readonly fromString: typeof aliasAdjacentFromString;
   readonly decodeWithContext: typeof aliasAdjacentDecodeWithContext;
   readonly hasShape: typeof aliasAdjacentHasShape;
   readonly is: typeof aliasAdjacentIs;
@@ -3888,6 +3964,7 @@ export const AliasAdjacent: {
   encode: aliasAdjacentEncode,
   encodeWithContext: aliasAdjacentEncodeWithContext,
   decode: aliasAdjacentDecode,
+  fromString: aliasAdjacentFromString,
   decodeWithContext: aliasAdjacentDecodeWithContext,
   hasShape: aliasAdjacentHasShape,
   is: aliasAdjacentIs
@@ -3941,13 +4018,11 @@ export function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_E
     return __outer;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasExternalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasExternal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasExternalDecodeWithContext(data, ctx);
+        const resultOrRef = aliasExternalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -3992,6 +4067,10 @@ export function aliasExternalDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasExternalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasExternal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasExternalDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasExternalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasExternal | __mf_PendingRef {
@@ -4061,6 +4140,7 @@ export const AliasExternal: {
   readonly encode: typeof aliasExternalEncode;
   readonly encodeWithContext: typeof aliasExternalEncodeWithContext;
   readonly decode: typeof aliasExternalDecode;
+  readonly fromString: typeof aliasExternalFromString;
   readonly decodeWithContext: typeof aliasExternalDecodeWithContext;
   readonly hasShape: typeof aliasExternalHasShape;
   readonly is: typeof aliasExternalIs;
@@ -4072,6 +4152,7 @@ export const AliasExternal: {
   encode: aliasExternalEncode,
   encodeWithContext: aliasExternalEncodeWithContext,
   decode: aliasExternalDecode,
+  fromString: aliasExternalFromString,
   decodeWithContext: aliasExternalDecodeWithContext,
   hasShape: aliasExternalHasShape,
   is: aliasExternalIs
@@ -4125,13 +4206,11 @@ export function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_E
     return __outer;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasUntagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, aliasUntaggedHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasUntaggedDecodeWithContext(data, ctx);
+        const resultOrRef = aliasUntaggedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4176,6 +4255,10 @@ export function aliasUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasUntaggedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasUntagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasUntaggedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasUntaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasUntagged | __mf_PendingRef {
@@ -4224,6 +4307,7 @@ export const AliasUntagged: {
   readonly encode: typeof aliasUntaggedEncode;
   readonly encodeWithContext: typeof aliasUntaggedEncodeWithContext;
   readonly decode: typeof aliasUntaggedDecode;
+  readonly fromString: typeof aliasUntaggedFromString;
   readonly decodeWithContext: typeof aliasUntaggedDecodeWithContext;
   readonly hasShape: typeof aliasUntaggedHasShape;
   readonly is: typeof aliasUntaggedIs;
@@ -4235,6 +4319,7 @@ export const AliasUntagged: {
   encode: aliasUntaggedEncode,
   encodeWithContext: aliasUntaggedEncodeWithContext,
   decode: aliasUntaggedDecode,
+  fromString: aliasUntaggedFromString,
   decodeWithContext: aliasUntaggedDecodeWithContext,
   hasShape: aliasUntaggedHasShape,
   is: aliasUntaggedIs
@@ -4288,13 +4373,11 @@ export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeCon
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, aliasDeepHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasDeepDecodeWithContext(data, ctx);
+        const resultOrRef = aliasDeepDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4339,6 +4422,10 @@ export function aliasDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasDeepFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasDeepDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDeep | __mf_PendingRef {
@@ -4453,6 +4540,7 @@ export const AliasDeep: {
   readonly encode: typeof aliasDeepEncode;
   readonly encodeWithContext: typeof aliasDeepEncodeWithContext;
   readonly decode: typeof aliasDeepDecode;
+  readonly fromString: typeof aliasDeepFromString;
   readonly decodeWithContext: typeof aliasDeepDecodeWithContext;
   readonly hasShape: typeof aliasDeepHasShape;
   readonly is: typeof aliasDeepIs;
@@ -4464,6 +4552,7 @@ export const AliasDeep: {
   encode: aliasDeepEncode,
   encodeWithContext: aliasDeepEncodeWithContext,
   decode: aliasDeepDecode,
+  fromString: aliasDeepFromString,
   decodeWithContext: aliasDeepDecodeWithContext,
   hasShape: aliasDeepHasShape,
   is: aliasDeepIs
@@ -4693,14 +4782,11 @@ function aliasOperatorsEncodeFields(value: AliasOperators, ctx: __mf_EncodeConte
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasOperatorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasOperators } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasOperatorsDecodeWithContext(data, ctx);
+        const resultOrRef = aliasOperatorsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4745,6 +4831,10 @@ export function aliasOperatorsDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasOperatorsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasOperators } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasOperatorsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasOperators | __mf_PendingRef;
@@ -5037,6 +5127,7 @@ export const AliasOperators: {
   readonly encodeWithContext: typeof aliasOperatorsEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasOperatorsEncodePartialWithContext;
   readonly decode: typeof aliasOperatorsDecode;
+  readonly fromString: typeof aliasOperatorsFromString;
   readonly decodeWithContext: typeof aliasOperatorsDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasOperatorsDecodePartialWithContext;
   readonly validateField: typeof aliasOperatorsValidateField;
@@ -5052,6 +5143,7 @@ export const AliasOperators: {
   encodeWithContext: aliasOperatorsEncodeWithContext,
   encodePartialWithContext: aliasOperatorsEncodePartialWithContext,
   decode: aliasOperatorsDecode,
+  fromString: aliasOperatorsFromString,
   decodeWithContext: aliasOperatorsDecodeWithContext,
   decodePartialWithContext: aliasOperatorsDecodePartialWithContext,
   validateField: aliasOperatorsValidateField,
@@ -5258,14 +5350,11 @@ function aliasHolderEncodeFields(value: AliasHolder, ctx: __mf_EncodeContext, re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasHolderDecodeWithContext(data, ctx);
+        const resultOrRef = aliasHolderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -5310,6 +5399,10 @@ export function aliasHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasHolderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasHolderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasHolder | __mf_PendingRef;
@@ -5628,6 +5721,7 @@ export const AliasHolder: {
   readonly encodeWithContext: typeof aliasHolderEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasHolderEncodePartialWithContext;
   readonly decode: typeof aliasHolderDecode;
+  readonly fromString: typeof aliasHolderFromString;
   readonly decodeWithContext: typeof aliasHolderDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasHolderDecodePartialWithContext;
   readonly validateField: typeof aliasHolderValidateField;
@@ -5644,6 +5738,7 @@ export const AliasHolder: {
   encodeWithContext: aliasHolderEncodeWithContext,
   encodePartialWithContext: aliasHolderEncodePartialWithContext,
   decode: aliasHolderDecode,
+  fromString: aliasHolderFromString,
   decodeWithContext: aliasHolderDecodeWithContext,
   decodePartialWithContext: aliasHolderDecodePartialWithContext,
   validateField: aliasHolderValidateField,
@@ -5740,13 +5835,11 @@ export function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasOutcomeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasOutcome } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasOutcomeDecodeWithContext(data, ctx);
+        const resultOrRef = aliasOutcomeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -5792,6 +5885,10 @@ export function aliasOutcomeDecode(input: unknown, opts?: __mf_DecodeOptions): {
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasOutcomeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasOutcome } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasOutcomeDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasOutcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasOutcome | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -5836,6 +5933,7 @@ export const AliasOutcome: {
   readonly encode: typeof aliasOutcomeEncode;
   readonly encodeWithContext: typeof aliasOutcomeEncodeWithContext;
   readonly decode: typeof aliasOutcomeDecode;
+  readonly fromString: typeof aliasOutcomeFromString;
   readonly decodeWithContext: typeof aliasOutcomeDecodeWithContext;
   readonly hasShape: typeof aliasOutcomeHasShape;
   readonly is: typeof aliasOutcomeIs;
@@ -5847,6 +5945,7 @@ export const AliasOutcome: {
   encode: aliasOutcomeEncode,
   encodeWithContext: aliasOutcomeEncodeWithContext,
   decode: aliasOutcomeDecode,
+  fromString: aliasOutcomeFromString,
   decodeWithContext: aliasOutcomeDecodeWithContext,
   hasShape: aliasOutcomeHasShape,
   is: aliasOutcomeIs
@@ -5930,13 +6029,11 @@ export function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeC
     return __outer;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasLooseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasLoose } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasLooseDecodeWithContext(data, ctx);
+        const resultOrRef = aliasLooseDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -5982,6 +6079,10 @@ export function aliasLooseDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasLooseFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasLoose } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasLooseDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasLooseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasLoose | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -6026,6 +6127,7 @@ export const AliasLoose: {
   readonly encode: typeof aliasLooseEncode;
   readonly encodeWithContext: typeof aliasLooseEncodeWithContext;
   readonly decode: typeof aliasLooseDecode;
+  readonly fromString: typeof aliasLooseFromString;
   readonly decodeWithContext: typeof aliasLooseDecodeWithContext;
   readonly hasShape: typeof aliasLooseHasShape;
   readonly is: typeof aliasLooseIs;
@@ -6037,6 +6139,7 @@ export const AliasLoose: {
   encode: aliasLooseEncode,
   encodeWithContext: aliasLooseEncodeWithContext,
   decode: aliasLooseDecode,
+  fromString: aliasLooseFromString,
   decodeWithContext: aliasLooseDecodeWithContext,
   hasShape: aliasLooseHasShape,
   is: aliasLooseIs
@@ -6057,13 +6160,11 @@ export function aliasNameEncodeWithContext(value: AliasName): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasNameDecodeWithContext(data, ctx);
+        const result = aliasNameDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -6114,6 +6215,10 @@ export function aliasNameHasShape(value: unknown): boolean {
 export function aliasNameIs(value: unknown): value is AliasName {
     return typeof value === "string" && aliasNameDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasNameDecode(value, opts));
+}
 
 export const AliasName: {
   readonly encode: typeof aliasNameEncode;
@@ -6122,13 +6227,15 @@ export const AliasName: {
   readonly decodeWithContext: typeof aliasNameDecodeWithContext;
   readonly hasShape: typeof aliasNameHasShape;
   readonly is: typeof aliasNameIs;
+  readonly fromString: typeof aliasNameFromString;
 } = {
   encode: aliasNameEncode,
   encodeWithContext: aliasNameEncodeWithContext,
   decode: aliasNameDecode,
   decodeWithContext: aliasNameDecodeWithContext,
   hasShape: aliasNameHasShape,
-  is: aliasNameIs
+  is: aliasNameIs,
+  fromString: aliasNameFromString
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -6256,14 +6363,11 @@ function aliasCarriedEncodeFields(value: AliasCarried, _ctx: __mf_EncodeContext,
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasCarriedDecodeWithContext(data, ctx);
+        const resultOrRef = aliasCarriedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -6308,6 +6412,10 @@ export function aliasCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasCarriedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasCarriedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasCarried | __mf_PendingRef;
@@ -6479,6 +6587,7 @@ export const AliasCarried: {
   readonly encodeWithContext: typeof aliasCarriedEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasCarriedEncodePartialWithContext;
   readonly decode: typeof aliasCarriedDecode;
+  readonly fromString: typeof aliasCarriedFromString;
   readonly decodeWithContext: typeof aliasCarriedDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasCarriedDecodePartialWithContext;
   readonly validateField: typeof aliasCarriedValidateField;
@@ -6494,6 +6603,7 @@ export const AliasCarried: {
   encodeWithContext: aliasCarriedEncodeWithContext,
   encodePartialWithContext: aliasCarriedEncodePartialWithContext,
   decode: aliasCarriedDecode,
+  fromString: aliasCarriedFromString,
   decodeWithContext: aliasCarriedDecodeWithContext,
   decodePartialWithContext: aliasCarriedDecodePartialWithContext,
   validateField: aliasCarriedValidateField,
@@ -6525,13 +6635,11 @@ export function aliasPickedEncodeWithContext(value: AliasPicked, ctx: __mf_Encod
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasPickedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasPicked } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasPickedDecodeWithContext(data, ctx);
+        const result = aliasPickedDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -6613,6 +6721,10 @@ export function aliasPickedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 export function aliasPickedHasShape(value: unknown): boolean {
     return value != null;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasPickedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasPicked } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasPickedDecode(value, opts));
+}
 
 export const AliasPicked: {
   readonly defaultValue: typeof aliasPickedDefaultValue;
@@ -6622,6 +6734,7 @@ export const AliasPicked: {
   readonly is: typeof aliasPickedIs;
   readonly decodeWithContext: typeof aliasPickedDecodeWithContext;
   readonly hasShape: typeof aliasPickedHasShape;
+  readonly fromString: typeof aliasPickedFromString;
 } = {
   defaultValue: aliasPickedDefaultValue,
   encode: aliasPickedEncode,
@@ -6629,7 +6742,8 @@ export const AliasPicked: {
   decode: aliasPickedDecode,
   is: aliasPickedIs,
   decodeWithContext: aliasPickedDecodeWithContext,
-  hasShape: aliasPickedHasShape
+  hasShape: aliasPickedHasShape,
+  fromString: aliasPickedFromString
 };
 
 /** @derive(Default, Encode, Decode) */
@@ -6655,13 +6769,11 @@ export function aliasRequiredEncodeWithContext(value: AliasRequired, ctx: __mf_E
     })({ value });
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = aliasRequiredDecodeWithContext(data, ctx);
+        const result = aliasRequiredDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -6743,6 +6855,10 @@ export function aliasRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 export function aliasRequiredHasShape(value: unknown): boolean {
     return value != null;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasRequiredFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasRequiredDecode(value, opts));
+}
 
 export const AliasRequired: {
   readonly defaultValue: typeof aliasRequiredDefaultValue;
@@ -6752,6 +6868,7 @@ export const AliasRequired: {
   readonly is: typeof aliasRequiredIs;
   readonly decodeWithContext: typeof aliasRequiredDecodeWithContext;
   readonly hasShape: typeof aliasRequiredHasShape;
+  readonly fromString: typeof aliasRequiredFromString;
 } = {
   defaultValue: aliasRequiredDefaultValue,
   encode: aliasRequiredEncode,
@@ -6759,7 +6876,8 @@ export const AliasRequired: {
   decode: aliasRequiredDecode,
   is: aliasRequiredIs,
   decodeWithContext: aliasRequiredDecodeWithContext,
-  hasShape: aliasRequiredHasShape
+  hasShape: aliasRequiredHasShape,
+  fromString: aliasRequiredFromString
 };
 
 /** @derive(Default, Encode, Decode) */
@@ -6827,14 +6945,11 @@ function aliasInlineEncodeFields(value: AliasInline, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasInlineDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasInline } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = aliasInlineDecodeWithContext(data, ctx);
+        const resultOrRef = aliasInlineDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -6879,6 +6994,10 @@ export function aliasInlineDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasInlineFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AliasInline } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => aliasInlineDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasInline | __mf_PendingRef;
@@ -6995,6 +7114,7 @@ export const AliasInline: {
   readonly encodeWithContext: typeof aliasInlineEncodeWithContext;
   readonly encodePartialWithContext: typeof aliasInlineEncodePartialWithContext;
   readonly decode: typeof aliasInlineDecode;
+  readonly fromString: typeof aliasInlineFromString;
   readonly decodeWithContext: typeof aliasInlineDecodeWithContext;
   readonly decodePartialWithContext: typeof aliasInlineDecodePartialWithContext;
   readonly validateField: typeof aliasInlineValidateField;
@@ -7007,6 +7127,7 @@ export const AliasInline: {
   encodeWithContext: aliasInlineEncodeWithContext,
   encodePartialWithContext: aliasInlineEncodePartialWithContext,
   decode: aliasInlineDecode,
+  fromString: aliasInlineFromString,
   decodeWithContext: aliasInlineDecodeWithContext,
   decodePartialWithContext: aliasInlineDecodePartialWithContext,
   validateField: aliasInlineValidateField,
@@ -7042,8 +7163,19 @@ export declare function aliasObjectEncode(value: AliasObject, keepMetadata?: boo
 export declare function aliasObjectEncodeWithContext(value: AliasObject, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasObjectEncodePartialWithContext(value: Partial<AliasObject>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasObject>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasObjectDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasObject;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasObjectFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasObject;
 } | {
@@ -7081,6 +7213,7 @@ export declare const AliasObject: {
 	readonly encodeWithContext: typeof aliasObjectEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasObjectEncodePartialWithContext;
 	readonly decode: typeof aliasObjectDecode;
+	readonly fromString: typeof aliasObjectFromString;
 	readonly decodeWithContext: typeof aliasObjectDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasObjectDecodePartialWithContext;
 	readonly validateField: typeof aliasObjectValidateField;
@@ -7098,7 +7231,7 @@ export declare function aliasTupleHashCode(value: AliasTuple): number;
 export declare function aliasTupleEncode(value: AliasTuple, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasTupleEncodeWithContext(value: AliasTuple, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasTupleDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasTuple;
@@ -7113,6 +7246,17 @@ export declare function aliasTupleIs(value: unknown): value is AliasTuple;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasTuple;
 export declare function aliasTupleHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasTupleFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasTuple;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasTuple: {
 	readonly toString: typeof aliasTupleToString;
 	readonly clone: typeof aliasTupleClone;
@@ -7124,6 +7268,7 @@ export declare const AliasTuple: {
 	readonly is: typeof aliasTupleIs;
 	readonly decodeWithContext: typeof aliasTupleDecodeWithContext;
 	readonly hasShape: typeof aliasTupleHasShape;
+	readonly fromString: typeof aliasTupleFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasArray = EdgeItem[];
@@ -7135,7 +7280,7 @@ export declare function aliasArrayHashCode(value: AliasArray): number;
 export declare function aliasArrayEncode(value: AliasArray, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasArrayEncodeWithContext(value: AliasArray, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasArrayDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasArray;
@@ -7150,6 +7295,17 @@ export declare function aliasArrayIs(value: unknown): value is AliasArray;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasArrayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasArray;
 export declare function aliasArrayHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasArrayFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasArray;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasArray: {
 	readonly toString: typeof aliasArrayToString;
 	readonly clone: typeof aliasArrayClone;
@@ -7161,6 +7317,7 @@ export declare const AliasArray: {
 	readonly is: typeof aliasArrayIs;
 	readonly decodeWithContext: typeof aliasArrayDecodeWithContext;
 	readonly hasShape: typeof aliasArrayHasShape;
+	readonly fromString: typeof aliasArrayFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type AliasReadonlyStrings = readonly string[];
@@ -7173,7 +7330,7 @@ export declare function aliasReadonlyStringsDefaultValue(): AliasReadonlyStrings
 export declare function aliasReadonlyStringsEncode(value: AliasReadonlyStrings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasReadonlyStringsEncodeWithContext(value: AliasReadonlyStrings, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasReadonlyStringsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasReadonlyStrings;
@@ -7188,6 +7345,17 @@ export declare function aliasReadonlyStringsIs(value: unknown): value is AliasRe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasReadonlyStringsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasReadonlyStrings;
 export declare function aliasReadonlyStringsHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasReadonlyStringsFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasReadonlyStrings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasReadonlyStrings: {
 	readonly toString: typeof aliasReadonlyStringsToString;
 	readonly clone: typeof aliasReadonlyStringsClone;
@@ -7200,6 +7368,7 @@ export declare const AliasReadonlyStrings: {
 	readonly is: typeof aliasReadonlyStringsIs;
 	readonly decodeWithContext: typeof aliasReadonlyStringsDecodeWithContext;
 	readonly hasShape: typeof aliasReadonlyStringsHasShape;
+	readonly fromString: typeof aliasReadonlyStringsFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type AliasRow = [label: string, count?: number, ...flags: boolean[]];
@@ -7212,7 +7381,7 @@ export declare function aliasRowDefaultValue(): AliasRow;
 export declare function aliasRowEncode(value: AliasRow, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasRowEncodeWithContext(value: AliasRow, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasRowDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasRow;
@@ -7227,6 +7396,17 @@ export declare function aliasRowIs(value: unknown): value is AliasRow;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRow;
 export declare function aliasRowHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasRowFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasRow;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasRow: {
 	readonly toString: typeof aliasRowToString;
 	readonly clone: typeof aliasRowClone;
@@ -7239,6 +7419,7 @@ export declare const AliasRow: {
 	readonly is: typeof aliasRowIs;
 	readonly decodeWithContext: typeof aliasRowDecodeWithContext;
 	readonly hasShape: typeof aliasRowHasShape;
+	readonly fromString: typeof aliasRowFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasDates = Date[];
@@ -7250,7 +7431,7 @@ export declare function aliasDatesHashCode(value: AliasDates): number;
 export declare function aliasDatesEncode(value: AliasDates, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasDatesEncodeWithContext(value: AliasDates, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasDatesDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasDates;
@@ -7265,6 +7446,17 @@ export declare function aliasDatesIs(value: unknown): value is AliasDates;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasDatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDates;
 export declare function aliasDatesHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasDatesFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasDates;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasDates: {
 	readonly toString: typeof aliasDatesToString;
 	readonly clone: typeof aliasDatesClone;
@@ -7276,6 +7468,7 @@ export declare const AliasDates: {
 	readonly is: typeof aliasDatesIs;
 	readonly decodeWithContext: typeof aliasDatesDecodeWithContext;
 	readonly hasShape: typeof aliasDatesHasShape;
+	readonly fromString: typeof aliasDatesFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasRecord = Record<string, EdgeItem>;
@@ -7287,7 +7480,7 @@ export declare function aliasRecordHashCode(value: AliasRecord): number;
 export declare function aliasRecordEncode(value: AliasRecord, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasRecordEncodeWithContext(value: AliasRecord, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasRecordDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasRecord;
@@ -7302,6 +7495,17 @@ export declare function aliasRecordIs(value: unknown): value is AliasRecord;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRecord;
 export declare function aliasRecordHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasRecordFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasRecord;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasRecord: {
 	readonly toString: typeof aliasRecordToString;
 	readonly clone: typeof aliasRecordClone;
@@ -7313,6 +7517,7 @@ export declare const AliasRecord: {
 	readonly is: typeof aliasRecordIs;
 	readonly decodeWithContext: typeof aliasRecordDecodeWithContext;
 	readonly hasShape: typeof aliasRecordHasShape;
+	readonly fromString: typeof aliasRecordFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasMap = Map<string, EdgeItem>;
@@ -7324,7 +7529,7 @@ export declare function aliasMapHashCode(value: AliasMap): number;
 export declare function aliasMapEncode(value: AliasMap, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasMapEncodeWithContext(value: AliasMap, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasMapDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasMap;
@@ -7339,6 +7544,17 @@ export declare function aliasMapIs(value: unknown): value is AliasMap;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasMapDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasMap;
 export declare function aliasMapHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasMapFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasMap;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasMap: {
 	readonly toString: typeof aliasMapToString;
 	readonly clone: typeof aliasMapClone;
@@ -7350,6 +7566,7 @@ export declare const AliasMap: {
 	readonly is: typeof aliasMapIs;
 	readonly decodeWithContext: typeof aliasMapDecodeWithContext;
 	readonly hasShape: typeof aliasMapHasShape;
+	readonly fromString: typeof aliasMapFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasSet = Set<EdgeItem>;
@@ -7361,7 +7578,7 @@ export declare function aliasSetHashCode(value: AliasSet): number;
 export declare function aliasSetEncode(value: AliasSet, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasSetEncodeWithContext(value: AliasSet, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasSetDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasSet;
@@ -7376,6 +7593,17 @@ export declare function aliasSetIs(value: unknown): value is AliasSet;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasSetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasSet;
 export declare function aliasSetHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasSetFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasSet;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasSet: {
 	readonly toString: typeof aliasSetToString;
 	readonly clone: typeof aliasSetClone;
@@ -7387,6 +7615,7 @@ export declare const AliasSet: {
 	readonly is: typeof aliasSetIs;
 	readonly decodeWithContext: typeof aliasSetDecodeWithContext;
 	readonly hasShape: typeof aliasSetHasShape;
+	readonly fromString: typeof aliasSetFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasIntersection = EdgeItem & {
@@ -7402,8 +7631,19 @@ export declare function aliasIntersectionEncode(value: AliasIntersection, keepMe
 export declare function aliasIntersectionEncodeWithContext(value: AliasIntersection, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasIntersectionEncodePartialWithContext(value: Partial<AliasIntersection>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasIntersection>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasIntersectionDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasIntersection;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasIntersectionFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasIntersection;
 } | {
@@ -7438,6 +7678,7 @@ export declare const AliasIntersection: {
 	readonly encodeWithContext: typeof aliasIntersectionEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasIntersectionEncodePartialWithContext;
 	readonly decode: typeof aliasIntersectionDecode;
+	readonly fromString: typeof aliasIntersectionFromString;
 	readonly decodeWithContext: typeof aliasIntersectionDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasIntersectionDecodePartialWithContext;
 	readonly validateField: typeof aliasIntersectionValidateField;
@@ -7461,8 +7702,19 @@ export declare function aliasIntersectionOfObjectsEncode(value: AliasIntersectio
 export declare function aliasIntersectionOfObjectsEncodeWithContext(value: AliasIntersectionOfObjects, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasIntersectionOfObjectsEncodePartialWithContext(value: Partial<AliasIntersectionOfObjects>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasIntersectionOfObjects>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasIntersectionOfObjectsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasIntersectionOfObjects;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasIntersectionOfObjectsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasIntersectionOfObjects;
 } | {
@@ -7497,6 +7749,7 @@ export declare const AliasIntersectionOfObjects: {
 	readonly encodeWithContext: typeof aliasIntersectionOfObjectsEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasIntersectionOfObjectsEncodePartialWithContext;
 	readonly decode: typeof aliasIntersectionOfObjectsDecode;
+	readonly fromString: typeof aliasIntersectionOfObjectsFromString;
 	readonly decodeWithContext: typeof aliasIntersectionOfObjectsDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasIntersectionOfObjectsDecodePartialWithContext;
 	readonly validateField: typeof aliasIntersectionOfObjectsValidateField;
@@ -7517,7 +7770,7 @@ export declare function aliasLiteralsDefaultValue(): AliasLiterals;
 export declare function aliasLiteralsEncode(value: AliasLiterals, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasLiteralsEncodeWithContext(value: AliasLiterals, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function aliasLiteralsDecode(input: unknown): {
 	success: true;
 	value: AliasLiterals;
@@ -7532,6 +7785,17 @@ export declare function aliasLiteralsDecode(input: unknown): {
 export declare function aliasLiteralsDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): AliasLiterals | __mf_PendingRef;
 export declare function aliasLiteralsHasShape(value: unknown): boolean;
 export declare function aliasLiteralsIs(value: unknown): value is AliasLiterals;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function aliasLiteralsFromString(text: string): {
+	success: true;
+	value: AliasLiterals;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasLiterals: {
 	readonly toString: typeof aliasLiteralsToString;
 	readonly clone: typeof aliasLiteralsClone;
@@ -7546,6 +7810,7 @@ export declare const AliasLiterals: {
 	readonly decodeWithContext: typeof aliasLiteralsDecodeWithContext;
 	readonly hasShape: typeof aliasLiteralsHasShape;
 	readonly is: typeof aliasLiteralsIs;
+	readonly fromString: typeof aliasLiteralsFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type AliasMixedLiterals = "auto" | 0 | 1 | true | null;
@@ -7558,8 +7823,19 @@ export declare function aliasMixedLiteralsDefaultValue(): AliasMixedLiterals;
 export declare function aliasMixedLiteralsEncode(value: AliasMixedLiterals, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasMixedLiteralsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasMixedLiterals;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasMixedLiteralsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasMixedLiterals;
 } | {
@@ -7582,6 +7858,7 @@ export declare const AliasMixedLiterals: {
 	readonly encode: typeof aliasMixedLiteralsEncode;
 	readonly encodeWithContext: typeof aliasMixedLiteralsEncodeWithContext;
 	readonly decode: typeof aliasMixedLiteralsDecode;
+	readonly fromString: typeof aliasMixedLiteralsFromString;
 	readonly decodeWithContext: typeof aliasMixedLiteralsDecodeWithContext;
 	readonly hasShape: typeof aliasMixedLiteralsHasShape;
 	readonly is: typeof aliasMixedLiteralsIs;
@@ -7596,8 +7873,19 @@ export declare function aliasNullableHashCode(value: AliasNullable): number;
 export declare function aliasNullableEncode(value: AliasNullable, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasNullableDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasNullable;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasNullableFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasNullable;
 } | {
@@ -7619,6 +7907,7 @@ export declare const AliasNullable: {
 	readonly encode: typeof aliasNullableEncode;
 	readonly encodeWithContext: typeof aliasNullableEncodeWithContext;
 	readonly decode: typeof aliasNullableDecode;
+	readonly fromString: typeof aliasNullableFromString;
 	readonly decodeWithContext: typeof aliasNullableDecodeWithContext;
 	readonly hasShape: typeof aliasNullableHasShape;
 	readonly is: typeof aliasNullableIs;
@@ -7633,8 +7922,19 @@ export declare function aliasOptionalHashCode(value: AliasOptional): number;
 export declare function aliasOptionalEncode(value: AliasOptional, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasOptional;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasOptionalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasOptional;
 } | {
@@ -7656,6 +7956,7 @@ export declare const AliasOptional: {
 	readonly encode: typeof aliasOptionalEncode;
 	readonly encodeWithContext: typeof aliasOptionalEncodeWithContext;
 	readonly decode: typeof aliasOptionalDecode;
+	readonly fromString: typeof aliasOptionalFromString;
 	readonly decodeWithContext: typeof aliasOptionalDecodeWithContext;
 	readonly hasShape: typeof aliasOptionalHasShape;
 	readonly is: typeof aliasOptionalIs;
@@ -7670,7 +7971,7 @@ export declare function aliasDateHashCode(value: AliasDate): number;
 export declare function aliasDateEncode(value: AliasDate, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasDateEncodeWithContext(value: AliasDate, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasDateDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasDate;
@@ -7685,6 +7986,17 @@ export declare function aliasDateIs(value: unknown): value is AliasDate;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasDateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDate;
 export declare function aliasDateHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasDateFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasDate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasDate: {
 	readonly toString: typeof aliasDateToString;
 	readonly clone: typeof aliasDateClone;
@@ -7696,6 +8008,7 @@ export declare const AliasDate: {
 	readonly is: typeof aliasDateIs;
 	readonly decodeWithContext: typeof aliasDateDecodeWithContext;
 	readonly hasShape: typeof aliasDateHasShape;
+	readonly fromString: typeof aliasDateFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasDateOrNull = Date | null;
@@ -7707,8 +8020,19 @@ export declare function aliasDateOrNullHashCode(value: AliasDateOrNull): number;
 export declare function aliasDateOrNullEncode(value: AliasDateOrNull, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasDateOrNullDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasDateOrNull;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasDateOrNullFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasDateOrNull;
 } | {
@@ -7730,6 +8054,7 @@ export declare const AliasDateOrNull: {
 	readonly encode: typeof aliasDateOrNullEncode;
 	readonly encodeWithContext: typeof aliasDateOrNullEncodeWithContext;
 	readonly decode: typeof aliasDateOrNullDecode;
+	readonly fromString: typeof aliasDateOrNullFromString;
 	readonly decodeWithContext: typeof aliasDateOrNullDecodeWithContext;
 	readonly hasShape: typeof aliasDateOrNullHasShape;
 	readonly is: typeof aliasDateOrNullIs;
@@ -7744,8 +8069,19 @@ export declare function aliasMembersHashCode(value: AliasMembers): number;
 export declare function aliasMembersEncode(value: AliasMembers, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasMembersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasMembers;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasMembersFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasMembers;
 } | {
@@ -7767,6 +8103,7 @@ export declare const AliasMembers: {
 	readonly encode: typeof aliasMembersEncode;
 	readonly encodeWithContext: typeof aliasMembersEncodeWithContext;
 	readonly decode: typeof aliasMembersDecode;
+	readonly fromString: typeof aliasMembersFromString;
 	readonly decodeWithContext: typeof aliasMembersDecodeWithContext;
 	readonly hasShape: typeof aliasMembersHasShape;
 	readonly is: typeof aliasMembersIs;
@@ -7792,8 +8129,19 @@ export declare function aliasTaggedHashCode(value: AliasTagged): number;
 export declare function aliasTaggedEncode(value: AliasTagged, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasTaggedEncodeWithContext(value: AliasTagged, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasTaggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasTagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasTaggedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasTagged;
 } | {
@@ -7824,6 +8172,7 @@ export declare const AliasTagged: {
 	readonly encode: typeof aliasTaggedEncode;
 	readonly encodeWithContext: typeof aliasTaggedEncodeWithContext;
 	readonly decode: typeof aliasTaggedDecode;
+	readonly fromString: typeof aliasTaggedFromString;
 	readonly decodeWithContext: typeof aliasTaggedDecodeWithContext;
 	readonly hasShape: typeof aliasTaggedHasShape;
 	readonly is: typeof aliasTaggedIs;
@@ -7842,8 +8191,19 @@ export declare function aliasAdjacentHashCode(value: AliasAdjacent): number;
 export declare function aliasAdjacentEncode(value: AliasAdjacent, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasAdjacentDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasAdjacent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasAdjacentFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasAdjacent;
 } | {
@@ -7865,6 +8225,7 @@ export declare const AliasAdjacent: {
 	readonly encode: typeof aliasAdjacentEncode;
 	readonly encodeWithContext: typeof aliasAdjacentEncodeWithContext;
 	readonly decode: typeof aliasAdjacentDecode;
+	readonly fromString: typeof aliasAdjacentFromString;
 	readonly decodeWithContext: typeof aliasAdjacentDecodeWithContext;
 	readonly hasShape: typeof aliasAdjacentHasShape;
 	readonly is: typeof aliasAdjacentIs;
@@ -7880,8 +8241,19 @@ export declare function aliasExternalHashCode(value: AliasExternal): number;
 export declare function aliasExternalEncode(value: AliasExternal, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasExternalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasExternal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasExternalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasExternal;
 } | {
@@ -7903,6 +8275,7 @@ export declare const AliasExternal: {
 	readonly encode: typeof aliasExternalEncode;
 	readonly encodeWithContext: typeof aliasExternalEncodeWithContext;
 	readonly decode: typeof aliasExternalDecode;
+	readonly fromString: typeof aliasExternalFromString;
 	readonly decodeWithContext: typeof aliasExternalDecodeWithContext;
 	readonly hasShape: typeof aliasExternalHasShape;
 	readonly is: typeof aliasExternalIs;
@@ -7918,8 +8291,19 @@ export declare function aliasUntaggedHashCode(value: AliasUntagged): number;
 export declare function aliasUntaggedEncode(value: AliasUntagged, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasUntagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasUntaggedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasUntagged;
 } | {
@@ -7941,6 +8325,7 @@ export declare const AliasUntagged: {
 	readonly encode: typeof aliasUntaggedEncode;
 	readonly encodeWithContext: typeof aliasUntaggedEncodeWithContext;
 	readonly decode: typeof aliasUntaggedDecode;
+	readonly fromString: typeof aliasUntaggedFromString;
 	readonly decodeWithContext: typeof aliasUntaggedDecodeWithContext;
 	readonly hasShape: typeof aliasUntaggedHasShape;
 	readonly is: typeof aliasUntaggedIs;
@@ -7955,8 +8340,19 @@ export declare function aliasDeepHashCode(value: AliasDeep): number;
 export declare function aliasDeepEncode(value: AliasDeep, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasDeepDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasDeep;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasDeepFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasDeep;
 } | {
@@ -7978,6 +8374,7 @@ export declare const AliasDeep: {
 	readonly encode: typeof aliasDeepEncode;
 	readonly encodeWithContext: typeof aliasDeepEncodeWithContext;
 	readonly decode: typeof aliasDeepDecode;
+	readonly fromString: typeof aliasDeepFromString;
 	readonly decodeWithContext: typeof aliasDeepDecodeWithContext;
 	readonly hasShape: typeof aliasDeepHasShape;
 	readonly is: typeof aliasDeepIs;
@@ -8016,8 +8413,19 @@ export declare function aliasOperatorsEncode(value: AliasOperators, keepMetadata
 export declare function aliasOperatorsEncodeWithContext(value: AliasOperators, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasOperatorsEncodePartialWithContext(value: Partial<AliasOperators>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasOperators>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasOperatorsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasOperators;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasOperatorsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasOperators;
 } | {
@@ -8052,6 +8460,7 @@ export declare const AliasOperators: {
 	readonly encodeWithContext: typeof aliasOperatorsEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasOperatorsEncodePartialWithContext;
 	readonly decode: typeof aliasOperatorsDecode;
+	readonly fromString: typeof aliasOperatorsFromString;
 	readonly decodeWithContext: typeof aliasOperatorsDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasOperatorsDecodePartialWithContext;
 	readonly validateField: typeof aliasOperatorsValidateField;
@@ -8084,8 +8493,19 @@ export declare function aliasHolderEncode(value: AliasHolder, keepMetadata?: boo
 export declare function aliasHolderEncodeWithContext(value: AliasHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasHolderEncodePartialWithContext(value: Partial<AliasHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasHolder>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasHolderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasHolder;
 } | {
@@ -8121,6 +8541,7 @@ export declare const AliasHolder: {
 	readonly encodeWithContext: typeof aliasHolderEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasHolderEncodePartialWithContext;
 	readonly decode: typeof aliasHolderDecode;
+	readonly fromString: typeof aliasHolderFromString;
 	readonly decodeWithContext: typeof aliasHolderDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasHolderDecodePartialWithContext;
 	readonly validateField: typeof aliasHolderValidateField;
@@ -8146,8 +8567,19 @@ export declare function aliasOutcomeHashCode(value: AliasOutcome): number;
 export declare function aliasOutcomeEncode(value: AliasOutcome, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasOutcomeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasOutcome;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasOutcomeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasOutcome;
 } | {
@@ -8169,6 +8601,7 @@ export declare const AliasOutcome: {
 	readonly encode: typeof aliasOutcomeEncode;
 	readonly encodeWithContext: typeof aliasOutcomeEncodeWithContext;
 	readonly decode: typeof aliasOutcomeDecode;
+	readonly fromString: typeof aliasOutcomeFromString;
 	readonly decodeWithContext: typeof aliasOutcomeDecodeWithContext;
 	readonly hasShape: typeof aliasOutcomeHasShape;
 	readonly is: typeof aliasOutcomeIs;
@@ -8190,8 +8623,19 @@ export declare function aliasLooseHashCode(value: AliasLoose): number;
 export declare function aliasLooseEncode(value: AliasLoose, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasLooseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasLoose;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasLooseFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasLoose;
 } | {
@@ -8213,6 +8657,7 @@ export declare const AliasLoose: {
 	readonly encode: typeof aliasLooseEncode;
 	readonly encodeWithContext: typeof aliasLooseEncodeWithContext;
 	readonly decode: typeof aliasLooseDecode;
+	readonly fromString: typeof aliasLooseFromString;
 	readonly decodeWithContext: typeof aliasLooseDecodeWithContext;
 	readonly hasShape: typeof aliasLooseHasShape;
 	readonly is: typeof aliasLooseIs;
@@ -8223,7 +8668,7 @@ export type AliasName = string;
 export declare function aliasNameEncode(value: AliasName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function aliasNameEncodeWithContext(value: AliasName, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasName;
@@ -8238,6 +8683,17 @@ export declare function aliasNameDecode(input: unknown, opts?: __mf_DecodeOption
 export declare function aliasNameDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): AliasName;
 export declare function aliasNameHasShape(value: unknown): boolean;
 export declare function aliasNameIs(value: unknown): value is AliasName;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasNameFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasName: {
 	readonly encode: typeof aliasNameEncode;
 	readonly encodeWithContext: typeof aliasNameEncodeWithContext;
@@ -8245,6 +8701,7 @@ export declare const AliasName: {
 	readonly decodeWithContext: typeof aliasNameDecodeWithContext;
 	readonly hasShape: typeof aliasNameHasShape;
 	readonly is: typeof aliasNameIs;
+	readonly fromString: typeof aliasNameFromString;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface AliasCarried {
@@ -8264,8 +8721,19 @@ export declare function aliasCarriedEncode(value: AliasCarried, keepMetadata?: b
 export declare function aliasCarriedEncodeWithContext(value: AliasCarried, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasCarriedEncodePartialWithContext(value: Partial<AliasCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasCarried>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasCarried;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasCarriedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasCarried;
 } | {
@@ -8300,6 +8768,7 @@ export declare const AliasCarried: {
 	readonly encodeWithContext: typeof aliasCarriedEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasCarriedEncodePartialWithContext;
 	readonly decode: typeof aliasCarriedDecode;
+	readonly fromString: typeof aliasCarriedFromString;
 	readonly decodeWithContext: typeof aliasCarriedDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasCarriedDecodePartialWithContext;
 	readonly validateField: typeof aliasCarriedValidateField;
@@ -8314,7 +8783,7 @@ export declare function aliasPickedDefaultValue(): AliasPicked;
 export declare function aliasPickedEncode(value: AliasPicked, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasPickedEncodeWithContext(value: AliasPicked, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasPickedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasPicked;
@@ -8329,6 +8798,17 @@ export declare function aliasPickedIs(value: unknown): value is AliasPicked;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasPickedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasPicked;
 export declare function aliasPickedHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasPickedFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasPicked;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasPicked: {
 	readonly defaultValue: typeof aliasPickedDefaultValue;
 	readonly encode: typeof aliasPickedEncode;
@@ -8337,6 +8817,7 @@ export declare const AliasPicked: {
 	readonly is: typeof aliasPickedIs;
 	readonly decodeWithContext: typeof aliasPickedDecodeWithContext;
 	readonly hasShape: typeof aliasPickedHasShape;
+	readonly fromString: typeof aliasPickedFromString;
 };
 /** @derive(Default, Encode, Decode) */
 export type AliasRequired = Required<EdgeItem>;
@@ -8345,7 +8826,7 @@ export declare function aliasRequiredDefaultValue(): AliasRequired;
 export declare function aliasRequiredEncode(value: AliasRequired, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function aliasRequiredEncodeWithContext(value: AliasRequired, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasRequired;
@@ -8360,6 +8841,17 @@ export declare function aliasRequiredIs(value: unknown): value is AliasRequired;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function aliasRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRequired;
 export declare function aliasRequiredHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasRequiredFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasRequired;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const AliasRequired: {
 	readonly defaultValue: typeof aliasRequiredDefaultValue;
 	readonly encode: typeof aliasRequiredEncode;
@@ -8368,6 +8860,7 @@ export declare const AliasRequired: {
 	readonly is: typeof aliasRequiredIs;
 	readonly decodeWithContext: typeof aliasRequiredDecodeWithContext;
 	readonly hasShape: typeof aliasRequiredHasShape;
+	readonly fromString: typeof aliasRequiredFromString;
 };
 /** @derive(Default, Encode, Decode) */
 export type AliasInline = {
@@ -8382,8 +8875,19 @@ export declare function aliasInlineEncode(value: AliasInline, keepMetadata?: boo
 export declare function aliasInlineEncodeWithContext(value: AliasInline, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function aliasInlineEncodePartialWithContext(value: Partial<AliasInline>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasInline>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function aliasInlineDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasInline;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasInlineFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AliasInline;
 } | {
@@ -8415,6 +8919,7 @@ export declare const AliasInline: {
 	readonly encodeWithContext: typeof aliasInlineEncodeWithContext;
 	readonly encodePartialWithContext: typeof aliasInlineEncodePartialWithContext;
 	readonly decode: typeof aliasInlineDecode;
+	readonly fromString: typeof aliasInlineFromString;
 	readonly decodeWithContext: typeof aliasInlineDecodeWithContext;
 	readonly decodePartialWithContext: typeof aliasInlineDecodePartialWithContext;
 	readonly validateField: typeof aliasInlineValidateField;
@@ -8429,261 +8934,261 @@ export declare const AliasInline: {
 
 ## Mapping
 
-original 0..469 -> expanded 2048..2517
-original 469..590 -> expanded 17409..17530
-original 590..690 -> expanded 26602..26702
-original 690..816 -> expanded 32493..32619
-original 816..965 -> expanded 39198..39347
-original 965..1061 -> expanded 48072..48168
-original 1061..1176 -> expanded 54062..54177
-original 1176..1285 -> expanded 60008..60117
-original 1285..1386 -> expanded 66240..66341
-original 1386..1511 -> expanded 72033..72158
-original 1511..1653 -> expanded 85217..85359
-original 1653..1820 -> expanded 98225..98392
-original 1820..1971 -> expanded 103562..103713
-original 1971..2079 -> expanded 109707..109815
-original 2079..2192 -> expanded 117251..117364
-original 2192..2285 -> expanded 124810..124903
-original 2285..2391 -> expanded 130036..130142
-original 2391..2502 -> expanded 135862..135973
-original 2502..2761 -> expanded 144317..144576
-original 2761..2922 -> expanded 153522..153683
-original 2922..3076 -> expanded 160909..161063
-original 3076..3231 -> expanded 168787..168942
-original 3231..3383 -> expanded 175512..175664
-original 3383..3884 -> expanded 184760..185261
-original 3884..4278 -> expanded 213636..214030
-original 4278..4471 -> expanded 241392..241585
-original 4471..4665 -> expanded 249868..250062
-original 4665..4729 -> expanded 257849..257913
-original 4729..4984 -> expanded 261046..261301
-original 4984..5073 -> expanded 278364..278453
-original 5073..5162 -> expanded 283328..283417
-original 5162..5270 -> expanded 288318..288426
-original 5270..5271 -> expanded 299500..299501
-generated 0..2048 <- imports
-generated 2517..2874 <- Debug
-generated 2874..3138 <- Clone
-generated 3138..3622 <- PartialEq
-generated 3622..4157 <- Hash
-generated 4157..4963 <- PartialOrd
-generated 4963..5751 <- Ord
-generated 5751..5867 <- Default
-generated 5867..8626 <- Encode
-generated 8626..15758 <- Decode
-generated 15758..17409 <- __convenience_const
-generated 17530..17659 <- Debug
-generated 17659..17817 <- Clone
-generated 17817..18179 <- PartialEq
-generated 18179..18544 <- Hash
-generated 18544..20112 <- Encode
-generated 20112..25754 <- Decode
-generated 25754..26602 <- __convenience_const
-generated 26702..26831 <- Debug
-generated 26831..26965 <- Clone
-generated 26965..27275 <- PartialEq
-generated 27275..27449 <- Hash
-generated 27449..28437 <- Encode
-generated 28437..31645 <- Decode
-generated 31645..32493 <- __convenience_const
-generated 32619..32778 <- Debug
-generated 32778..32899 <- Clone
-generated 32899..33219 <- PartialEq
-generated 33219..33468 <- Hash
-generated 33468..33608 <- Default
-generated 33608..34688 <- Encode
-generated 34688..38024 <- Decode
-generated 38024..39198 <- __convenience_const
-generated 39347..39470 <- Debug
-generated 39470..39572 <- Clone
-generated 39572..39713 <- PartialEq
-generated 39713..39815 <- Hash
-generated 39815..39956 <- Default
-generated 39956..41804 <- Encode
-generated 41804..47174 <- Decode
-generated 47174..48072 <- __convenience_const
-generated 48168..48297 <- Debug
-generated 48297..48429 <- Clone
-generated 48429..48831 <- PartialEq
-generated 48831..49000 <- Hash
-generated 49000..50039 <- Encode
-generated 50039..53214 <- Decode
-generated 53214..54062 <- __convenience_const
-generated 54177..54309 <- Debug
-generated 54309..54420 <- Clone
-generated 54420..54570 <- PartialEq
-generated 54570..54678 <- Hash
-generated 54678..55767 <- Encode
-generated 55767..59139 <- Decode
-generated 59139..60008 <- __convenience_const
-generated 60117..60240 <- Debug
-generated 60240..60470 <- Clone
-generated 60470..60803 <- PartialEq
-generated 60803..61086 <- Hash
-generated 61086..62123 <- Encode
-generated 62123..65434 <- Decode
-generated 65434..66240 <- __convenience_const
-generated 66341..66464 <- Debug
-generated 66464..66609 <- Clone
-generated 66609..66872 <- PartialEq
-generated 66872..67049 <- Hash
-generated 67049..68038 <- Encode
-generated 68038..71227 <- Decode
-generated 71227..72033 <- __convenience_const
-generated 72158..72535 <- Debug
-generated 72535..72747 <- Clone
-generated 72747..73110 <- PartialEq
-generated 73110..73697 <- Hash
-generated 73697..76536 <- Encode
-generated 76536..83674 <- Decode
-generated 83674..85217 <- __convenience_const
-generated 85359..85718 <- Debug
-generated 85718..85949 <- Clone
-generated 85949..86308 <- PartialEq
-generated 86308..86795 <- Hash
-generated 86795..89549 <- Encode
-generated 89549..96421 <- Decode
-generated 96421..98225 <- __convenience_const
-generated 98392..98516 <- Debug
-generated 98516..98611 <- Clone
-generated 98611..98717 <- PartialEq
-generated 98717..98829 <- Hash
-generated 98829..98970 <- PartialOrd
-generated 98970..99097 <- Ord
-generated 99097..99181 <- Default
-generated 99181..100501 <- Encode
-generated 100501..102357 <- Decode
-generated 102357..103562 <- __convenience_const
-generated 103713..103852 <- Debug
-generated 103852..103962 <- Clone
-generated 103962..104083 <- PartialEq
-generated 104083..104205 <- Hash
-generated 104205..104298 <- Default
-generated 104298..105643 <- Encode
-generated 105643..108579 <- Decode
-generated 108579..109707 <- __convenience_const
-generated 109815..109953 <- Debug
-generated 109953..110070 <- Clone
-generated 110070..110226 <- PartialEq
-generated 110226..110338 <- Hash
-generated 110338..112096 <- Encode
-generated 112096..116340 <- Decode
-generated 116340..117251 <- __convenience_const
-generated 117364..117502 <- Debug
-generated 117502..117619 <- Clone
-generated 117619..117775 <- PartialEq
-generated 117775..117887 <- Hash
-generated 117887..119645 <- Encode
-generated 119645..123899 <- Decode
-generated 123899..124810 <- __convenience_const
-generated 124903..125015 <- Debug
-generated 125015..125118 <- Clone
-generated 125118..125328 <- PartialEq
-generated 125328..125425 <- Hash
-generated 125425..126429 <- Encode
-generated 126429..129209 <- Decode
-generated 129209..130036 <- __convenience_const
-generated 130142..130286 <- Debug
-generated 130286..130409 <- Clone
-generated 130409..130571 <- PartialEq
-generated 130571..130687 <- Hash
-generated 130687..132017 <- Encode
-generated 132017..134909 <- Decode
-generated 134909..135862 <- __convenience_const
-generated 135973..136108 <- Debug
-generated 136108..136222 <- Clone
-generated 136222..136375 <- PartialEq
-generated 136375..136485 <- Hash
-generated 136485..138645 <- Encode
-generated 138645..143427 <- Decode
-generated 143427..144317 <- __convenience_const
-generated 144576..144708 <- Debug
-generated 144708..144819 <- Clone
-generated 144819..144969 <- PartialEq
-generated 144969..145077 <- Hash
-generated 145077..148337 <- Encode
-generated 148337..152411 <- Decode
-generated 152411..153522 <- __convenience_const
-generated 153683..153821 <- Debug
-generated 153821..153938 <- Clone
-generated 153938..154094 <- PartialEq
-generated 154094..154206 <- Hash
-generated 154206..156355 <- Encode
-generated 156355..159998 <- Decode
-generated 159998..160909 <- __convenience_const
-generated 161063..161201 <- Debug
-generated 161201..161318 <- Clone
-generated 161318..161474 <- PartialEq
-generated 161474..161586 <- Hash
-generated 161586..163724 <- Encode
-generated 163724..167876 <- Decode
-generated 167876..168787 <- __convenience_const
-generated 168942..169080 <- Debug
-generated 169080..169197 <- Clone
-generated 169197..169353 <- PartialEq
-generated 169353..169465 <- Hash
-generated 169465..171592 <- Encode
-generated 171592..174601 <- Decode
-generated 174601..175512 <- __convenience_const
-generated 175664..175790 <- Debug
-generated 175790..175895 <- Clone
-generated 175895..176039 <- PartialEq
-generated 176039..176143 <- Hash
-generated 176143..178199 <- Encode
-generated 178199..183933 <- Decode
-generated 183933..184760 <- __convenience_const
-generated 185261..186311 <- Debug
-generated 186311..187011 <- Clone
-generated 187011..188242 <- PartialEq
-generated 188242..189565 <- Hash
-generated 189565..195022 <- Encode
-generated 195022..212180 <- Decode
-generated 212180..213636 <- __convenience_const
-generated 214030..214986 <- Debug
-generated 214986..215625 <- Clone
-generated 215625..217096 <- PartialEq
-generated 217096..218107 <- Hash
-generated 218107..218414 <- Default
-generated 218414..223006 <- Encode
-generated 223006..239925 <- Decode
-generated 239925..241392 <- __convenience_const
-generated 241585..241720 <- Debug
-generated 241720..241834 <- Clone
-generated 241834..241987 <- PartialEq
-generated 241987..242097 <- Hash
-generated 242097..244993 <- Encode
-generated 244993..248978 <- Decode
-generated 248978..249868 <- __convenience_const
-generated 250062..250191 <- Debug
-generated 250191..250299 <- Clone
-generated 250299..250446 <- PartialEq
-generated 250446..250552 <- Hash
-generated 250552..253139 <- Encode
-generated 253139..257001 <- Decode
-generated 257001..257849 <- __convenience_const
-generated 257913..258645 <- Encode
-generated 258645..260511 <- Decode
-generated 260511..261046 <- __convenience_const
-generated 261301..261839 <- Debug
-generated 261839..262191 <- Clone
-generated 262191..262703 <- PartialEq
-generated 262703..263196 <- Hash
-generated 263196..266432 <- Encode
-generated 266432..276966 <- Decode
-generated 276966..278364 <- __convenience_const
-generated 278453..278577 <- Default
-generated 278577..279579 <- Encode
-generated 279579..282669 <- Decode
-generated 282669..283328 <- __convenience_const
-generated 283417..283557 <- Default
-generated 283557..284542 <- Encode
-generated 284542..287629 <- Decode
-generated 287629..288318 <- __convenience_const
-generated 288426..288544 <- Default
-generated 288544..291291 <- Encode
-generated 291291..298341 <- Decode
-generated 298341..299500 <- __convenience_const
+original 0..469 -> expanded 2017..2486
+original 469..590 -> expanded 17822..17943
+original 590..690 -> expanded 27535..27635
+original 690..816 -> expanded 33946..34072
+original 816..965 -> expanded 41221..41370
+original 965..1061 -> expanded 50605..50701
+original 1061..1176 -> expanded 57115..57230
+original 1176..1285 -> expanded 63586..63695
+original 1285..1386 -> expanded 70328..70429
+original 1386..1511 -> expanded 76631..76756
+original 1511..1653 -> expanded 90289..90431
+original 1653..1820 -> expanded 103816..103983
+original 1820..1971 -> expanded 109607..109758
+original 1971..2079 -> expanded 116319..116427
+original 2079..2192 -> expanded 124398..124511
+original 2192..2285 -> expanded 132492..132585
+original 2285..2391 -> expanded 138249..138355
+original 2391..2502 -> expanded 144630..144741
+original 2502..2761 -> expanded 153615..153874
+original 2761..2922 -> expanded 163345..163506
+original 2922..3076 -> expanded 171267..171421
+original 3076..3231 -> expanded 179680..179835
+original 3231..3383 -> expanded 186952..187104
+original 3383..3884 -> expanded 196731..197232
+original 3884..4278 -> expanded 226066..226460
+original 4278..4471 -> expanded 254266..254459
+original 4471..4665 -> expanded 263272..263466
+original 4665..4729 -> expanded 271773..271837
+original 4729..4984 -> expanded 275474..275729
+original 4984..5073 -> expanded 293241..293330
+original 5073..5162 -> expanded 298730..298819
+original 5162..5270 -> expanded 304255..304363
+original 5270..5271 -> expanded 315881..315882
+generated 0..2017 <- imports
+generated 2486..2843 <- Debug
+generated 2843..3107 <- Clone
+generated 3107..3591 <- PartialEq
+generated 3591..4126 <- Hash
+generated 4126..4932 <- PartialOrd
+generated 4932..5720 <- Ord
+generated 5720..5836 <- Default
+generated 5836..8595 <- Encode
+generated 8595..16081 <- Decode
+generated 16081..17822 <- __convenience_const
+generated 17943..18072 <- Debug
+generated 18072..18230 <- Clone
+generated 18230..18592 <- PartialEq
+generated 18592..18957 <- Hash
+generated 18957..20525 <- Encode
+generated 20525..26599 <- Decode
+generated 26599..27535 <- __convenience_const
+generated 27635..27764 <- Debug
+generated 27764..27898 <- Clone
+generated 27898..28208 <- PartialEq
+generated 28208..28382 <- Hash
+generated 28382..29370 <- Encode
+generated 29370..33010 <- Decode
+generated 33010..33946 <- __convenience_const
+generated 34072..34231 <- Debug
+generated 34231..34352 <- Clone
+generated 34352..34672 <- PartialEq
+generated 34672..34921 <- Hash
+generated 34921..35061 <- Default
+generated 35061..36141 <- Encode
+generated 36141..39939 <- Decode
+generated 39939..41221 <- __convenience_const
+generated 41370..41493 <- Debug
+generated 41493..41595 <- Clone
+generated 41595..41736 <- PartialEq
+generated 41736..41838 <- Hash
+generated 41838..41979 <- Default
+generated 41979..43827 <- Encode
+generated 43827..49623 <- Decode
+generated 49623..50605 <- __convenience_const
+generated 50701..50830 <- Debug
+generated 50830..50962 <- Clone
+generated 50962..51364 <- PartialEq
+generated 51364..51533 <- Hash
+generated 51533..52572 <- Encode
+generated 52572..56179 <- Decode
+generated 56179..57115 <- __convenience_const
+generated 57230..57362 <- Debug
+generated 57362..57473 <- Clone
+generated 57473..57623 <- PartialEq
+generated 57623..57731 <- Hash
+generated 57731..58820 <- Encode
+generated 58820..62627 <- Decode
+generated 62627..63586 <- __convenience_const
+generated 63695..63818 <- Debug
+generated 63818..64048 <- Clone
+generated 64048..64381 <- PartialEq
+generated 64381..64664 <- Hash
+generated 64664..65701 <- Encode
+generated 65701..69438 <- Decode
+generated 69438..70328 <- __convenience_const
+generated 70429..70552 <- Debug
+generated 70552..70697 <- Clone
+generated 70697..70960 <- PartialEq
+generated 70960..71137 <- Hash
+generated 71137..72126 <- Encode
+generated 72126..75741 <- Decode
+generated 75741..76631 <- __convenience_const
+generated 76756..77133 <- Debug
+generated 77133..77345 <- Clone
+generated 77345..77708 <- PartialEq
+generated 77708..78295 <- Hash
+generated 78295..81134 <- Encode
+generated 81134..88644 <- Decode
+generated 88644..90289 <- __convenience_const
+generated 90431..90790 <- Debug
+generated 90790..91021 <- Clone
+generated 91021..91380 <- PartialEq
+generated 91380..91867 <- Hash
+generated 91867..94621 <- Encode
+generated 94621..101892 <- Decode
+generated 101892..103816 <- __convenience_const
+generated 103983..104107 <- Debug
+generated 104107..104202 <- Clone
+generated 104202..104308 <- PartialEq
+generated 104308..104420 <- Hash
+generated 104420..104561 <- PartialOrd
+generated 104561..104688 <- Ord
+generated 104688..104772 <- Default
+generated 104772..106092 <- Encode
+generated 106092..108308 <- Decode
+generated 108308..109607 <- __convenience_const
+generated 109758..109897 <- Debug
+generated 109897..110007 <- Clone
+generated 110007..110128 <- PartialEq
+generated 110128..110250 <- Hash
+generated 110250..110343 <- Default
+generated 110343..111688 <- Encode
+generated 111688..115087 <- Decode
+generated 115087..116319 <- __convenience_const
+generated 116427..116565 <- Debug
+generated 116565..116682 <- Clone
+generated 116682..116838 <- PartialEq
+generated 116838..116950 <- Hash
+generated 116950..118708 <- Encode
+generated 118708..123393 <- Decode
+generated 123393..124398 <- __convenience_const
+generated 124511..124649 <- Debug
+generated 124649..124766 <- Clone
+generated 124766..124922 <- PartialEq
+generated 124922..125034 <- Hash
+generated 125034..126792 <- Encode
+generated 126792..131487 <- Decode
+generated 131487..132492 <- __convenience_const
+generated 132585..132697 <- Debug
+generated 132697..132800 <- Clone
+generated 132800..133010 <- PartialEq
+generated 133010..133107 <- Hash
+generated 133107..134111 <- Encode
+generated 134111..137336 <- Decode
+generated 137336..138249 <- __convenience_const
+generated 138355..138499 <- Debug
+generated 138499..138622 <- Clone
+generated 138622..138784 <- PartialEq
+generated 138784..138900 <- Hash
+generated 138900..140230 <- Encode
+generated 140230..143579 <- Decode
+generated 143579..144630 <- __convenience_const
+generated 144741..144876 <- Debug
+generated 144876..144990 <- Clone
+generated 144990..145143 <- PartialEq
+generated 145143..145253 <- Hash
+generated 145253..147413 <- Encode
+generated 147413..152633 <- Decode
+generated 152633..153615 <- __convenience_const
+generated 153874..154006 <- Debug
+generated 154006..154117 <- Clone
+generated 154117..154267 <- PartialEq
+generated 154267..154375 <- Hash
+generated 154375..157635 <- Encode
+generated 157635..162144 <- Decode
+generated 162144..163345 <- __convenience_const
+generated 163506..163644 <- Debug
+generated 163644..163761 <- Clone
+generated 163761..163917 <- PartialEq
+generated 163917..164029 <- Hash
+generated 164029..166178 <- Encode
+generated 166178..170262 <- Decode
+generated 170262..171267 <- __convenience_const
+generated 171421..171559 <- Debug
+generated 171559..171676 <- Clone
+generated 171676..171832 <- PartialEq
+generated 171832..171944 <- Hash
+generated 171944..174082 <- Encode
+generated 174082..178675 <- Decode
+generated 178675..179680 <- __convenience_const
+generated 179835..179973 <- Debug
+generated 179973..180090 <- Clone
+generated 180090..180246 <- PartialEq
+generated 180246..180358 <- Hash
+generated 180358..182485 <- Encode
+generated 182485..185947 <- Decode
+generated 185947..186952 <- __convenience_const
+generated 187104..187230 <- Debug
+generated 187230..187335 <- Clone
+generated 187335..187479 <- PartialEq
+generated 187479..187583 <- Hash
+generated 187583..189639 <- Encode
+generated 189639..195818 <- Decode
+generated 195818..196731 <- __convenience_const
+generated 197232..198282 <- Debug
+generated 198282..198982 <- Clone
+generated 198982..200213 <- PartialEq
+generated 200213..201536 <- Hash
+generated 201536..206993 <- Encode
+generated 206993..224514 <- Decode
+generated 224514..226066 <- __convenience_const
+generated 226460..227416 <- Debug
+generated 227416..228055 <- Clone
+generated 228055..229526 <- PartialEq
+generated 229526..230537 <- Hash
+generated 230537..230844 <- Default
+generated 230844..235436 <- Encode
+generated 235436..252709 <- Decode
+generated 252709..254266 <- __convenience_const
+generated 254459..254594 <- Debug
+generated 254594..254708 <- Clone
+generated 254708..254861 <- PartialEq
+generated 254861..254971 <- Hash
+generated 254971..257867 <- Encode
+generated 257867..262290 <- Decode
+generated 262290..263272 <- __convenience_const
+generated 263466..263595 <- Debug
+generated 263595..263703 <- Clone
+generated 263703..263850 <- PartialEq
+generated 263850..263956 <- Hash
+generated 263956..266543 <- Encode
+generated 266543..270837 <- Decode
+generated 270837..271773 <- __convenience_const
+generated 271837..272569 <- Encode
+generated 272569..274853 <- Decode
+generated 274853..275474 <- __convenience_const
+generated 275729..276267 <- Debug
+generated 276267..276619 <- Clone
+generated 276619..277131 <- PartialEq
+generated 277131..277624 <- Hash
+generated 277624..280860 <- Encode
+generated 280860..291751 <- Decode
+generated 291751..293241 <- __convenience_const
+generated 293330..293454 <- Default
+generated 293454..294456 <- Encode
+generated 294456..297981 <- Decode
+generated 297981..298730 <- __convenience_const
+generated 298819..298959 <- Default
+generated 298959..299944 <- Encode
+generated 299944..303472 <- Decode
+generated 303472..304255 <- __convenience_const
+generated 304363..304481 <- Default
+generated 304481..307228 <- Encode
+generated 307228..314632 <- Decode
+generated 314632..315881 <- __convenience_const
 
 ## Metadata
 
@@ -8755,24 +9260,17 @@ Name("AliasTuple")
 Name("AliasUntagged")
 Name("Date")
 Name("Date | string")
-Name("Date[]")
 Name("EdgeCard")
 Name("EdgeItem")
 Name("EdgeItem['id']")
-Name("EdgeItem[]")
 Name("Map")
-Name("Map<string, EdgeItem>")
 Name("NonNullable")
 Name("Pick")
-Name("Pick<EdgeItem, 'id'>")
 Name("Readonly")
 Name("Record")
-Name("Record<string, EdgeItem>")
 Name("Record<string, number> | number")
 Name("Required")
-Name("Required<EdgeItem>")
 Name("Set")
-Name("Set<EdgeItem>")
 Name("`item-${number}`")
 Name("boolean")
 Name("false")
@@ -8781,7 +9279,6 @@ Name("null")
 Name("number")
 Name("number | 'auto'")
 Name("object")
-Name("readonly string[]")
 Name("string")
 Name("string | string")
 Name("true")

@@ -15,7 +15,7 @@ true
 import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -96,14 +96,11 @@ function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeConte
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppPermissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = appPermissionsDecodeWithContext(data, ctx);
+        const resultOrRef = appPermissionsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -148,6 +145,10 @@ export function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function appPermissionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AppPermissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => appPermissionsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AppPermissions | __mf_PendingRef;
@@ -560,6 +561,7 @@ export const AppPermissions: {
   readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
   readonly encodePartialWithContext: typeof appPermissionsEncodePartialWithContext;
   readonly decode: typeof appPermissionsDecode;
+  readonly fromString: typeof appPermissionsFromString;
   readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
   readonly decodePartialWithContext: typeof appPermissionsDecodePartialWithContext;
   readonly validateField: typeof appPermissionsValidateField;
@@ -574,6 +576,7 @@ export const AppPermissions: {
   encodeWithContext: appPermissionsEncodeWithContext,
   encodePartialWithContext: appPermissionsEncodePartialWithContext,
   decode: appPermissionsDecode,
+  fromString: appPermissionsFromString,
   decodeWithContext: appPermissionsDecodeWithContext,
   decodePartialWithContext: appPermissionsDecodePartialWithContext,
   validateField: appPermissionsValidateField,
@@ -602,8 +605,19 @@ export declare function appPermissionsEncode(value: AppPermissions, keepMetadata
 export declare function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function appPermissionsEncodePartialWithContext(value: Partial<AppPermissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AppPermissions>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AppPermissions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function appPermissionsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AppPermissions;
 } | {
@@ -673,6 +687,7 @@ export declare const AppPermissions: {
 	readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
 	readonly encodePartialWithContext: typeof appPermissionsEncodePartialWithContext;
 	readonly decode: typeof appPermissionsDecode;
+	readonly fromString: typeof appPermissionsFromString;
 	readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
 	readonly decodePartialWithContext: typeof appPermissionsDecodePartialWithContext;
 	readonly validateField: typeof appPermissionsValidateField;
@@ -689,15 +704,15 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 1160..1366
-original 255..378 -> expanded 1366..1489
-original 378..379 -> expanded 25805..25806
-generated 0..1160 <- imports
-generated 1489..1638 <- Default
-generated 1638..4638 <- Encode
-generated 4638..14160 <- Decode
-generated 14160..24377 <- Gigaform
-generated 24377..25805 <- __convenience_const
+original 0..206 -> expanded 1162..1368
+original 255..378 -> expanded 1368..1491
+original 378..379 -> expanded 26266..26267
+generated 0..1162 <- imports
+generated 1491..1640 <- Default
+generated 1640..4640 <- Encode
+generated 4640..14525 <- Decode
+generated 14525..24742 <- Gigaform
+generated 24742..26266 <- __convenience_const
 
 ## Metadata
 

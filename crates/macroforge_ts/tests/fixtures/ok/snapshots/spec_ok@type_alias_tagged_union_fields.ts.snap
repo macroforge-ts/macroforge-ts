@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Shape =
@@ -87,13 +87,11 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeDecodeWithContext(data, ctx);
+        const resultOrRef = shapeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -138,6 +136,10 @@ export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef {
@@ -190,6 +192,7 @@ const Shape: {
   readonly encode: typeof shapeEncode;
   readonly encodeWithContext: typeof shapeEncodeWithContext;
   readonly decode: typeof shapeDecode;
+  readonly fromString: typeof shapeFromString;
   readonly decodeWithContext: typeof shapeDecodeWithContext;
   readonly hasShape: typeof shapeHasShape;
   readonly is: typeof shapeIs;
@@ -199,6 +202,7 @@ const Shape: {
   encode: shapeEncode,
   encodeWithContext: shapeEncodeWithContext,
   decode: shapeDecode,
+  fromString: shapeFromString,
   decodeWithContext: shapeDecodeWithContext,
   hasShape: shapeHasShape,
   is: shapeIs,
@@ -220,8 +224,19 @@ type Shape = {
 export declare function shapeEncode(value: Shape, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Shape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Shape;
 } | {
@@ -249,12 +264,12 @@ export {};
 
 ## Mapping
 
-original 61..165 -> expanded 758..862
-original 165..166 -> expanded 7673..7674
-generated 0..758 <- imports
-generated 862..3507 <- Encode
-generated 3507..7061 <- Decode
-generated 7061..7673 <- __convenience_const
+original 61..165 -> expanded 760..864
+original 165..166 -> expanded 8170..8171
+generated 0..760 <- imports
+generated 864..3509 <- Encode
+generated 3509..7480 <- Decode
+generated 7480..8170 <- __convenience_const
 
 ## Metadata
 

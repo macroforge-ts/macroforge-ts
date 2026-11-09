@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -105,14 +105,11 @@ function representsEncodeFields(value: Represents, ctx: __mf_EncodeContext, resu
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = representsDecodeWithContext(data, ctx);
+        const resultOrRef = representsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -157,6 +154,10 @@ export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function representsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => representsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Represents | __mf_PendingRef;
@@ -498,6 +499,7 @@ export const Represents: {
   readonly encodeWithContext: typeof representsEncodeWithContext;
   readonly encodePartialWithContext: typeof representsEncodePartialWithContext;
   readonly decode: typeof representsDecode;
+  readonly fromString: typeof representsFromString;
   readonly decodeWithContext: typeof representsDecodeWithContext;
   readonly decodePartialWithContext: typeof representsDecodePartialWithContext;
   readonly validateField: typeof representsValidateField;
@@ -512,6 +514,7 @@ export const Represents: {
   encodeWithContext: representsEncodeWithContext,
   encodePartialWithContext: representsEncodePartialWithContext,
   decode: representsDecode,
+  fromString: representsFromString,
   decodeWithContext: representsDecodeWithContext,
   decodePartialWithContext: representsDecodePartialWithContext,
   validateField: representsValidateField,
@@ -540,8 +543,19 @@ export declare function representsEncode(value: Represents, keepMetadata?: boole
 export declare function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function representsEncodePartialWithContext(value: Partial<Represents>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Represents>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function representsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Represents;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function representsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Represents;
 } | {
@@ -614,6 +628,7 @@ export declare const Represents: {
 	readonly encodeWithContext: typeof representsEncodeWithContext;
 	readonly encodePartialWithContext: typeof representsEncodePartialWithContext;
 	readonly decode: typeof representsDecode;
+	readonly fromString: typeof representsFromString;
 	readonly decodeWithContext: typeof representsDecodeWithContext;
 	readonly decodePartialWithContext: typeof representsDecodePartialWithContext;
 	readonly validateField: typeof representsValidateField;
@@ -630,17 +645,17 @@ export declare const Represents: {
 
 ## Mapping
 
-original 0..159 -> expanded 1021..1180
-original 208..243 -> expanded 1180..1215
-original 262..294 -> expanded 1215..1247
-original 313..383 -> expanded 1247..1317
-original 383..384 -> expanded 21523..21524
-generated 0..1021 <- imports
-generated 1317..1469 <- Default
-generated 1469..4587 <- Encode
-generated 4587..13672 <- Decode
-generated 13672..20203 <- Gigaform
-generated 20203..21523 <- __convenience_const
+original 0..159 -> expanded 1023..1182
+original 208..243 -> expanded 1182..1217
+original 262..294 -> expanded 1217..1249
+original 313..383 -> expanded 1249..1319
+original 383..384 -> expanded 21964..21965
+generated 0..1023 <- imports
+generated 1319..1471 <- Default
+generated 1471..4589 <- Encode
+generated 4589..14025 <- Decode
+generated 14025..20556 <- Gigaform
+generated 20556..21964 <- __convenience_const
 
 ## Metadata
 

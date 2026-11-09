@@ -21,7 +21,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Point {
@@ -132,14 +132,11 @@ static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<stri
         return pointEncode(value, keepMetadata);
     }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Point.decodeWithContext(data, ctx);
+        const resultOrRef = Point.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -184,6 +181,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => Point.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -335,9 +337,14 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
     return Point.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     return Point.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function pointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Point.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -379,8 +386,19 @@ declare class Point {
 	static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode(value: Point, keepMetadata?: boolean): string;
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Point;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: Point;
 	} | {
@@ -416,8 +434,19 @@ export declare function pointEncode(value: Point, keepMetadata?: boolean): strin
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function pointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Point;
 } | {
@@ -443,25 +472,25 @@ export {};
 
 ## Mapping
 
-original 70..206 -> expanded 900..1036
-original 206..207 -> expanded 11594..11595
-original 207..208 -> expanded 15082..15083
-generated 0..900 <- imports
-generated 1036..1389 <- Debug
-generated 1389..1566 <- Clone
-generated 1566..1971 <- PartialEq
-generated 1971..2588 <- Hash
-generated 2588..2829 <- Default
-generated 2829..4898 <- Encode
-generated 4898..5215 <- Encode
-generated 5215..11594 <- Decode
-generated 11595..11686 <- Debug
-generated 11686..11770 <- Clone
-generated 11770..11863 <- PartialEq
-generated 11863..11954 <- Hash
-generated 11954..12035 <- Default
-generated 12035..13345 <- Encode
-generated 13345..15082 <- Decode
+original 70..206 -> expanded 902..1038
+original 206..207 -> expanded 11939..11940
+original 207..208 -> expanded 15820..15821
+generated 0..902 <- imports
+generated 1038..1391 <- Debug
+generated 1391..1568 <- Clone
+generated 1568..1973 <- PartialEq
+generated 1973..2590 <- Hash
+generated 2590..2831 <- Default
+generated 2831..4900 <- Encode
+generated 4900..5217 <- Encode
+generated 5217..11939 <- Decode
+generated 11940..12031 <- Debug
+generated 12031..12115 <- Clone
+generated 12115..12208 <- PartialEq
+generated 12208..12299 <- Hash
+generated 12299..12380 <- Default
+generated 12380..13690 <- Encode
+generated 13690..15820 <- Decode
 
 ## Metadata
 

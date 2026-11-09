@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface PersonName {
@@ -77,14 +77,11 @@ function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = personNameDecodeWithContext(data, ctx);
+        const resultOrRef = personNameDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -129,6 +126,10 @@ export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function personNameFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => personNameDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PersonName | __mf_PendingRef;
@@ -259,6 +260,7 @@ export const PersonName: {
   readonly encodeWithContext: typeof personNameEncodeWithContext;
   readonly encodePartialWithContext: typeof personNameEncodePartialWithContext;
   readonly decode: typeof personNameDecode;
+  readonly fromString: typeof personNameFromString;
   readonly decodeWithContext: typeof personNameDecodeWithContext;
   readonly decodePartialWithContext: typeof personNameDecodePartialWithContext;
   readonly validateField: typeof personNameValidateField;
@@ -271,6 +273,7 @@ export const PersonName: {
   encodeWithContext: personNameEncodeWithContext,
   encodePartialWithContext: personNameEncodePartialWithContext,
   decode: personNameDecode,
+  fromString: personNameFromString,
   decodeWithContext: personNameDecodeWithContext,
   decodePartialWithContext: personNameDecodePartialWithContext,
   validateField: personNameValidateField,
@@ -292,8 +295,19 @@ export declare function personNameEncode(value: PersonName, keepMetadata?: boole
 export declare function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PersonName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function personNameFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: PersonName;
 } | {
@@ -325,6 +339,7 @@ export declare const PersonName: {
 	readonly encodeWithContext: typeof personNameEncodeWithContext;
 	readonly encodePartialWithContext: typeof personNameEncodePartialWithContext;
 	readonly decode: typeof personNameDecode;
+	readonly fromString: typeof personNameFromString;
 	readonly decodeWithContext: typeof personNameDecodeWithContext;
 	readonly decodePartialWithContext: typeof personNameDecodePartialWithContext;
 	readonly validateField: typeof personNameValidateField;
@@ -339,15 +354,15 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 39..74 -> expanded 685..720
-original 115..143 -> expanded 720..748
-original 184..208 -> expanded 748..772
-original 208..209 -> expanded 13007..13008
-generated 0..685 <- imports
-generated 772..895 <- Default
-generated 895..3441 <- Encode
-generated 3441..11871 <- Decode
-generated 11871..13007 <- __convenience_const
+original 39..74 -> expanded 687..722
+original 115..143 -> expanded 722..750
+original 184..208 -> expanded 750..774
+original 208..209 -> expanded 13448..13449
+generated 0..687 <- imports
+generated 774..897 <- Default
+generated 897..3443 <- Encode
+generated 3443..12224 <- Decode
+generated 12224..13448 <- __convenience_const
 
 ## Metadata
 

@@ -16,7 +16,7 @@ import { colorsConfigDecodeWithContext, colorsConfigEncodeWithContext, colorsCon
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -345,14 +345,11 @@ function companyEncodeFields(value: Company, ctx: __mf_EncodeContext, result: Re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = companyDecodeWithContext(data, ctx);
+        const resultOrRef = companyDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -397,6 +394,10 @@ export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function companyFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => companyDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Company | __mf_PendingRef;
@@ -2022,6 +2023,7 @@ export const Company: {
   readonly encodeWithContext: typeof companyEncodeWithContext;
   readonly encodePartialWithContext: typeof companyEncodePartialWithContext;
   readonly decode: typeof companyDecode;
+  readonly fromString: typeof companyFromString;
   readonly decodeWithContext: typeof companyDecodeWithContext;
   readonly decodePartialWithContext: typeof companyDecodePartialWithContext;
   readonly validateField: typeof companyValidateField;
@@ -2036,6 +2038,7 @@ export const Company: {
   encodeWithContext: companyEncodeWithContext,
   encodePartialWithContext: companyEncodePartialWithContext,
   decode: companyDecode,
+  fromString: companyFromString,
   decodeWithContext: companyDecodeWithContext,
   decodePartialWithContext: companyDecodePartialWithContext,
   validateField: companyValidateField,
@@ -2091,8 +2094,19 @@ export declare function companyEncode(value: Company, keepMetadata?: boolean): s
 export declare function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function companyDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Company;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function companyFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Company;
 } | {
@@ -2240,6 +2254,7 @@ export declare const Company: {
 	readonly encodeWithContext: typeof companyEncodeWithContext;
 	readonly encodePartialWithContext: typeof companyEncodePartialWithContext;
 	readonly decode: typeof companyDecode;
+	readonly fromString: typeof companyFromString;
 	readonly decodeWithContext: typeof companyDecodeWithContext;
 	readonly decodePartialWithContext: typeof companyDecodePartialWithContext;
 	readonly validateField: typeof companyValidateField;
@@ -2256,28 +2271,28 @@ export declare const Company: {
 
 ## Mapping
 
-original 0..270 -> expanded 1294..1564
-original 319..367 -> expanded 1564..1612
-original 408..436 -> expanded 1612..1640
-original 455..525 -> expanded 1640..1710
-original 566..588 -> expanded 1710..1732
-original 629..653 -> expanded 1732..1756
-original 694..720 -> expanded 1756..1782
-original 761..814 -> expanded 1782..1835
-original 855..912 -> expanded 1835..1892
-original 931..970 -> expanded 1892..1931
-original 1011..1077 -> expanded 1931..1997
-original 1118..1155 -> expanded 1997..2034
-original 1196..1231 -> expanded 2034..2069
-original 1272..1352 -> expanded 2069..2149
-original 1393..1783 -> expanded 2149..2539
-original 1783..1784 -> expanded 99758..99759
-generated 0..1294 <- imports
-generated 2539..3489 <- Default
-generated 3489..13517 <- Encode
-generated 13517..55181 <- Decode
-generated 55181..98519 <- Gigaform
-generated 98519..99758 <- __convenience_const
+original 0..270 -> expanded 1296..1566
+original 319..367 -> expanded 1566..1614
+original 408..436 -> expanded 1614..1642
+original 455..525 -> expanded 1642..1712
+original 566..588 -> expanded 1712..1734
+original 629..653 -> expanded 1734..1758
+original 694..720 -> expanded 1758..1784
+original 761..814 -> expanded 1784..1837
+original 855..912 -> expanded 1837..1894
+original 931..970 -> expanded 1894..1933
+original 1011..1077 -> expanded 1933..1999
+original 1118..1155 -> expanded 1999..2036
+original 1196..1231 -> expanded 2036..2071
+original 1272..1352 -> expanded 2071..2151
+original 1393..1783 -> expanded 2151..2541
+original 1783..1784 -> expanded 100184..100185
+generated 0..1296 <- imports
+generated 2541..3491 <- Default
+generated 3491..13519 <- Encode
+generated 13519..55525 <- Decode
+generated 55525..98863 <- Gigaform
+generated 98863..100184 <- __convenience_const
 
 ## Metadata
 

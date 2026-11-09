@@ -13,7 +13,7 @@ true
 ## Output
 
 import { weekdayDecodeWithContext, weekdayEncodeWithContext } from "./weekday.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -83,14 +83,11 @@ function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(data, ctx);
+        const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -135,6 +132,10 @@ export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOpt
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function weeklyRecurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => weeklyRecurrenceRuleDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): WeeklyRecurrenceRule | __mf_PendingRef;
@@ -413,6 +414,7 @@ export const WeeklyRecurrenceRule: {
   readonly encodeWithContext: typeof weeklyRecurrenceRuleEncodeWithContext;
   readonly encodePartialWithContext: typeof weeklyRecurrenceRuleEncodePartialWithContext;
   readonly decode: typeof weeklyRecurrenceRuleDecode;
+  readonly fromString: typeof weeklyRecurrenceRuleFromString;
   readonly decodeWithContext: typeof weeklyRecurrenceRuleDecodeWithContext;
   readonly decodePartialWithContext: typeof weeklyRecurrenceRuleDecodePartialWithContext;
   readonly validateField: typeof weeklyRecurrenceRuleValidateField;
@@ -427,6 +429,7 @@ export const WeeklyRecurrenceRule: {
   encodeWithContext: weeklyRecurrenceRuleEncodeWithContext,
   encodePartialWithContext: weeklyRecurrenceRuleEncodePartialWithContext,
   decode: weeklyRecurrenceRuleDecode,
+  fromString: weeklyRecurrenceRuleFromString,
   decodeWithContext: weeklyRecurrenceRuleDecodeWithContext,
   decodePartialWithContext: weeklyRecurrenceRuleDecodePartialWithContext,
   validateField: weeklyRecurrenceRuleValidateField,
@@ -452,8 +455,19 @@ export declare function weeklyRecurrenceRuleEncode(value: WeeklyRecurrenceRule, 
 export declare function weeklyRecurrenceRuleEncodeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<WeeklyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof WeeklyRecurrenceRule>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: WeeklyRecurrenceRule;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function weeklyRecurrenceRuleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: WeeklyRecurrenceRule;
 } | {
@@ -520,6 +534,7 @@ export declare const WeeklyRecurrenceRule: {
 	readonly encodeWithContext: typeof weeklyRecurrenceRuleEncodeWithContext;
 	readonly encodePartialWithContext: typeof weeklyRecurrenceRuleEncodePartialWithContext;
 	readonly decode: typeof weeklyRecurrenceRuleDecode;
+	readonly fromString: typeof weeklyRecurrenceRuleFromString;
 	readonly decodeWithContext: typeof weeklyRecurrenceRuleDecodeWithContext;
 	readonly decodePartialWithContext: typeof weeklyRecurrenceRuleDecodePartialWithContext;
 	readonly validateField: typeof weeklyRecurrenceRuleValidateField;
@@ -536,15 +551,15 @@ export declare const WeeklyRecurrenceRule: {
 
 ## Mapping
 
-original 0..108 -> expanded 986..1094
-original 157..258 -> expanded 1094..1195
-original 258..259 -> expanded 20085..20086
-generated 0..986 <- imports
-generated 1195..1343 <- Default
-generated 1343..4119 <- Encode
-generated 4119..11820 <- Decode
-generated 11820..18495 <- Gigaform
-generated 18495..20085 <- __convenience_const
+original 0..108 -> expanded 988..1096
+original 157..258 -> expanded 1096..1197
+original 258..259 -> expanded 20576..20577
+generated 0..988 <- imports
+generated 1197..1345 <- Default
+generated 1345..4121 <- Encode
+generated 4121..12203 <- Decode
+generated 12203..18878 <- Gigaform
+generated 18878..20576 <- __convenience_const
 
 ## Metadata
 

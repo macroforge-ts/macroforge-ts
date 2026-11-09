@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** @derive(Decode) */
 export interface Inner {
@@ -21,14 +21,11 @@ export interface Inner {
     score: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = innerDecodeWithContext(data, ctx);
+        const resultOrRef = innerDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -73,6 +70,10 @@ export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function innerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => innerDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
@@ -183,6 +184,7 @@ export function innerIs(obj: unknown): obj is Inner {
 
 export const Inner: {
   readonly decode: typeof innerDecode;
+  readonly fromString: typeof innerFromString;
   readonly decodeWithContext: typeof innerDecodeWithContext;
   readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
   readonly validateField: typeof innerValidateField;
@@ -191,6 +193,7 @@ export const Inner: {
   readonly is: typeof innerIs;
 } = {
   decode: innerDecode,
+  fromString: innerFromString,
   decodeWithContext: innerDecodeWithContext,
   decodePartialWithContext: innerDecodePartialWithContext,
   validateField: innerValidateField,
@@ -204,14 +207,11 @@ export interface Container {
     items: Inner[];
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function containerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = containerDecodeWithContext(data, ctx);
+        const resultOrRef = containerDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -256,6 +256,10 @@ export function containerDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function containerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => containerDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Container | __mf_PendingRef;
@@ -350,6 +354,7 @@ export function containerIs(obj: unknown): obj is Container {
 
 export const Container: {
   readonly decode: typeof containerDecode;
+  readonly fromString: typeof containerFromString;
   readonly decodeWithContext: typeof containerDecodeWithContext;
   readonly decodePartialWithContext: typeof containerDecodePartialWithContext;
   readonly validateField: typeof containerValidateField;
@@ -358,6 +363,7 @@ export const Container: {
   readonly is: typeof containerIs;
 } = {
   decode: containerDecode,
+  fromString: containerFromString,
   decodeWithContext: containerDecodeWithContext,
   decodePartialWithContext: containerDecodePartialWithContext,
   validateField: containerValidateField,
@@ -442,8 +448,19 @@ export interface Inner {
 	createdAt: Date;
 	score: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function innerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Inner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function innerFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Inner;
 } | {
@@ -471,6 +488,7 @@ export declare function innerHasShape(obj: unknown): boolean;
 export declare function innerIs(obj: unknown): obj is Inner;
 export declare const Inner: {
 	readonly decode: typeof innerDecode;
+	readonly fromString: typeof innerFromString;
 	readonly decodeWithContext: typeof innerDecodeWithContext;
 	readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
 	readonly validateField: typeof innerValidateField;
@@ -482,8 +500,19 @@ export declare const Inner: {
 export interface Container {
 	items: Inner[];
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function containerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Container;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function containerFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Container;
 } | {
@@ -511,6 +540,7 @@ export declare function containerHasShape(obj: unknown): boolean;
 export declare function containerIs(obj: unknown): obj is Container;
 export declare const Container: {
 	readonly decode: typeof containerDecode;
+	readonly fromString: typeof containerFromString;
 	readonly decodeWithContext: typeof containerDecodeWithContext;
 	readonly decodePartialWithContext: typeof containerDecodePartialWithContext;
 	readonly validateField: typeof containerValidateField;
@@ -545,14 +575,14 @@ export {};
 
 ## Mapping
 
-original 0..107 -> expanded 472..579
-original 107..182 -> expanded 8281..8356
-original 182..2159 -> expanded 15208..17185
-generated 0..472 <- imports
-generated 579..7648 <- Decode
-generated 7648..8281 <- __convenience_const
-generated 8356..14515 <- Decode
-generated 14515..15208 <- __convenience_const
+original 0..107 -> expanded 474..581
+original 107..182 -> expanded 8697..8772
+original 182..2159 -> expanded 16058..18035
+generated 0..474 <- imports
+generated 581..7986 <- Decode
+generated 7986..8697 <- __convenience_const
+generated 8772..15279 <- Decode
+generated 15279..16058 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -71,10 +71,14 @@ export function statusEncodeWithContext(value: Status): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function statusDecode(input: unknown): Status {
+    return statusDecodeWithContext(input);
+}
 
-    return statusDecodeWithContext(__mf_textOrValue(input, statusIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function statusFromString(text: string): Status {
+    return statusDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -113,6 +117,7 @@ export namespace Status {
   export const encode: typeof statusEncode = statusEncode;
   export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
   export const decode: typeof statusDecode = statusDecode;
+  export const fromString: typeof statusFromString = statusFromString;
   export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
   export const is: typeof statusIs = statusIs;
 }
@@ -166,10 +171,14 @@ export function priorityEncodeWithContext(value: Priority): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function priorityDecode(input: unknown): Priority {
+    return priorityDecodeWithContext(input);
+}
 
-    return priorityDecodeWithContext(__mf_textOrValue(input, priorityIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function priorityFromString(text: string): Priority {
+    return priorityDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -214,6 +223,7 @@ export namespace Priority {
   export const encode: typeof priorityEncode = priorityEncode;
   export const encodeWithContext: typeof priorityEncodeWithContext = priorityEncodeWithContext;
   export const decode: typeof priorityDecode = priorityDecode;
+  export const fromString: typeof priorityFromString = priorityFromString;
   export const decodeWithContext: typeof priorityDecodeWithContext = priorityDecodeWithContext;
   export const is: typeof priorityIs = priorityIs;
 }
@@ -345,14 +355,11 @@ function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = pointDecodeWithContext(data, ctx);
+        const resultOrRef = pointDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -397,6 +404,10 @@ export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pointDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
@@ -500,6 +511,7 @@ export const Point: {
   readonly encodeWithContext: typeof pointEncodeWithContext;
   readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
   readonly decode: typeof pointDecode;
+  readonly fromString: typeof pointFromString;
   readonly decodeWithContext: typeof pointDecodeWithContext;
   readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
   readonly validateField: typeof pointValidateField;
@@ -515,6 +527,7 @@ export const Point: {
   encodeWithContext: pointEncodeWithContext,
   encodePartialWithContext: pointEncodePartialWithContext,
   decode: pointDecode,
+  fromString: pointFromString,
   decodeWithContext: pointDecodeWithContext,
   decodePartialWithContext: pointDecodePartialWithContext,
   validateField: pointValidateField,
@@ -648,14 +661,11 @@ function userProfileEncodeFields(value: UserProfile, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userProfileDecodeWithContext(data, ctx);
+        const resultOrRef = userProfileDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -700,6 +710,10 @@ export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userProfileFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userProfileDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef;
@@ -836,6 +850,7 @@ export const UserProfile: {
   readonly encodeWithContext: typeof userProfileEncodeWithContext;
   readonly encodePartialWithContext: typeof userProfileEncodePartialWithContext;
   readonly decode: typeof userProfileDecode;
+  readonly fromString: typeof userProfileFromString;
   readonly decodeWithContext: typeof userProfileDecodeWithContext;
   readonly decodePartialWithContext: typeof userProfileDecodePartialWithContext;
   readonly validateField: typeof userProfileValidateField;
@@ -851,6 +866,7 @@ export const UserProfile: {
   encodeWithContext: userProfileEncodeWithContext,
   encodePartialWithContext: userProfileEncodePartialWithContext,
   decode: userProfileDecode,
+  fromString: userProfileFromString,
   decodeWithContext: userProfileDecodeWithContext,
   decodePartialWithContext: userProfileDecodePartialWithContext,
   validateField: userProfileValidateField,
@@ -1043,8 +1059,10 @@ export declare function statusHashCode(value: Status): number;
 export declare function statusEncode(value: Status): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function statusDecode(input: unknown): Status;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function statusFromString(text: string): Status;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
 export declare function statusIs(value: unknown): value is Status;
@@ -1056,6 +1074,7 @@ export declare namespace Status {
 	const encode: typeof statusEncode;
 	const encodeWithContext: typeof statusEncodeWithContext;
 	const decode: typeof statusDecode;
+	const fromString: typeof statusFromString;
 	const decodeWithContext: typeof statusDecodeWithContext;
 	const is: typeof statusIs;
 }
@@ -1074,8 +1093,10 @@ export declare function priorityHashCode(value: Priority): number;
 export declare function priorityEncode(value: Priority): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function priorityDecode(input: unknown): Priority;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function priorityFromString(text: string): Priority;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function priorityDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Priority;
 export declare function priorityIs(value: unknown): value is Priority;
@@ -1087,6 +1108,7 @@ export declare namespace Priority {
 	const encode: typeof priorityEncode;
 	const encodeWithContext: typeof priorityEncodeWithContext;
 	const decode: typeof priorityDecode;
+	const fromString: typeof priorityFromString;
 	const decodeWithContext: typeof priorityDecodeWithContext;
 	const is: typeof priorityIs;
 }
@@ -1119,8 +1141,19 @@ export declare function pointEncode(value: Point, keepMetadata?: boolean): strin
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Point;
 } | {
@@ -1155,6 +1188,7 @@ export declare const Point: {
 	readonly encodeWithContext: typeof pointEncodeWithContext;
 	readonly encodePartialWithContext: typeof pointEncodePartialWithContext;
 	readonly decode: typeof pointDecode;
+	readonly fromString: typeof pointFromString;
 	readonly decodeWithContext: typeof pointDecodeWithContext;
 	readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
 	readonly validateField: typeof pointValidateField;
@@ -1180,8 +1214,19 @@ export declare function userProfileEncode(value: UserProfile, keepMetadata?: boo
 export declare function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function userProfileEncodePartialWithContext(value: Partial<UserProfile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserProfile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userProfileFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: UserProfile;
 } | {
@@ -1216,6 +1261,7 @@ export declare const UserProfile: {
 	readonly encodeWithContext: typeof userProfileEncodeWithContext;
 	readonly encodePartialWithContext: typeof userProfileEncodePartialWithContext;
 	readonly decode: typeof userProfileDecode;
+	readonly fromString: typeof userProfileFromString;
 	readonly decodeWithContext: typeof userProfileDecodeWithContext;
 	readonly decodePartialWithContext: typeof userProfileDecodePartialWithContext;
 	readonly validateField: typeof userProfileValidateField;
@@ -1263,55 +1309,55 @@ export declare function demoTypeFunctions();
 ## Mapping
 
 original 0..527 -> expanded 941..1468
-original 527..675 -> expanded 4322..4470
-original 675..766 -> expanded 7687..7778
-original 766..950 -> expanded 8608..8792
-original 950..1143 -> expanded 19665..19858
-original 1143..1267 -> expanded 34563..34687
-original 1267..1364 -> expanded 36583..36680
-original 1364..3696 -> expanded 37251..39583
+original 527..675 -> expanded 4709..4857
+original 675..766 -> expanded 8469..8560
+original 766..950 -> expanded 9390..9574
+original 950..1143 -> expanded 20861..21054
+original 1143..1267 -> expanded 36203..36327
+original 1267..1364 -> expanded 38223..38320
+original 1364..3696 -> expanded 38891..41223
 generated 0..941 <- imports
 generated 1468..1836 <- Debug
 generated 1836..1910 <- Clone
 generated 1910..1995 <- PartialEq
 generated 1995..2150 <- Hash
 generated 2150..2560 <- Encode
-generated 2560..3699 <- Decode
-generated 3699..4322 <- __convenience_const
-generated 4470..4923 <- Debug
-generated 4923..5003 <- Clone
-generated 5003..5094 <- PartialEq
-generated 5094..5296 <- Hash
-generated 5296..5718 <- Encode
-generated 5718..7026 <- Decode
-generated 7026..7687 <- __convenience_const
-generated 7778..8119 <- Debug
-generated 8119..8201 <- PartialEq
-generated 8201..8397 <- Hash
-generated 8397..8608 <- __convenience_const
-generated 8792..9074 <- Debug
-generated 9074..9207 <- Clone
-generated 9207..9503 <- PartialEq
-generated 9503..9978 <- Hash
-generated 9978..12389 <- Encode
-generated 12389..18470 <- Decode
-generated 18470..19665 <- __convenience_const
-generated 19858..20327 <- Debug
-generated 20327..20569 <- Clone
-generated 20569..20988 <- PartialEq
-generated 20988..21743 <- Hash
-generated 21743..24972 <- Encode
-generated 24972..33194 <- Decode
-generated 33194..34563 <- __convenience_const
-generated 34687..35031 <- Debug
-generated 35031..35205 <- Clone
-generated 35205..35579 <- PartialEq
-generated 35579..36229 <- Hash
-generated 36229..36583 <- __convenience_const
-generated 36680..36792 <- Debug
-generated 36792..36886 <- PartialEq
-generated 36886..36990 <- Hash
-generated 36990..37251 <- __convenience_const
+generated 2560..4015 <- Decode
+generated 4015..4709 <- __convenience_const
+generated 4857..5310 <- Debug
+generated 5310..5390 <- Clone
+generated 5390..5481 <- PartialEq
+generated 5481..5683 <- Hash
+generated 5683..6105 <- Encode
+generated 6105..7733 <- Decode
+generated 7733..8469 <- __convenience_const
+generated 8560..8901 <- Debug
+generated 8901..8983 <- PartialEq
+generated 8983..9179 <- Hash
+generated 9179..9390 <- __convenience_const
+generated 9574..9856 <- Debug
+generated 9856..9989 <- Clone
+generated 9989..10285 <- PartialEq
+generated 10285..10760 <- Hash
+generated 10760..13171 <- Encode
+generated 13171..19588 <- Decode
+generated 19588..20861 <- __convenience_const
+generated 21054..21523 <- Debug
+generated 21523..21765 <- Clone
+generated 21765..22184 <- PartialEq
+generated 22184..22939 <- Hash
+generated 22939..26168 <- Encode
+generated 26168..34744 <- Decode
+generated 34744..36203 <- __convenience_const
+generated 36327..36671 <- Debug
+generated 36671..36845 <- Clone
+generated 36845..37219 <- PartialEq
+generated 37219..37869 <- Hash
+generated 37869..38223 <- __convenience_const
+generated 38320..38432 <- Debug
+generated 38432..38526 <- PartialEq
+generated 38526..38630 <- Hash
+generated 38630..38891 <- __convenience_const
 
 ## Metadata
 

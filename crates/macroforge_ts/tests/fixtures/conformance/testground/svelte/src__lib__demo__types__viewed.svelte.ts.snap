@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -80,14 +80,11 @@ function viewedEncodeFields(value: Viewed, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Viewed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = viewedDecodeWithContext(data, ctx);
+        const resultOrRef = viewedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -132,6 +129,10 @@ export function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function viewedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Viewed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => viewedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Viewed | __mf_PendingRef;
@@ -361,6 +362,7 @@ export const Viewed: {
   readonly encodeWithContext: typeof viewedEncodeWithContext;
   readonly encodePartialWithContext: typeof viewedEncodePartialWithContext;
   readonly decode: typeof viewedDecode;
+  readonly fromString: typeof viewedFromString;
   readonly decodeWithContext: typeof viewedDecodeWithContext;
   readonly decodePartialWithContext: typeof viewedDecodePartialWithContext;
   readonly validateField: typeof viewedValidateField;
@@ -375,6 +377,7 @@ export const Viewed: {
   encodeWithContext: viewedEncodeWithContext,
   encodePartialWithContext: viewedEncodePartialWithContext,
   decode: viewedDecode,
+  fromString: viewedFromString,
   decodeWithContext: viewedDecodeWithContext,
   decodePartialWithContext: viewedDecodePartialWithContext,
   validateField: viewedValidateField,
@@ -399,8 +402,19 @@ export declare function viewedEncode(value: Viewed, keepMetadata?: boolean): str
 export declare function viewedEncodeWithContext(value: Viewed, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function viewedEncodePartialWithContext(value: Partial<Viewed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Viewed>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Viewed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function viewedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Viewed;
 } | {
@@ -467,6 +481,7 @@ export declare const Viewed: {
 	readonly encodeWithContext: typeof viewedEncodeWithContext;
 	readonly encodePartialWithContext: typeof viewedEncodePartialWithContext;
 	readonly decode: typeof viewedDecode;
+	readonly fromString: typeof viewedFromString;
 	readonly decodeWithContext: typeof viewedDecodeWithContext;
 	readonly decodePartialWithContext: typeof viewedDecodePartialWithContext;
 	readonly validateField: typeof viewedValidateField;
@@ -483,15 +498,15 @@ export declare const Viewed: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..198 -> expanded 902..993
-original 198..199 -> expanded 15975..15976
-generated 0..844 <- imports
-generated 993..1116 <- Default
-generated 1116..3618 <- Encode
-generated 3618..9989 <- Decode
-generated 9989..14763 <- Gigaform
-generated 14763..15975 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..198 -> expanded 904..995
+original 198..199 -> expanded 16396..16397
+generated 0..846 <- imports
+generated 995..1118 <- Default
+generated 1118..3620 <- Encode
+generated 3620..10330 <- Decode
+generated 10330..15104 <- Gigaform
+generated 15104..16396 <- __convenience_const
 
 ## Metadata
 

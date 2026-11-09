@@ -79,7 +79,7 @@ Deno.test('a Pick or Omit in a collection leaves out the fields its type does', 
 });
 
 Deno.test('a Partial, Pick or Omit in a collection round-trips', () => {
-    const result = mod.edgePartialsDecode(mod.edgePartialsEncode(partials()));
+    const result = mod.edgePartialsFromString(mod.edgePartialsEncode(partials()));
     assert(result.success, JSON.stringify(result.errors));
     // A partial class value is an instance holding the fields it was given.
     const { card, cards, ...plain } = result.value;
@@ -200,7 +200,7 @@ Deno.test('a Pick or Omit names its fields as written and encodes them as rename
 });
 
 Deno.test('a Partial, Pick or Omit over renamed fields round-trips', () => {
-    const result = mod.edgeRenamedPartialsDecode(mod.edgeRenamedPartialsEncode(renamed()));
+    const result = mod.edgeRenamedPartialsFromString(mod.edgeRenamedPartialsEncode(renamed()));
     assert(result.success, JSON.stringify(result.errors));
     assertEquals(result.value, renamed());
     assert(result.value.anonymous.joinedAt instanceof Date);
@@ -275,7 +275,7 @@ const required = () => ({
 });
 
 Deno.test('a field a type leaves optional may be left out, and is reported once when required', () => {
-    const result = mod.edgeOptionalDecode(mod.edgeOptionalEncode(optional()));
+    const result = mod.edgeOptionalFromString(mod.edgeOptionalEncode(optional()));
     assert(result.success, JSON.stringify(result.errors));
     assertEquals(result.value, { id: 'o', level: 1 });
 

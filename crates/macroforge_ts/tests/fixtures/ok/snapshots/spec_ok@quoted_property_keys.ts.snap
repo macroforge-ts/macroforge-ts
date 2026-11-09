@@ -20,7 +20,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Headers {
@@ -176,14 +176,11 @@ function headersEncodeFields(value: Headers, _ctx: __mf_EncodeContext, result: R
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function headersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Headers } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = headersDecodeWithContext(data, ctx);
+        const resultOrRef = headersDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -228,6 +225,10 @@ export function headersDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function headersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Headers } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => headersDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function headersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Headers | __mf_PendingRef;
@@ -356,6 +357,7 @@ const Headers: {
   readonly encodeWithContext: typeof headersEncodeWithContext;
   readonly encodePartialWithContext: typeof headersEncodePartialWithContext;
   readonly decode: typeof headersDecode;
+  readonly fromString: typeof headersFromString;
   readonly decodeWithContext: typeof headersDecodeWithContext;
   readonly decodePartialWithContext: typeof headersDecodePartialWithContext;
   readonly validateField: typeof headersValidateField;
@@ -374,6 +376,7 @@ const Headers: {
   encodeWithContext: headersEncodeWithContext,
   encodePartialWithContext: headersEncodePartialWithContext,
   decode: headersDecode,
+  fromString: headersFromString,
   decodeWithContext: headersDecodeWithContext,
   decodePartialWithContext: headersDecodePartialWithContext,
   validateField: headersValidateField,
@@ -403,8 +406,19 @@ export declare function headersEncode(value: Headers, keepMetadata?: boolean): s
 export declare function headersEncodeWithContext(value: Headers, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function headersEncodePartialWithContext(value: Partial<Headers>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Headers>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function headersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Headers;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function headersFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Headers;
 } | {
@@ -438,19 +452,19 @@ export {};
 
 ## Mapping
 
-original 91..204 -> expanded 908..1021
-original 204..205 -> expanded 16664..16665
-generated 0..908 <- imports
-generated 1021..1452 <- Debug
-generated 1452..1686 <- Clone
-generated 1686..2166 <- PartialEq
-generated 2166..2833 <- Hash
-generated 2833..3611 <- PartialOrd
-generated 3611..4369 <- Ord
-generated 4369..4535 <- Default
-generated 4535..7522 <- Encode
-generated 7522..15160 <- Decode
-generated 15160..16664 <- __convenience_const
+original 91..204 -> expanded 910..1023
+original 204..205 -> expanded 17090..17091
+generated 0..910 <- imports
+generated 1023..1454 <- Debug
+generated 1454..1688 <- Clone
+generated 1688..2168 <- PartialEq
+generated 2168..2835 <- Hash
+generated 2835..3613 <- PartialOrd
+generated 3613..4371 <- Ord
+generated 4371..4537 <- Default
+generated 4537..7524 <- Encode
+generated 7524..15504 <- Decode
+generated 15504..17090 <- __convenience_const
 
 ## Metadata
 

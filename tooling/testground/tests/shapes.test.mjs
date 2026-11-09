@@ -46,7 +46,7 @@ Deno.test('null elements and readonly collections round-trip', () => {
         rank: 2
     });
 
-    const decoded = mod.shapeFieldsDecode(encoded);
+    const decoded = mod.shapeFieldsFromString(encoded);
     assert(decoded.success, JSON.stringify(decoded.errors));
     assertEquals(decoded.value, fields());
     assert(decoded.value.readonlyTags instanceof Set);
@@ -145,7 +145,7 @@ Deno.test('a Partial, Pick or Omit encodes the fields it has', () => {
 });
 
 Deno.test('a Partial, Pick or Omit decodes with the fields its type keeps', () => {
-    const decoded = mod.shapeDraftDecode(mod.shapeDraftEncode(draft()));
+    const decoded = mod.shapeDraftFromString(mod.shapeDraftEncode(draft()));
     assert(decoded.success, JSON.stringify(decoded.errors));
     assertEquals(decoded.value.patch, { id: 'p' });
     assert(decoded.value.header.at instanceof Date);

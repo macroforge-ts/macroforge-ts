@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -29,14 +29,11 @@ constructor(props: { items: Array<string> }) {
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MaxItemsValidator.decodeWithContext(data, ctx);
+        const resultOrRef = MaxItemsValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -81,6 +78,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MaxItemsValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -198,9 +200,14 @@ static is(obj: unknown): obj is MaxItemsValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function maxItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MaxItemsValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function maxItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MaxItemsValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -234,14 +241,11 @@ constructor(props: { items: Array<string> }) {
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MinItemsValidator.decodeWithContext(data, ctx);
+        const resultOrRef = MinItemsValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -286,6 +290,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MinItemsValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -403,9 +412,14 @@ static is(obj: unknown): obj is MinItemsValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function minItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MinItemsValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function minItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MinItemsValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -439,14 +453,11 @@ constructor(props: { items: Array<string> }) {
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ItemsCountValidator.decodeWithContext(data, ctx);
+        const resultOrRef = ItemsCountValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -491,6 +502,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ItemsCountValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -608,9 +624,14 @@ static is(obj: unknown): obj is ItemsCountValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function itemsCountValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ItemsCountValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function itemsCountValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ItemsCountValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -645,8 +666,19 @@ export declare class MaxItemsValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MaxItemsValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MaxItemsValidator;
 	} | {
@@ -671,8 +703,19 @@ export declare class MaxItemsValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MaxItemsValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function maxItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MaxItemsValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function maxItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MaxItemsValidator;
 } | {
@@ -697,8 +740,19 @@ export declare class MinItemsValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MinItemsValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MinItemsValidator;
 	} | {
@@ -723,8 +777,19 @@ export declare class MinItemsValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MinItemsValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function minItemsValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MinItemsValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function minItemsValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MinItemsValidator;
 } | {
@@ -749,8 +814,19 @@ export declare class ItemsCountValidator {
 	constructor(props: {
 		items: Array<string>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ItemsCountValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ItemsCountValidator;
 	} | {
@@ -775,8 +851,19 @@ export declare class ItemsCountValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ItemsCountValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function itemsCountValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ItemsCountValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function itemsCountValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ItemsCountValidator;
 } | {
@@ -801,20 +888,20 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 507..747
-original 240..241 -> expanded 7842..7843
-original 241..396 -> expanded 9760..9915
-original 396..397 -> expanded 17013..17014
-original 397..558 -> expanded 18931..19092
-original 558..559 -> expanded 26251..26252
-original 559..560 -> expanded 28199..28200
-generated 0..507 <- imports
-generated 747..7842 <- Decode
-generated 7843..9760 <- Decode
-generated 9915..17013 <- Decode
-generated 17014..18931 <- Decode
-generated 19092..26251 <- Decode
-generated 26252..28199 <- Decode
+original 0..240 -> expanded 509..749
+original 240..241 -> expanded 8211..8212
+original 241..396 -> expanded 10558..10713
+original 396..397 -> expanded 18178..18179
+original 397..558 -> expanded 20525..20686
+original 558..559 -> expanded 28216..28217
+original 559..560 -> expanded 30599..30600
+generated 0..509 <- imports
+generated 749..8211 <- Decode
+generated 8212..10558 <- Decode
+generated 10713..18178 <- Decode
+generated 18179..20525 <- Decode
+generated 20686..28216 <- Decode
+generated 28217..30599 <- Decode
 
 ## Metadata
 

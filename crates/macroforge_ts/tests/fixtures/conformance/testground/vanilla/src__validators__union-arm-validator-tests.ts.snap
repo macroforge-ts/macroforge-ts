@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, member as __mf_member, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, member as __mf_member, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Untagged unions whose primitive arms carry their own validators.
@@ -21,13 +21,11 @@ import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldS
 /** @derive(Decode) */
 export type Contact = /** @endec(email) */ string | number;
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function contactDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Contact } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, contactHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = contactDecodeWithContext(data, ctx);
+        const resultOrRef = contactDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -73,6 +71,10 @@ export function contactDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function contactFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Contact } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => contactDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function contactDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Contact | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -107,11 +109,13 @@ export function contactIs(value: unknown): value is Contact {
 
 export const Contact: {
   readonly decode: typeof contactDecode;
+  readonly fromString: typeof contactFromString;
   readonly decodeWithContext: typeof contactDecodeWithContext;
   readonly hasShape: typeof contactHasShape;
   readonly is: typeof contactIs;
 } = {
   decode: contactDecode,
+  fromString: contactFromString,
   decodeWithContext: contactDecodeWithContext,
   hasShape: contactHasShape,
   is: contactIs
@@ -122,14 +126,11 @@ export interface Phone {
     digits: string;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Phone } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = phoneDecodeWithContext(data, ctx);
+        const resultOrRef = phoneDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -174,6 +175,10 @@ export function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function phoneFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Phone } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => phoneDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef;
@@ -253,6 +258,7 @@ export function phoneIs(obj: unknown): obj is Phone {
 
 export const Phone: {
   readonly decode: typeof phoneDecode;
+  readonly fromString: typeof phoneFromString;
   readonly decodeWithContext: typeof phoneDecodeWithContext;
   readonly decodePartialWithContext: typeof phoneDecodePartialWithContext;
   readonly validateField: typeof phoneValidateField;
@@ -261,6 +267,7 @@ export const Phone: {
   readonly is: typeof phoneIs;
 } = {
   decode: phoneDecode,
+  fromString: phoneFromString,
   decodeWithContext: phoneDecodeWithContext,
   decodePartialWithContext: phoneDecodePartialWithContext,
   validateField: phoneValidateField,
@@ -274,13 +281,11 @@ export type Reachable =
     | /** @endec(nonEmpty, maxLength(32)) */ string
     | Phone;
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Reachable } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, reachableHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = reachableDecodeWithContext(data, ctx);
+        const resultOrRef = reachableDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -325,6 +330,10 @@ export function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function reachableFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Reachable } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => reachableDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function reachableDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Reachable | __mf_PendingRef {
@@ -402,11 +411,13 @@ export function reachableIs(value: unknown): value is Reachable {
 
 export const Reachable: {
   readonly decode: typeof reachableDecode;
+  readonly fromString: typeof reachableFromString;
   readonly decodeWithContext: typeof reachableDecodeWithContext;
   readonly hasShape: typeof reachableHasShape;
   readonly is: typeof reachableIs;
 } = {
   decode: reachableDecode,
+  fromString: reachableFromString,
   decodeWithContext: reachableDecodeWithContext,
   hasShape: reachableHasShape,
   is: reachableIs
@@ -415,13 +426,11 @@ export const Reachable: {
 /** @derive(Decode) */
 export type Fallback = 'none' | /** @endec(email) */ string;
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Fallback } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, fallbackHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = fallbackDecodeWithContext(data, ctx);
+        const resultOrRef = fallbackDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -467,6 +476,10 @@ export function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fallbackFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Fallback } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => fallbackDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function fallbackDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fallback | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -505,11 +518,13 @@ export function fallbackIs(value: unknown): value is Fallback {
 
 export const Fallback: {
   readonly decode: typeof fallbackDecode;
+  readonly fromString: typeof fallbackFromString;
   readonly decodeWithContext: typeof fallbackDecodeWithContext;
   readonly hasShape: typeof fallbackHasShape;
   readonly is: typeof fallbackIs;
 } = {
   decode: fallbackDecode,
+  fromString: fallbackFromString,
   decodeWithContext: fallbackDecodeWithContext,
   hasShape: fallbackHasShape,
   is: fallbackIs
@@ -522,8 +537,19 @@ export const Fallback: {
 */
 /** @derive(Decode) */
 export type Contact = string | number;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function contactDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Contact;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function contactFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Contact;
 } | {
@@ -539,6 +565,7 @@ export declare function contactHasShape(value: unknown): boolean;
 export declare function contactIs(value: unknown): value is Contact;
 export declare const Contact: {
 	readonly decode: typeof contactDecode;
+	readonly fromString: typeof contactFromString;
 	readonly decodeWithContext: typeof contactDecodeWithContext;
 	readonly hasShape: typeof contactHasShape;
 	readonly is: typeof contactIs;
@@ -547,8 +574,19 @@ export declare const Contact: {
 export interface Phone {
 	digits: string;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Phone;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function phoneFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Phone;
 } | {
@@ -576,6 +614,7 @@ export declare function phoneHasShape(obj: unknown): boolean;
 export declare function phoneIs(obj: unknown): obj is Phone;
 export declare const Phone: {
 	readonly decode: typeof phoneDecode;
+	readonly fromString: typeof phoneFromString;
 	readonly decodeWithContext: typeof phoneDecodeWithContext;
 	readonly decodePartialWithContext: typeof phoneDecodePartialWithContext;
 	readonly validateField: typeof phoneValidateField;
@@ -585,8 +624,19 @@ export declare const Phone: {
 };
 /** @derive(Decode) */
 export type Reachable = string | Phone;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Reachable;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function reachableFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Reachable;
 } | {
@@ -602,14 +652,26 @@ export declare function reachableHasShape(value: unknown): boolean;
 export declare function reachableIs(value: unknown): value is Reachable;
 export declare const Reachable: {
 	readonly decode: typeof reachableDecode;
+	readonly fromString: typeof reachableFromString;
 	readonly decodeWithContext: typeof reachableDecodeWithContext;
 	readonly hasShape: typeof reachableHasShape;
 	readonly is: typeof reachableIs;
 };
 /** @derive(Decode) */
 export type Fallback = "none" | string;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Fallback;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fallbackFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Fallback;
 } | {
@@ -625,6 +687,7 @@ export declare function fallbackHasShape(value: unknown): boolean;
 export declare function fallbackIs(value: unknown): value is Fallback;
 export declare const Fallback: {
 	readonly decode: typeof fallbackDecode;
+	readonly fromString: typeof fallbackFromString;
 	readonly decodeWithContext: typeof fallbackDecodeWithContext;
 	readonly hasShape: typeof fallbackHasShape;
 	readonly is: typeof fallbackIs;
@@ -636,20 +699,20 @@ export declare const Fallback: {
 
 ## Mapping
 
-original 0..159 -> expanded 495..654
-original 159..230 -> expanded 3824..3895
-original 230..343 -> expanded 9932..10045
-original 343..428 -> expanded 14868..14953
-original 428..429 -> expanded 18296..18297
-generated 0..495 <- imports
-generated 654..3491 <- Decode
-generated 3491..3824 <- __convenience_const
-generated 3895..9299 <- Decode
-generated 9299..9932 <- __convenience_const
-generated 10045..14517 <- Decode
-generated 14517..14868 <- __convenience_const
-generated 14953..17954 <- Decode
-generated 17954..18296 <- __convenience_const
+original 0..159 -> expanded 464..623
+original 159..230 -> expanded 4316..4387
+original 230..343 -> expanded 10838..10951
+original 343..428 -> expanded 16305..16390
+original 428..429 -> expanded 20260..20261
+generated 0..464 <- imports
+generated 623..3901 <- Decode
+generated 3901..4316 <- __convenience_const
+generated 4387..10127 <- Decode
+generated 10127..10838 <- __convenience_const
+generated 10951..15868 <- Decode
+generated 15868..16305 <- __convenience_const
+generated 16390..19834 <- Decode
+generated 19834..20260 <- __convenience_const
 
 ## Metadata
 

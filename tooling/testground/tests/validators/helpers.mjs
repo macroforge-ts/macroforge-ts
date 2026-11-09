@@ -104,7 +104,7 @@ export function loadValidatorModule(moduleName) {
 }
 
 /**
- * Assert that fromStringifiedJSON returns an error result with expected message substring
+ * Assert that a decode result is an error with the expected message substring
  */
 export function assertValidationError(result, _fieldName, messageSubstring) {
     assertStrictEquals(result.success, false, 'Expected validation to fail');
@@ -120,7 +120,7 @@ export function assertValidationError(result, _fieldName, messageSubstring) {
 }
 
 /**
- * Assert that fromStringifiedJSON returns a successful result
+ * Assert that a decode result succeeded
  */
 export function assertValidationSuccess(result, fieldName) {
     if (!result.success) {
@@ -136,7 +136,7 @@ export function assertValidationSuccess(result, fieldName) {
 }
 
 /**
- * Assert that fromStringifiedJSON returns specific error count
+ * Assert that a decode result failed with a specific error count
  */
 export function assertErrorCount(result, expectedCount) {
     assertStrictEquals(result.success, false, 'Expected validation to fail');

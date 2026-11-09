@@ -25,7 +25,7 @@ true
 ## Output
 
 import { structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** @derive(Clone, PartialEq, Encode, Decode) */
 export interface TooDeep {
@@ -86,14 +86,11 @@ function atTheLimitEncodeFields(value: AtTheLimit, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function atTheLimitDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AtTheLimit } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = atTheLimitDecodeWithContext(data, ctx);
+        const resultOrRef = atTheLimitDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -138,6 +135,10 @@ export function atTheLimitDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function atTheLimitFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AtTheLimit } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => atTheLimitDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AtTheLimit | __mf_PendingRef;
@@ -237,6 +238,7 @@ export const AtTheLimit: {
   readonly encodeWithContext: typeof atTheLimitEncodeWithContext;
   readonly encodePartialWithContext: typeof atTheLimitEncodePartialWithContext;
   readonly decode: typeof atTheLimitDecode;
+  readonly fromString: typeof atTheLimitFromString;
   readonly decodeWithContext: typeof atTheLimitDecodeWithContext;
   readonly decodePartialWithContext: typeof atTheLimitDecodePartialWithContext;
   readonly validateField: typeof atTheLimitValidateField;
@@ -250,6 +252,7 @@ export const AtTheLimit: {
   encodeWithContext: atTheLimitEncodeWithContext,
   encodePartialWithContext: atTheLimitEncodePartialWithContext,
   decode: atTheLimitDecode,
+  fromString: atTheLimitFromString,
   decodeWithContext: atTheLimitDecodeWithContext,
   decodePartialWithContext: atTheLimitDecodePartialWithContext,
   validateField: atTheLimitValidateField,
@@ -309,8 +312,19 @@ export declare function atTheLimitEncode(value: AtTheLimit, keepMetadata?: boole
 export declare function atTheLimitEncodeWithContext(value: AtTheLimit, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function atTheLimitEncodePartialWithContext(value: Partial<AtTheLimit>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AtTheLimit>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function atTheLimitDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AtTheLimit;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function atTheLimitFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AtTheLimit;
 } | {
@@ -343,6 +357,7 @@ export declare const AtTheLimit: {
 	readonly encodeWithContext: typeof atTheLimitEncodeWithContext;
 	readonly encodePartialWithContext: typeof atTheLimitEncodePartialWithContext;
 	readonly decode: typeof atTheLimitDecode;
+	readonly fromString: typeof atTheLimitFromString;
 	readonly decodeWithContext: typeof atTheLimitDecodeWithContext;
 	readonly decodePartialWithContext: typeof atTheLimitDecodePartialWithContext;
 	readonly validateField: typeof atTheLimitValidateField;
@@ -360,15 +375,15 @@ Error [137..178]: type 'TooNested' nests 17 levels deep, and a built-in derive r
 
 ## Mapping
 
-original 0..333 -> expanded 949..1282
-original 381..592 -> expanded 1282..1493
-original 592..593 -> expanded 14269..14270
-generated 0..949 <- imports
-generated 1493..1662 <- Clone
-generated 1662..1875 <- PartialEq
-generated 1875..4038 <- Encode
-generated 4038..13089 <- Decode
-generated 13089..14269 <- __convenience_const
+original 0..333 -> expanded 951..1284
+original 381..592 -> expanded 1284..1495
+original 592..593 -> expanded 14710..14711
+generated 0..951 <- imports
+generated 1495..1664 <- Clone
+generated 1664..1877 <- PartialEq
+generated 1877..4040 <- Encode
+generated 4040..13442 <- Decode
+generated 13442..14710 <- __convenience_const
 
 ## Metadata
 

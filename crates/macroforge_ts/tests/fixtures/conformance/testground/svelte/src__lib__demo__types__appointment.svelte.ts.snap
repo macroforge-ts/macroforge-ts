@@ -18,7 +18,7 @@ import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -223,14 +223,11 @@ function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = appointmentDecodeWithContext(data, ctx);
+        const resultOrRef = appointmentDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -275,6 +272,10 @@ export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function appointmentFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => appointmentDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Appointment | __mf_PendingRef;
@@ -1196,6 +1197,7 @@ export const Appointment: {
   readonly encodeWithContext: typeof appointmentEncodeWithContext;
   readonly encodePartialWithContext: typeof appointmentEncodePartialWithContext;
   readonly decode: typeof appointmentDecode;
+  readonly fromString: typeof appointmentFromString;
   readonly decodeWithContext: typeof appointmentDecodeWithContext;
   readonly decodePartialWithContext: typeof appointmentDecodePartialWithContext;
   readonly validateField: typeof appointmentValidateField;
@@ -1210,6 +1212,7 @@ export const Appointment: {
   encodeWithContext: appointmentEncodeWithContext,
   encodePartialWithContext: appointmentEncodePartialWithContext,
   decode: appointmentDecode,
+  fromString: appointmentFromString,
   decodeWithContext: appointmentDecodeWithContext,
   decodePartialWithContext: appointmentDecodePartialWithContext,
   validateField: appointmentValidateField,
@@ -1252,8 +1255,19 @@ export declare function appointmentEncode(value: Appointment, keepMetadata?: boo
 export declare function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Appointment;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function appointmentFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Appointment;
 } | {
@@ -1356,6 +1370,7 @@ export declare const Appointment: {
 	readonly encodeWithContext: typeof appointmentEncodeWithContext;
 	readonly encodePartialWithContext: typeof appointmentEncodePartialWithContext;
 	readonly decode: typeof appointmentDecode;
+	readonly fromString: typeof appointmentFromString;
 	readonly decodeWithContext: typeof appointmentDecodeWithContext;
 	readonly decodePartialWithContext: typeof appointmentDecodePartialWithContext;
 	readonly validateField: typeof appointmentValidateField;
@@ -1372,33 +1387,33 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1626..1985
-original 408..444 -> expanded 1985..2021
-original 472..493 -> expanded 2021..2042
-original 535..540 -> expanded 2042..2047
-original 581..605 -> expanded 2047..2071
-original 784..789 -> expanded 2071..2076
-original 817..842 -> expanded 2076..2101
-original 889..925 -> expanded 2101..2137
-original 980..1007 -> expanded 2137..2164
-original 1053..1080 -> expanded 2164..2191
-original 1108..1135 -> expanded 2191..2218
-original 1181..1207 -> expanded 2218..2244
-original 1255..1283 -> expanded 2244..2272
-original 1372..1418 -> expanded 2272..2318
-original 1471..1476 -> expanded 2318..2323
-original 1495..1529 -> expanded 2323..2357
-original 1581..1626 -> expanded 2357..2402
-original 1654..1659 -> expanded 2402..2407
-original 1732..1757 -> expanded 2407..2432
-original 1785..1830 -> expanded 2432..2477
-original 1830..1831 -> expanded 51972..51973
-generated 0..1626 <- imports
-generated 2477..3029 <- Default
-generated 3029..8824 <- Encode
-generated 8824..27565 <- Decode
-generated 27565..50625 <- Gigaform
-generated 50625..51972 <- __convenience_const
+original 0..359 -> expanded 1628..1987
+original 408..444 -> expanded 1987..2023
+original 472..493 -> expanded 2023..2044
+original 535..540 -> expanded 2044..2049
+original 581..605 -> expanded 2049..2073
+original 784..789 -> expanded 2073..2078
+original 817..842 -> expanded 2078..2103
+original 889..925 -> expanded 2103..2139
+original 980..1007 -> expanded 2139..2166
+original 1053..1080 -> expanded 2166..2193
+original 1108..1135 -> expanded 2193..2220
+original 1181..1207 -> expanded 2220..2246
+original 1255..1283 -> expanded 2246..2274
+original 1372..1418 -> expanded 2274..2320
+original 1471..1476 -> expanded 2320..2325
+original 1495..1529 -> expanded 2325..2359
+original 1581..1626 -> expanded 2359..2404
+original 1654..1659 -> expanded 2404..2409
+original 1732..1757 -> expanded 2409..2434
+original 1785..1830 -> expanded 2434..2479
+original 1830..1831 -> expanded 52418..52419
+generated 0..1628 <- imports
+generated 2479..3031 <- Default
+generated 3031..8826 <- Encode
+generated 8826..27921 <- Decode
+generated 27921..50981 <- Gigaform
+generated 50981..52418 <- __convenience_const
 
 ## Metadata
 

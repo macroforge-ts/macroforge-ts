@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Port = number;
@@ -35,13 +35,11 @@ export function portEncodeWithContext(value: Port): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = portDecodeWithContext(data, ctx);
+        const result = portDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -92,6 +90,10 @@ export function portHasShape(value: unknown): boolean {
 export function portIs(value: unknown): value is Port {
     return (typeof value === "number" && globalThis.Number.isFinite(value)) && portDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function portFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => portDecode(value, opts));
+}
 
 const Port: {
   readonly encode: typeof portEncode;
@@ -100,25 +102,25 @@ const Port: {
   readonly decodeWithContext: typeof portDecodeWithContext;
   readonly hasShape: typeof portHasShape;
   readonly is: typeof portIs;
+  readonly fromString: typeof portFromString;
 } = {
   encode: portEncode,
   encodeWithContext: portEncodeWithContext,
   decode: portDecode,
   decodeWithContext: portDecodeWithContext,
   hasShape: portHasShape,
-  is: portIs
+  is: portIs,
+  fromString: portFromString
 };
 
 
 type RequestId = string;
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RequestId } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
-
         const ctx = __mf_DecodeContext.create();
-        const result = requestIdDecodeWithContext(data, ctx);
+        const result = requestIdDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -172,17 +174,23 @@ export function requestIdHasShape(value: unknown): boolean {
 export function requestIdIs(value: unknown): value is RequestId {
     return typeof value === "string" && requestIdDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function requestIdFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: RequestId } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => requestIdDecode(value, opts));
+}
 
 const RequestId: {
   readonly decode: typeof requestIdDecode;
   readonly decodeWithContext: typeof requestIdDecodeWithContext;
   readonly hasShape: typeof requestIdHasShape;
   readonly is: typeof requestIdIs;
+  readonly fromString: typeof requestIdFromString;
 } = {
   decode: requestIdDecode,
   decodeWithContext: requestIdDecodeWithContext,
   hasShape: requestIdHasShape,
-  is: requestIdIs
+  is: requestIdIs,
+  fromString: requestIdFromString
 };
 
 ## DTS
@@ -192,7 +200,7 @@ type Port = number;
 export declare function portEncode(value: Port, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function portEncodeWithContext(value: Port, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function portDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Port;
@@ -207,8 +215,19 @@ export declare function portDecode(input: unknown, opts?: __mf_DecodeOptions): {
 export declare function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port;
 export declare function portHasShape(value: unknown): boolean;
 export declare function portIs(value: unknown): value is Port;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function portFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Port;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 type RequestId = string;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: RequestId;
@@ -223,6 +242,17 @@ export declare function requestIdDecode(input: unknown, opts?: __mf_DecodeOption
 export declare function requestIdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RequestId;
 export declare function requestIdHasShape(value: unknown): boolean;
 export declare function requestIdIs(value: unknown): value is RequestId;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function requestIdFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: RequestId;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export {};
 
 ## Diagnostics
@@ -231,16 +261,16 @@ export {};
 
 ## Mapping
 
-original 30..50 -> expanded 328..348
-original 50..52 -> expanded 3424..3426
-original 94..119 -> expanded 3426..3451
-original 119..120 -> expanded 5926..5927
-generated 0..328 <- imports
-generated 348..1040 <- Encode
-generated 1040..2961 <- Decode
-generated 2961..3424 <- __convenience_const
-generated 3451..5582 <- Decode
-generated 5582..5926 <- __convenience_const
+original 30..50 -> expanded 297..317
+original 50..52 -> expanded 3883..3885
+original 94..119 -> expanded 3885..3910
+original 119..120 -> expanded 6889..6890
+generated 0..297 <- imports
+generated 317..1009 <- Encode
+generated 1009..3344 <- Decode
+generated 3344..3883 <- __convenience_const
+generated 3910..6459 <- Decode
+generated 6459..6889 <- __convenience_const
 
 ## Metadata
 

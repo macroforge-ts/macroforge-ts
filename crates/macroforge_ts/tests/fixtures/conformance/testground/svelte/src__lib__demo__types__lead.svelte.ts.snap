@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -413,14 +413,11 @@ function leadEncodeFields(value: Lead, ctx: __mf_EncodeContext, result: Record<s
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Lead } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = leadDecodeWithContext(data, ctx);
+        const resultOrRef = leadDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -465,6 +462,10 @@ export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function leadFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Lead } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => leadDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef;
@@ -2392,6 +2393,7 @@ export const Lead: {
   readonly encodeWithContext: typeof leadEncodeWithContext;
   readonly encodePartialWithContext: typeof leadEncodePartialWithContext;
   readonly decode: typeof leadDecode;
+  readonly fromString: typeof leadFromString;
   readonly decodeWithContext: typeof leadDecodeWithContext;
   readonly decodePartialWithContext: typeof leadDecodePartialWithContext;
   readonly validateField: typeof leadValidateField;
@@ -2406,6 +2408,7 @@ export const Lead: {
   encodeWithContext: leadEncodeWithContext,
   encodePartialWithContext: leadEncodePartialWithContext,
   decode: leadDecode,
+  fromString: leadFromString,
   decodeWithContext: leadDecodeWithContext,
   decodePartialWithContext: leadDecodePartialWithContext,
   validateField: leadValidateField,
@@ -2470,8 +2473,19 @@ export declare function leadEncode(value: Lead, keepMetadata?: boolean): string;
 export declare function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function leadDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Lead;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function leadFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Lead;
 } | {
@@ -2628,6 +2642,7 @@ export declare const Lead: {
 	readonly encodeWithContext: typeof leadEncodeWithContext;
 	readonly encodePartialWithContext: typeof leadEncodePartialWithContext;
 	readonly decode: typeof leadDecode;
+	readonly fromString: typeof leadFromString;
 	readonly decodeWithContext: typeof leadDecodeWithContext;
 	readonly decodePartialWithContext: typeof leadDecodePartialWithContext;
 	readonly validateField: typeof leadValidateField;
@@ -2644,57 +2659,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1913..2485
-original 621..650 -> expanded 2485..2514
-original 678..699 -> expanded 2514..2535
-original 727..759 -> expanded 2535..2567
-original 787..815 -> expanded 2567..2595
-original 883..913 -> expanded 2595..2625
-original 1106..1111 -> expanded 2625..2630
-original 1136..1165 -> expanded 2630..2659
-original 1214..1247 -> expanded 2659..2692
-original 1298..1333 -> expanded 2692..2727
-original 1397..1421 -> expanded 2727..2751
-original 1718..1723 -> expanded 2751..2756
-original 1746..1773 -> expanded 2756..2783
-original 1816..1821 -> expanded 2783..2788
-original 1862..1887 -> expanded 2788..2813
-original 1939..1976 -> expanded 2813..2850
-original 2004..2009 -> expanded 2850..2855
-original 2042..2071 -> expanded 2855..2884
-original 2118..2146 -> expanded 2884..2912
-original 2174..2209 -> expanded 2912..2947
-original 2309..2354 -> expanded 2947..2992
-original 2535..2540 -> expanded 2992..2997
-original 2570..2595 -> expanded 2997..3022
-original 2727..2759 -> expanded 3022..3054
-original 2812..2849 -> expanded 3054..3091
-original 2897..2920 -> expanded 3091..3114
-original 2991..3027 -> expanded 3114..3150
-original 3076..3081 -> expanded 3150..3155
-original 3100..3130 -> expanded 3155..3185
-original 3175..3180 -> expanded 3185..3190
-original 3221..3244 -> expanded 3190..3213
-original 3295..3326 -> expanded 3213..3244
-original 3374..3402 -> expanded 3244..3272
-original 3491..3536 -> expanded 3272..3317
-original 3564..3595 -> expanded 3317..3348
-original 3667..3672 -> expanded 3348..3353
-original 3713..3743 -> expanded 3353..3383
-original 3810..3815 -> expanded 3383..3388
-original 3856..3882 -> expanded 3388..3414
-original 3931..3962 -> expanded 3414..3445
-original 4035..4040 -> expanded 3445..3450
-original 4081..4112 -> expanded 3450..3481
-original 4153..4183 -> expanded 3481..3511
-original 4243..4288 -> expanded 3511..3556
-original 4288..4289 -> expanded 102398..102399
-generated 0..1913 <- imports
-generated 3556..4418 <- Default
-generated 4418..14551 <- Encode
-generated 14551..53219 <- Decode
-generated 53219..101240 <- Gigaform
-generated 101240..102398 <- __convenience_const
+original 0..572 -> expanded 1915..2487
+original 621..650 -> expanded 2487..2516
+original 678..699 -> expanded 2516..2537
+original 727..759 -> expanded 2537..2569
+original 787..815 -> expanded 2569..2597
+original 883..913 -> expanded 2597..2627
+original 1106..1111 -> expanded 2627..2632
+original 1136..1165 -> expanded 2632..2661
+original 1214..1247 -> expanded 2661..2694
+original 1298..1333 -> expanded 2694..2729
+original 1397..1421 -> expanded 2729..2753
+original 1718..1723 -> expanded 2753..2758
+original 1746..1773 -> expanded 2758..2785
+original 1816..1821 -> expanded 2785..2790
+original 1862..1887 -> expanded 2790..2815
+original 1939..1976 -> expanded 2815..2852
+original 2004..2009 -> expanded 2852..2857
+original 2042..2071 -> expanded 2857..2886
+original 2118..2146 -> expanded 2886..2914
+original 2174..2209 -> expanded 2914..2949
+original 2309..2354 -> expanded 2949..2994
+original 2535..2540 -> expanded 2994..2999
+original 2570..2595 -> expanded 2999..3024
+original 2727..2759 -> expanded 3024..3056
+original 2812..2849 -> expanded 3056..3093
+original 2897..2920 -> expanded 3093..3116
+original 2991..3027 -> expanded 3116..3152
+original 3076..3081 -> expanded 3152..3157
+original 3100..3130 -> expanded 3157..3187
+original 3175..3180 -> expanded 3187..3192
+original 3221..3244 -> expanded 3192..3215
+original 3295..3326 -> expanded 3215..3246
+original 3374..3402 -> expanded 3246..3274
+original 3491..3536 -> expanded 3274..3319
+original 3564..3595 -> expanded 3319..3350
+original 3667..3672 -> expanded 3350..3355
+original 3713..3743 -> expanded 3355..3385
+original 3810..3815 -> expanded 3385..3390
+original 3856..3882 -> expanded 3390..3416
+original 3931..3962 -> expanded 3416..3447
+original 4035..4040 -> expanded 3447..3452
+original 4081..4112 -> expanded 3452..3483
+original 4153..4183 -> expanded 3483..3513
+original 4243..4288 -> expanded 3513..3558
+original 4288..4289 -> expanded 102809..102810
+generated 0..1915 <- imports
+generated 3558..4420 <- Default
+generated 4420..14553 <- Encode
+generated 14553..53554 <- Decode
+generated 53554..101575 <- Gigaform
+generated 101575..102809 <- __convenience_const
 
 ## Metadata
 

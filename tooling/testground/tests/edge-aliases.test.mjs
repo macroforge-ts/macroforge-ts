@@ -321,7 +321,7 @@ Deno.test('a union member without a tag is told by its shape and coded field by 
 Deno.test('the text encode writes decodes to what was encoded, for a type that takes a string', async () => {
     const at = new Date('2024-03-04T05:06:07.000Z');
     const item = { id: 'a', score: 1 };
-    const back = (name, value) => decoded(mod[`${name}Decode`](mod[`${name}Encode`](value)));
+    const back = (name, value) => decoded(mod[`${name}FromString`](mod[`${name}Encode`](value)));
 
     assertStrictEquals(back('aliasName', 'Ada'), 'Ada');
     assertStrictEquals(back('aliasName', '"quoted"'), '"quoted"');
@@ -340,8 +340,10 @@ Deno.test('the text encode writes decodes to what was encoded, for a type that t
     assertStrictEquals(back('aliasDeep', false), false);
     assertStrictEquals(back('aliasDeep', null), null);
 
-    // A bare string is still the value it is, and one no member takes is refused.
+    // A bare string is still the value it is, quotes and all, and one no
+    // member takes is refused.
     assertStrictEquals(decoded(mod.aliasNameDecode('Ada')), 'Ada');
+    assertStrictEquals(decoded(mod.aliasNameDecode('"quoted"')), '"quoted"');
     assertStrictEquals(decoded(mod.aliasLiteralsDecode('small')), 'small');
     assert(!mod.aliasLiteralsDecode('huge').success);
     assert(!mod.aliasLiteralsDecode('"huge"').success);
@@ -353,11 +355,11 @@ Deno.test('the text encode writes decodes to what was encoded, for a type that t
     const enums = await expandAndCompile(join(edgeCases, 'enum-shapes.ts'));
     const { Empty, Quoted, Spaced, Slashed } = enums.EnumText;
     for (const member of [Empty, Quoted, Spaced, Slashed]) {
-        assertStrictEquals(enums.enumTextDecode(enums.enumTextEncode(member)), member);
+        assertStrictEquals(enums.enumTextFromString(enums.enumTextEncode(member)), member);
         assertStrictEquals(enums.enumTextDecode(member), member);
     }
     assertStrictEquals(
-        enums.enumCountedDecode(enums.enumCountedEncode(enums.EnumCounted.Second)),
+        enums.enumCountedFromString(enums.enumCountedEncode(enums.EnumCounted.Second)),
         enums.EnumCounted.Second
     );
     assertThrows(() => enums.enumTextDecode('no such member'));
@@ -460,9 +462,11 @@ Deno.test('an alias of a selection or an object type defaults to the fields it h
     assert(!('label' in inline));
 
     const at = new Date('2024-03-04T05:06:07.000Z');
-    const back = decoded(mod.aliasInlineDecode(mod.aliasInlineEncode({ x: 1, at })));
+    const back = decoded(mod.aliasInlineFromString(mod.aliasInlineEncode({ x: 1, at })));
     assertEquals(back, { x: 1, at });
-    assertEquals(decoded(mod.aliasPickedDecode(mod.aliasPickedEncode({ id: 'p' }))), { id: 'p' });
+    assertEquals(decoded(mod.aliasPickedFromString(mod.aliasPickedEncode({ id: 'p' }))), {
+        id: 'p'
+    });
     assert(!mod.aliasRequiredDecode({ id: 'r' }).success);
 });
 

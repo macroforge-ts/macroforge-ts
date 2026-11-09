@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** import macro { JSON } from "@testground/macro"; */
 
@@ -124,14 +124,11 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
     this.apiToken = props.apiToken;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MacroUser.decodeWithContext(data, ctx);
+        const resultOrRef = MacroUser.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -176,6 +173,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MacroUser.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -344,9 +346,14 @@ export function macroUserEncodePartialWithContext(value: Partial<MacroUser>, ctx
     return MacroUser.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function macroUserDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MacroUser.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function macroUserFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MacroUser.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -407,8 +414,19 @@ export declare class MacroUser {
 		since: string;
 		apiToken: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MacroUser;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MacroUser;
 	} | {
@@ -440,8 +458,19 @@ export declare function macroUserEncode(value: MacroUser, keepMetadata?: boolean
 export declare function macroUserEncodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function macroUserEncodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MacroUser>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function macroUserDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MacroUser;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function macroUserFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MacroUser;
 } | {
@@ -468,20 +497,20 @@ export declare const showcaseUserJson: unknown;
 
 ## Mapping
 
-original 0..56 -> expanded 770..826
-original 93..123 -> expanded 826..856
-original 158..278 -> expanded 856..976
-original 307..330 -> expanded 976..999
-original 330..331 -> expanded 13493..13494
-original 331..683 -> expanded 16744..17096
-generated 0..770 <- imports
-generated 999..1492 <- Debug
-generated 1492..4337 <- Encode
-generated 4337..4662 <- Encode
-generated 4662..13493 <- Decode
-generated 13494..13597 <- Debug
-generated 13597..14947 <- Encode
-generated 14947..16744 <- Decode
+original 0..56 -> expanded 772..828
+original 93..123 -> expanded 828..858
+original 158..278 -> expanded 858..978
+original 307..330 -> expanded 978..1001
+original 330..331 -> expanded 13846..13847
+original 331..683 -> expanded 17502..17854
+generated 0..772 <- imports
+generated 1001..1494 <- Debug
+generated 1494..4339 <- Encode
+generated 4339..4664 <- Encode
+generated 4664..13846 <- Decode
+generated 13847..13950 <- Debug
+generated 13950..15300 <- Encode
+generated 15300..17502 <- Decode
 
 ## Metadata
 

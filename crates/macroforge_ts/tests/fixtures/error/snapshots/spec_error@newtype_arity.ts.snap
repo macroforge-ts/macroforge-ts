@@ -14,18 +14,16 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, decodeNumber as __mf_decodeNumber, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { decodeNumber as __mf_decodeNumber, decodeString as __mf_decodeString, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Pair = $Newtype<number, string>;
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = pairDecodeWithContext(data, ctx);
+        const result = pairDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -107,23 +105,29 @@ export function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 export function pairHasShape(value: unknown): boolean {
     return value != null;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pairFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pairDecode(value, opts));
+}
 
 const Pair: {
   readonly decode: typeof pairDecode;
   readonly is: typeof pairIs;
   readonly decodeWithContext: typeof pairDecodeWithContext;
   readonly hasShape: typeof pairHasShape;
+  readonly fromString: typeof pairFromString;
 } = {
   decode: pairDecode,
   is: pairIs,
   decodeWithContext: pairDecodeWithContext,
-  hasShape: pairHasShape
+  hasShape: pairHasShape,
+  fromString: pairFromString
 };
 
 ## DTS
 
 type Pair = $Newtype<number, string>;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pairDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Pair;
@@ -138,6 +142,17 @@ export declare function pairIs(value: unknown): value is Pair;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Pair;
 export declare function pairHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pairFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Pair;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export {};
 
 ## Diagnostics
@@ -146,11 +161,11 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 
 ## Mapping
 
-original 22..60 -> expanded 295..333
-original 60..61 -> expanded 3668..3669
-generated 0..295 <- imports
-generated 333..3369 <- Decode
-generated 3369..3668 <- __convenience_const
+original 22..60 -> expanded 297..335
+original 60..61 -> expanded 4160..4161
+generated 0..297 <- imports
+generated 335..3785 <- Decode
+generated 3785..4160 <- __convenience_const
 
 ## Metadata
 

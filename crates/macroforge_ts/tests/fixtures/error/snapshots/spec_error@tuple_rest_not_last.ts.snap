@@ -29,7 +29,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeBoolean as __mf_decodeBoolean, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeBoolean as __mf_decodeBoolean, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A tuple whose rest element is not its last is an error, not a shorter tuple. */
 /** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
@@ -129,14 +129,11 @@ function fineEncodeFields(value: Fine, _ctx: __mf_EncodeContext, result: Record<
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function fineDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Fine } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = fineDecodeWithContext(data, ctx);
+        const resultOrRef = fineDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -181,6 +178,10 @@ export function fineDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fineFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Fine } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => fineDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fine | __mf_PendingRef;
@@ -314,6 +315,7 @@ export const Fine: {
   readonly encodeWithContext: typeof fineEncodeWithContext;
   readonly encodePartialWithContext: typeof fineEncodePartialWithContext;
   readonly decode: typeof fineDecode;
+  readonly fromString: typeof fineFromString;
   readonly decodeWithContext: typeof fineDecodeWithContext;
   readonly decodePartialWithContext: typeof fineDecodePartialWithContext;
   readonly validateField: typeof fineValidateField;
@@ -329,6 +331,7 @@ export const Fine: {
   encodeWithContext: fineEncodeWithContext,
   encodePartialWithContext: fineEncodePartialWithContext,
   decode: fineDecode,
+  fromString: fineFromString,
   decodeWithContext: fineDecodeWithContext,
   decodePartialWithContext: fineDecodePartialWithContext,
   validateField: fineValidateField,
@@ -362,8 +365,19 @@ export declare function fineEncode(value: Fine, keepMetadata?: boolean): string;
 export declare function fineEncodeWithContext(value: Fine, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function fineEncodePartialWithContext(value: Partial<Fine>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Fine>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function fineDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Fine;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fineFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Fine;
 } | {
@@ -398,6 +412,7 @@ export declare const Fine: {
 	readonly encodeWithContext: typeof fineEncodeWithContext;
 	readonly encodePartialWithContext: typeof fineEncodePartialWithContext;
 	readonly decode: typeof fineDecode;
+	readonly fromString: typeof fineFromString;
 	readonly decodeWithContext: typeof fineDecodeWithContext;
 	readonly decodePartialWithContext: typeof fineDecodePartialWithContext;
 	readonly validateField: typeof fineValidateField;
@@ -417,17 +432,17 @@ Error [279..303]: type 'Leading' holds the tuple `[...first: string[], last: num
 
 ## Mapping
 
-original 0..408 -> expanded 1099..1507
-original 472..577 -> expanded 1507..1612
-original 577..578 -> expanded 14056..14057
-generated 0..1099 <- imports
-generated 1612..1935 <- Debug
-generated 1935..2124 <- Clone
-generated 2124..2433 <- PartialEq
-generated 2433..2550 <- Default
-generated 2550..4978 <- Encode
-generated 4978..12874 <- Decode
-generated 12874..14056 <- __convenience_const
+original 0..408 -> expanded 1101..1509
+original 472..577 -> expanded 1509..1614
+original 577..578 -> expanded 14467..14468
+generated 0..1101 <- imports
+generated 1614..1937 <- Debug
+generated 1937..2126 <- Clone
+generated 2126..2435 <- PartialEq
+generated 2435..2552 <- Default
+generated 2552..4980 <- Encode
+generated 4980..13209 <- Decode
+generated 13209..14467 <- __convenience_const
 
 ## Metadata
 

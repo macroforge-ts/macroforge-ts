@@ -32,7 +32,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue, withTag as __mf_withTag, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, withTag as __mf_withTag, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -73,14 +73,11 @@ function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Reco
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = boxDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = boxDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -125,6 +122,10 @@ export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decode
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function boxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => boxDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Box<T> | __mf_PendingRef;
@@ -220,6 +221,7 @@ const Box: {
   readonly encodeWithContext: typeof boxEncodeWithContext;
   readonly encodePartialWithContext: typeof boxEncodePartialWithContext;
   readonly decode: typeof boxDecode;
+  readonly fromString: typeof boxFromString;
   readonly decodeWithContext: typeof boxDecodeWithContext;
   readonly decodePartialWithContext: typeof boxDecodePartialWithContext;
   readonly validateField: typeof boxValidateField;
@@ -231,6 +233,7 @@ const Box: {
   encodeWithContext: boxEncodeWithContext,
   encodePartialWithContext: boxEncodePartialWithContext,
   decode: boxDecode,
+  fromString: boxFromString,
   decodeWithContext: boxDecodeWithContext,
   decodePartialWithContext: boxDecodePartialWithContext,
   validateField: boxValidateField,
@@ -279,14 +282,11 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = circleDecodeWithContext(data, ctx);
+        const resultOrRef = circleDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -331,6 +331,10 @@ export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function circleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => circleDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Circle | __mf_PendingRef;
@@ -413,6 +417,7 @@ const Circle: {
   readonly encodeWithContext: typeof circleEncodeWithContext;
   readonly encodePartialWithContext: typeof circleEncodePartialWithContext;
   readonly decode: typeof circleDecode;
+  readonly fromString: typeof circleFromString;
   readonly decodeWithContext: typeof circleDecodeWithContext;
   readonly decodePartialWithContext: typeof circleDecodePartialWithContext;
   readonly validateField: typeof circleValidateField;
@@ -424,6 +429,7 @@ const Circle: {
   encodeWithContext: circleEncodeWithContext,
   encodePartialWithContext: circleEncodePartialWithContext,
   decode: circleDecode,
+  fromString: circleFromString,
   decodeWithContext: circleDecodeWithContext,
   decodePartialWithContext: circleDecodePartialWithContext,
   validateField: circleValidateField,
@@ -463,13 +469,11 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeDecodeWithContext(data, ctx);
+        const resultOrRef = shapeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -514,6 +518,10 @@ export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef {
@@ -599,6 +607,7 @@ const Shape: {
   readonly encode: typeof shapeEncode;
   readonly encodeWithContext: typeof shapeEncodeWithContext;
   readonly decode: typeof shapeDecode;
+  readonly fromString: typeof shapeFromString;
   readonly decodeWithContext: typeof shapeDecodeWithContext;
   readonly hasShape: typeof shapeHasShape;
   readonly is: typeof shapeIs;
@@ -606,6 +615,7 @@ const Shape: {
   encode: shapeEncode,
   encodeWithContext: shapeEncodeWithContext,
   decode: shapeDecode,
+  fromString: shapeFromString,
   decodeWithContext: shapeDecodeWithContext,
   hasShape: shapeHasShape,
   is: shapeIs
@@ -640,13 +650,11 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Outcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, outcomeHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = outcomeDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = outcomeDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -691,6 +699,10 @@ export function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __de
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Outcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => outcomeDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Outcome<T> | __mf_PendingRef {
@@ -768,6 +780,7 @@ const Outcome: {
   readonly encode: typeof outcomeEncode;
   readonly encodeWithContext: typeof outcomeEncodeWithContext;
   readonly decode: typeof outcomeDecode;
+  readonly fromString: typeof outcomeFromString;
   readonly decodeWithContext: typeof outcomeDecodeWithContext;
   readonly hasShape: typeof outcomeHasShape;
   readonly is: typeof outcomeIs;
@@ -775,6 +788,7 @@ const Outcome: {
   encode: outcomeEncode,
   encodeWithContext: outcomeEncodeWithContext,
   decode: outcomeDecode,
+  fromString: outcomeFromString,
   decodeWithContext: outcomeDecodeWithContext,
   hasShape: outcomeHasShape,
   is: outcomeIs
@@ -809,13 +823,11 @@ export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeCon
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Tagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = taggedDecodeWithContext<T>(data, ctx, __decodeT);
+        const resultOrRef = taggedDecodeWithContext<T>(input, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -860,6 +872,10 @@ export function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __dec
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Tagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => taggedDecode<T>(value, opts, __decodeT));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Tagged<T> | __mf_PendingRef {
@@ -912,6 +928,7 @@ const Tagged: {
   readonly encode: typeof taggedEncode;
   readonly encodeWithContext: typeof taggedEncodeWithContext;
   readonly decode: typeof taggedDecode;
+  readonly fromString: typeof taggedFromString;
   readonly decodeWithContext: typeof taggedDecodeWithContext;
   readonly hasShape: typeof taggedHasShape;
   readonly is: typeof taggedIs;
@@ -921,6 +938,7 @@ const Tagged: {
   encode: taggedEncode,
   encodeWithContext: taggedEncodeWithContext,
   decode: taggedDecode,
+  fromString: taggedFromString,
   decodeWithContext: taggedDecodeWithContext,
   hasShape: taggedHasShape,
   is: taggedIs,
@@ -939,8 +957,19 @@ export declare function boxEncode<T>(value: Box<T>, keepMetadata?: boolean, __en
 export declare function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Box<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function boxFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Box<T>;
 } | {
@@ -978,8 +1007,19 @@ export declare function circleEncode(value: Circle, keepMetadata?: boolean): str
 export declare function circleEncodeWithContext(value: Circle, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Circle>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function circleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Circle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function circleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Circle;
 } | {
@@ -1010,8 +1050,19 @@ type Shape = Box<Date> | Circle;
 export declare function shapeEncode(value: Shape, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Shape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Shape;
 } | {
@@ -1030,8 +1081,19 @@ type Outcome<T> = Box<T> | "none";
 export declare function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Outcome<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Outcome<T>;
 } | {
@@ -1054,8 +1116,19 @@ type Tagged<T> = ({
 export declare function taggedEncode<T>(value: Tagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: Tagged<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggedFromString<T>(text: string, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Tagged<T>;
 } | {
@@ -1083,32 +1156,32 @@ export {};
 
 ## Mapping
 
-original 30..64 -> expanded 1067..1101
-original 64..66 -> expanded 10430..10432
-original 96..137 -> expanded 10432..10473
-original 137..139 -> expanded 19010..19012
-original 169..202 -> expanded 19012..19045
-original 202..204 -> expanded 26620..26622
-original 234..269 -> expanded 26622..26657
-original 269..271 -> expanded 34083..34085
-original 332..409 -> expanded 34085..34162
-original 409..410 -> expanded 40679..40680
-generated 0..1067 <- imports
-generated 1101..3399 <- Encode
-generated 3399..9544 <- Decode
-generated 9544..10430 <- __convenience_const
-generated 10473..12580 <- Encode
-generated 12580..18061 <- Decode
-generated 18061..19010 <- __convenience_const
-generated 19045..21294 <- Encode
-generated 21294..26144 <- Decode
-generated 26144..26620 <- __convenience_const
-generated 26657..28702 <- Encode
-generated 28702..33581 <- Decode
-generated 33581..34083 <- __convenience_const
-generated 34162..36238 <- Encode
-generated 36238..40058 <- Decode
-generated 40058..40679 <- __convenience_const
+original 30..64 -> expanded 1036..1070
+original 64..66 -> expanded 10852..10854
+original 96..137 -> expanded 10854..10895
+original 137..139 -> expanded 19851..19853
+original 169..202 -> expanded 19853..19886
+original 202..204 -> expanded 27956..27958
+original 234..269 -> expanded 27958..27993
+original 269..271 -> expanded 35991..35993
+original 332..409 -> expanded 35993..36070
+original 409..410 -> expanded 43136..43137
+generated 0..1036 <- imports
+generated 1070..3368 <- Encode
+generated 3368..9892 <- Decode
+generated 9892..10852 <- __convenience_const
+generated 10895..13002 <- Encode
+generated 13002..18822 <- Decode
+generated 18822..19851 <- __convenience_const
+generated 19886..22135 <- Encode
+generated 22135..27402 <- Decode
+generated 27402..27956 <- __convenience_const
+generated 27993..30038 <- Encode
+generated 30038..35407 <- Decode
+generated 35407..35991 <- __convenience_const
+generated 36070..38146 <- Encode
+generated 38146..42435 <- Decode
+generated 42435..43136 <- __convenience_const
 
 ## Metadata
 

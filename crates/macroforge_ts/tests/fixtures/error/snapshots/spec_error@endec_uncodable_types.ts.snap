@@ -40,7 +40,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, parsedText as __mf_parsedText, guardedDecoder as __mf_guardedDecoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, guardedDecoder as __mf_guardedDecoder } from "@macroforge/core/endec";
 import type { Decoder as __mf_Decoder } from "@macroforge/core/endec";
 
 interface Holder {
@@ -123,12 +123,12 @@ Error [653..670]: @derive(Default) on 'Patterned': field 'id' has type ``id-${Ki
 
 ## Mapping
 
-original 30..261 -> expanded 278..509
-original 290..440 -> expanded 509..659
-original 470..514 -> expanded 659..703
-original 536..602 -> expanded 703..769
-original 625..697 -> expanded 769..841
-generated 0..278 <- imports
+original 30..261 -> expanded 247..478
+original 290..440 -> expanded 478..628
+original 470..514 -> expanded 628..672
+original 536..602 -> expanded 672..738
+original 625..697 -> expanded 738..810
+generated 0..247 <- imports
 
 ## Metadata
 

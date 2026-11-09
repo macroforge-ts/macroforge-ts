@@ -13,7 +13,7 @@ true
 ## Output
 
 import { serviceDefaultsDecodeWithContext, serviceDefaultsEncodeWithContext, serviceDefaultsDefaultValue } from "./service-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -176,14 +176,11 @@ function serviceEncodeFields(value: Service, ctx: __mf_EncodeContext, result: Re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = serviceDecodeWithContext(data, ctx);
+        const resultOrRef = serviceDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -228,6 +225,10 @@ export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function serviceFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => serviceDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Service | __mf_PendingRef;
@@ -886,6 +887,7 @@ export const Service: {
   readonly encodeWithContext: typeof serviceEncodeWithContext;
   readonly encodePartialWithContext: typeof serviceEncodePartialWithContext;
   readonly decode: typeof serviceDecode;
+  readonly fromString: typeof serviceFromString;
   readonly decodeWithContext: typeof serviceDecodeWithContext;
   readonly decodePartialWithContext: typeof serviceDecodePartialWithContext;
   readonly validateField: typeof serviceValidateField;
@@ -900,6 +902,7 @@ export const Service: {
   encodeWithContext: serviceEncodeWithContext,
   encodePartialWithContext: serviceEncodePartialWithContext,
   decode: serviceDecode,
+  fromString: serviceFromString,
   decodeWithContext: serviceDecodeWithContext,
   decodePartialWithContext: serviceDecodePartialWithContext,
   validateField: serviceValidateField,
@@ -934,8 +937,19 @@ export declare function serviceEncode(value: Service, keepMetadata?: boolean): s
 export declare function serviceEncodeWithContext(value: Service, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function serviceEncodePartialWithContext(value: Partial<Service>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Service>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Service;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function serviceFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Service;
 } | {
@@ -1029,6 +1043,7 @@ export declare const Service: {
 	readonly encodeWithContext: typeof serviceEncodeWithContext;
 	readonly encodePartialWithContext: typeof serviceEncodePartialWithContext;
 	readonly decode: typeof serviceDecode;
+	readonly fromString: typeof serviceFromString;
 	readonly decodeWithContext: typeof serviceDecodeWithContext;
 	readonly decodePartialWithContext: typeof serviceDecodePartialWithContext;
 	readonly validateField: typeof serviceValidateField;
@@ -1045,27 +1060,27 @@ export declare const Service: {
 
 ## Mapping
 
-original 0..125 -> expanded 985..1110
-original 174..206 -> expanded 1110..1142
-original 234..255 -> expanded 1142..1163
-original 296..301 -> expanded 1163..1168
-original 342..365 -> expanded 1168..1191
-original 412..417 -> expanded 1191..1196
-original 458..486 -> expanded 1196..1224
-original 551..582 -> expanded 1224..1255
-original 650..684 -> expanded 1255..1289
-original 750..780 -> expanded 1289..1319
-original 825..851 -> expanded 1319..1345
-original 900..930 -> expanded 1345..1375
-original 977..1005 -> expanded 1375..1403
-original 1054..1119 -> expanded 1403..1468
-original 1119..1120 -> expanded 37533..37534
-generated 0..985 <- imports
-generated 1468..1813 <- Default
-generated 1813..6456 <- Encode
-generated 6456..20818 <- Decode
-generated 20818..36294 <- Gigaform
-generated 36294..37533 <- __convenience_const
+original 0..125 -> expanded 987..1112
+original 174..206 -> expanded 1112..1144
+original 234..255 -> expanded 1144..1165
+original 296..301 -> expanded 1165..1170
+original 342..365 -> expanded 1170..1193
+original 412..417 -> expanded 1193..1198
+original 458..486 -> expanded 1198..1226
+original 551..582 -> expanded 1226..1257
+original 650..684 -> expanded 1257..1291
+original 750..780 -> expanded 1291..1321
+original 825..851 -> expanded 1321..1347
+original 900..930 -> expanded 1347..1377
+original 977..1005 -> expanded 1377..1405
+original 1054..1119 -> expanded 1405..1470
+original 1119..1120 -> expanded 37959..37960
+generated 0..987 <- imports
+generated 1470..1815 <- Default
+generated 1815..6458 <- Encode
+generated 6458..21162 <- Decode
+generated 21162..36638 <- Gigaform
+generated 36638..37959 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,15 +48,13 @@ export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext):
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function statusDecode(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, statusHasShape);
-    switch (data) {
+    switch (input) {
         case 'Scheduled':
         case 'OnDeck':
         case 'Waiting':
-            return { success: true, value: data as Status };
+            return { success: true, value: input as Status };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -90,6 +88,10 @@ export function statusHasShape(value: unknown): boolean {
 
 export function statusIs(value: unknown): value is Status {
     return statusHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function statusFromString(text: string): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => statusDecode(value));
 }
 
 /** Per-variant error types  */
@@ -242,6 +244,7 @@ export const Status: {
   readonly decodeWithContext: typeof statusDecodeWithContext;
   readonly hasShape: typeof statusHasShape;
   readonly is: typeof statusIs;
+  readonly fromString: typeof statusFromString;
   readonly createForm: typeof statusCreateForm;
   readonly fromFormData: typeof statusFromFormData;
 } = {
@@ -252,6 +255,7 @@ export const Status: {
   decodeWithContext: statusDecodeWithContext,
   hasShape: statusHasShape,
   is: statusIs,
+  fromString: statusFromString,
   createForm: statusCreateForm,
   fromFormData: statusFromFormData
 };
@@ -265,7 +269,7 @@ export declare function statusDefaultValue(): Status;
 export declare function statusEncode(value: Status, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function statusDecode(input: unknown): {
 	success: true;
 	value: Status;
@@ -280,6 +284,17 @@ export declare function statusDecode(input: unknown): {
 export declare function statusDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Status | __mf_PendingRef;
 export declare function statusHasShape(value: unknown): boolean;
 export declare function statusIs(value: unknown): value is Status;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function statusFromString(text: string): {
+	success: true;
+	value: Status;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type StatusScheduledErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -355,6 +370,7 @@ export declare const Status: {
 	readonly decodeWithContext: typeof statusDecodeWithContext;
 	readonly hasShape: typeof statusHasShape;
 	readonly is: typeof statusIs;
+	readonly fromString: typeof statusFromString;
 	readonly createForm: typeof statusCreateForm;
 	readonly fromFormData: typeof statusFromFormData;
 };
@@ -367,13 +383,13 @@ export declare const Status: {
 
 original 0..58 -> expanded 711..769
 original 107..180 -> expanded 769..842
-original 180..181 -> expanded 9570..9571
+original 180..181 -> expanded 9996..9997
 generated 0..711 <- imports
 generated 842..916 <- Default
 generated 916..2201 <- Encode
-generated 2201..3996 <- Decode
-generated 3996..8818 <- Gigaform
-generated 8818..9570 <- __convenience_const
+generated 2201..4342 <- Decode
+generated 4342..9164 <- Gigaform
+generated 9164..9996 <- __convenience_const
 
 ## Metadata
 

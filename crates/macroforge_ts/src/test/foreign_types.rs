@@ -390,42 +390,7 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 // its hasShape accepts the string, and JSON text otherwise. The handler is
 // imported, so the check runs at runtime rather than reading its source.
 #[test]
-fn test_derive_decode_union_keeps_a_string_its_foreign_has_shape_accepts() {
-    let source = r#"
-import type { DateTime } from 'effect';
-
-/** @derive(Decode) */
-interface RegularType {
-    id: string;
-}
-
-/** @derive(Decode) */
-type FlexibleValue = DateTime.DateTime | RegularType;
-"#;
-    for has_shape in ["isIsoString", "(v) => typeof v === \"number\""] {
-        set_foreign_types(vec![make_foreign_type(
-            "DateTime.DateTime",
-            vec!["effect"],
-            None,
-            Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
-            None,
-            Some(has_shape),
-        )]);
-        let result = expand_test(source);
-        clear_foreign_types();
-
-        assert!(
-            result.code.contains(
-                r#"const data = typeof input === "string" && !__foreign__dateTimeDateTimeHasShape(input) ? __mf_parsedText(input) : input;"#
-            ),
-            "hasShape `{has_shape}` decides whether a string is parsed. Got:\n{}",
-            result.code
-        );
-    }
-}
-
-#[test]
-fn test_derive_decode_union_without_has_shape_parses_strings() {
+fn test_derive_decode_union_takes_a_value_and_from_string_takes_text() {
     let source = r#"
 import type { DateTime } from 'effect';
 
@@ -443,16 +408,30 @@ type FlexibleValue = DateTime.DateTime | RegularType;
         None,
         Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
         None,
-        None,
+        Some("isIsoString"),
     )]);
     let result = expand_test(source);
     clear_foreign_types();
 
     assert!(
+        result
+            .code
+            .contains("const resultOrRef = flexibleValueDecodeWithContext(input, ctx);"),
+        "decode hands its input on as a value. Got:\n{}",
+        result.code
+    );
+    assert!(
+        !result.code.contains("__mf_parsedText(input)"),
+        "decode never reads a string as JSON text. Got:\n{}",
+        result.code
+    );
+    assert!(
         result.code.contains(
-            r#"const data = typeof input === "string" ? __mf_parsedText(input) : input;"#
+            "export function flexibleValueFromString(text: string, opts?: __mf_DecodeOptions)"
+        ) && result.code.contains(
+            "return __mf_decodedText(text, (value) => flexibleValueDecode(value, opts));"
         ),
-        "with no hasShape a string is JSON text. Got:\n{}",
+        "fromString decodes JSON text through decode. Got:\n{}",
         result.code
     );
 }

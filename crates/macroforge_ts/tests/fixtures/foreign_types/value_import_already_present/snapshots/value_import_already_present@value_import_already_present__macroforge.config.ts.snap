@@ -1,6 +1,5 @@
 ---
 source: crates/macroforge_ts/tests/foreign_type_fixtures.rs
-assertion_line: 145
 description: value_import_already_present
 expression: snapshot
 input_file: crates/macroforge_ts/tests/fixtures/foreign_types/value_import_already_present/macroforge.config.ts
@@ -49,7 +48,7 @@ export default { foreignTypes: { "DateTime.Utc": {
 ## Imports of the expanded input
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 

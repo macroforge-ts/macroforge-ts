@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalEncodeWithContext,
 import { customDecodeWithContext, customHasShape, customEncodeWithContext, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientEncodeWithContext, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalEncodeWithContext, ordinalDefaultValue } from "./ordinal.svelte";
-import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,13 +71,11 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = colorsConfigDecodeWithContext(data, ctx);
+        const resultOrRef = colorsConfigDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -122,6 +120,10 @@ export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function colorsConfigFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => colorsConfigDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function colorsConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ColorsConfig | __mf_PendingRef {
@@ -392,6 +394,7 @@ export const ColorsConfig: {
   readonly encode: typeof colorsConfigEncode;
   readonly encodeWithContext: typeof colorsConfigEncodeWithContext;
   readonly decode: typeof colorsConfigDecode;
+  readonly fromString: typeof colorsConfigFromString;
   readonly decodeWithContext: typeof colorsConfigDecodeWithContext;
   readonly hasShape: typeof colorsConfigHasShape;
   readonly is: typeof colorsConfigIs;
@@ -402,6 +405,7 @@ export const ColorsConfig: {
   encode: colorsConfigEncode,
   encodeWithContext: colorsConfigEncodeWithContext,
   decode: colorsConfigDecode,
+  fromString: colorsConfigFromString,
   decodeWithContext: colorsConfigDecodeWithContext,
   hasShape: colorsConfigHasShape,
   is: colorsConfigIs,
@@ -422,8 +426,19 @@ export declare function colorsConfigDefaultValue(): ColorsConfig;
 export declare function colorsConfigEncode(value: ColorsConfig, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ColorsConfig;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function colorsConfigFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ColorsConfig;
 } | {
@@ -521,6 +536,7 @@ export declare const ColorsConfig: {
 	readonly encode: typeof colorsConfigEncode;
 	readonly encodeWithContext: typeof colorsConfigEncodeWithContext;
 	readonly decode: typeof colorsConfigDecode;
+	readonly fromString: typeof colorsConfigFromString;
 	readonly decodeWithContext: typeof colorsConfigDecodeWithContext;
 	readonly hasShape: typeof colorsConfigHasShape;
 	readonly is: typeof colorsConfigIs;
@@ -534,15 +550,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 1214..1471
-original 306..407 -> expanded 1471..1572
-original 407..408 -> expanded 17529..17530
-generated 0..1214 <- imports
-generated 1572..1669 <- Default
-generated 1669..4779 <- Encode
-generated 4779..10817 <- Decode
-generated 10817..16663 <- Gigaform
-generated 16663..17529 <- __convenience_const
+original 0..257 -> expanded 1216..1473
+original 306..407 -> expanded 1473..1574
+original 407..408 -> expanded 18061..18062
+generated 0..1216 <- imports
+generated 1574..1671 <- Default
+generated 1671..4781 <- Encode
+generated 4781..11257 <- Decode
+generated 11257..17103 <- Gigaform
+generated 17103..18061 <- __convenience_const
 
 ## Metadata
 

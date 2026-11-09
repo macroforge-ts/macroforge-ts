@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/validator-form.ts
-sha256 7c791f922baebfa3b7c563790670ea6f820d1ddbd60e7198ff4b5a841875abf2
+sha256 1e82e4eebaf3e6ae3b24b7faa43515f20c0e671d2997ad6bbfb69f2527044db4
 
 ## Changed
 
@@ -14,7 +14,7 @@ true
 
 import { centsDecodeWithContext, metersDecodeWithContext, usernameDecodeWithContext } from "./validators/newtype-validator-tests.ts";
 import { contactDecodeWithContext } from "./validators/union-arm-validator-tests.ts";
-import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing.
@@ -51,14 +51,11 @@ constructor(props: { email: string; password: string; username: string; age: num
     this.website = props.website;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
+        const resultOrRef = UserRegistrationForm.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -103,6 +100,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => UserRegistrationForm.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -330,9 +332,14 @@ static is(obj: unknown): obj is UserRegistrationForm {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     return UserRegistrationForm.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function userRegistrationFormFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UserRegistrationForm.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -381,14 +388,11 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
     this.sku = props.sku;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ProductForm.decodeWithContext(data, ctx);
+        const resultOrRef = ProductForm.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -433,6 +437,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ProductForm.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -672,9 +681,14 @@ static is(obj: unknown): obj is ProductForm {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ProductForm.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function productFormFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ProductForm.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -719,14 +733,11 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
     this.maxAttendees = props.maxAttendees;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = EventForm.decodeWithContext(data, ctx);
+        const resultOrRef = EventForm.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -771,6 +782,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => EventForm.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -970,9 +986,14 @@ static is(obj: unknown): obj is EventForm {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     return EventForm.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function eventFormFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return EventForm.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1013,14 +1034,11 @@ constructor(props: { runner: Username; distance: Meters; cents: Cents; contact: 
     this.contact = props.contact;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MeasurementForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = MeasurementForm.decodeWithContext(data, ctx);
+        const resultOrRef = MeasurementForm.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1065,6 +1083,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MeasurementForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => MeasurementForm.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1247,9 +1270,14 @@ static is(obj: unknown): obj is MeasurementForm {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function measurementFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MeasurementForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     return MeasurementForm.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function measurementFormFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: MeasurementForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MeasurementForm.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1284,17 +1312,17 @@ export type ValidationResult<T> =
 export function validateUserRegistration(
     data: unknown
 ): ValidationResult<UserRegistrationForm> {
-    const result = UserRegistrationForm.decode(JSON.stringify(data));
+    const result = UserRegistrationForm.decode(data);
     return result;
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = ProductForm.decode(JSON.stringify(data));
+    const result = ProductForm.decode(data);
     return result;
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = EventForm.decode(JSON.stringify(data));
+    const result = EventForm.decode(data);
     return result;
 }
 
@@ -1330,8 +1358,19 @@ export declare class UserRegistrationForm {
 		age: number;
 		website: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UserRegistrationForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: UserRegistrationForm;
 	} | {
@@ -1356,8 +1395,19 @@ export declare class UserRegistrationForm {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is UserRegistrationForm;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserRegistrationForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function userRegistrationFormFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: UserRegistrationForm;
 } | {
@@ -1394,8 +1444,19 @@ export declare class ProductForm {
 		tags: Array<string>;
 		sku: string;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ProductForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ProductForm;
 	} | {
@@ -1420,8 +1481,19 @@ export declare class ProductForm {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ProductForm;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ProductForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function productFormFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ProductForm;
 } | {
@@ -1455,8 +1527,19 @@ export declare class EventForm {
 		endDate: Date;
 		maxAttendees: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: EventForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: EventForm;
 	} | {
@@ -1481,8 +1564,19 @@ export declare class EventForm {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is EventForm;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EventForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function eventFormFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EventForm;
 } | {
@@ -1512,8 +1606,19 @@ export declare class MeasurementForm {
 		cents: Cents;
 		contact: Contact;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MeasurementForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: MeasurementForm;
 	} | {
@@ -1538,8 +1643,19 @@ export declare class MeasurementForm {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is MeasurementForm;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function measurementFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MeasurementForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function measurementFormFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: MeasurementForm;
 } | {
@@ -1578,24 +1694,24 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 
 ## Mapping
 
-original 0..840 -> expanded 727..1567
-original 840..841 -> expanded 17784..17785
-original 841..1291 -> expanded 19747..20197
-original 1291..1292 -> expanded 35694..35695
-original 1292..1677 -> expanded 37522..37907
-original 1677..1678 -> expanded 51449..51450
-original 1678..1821 -> expanded 53247..53390
-original 1821..1822 -> expanded 63286..63287
-original 1822..2740 -> expanded 65174..66092
-generated 0..727 <- imports
-generated 1567..17784 <- Decode
-generated 17785..19747 <- Decode
-generated 20197..35694 <- Decode
-generated 35695..37522 <- Decode
-generated 37907..51449 <- Decode
-generated 51450..53247 <- Decode
-generated 53390..63286 <- Decode
-generated 63287..65174 <- Decode
+original 0..840 -> expanded 729..1569
+original 840..841 -> expanded 18159..18160
+original 841..1291 -> expanded 20560..21010
+original 1291..1292 -> expanded 36862..36863
+original 1292..1677 -> expanded 39101..39486
+original 1677..1678 -> expanded 53379..53380
+original 1678..1821 -> expanded 55582..55725
+original 1821..1822 -> expanded 65984..65985
+original 1822..2692 -> expanded 68295..69165
+generated 0..729 <- imports
+generated 1569..18159 <- Decode
+generated 18160..20560 <- Decode
+generated 21010..36862 <- Decode
+generated 36863..39101 <- Decode
+generated 39486..53379 <- Decode
+generated 53380..55582 <- Decode
+generated 55725..65984 <- Decode
+generated 65985..68295 <- Decode
 
 ## Metadata
 

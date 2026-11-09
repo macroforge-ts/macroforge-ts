@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -80,14 +80,11 @@ function promotionEncodeFields(value: Promotion, _ctx: __mf_EncodeContext, resul
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Promotion } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = promotionDecodeWithContext(data, ctx);
+        const resultOrRef = promotionDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -132,6 +129,10 @@ export function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function promotionFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Promotion } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => promotionDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Promotion | __mf_PendingRef;
@@ -357,6 +358,7 @@ export const Promotion: {
   readonly encodeWithContext: typeof promotionEncodeWithContext;
   readonly encodePartialWithContext: typeof promotionEncodePartialWithContext;
   readonly decode: typeof promotionDecode;
+  readonly fromString: typeof promotionFromString;
   readonly decodeWithContext: typeof promotionDecodeWithContext;
   readonly decodePartialWithContext: typeof promotionDecodePartialWithContext;
   readonly validateField: typeof promotionValidateField;
@@ -371,6 +373,7 @@ export const Promotion: {
   encodeWithContext: promotionEncodeWithContext,
   encodePartialWithContext: promotionEncodePartialWithContext,
   decode: promotionDecode,
+  fromString: promotionFromString,
   decodeWithContext: promotionDecodeWithContext,
   decodePartialWithContext: promotionDecodePartialWithContext,
   validateField: promotionValidateField,
@@ -395,8 +398,19 @@ export declare function promotionEncode(value: Promotion, keepMetadata?: boolean
 export declare function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Promotion;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function promotionFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Promotion;
 } | {
@@ -463,6 +477,7 @@ export declare const Promotion: {
 	readonly encodeWithContext: typeof promotionEncodeWithContext;
 	readonly encodePartialWithContext: typeof promotionEncodePartialWithContext;
 	readonly decode: typeof promotionDecode;
+	readonly fromString: typeof promotionFromString;
 	readonly decodeWithContext: typeof promotionDecodeWithContext;
 	readonly decodePartialWithContext: typeof promotionDecodePartialWithContext;
 	readonly validateField: typeof promotionValidateField;
@@ -479,15 +494,15 @@ export declare const Promotion: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..172 -> expanded 902..967
-original 172..173 -> expanded 15343..15344
-generated 0..844 <- imports
-generated 967..1077 <- Default
-generated 1077..3564 <- Encode
-generated 3564..9767 <- Decode
-generated 9767..14050 <- Gigaform
-generated 14050..15343 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..172 -> expanded 904..969
+original 172..173 -> expanded 15779..15780
+generated 0..846 <- imports
+generated 969..1079 <- Default
+generated 1079..3566 <- Encode
+generated 3566..10117 <- Decode
+generated 10117..14400 <- Gigaform
+generated 14400..15779 <- __convenience_const
 
 ## Metadata
 

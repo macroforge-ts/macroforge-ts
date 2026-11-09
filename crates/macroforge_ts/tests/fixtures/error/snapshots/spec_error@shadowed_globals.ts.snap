@@ -32,7 +32,7 @@ true
 
 import { setDecodeWithContext, setEncodeWithContext } from "./collections";
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Set } from './collections';
 
@@ -115,14 +115,11 @@ function indexEncodeFields(value: Index, ctx: __mf_EncodeContext, result: Record
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function indexDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Index } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = indexDecodeWithContext(data, ctx);
+        const resultOrRef = indexDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -167,6 +164,10 @@ export function indexDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function indexFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Index } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => indexDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Index | __mf_PendingRef;
@@ -294,6 +295,7 @@ const Index: {
   readonly encodeWithContext: typeof indexEncodeWithContext;
   readonly encodePartialWithContext: typeof indexEncodePartialWithContext;
   readonly decode: typeof indexDecode;
+  readonly fromString: typeof indexFromString;
   readonly decodeWithContext: typeof indexDecodeWithContext;
   readonly decodePartialWithContext: typeof indexDecodePartialWithContext;
   readonly validateField: typeof indexValidateField;
@@ -305,6 +307,7 @@ const Index: {
   encodeWithContext: indexEncodeWithContext,
   encodePartialWithContext: indexEncodePartialWithContext,
   decode: indexDecode,
+  fromString: indexFromString,
   decodeWithContext: indexDecodeWithContext,
   decodePartialWithContext: indexDecodePartialWithContext,
   validateField: indexValidateField,
@@ -336,8 +339,19 @@ export declare function indexEncode(value: Index, keepMetadata?: boolean): strin
 export declare function indexEncodeWithContext(value: Index, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function indexEncodePartialWithContext(value: Partial<Index>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Index>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function indexDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Index;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function indexFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Index;
 } | {
@@ -378,17 +392,17 @@ Error [133..140]: this module gives the name `Partial` to something of its own, 
 
 ## Mapping
 
-original 0..38 -> expanded 846..884
-original 59..96 -> expanded 884..921
-original 96..161 -> expanded 1264..1329
-original 191..243 -> expanded 1329..1381
-original 243..244 -> expanded 12080..12081
-generated 0..846 <- imports
-generated 921..1167 <- Debug
-generated 1167..1264 <- __convenience_const
-generated 1381..3877 <- Encode
-generated 3877..11152 <- Decode
-generated 11152..12080 <- __convenience_const
+original 0..38 -> expanded 848..886
+original 59..96 -> expanded 886..923
+original 96..161 -> expanded 1266..1331
+original 191..243 -> expanded 1331..1383
+original 243..244 -> expanded 12496..12497
+generated 0..848 <- imports
+generated 923..1169 <- Debug
+generated 1169..1266 <- __convenience_const
+generated 1383..3879 <- Encode
+generated 3879..11490 <- Decode
+generated 11490..12496 <- __convenience_const
 
 ## Metadata
 

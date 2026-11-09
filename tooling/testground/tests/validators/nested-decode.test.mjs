@@ -87,7 +87,7 @@ describe('Nested decoding', () => {
                 named: { home: { x: 2 } },
                 visits: new Map([['home', 3]])
             };
-            const decoded = mod.Route.decode(mod.Route.encode(route));
+            const decoded = mod.Route.fromString(mod.Route.encode(route));
             assertValidationSuccess(decoded, 'Route');
             assertStrictEquals(decoded.value.visits.get('home'), 3);
             assertStrictEquals(decoded.value.named.home.x, 2);

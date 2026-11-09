@@ -19,7 +19,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -69,14 +69,11 @@ function eventEncodeFields(value: Event, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = eventDecodeWithContext(data, ctx);
+        const resultOrRef = eventDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -121,6 +118,10 @@ export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function eventFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => eventDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Event | __mf_PendingRef;
@@ -202,6 +203,7 @@ export const Event: {
   readonly encodeWithContext: typeof eventEncodeWithContext;
   readonly encodePartialWithContext: typeof eventEncodePartialWithContext;
   readonly decode: typeof eventDecode;
+  readonly fromString: typeof eventFromString;
   readonly decodeWithContext: typeof eventDecodeWithContext;
   readonly decodePartialWithContext: typeof eventDecodePartialWithContext;
   readonly validateField: typeof eventValidateField;
@@ -214,6 +216,7 @@ export const Event: {
   encodeWithContext: eventEncodeWithContext,
   encodePartialWithContext: eventEncodePartialWithContext,
   decode: eventDecode,
+  fromString: eventFromString,
   decodeWithContext: eventDecodeWithContext,
   decodePartialWithContext: eventDecodePartialWithContext,
   validateField: eventValidateField,
@@ -235,8 +238,19 @@ export declare function eventEncode(value: Event, keepMetadata?: boolean): strin
 export declare function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function eventEncodePartialWithContext(value: Partial<Event>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Event>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function eventDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Event;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function eventFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Event;
 } | {
@@ -268,6 +282,7 @@ export declare const Event: {
 	readonly encodeWithContext: typeof eventEncodeWithContext;
 	readonly encodePartialWithContext: typeof eventEncodePartialWithContext;
 	readonly decode: typeof eventDecode;
+	readonly fromString: typeof eventFromString;
 	readonly decodeWithContext: typeof eventDecodeWithContext;
 	readonly decodePartialWithContext: typeof eventDecodePartialWithContext;
 	readonly validateField: typeof eventValidateField;
@@ -282,14 +297,14 @@ export declare const Event: {
 
 ## Mapping
 
-original 0..36 -> expanded 813..849
-original 75..124 -> expanded 849..898
-original 124..125 -> expanded 9490..9491
-generated 0..813 <- imports
-generated 898..1011 <- Default
-generated 1011..3117 <- Encode
-generated 3117..8469 <- Decode
-generated 8469..9490 <- __convenience_const
+original 0..36 -> expanded 815..851
+original 75..124 -> expanded 851..900
+original 124..125 -> expanded 9906..9907
+generated 0..815 <- imports
+generated 900..1013 <- Default
+generated 1013..3119 <- Encode
+generated 3119..8807 <- Decode
+generated 8807..9906 <- __convenience_const
 
 ## Metadata
 

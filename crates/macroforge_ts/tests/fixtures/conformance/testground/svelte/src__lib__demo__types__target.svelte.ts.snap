@@ -29,7 +29,7 @@ import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, se
 import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -136,13 +136,11 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = targetDecodeWithContext(data, ctx);
+        const resultOrRef = targetDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -187,6 +185,10 @@ export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function targetFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => targetDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Target | __mf_PendingRef {
@@ -834,6 +836,7 @@ export const Target: {
   readonly encode: typeof targetEncode;
   readonly encodeWithContext: typeof targetEncodeWithContext;
   readonly decode: typeof targetDecode;
+  readonly fromString: typeof targetFromString;
   readonly decodeWithContext: typeof targetDecodeWithContext;
   readonly hasShape: typeof targetHasShape;
   readonly is: typeof targetIs;
@@ -844,6 +847,7 @@ export const Target: {
   encode: targetEncode,
   encodeWithContext: targetEncodeWithContext,
   decode: targetDecode,
+  fromString: targetFromString,
   decodeWithContext: targetDecodeWithContext,
   hasShape: targetHasShape,
   is: targetIs,
@@ -877,8 +881,19 @@ export declare function targetDefaultValue(): Target;
 export declare function targetEncode(value: Target, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function targetDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Target;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function targetFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Target;
 } | {
@@ -1132,6 +1147,7 @@ export declare const Target: {
 	readonly encode: typeof targetEncode;
 	readonly encodeWithContext: typeof targetEncodeWithContext;
 	readonly decode: typeof targetDecode;
+	readonly fromString: typeof targetFromString;
 	readonly decodeWithContext: typeof targetDecodeWithContext;
 	readonly hasShape: typeof targetHasShape;
 	readonly is: typeof targetIs;
@@ -1145,15 +1161,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2820..3707
-original 936..1209 -> expanded 3707..3980
-original 1209..1210 -> expanded 45127..45128
-generated 0..2820 <- imports
-generated 3980..4064 <- Default
-generated 4064..16915 <- Encode
-generated 16915..30745 <- Decode
-generated 30745..44375 <- Gigaform
-generated 44375..45127 <- __convenience_const
+original 0..887 -> expanded 2822..3709
+original 936..1209 -> expanded 3709..3982
+original 1209..1210 -> expanded 45629..45630
+generated 0..2822 <- imports
+generated 3982..4066 <- Default
+generated 4066..16917 <- Encode
+generated 16917..31167 <- Decode
+generated 31167..44797 <- Gigaform
+generated 44797..45629 <- __convenience_const
 
 ## Metadata
 

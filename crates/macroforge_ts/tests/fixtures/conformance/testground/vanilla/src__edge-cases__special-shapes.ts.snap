@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Values at the edges of their types: numbers that are not ordinary numbers,
@@ -233,14 +233,11 @@ function specialScalarsEncodeFields(value: SpecialScalars, _ctx: __mf_EncodeCont
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = specialScalarsDecodeWithContext(data, ctx);
+        const resultOrRef = specialScalarsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -285,6 +282,10 @@ export function specialScalarsDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialScalarsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialScalarsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialScalars | __mf_PendingRef;
@@ -457,6 +458,7 @@ export const SpecialScalars: {
   readonly encodeWithContext: typeof specialScalarsEncodeWithContext;
   readonly encodePartialWithContext: typeof specialScalarsEncodePartialWithContext;
   readonly decode: typeof specialScalarsDecode;
+  readonly fromString: typeof specialScalarsFromString;
   readonly decodeWithContext: typeof specialScalarsDecodeWithContext;
   readonly decodePartialWithContext: typeof specialScalarsDecodePartialWithContext;
   readonly validateField: typeof specialScalarsValidateField;
@@ -475,6 +477,7 @@ export const SpecialScalars: {
   encodeWithContext: specialScalarsEncodeWithContext,
   encodePartialWithContext: specialScalarsEncodePartialWithContext,
   decode: specialScalarsDecode,
+  fromString: specialScalarsFromString,
   decodeWithContext: specialScalarsDecodeWithContext,
   decodePartialWithContext: specialScalarsDecodePartialWithContext,
   validateField: specialScalarsValidateField,
@@ -498,13 +501,11 @@ export function specialNumberEncodeWithContext(value: SpecialNumber): unknown {
     return value;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = specialNumberDecodeWithContext(data, ctx);
+        const result = specialNumberDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -555,6 +556,10 @@ export function specialNumberHasShape(value: unknown): boolean {
 export function specialNumberIs(value: unknown): value is SpecialNumber {
     return (typeof value === "number" && globalThis.Number.isFinite(value)) && specialNumberDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialNumberFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialNumberDecode(value, opts));
+}
 
 export const SpecialNumber: {
   readonly encode: typeof specialNumberEncode;
@@ -563,13 +568,15 @@ export const SpecialNumber: {
   readonly decodeWithContext: typeof specialNumberDecodeWithContext;
   readonly hasShape: typeof specialNumberHasShape;
   readonly is: typeof specialNumberIs;
+  readonly fromString: typeof specialNumberFromString;
 } = {
   encode: specialNumberEncode,
   encodeWithContext: specialNumberEncodeWithContext,
   decode: specialNumberDecode,
   decodeWithContext: specialNumberDecodeWithContext,
   hasShape: specialNumberHasShape,
-  is: specialNumberIs
+  is: specialNumberIs,
+  fromString: specialNumberFromString
 };
 
 /** @derive(Encode, Decode) */
@@ -601,13 +608,11 @@ export function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_E
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialEitherDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialEither } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = specialEitherDecodeWithContext(data, ctx);
+        const resultOrRef = specialEitherDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -652,6 +657,10 @@ export function specialEitherDecode(input: unknown, opts?: __mf_DecodeOptions): 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialEitherFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialEither } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialEitherDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function specialEitherDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialEither | __mf_PendingRef {
@@ -727,6 +736,7 @@ export const SpecialEither: {
   readonly encode: typeof specialEitherEncode;
   readonly encodeWithContext: typeof specialEitherEncodeWithContext;
   readonly decode: typeof specialEitherDecode;
+  readonly fromString: typeof specialEitherFromString;
   readonly decodeWithContext: typeof specialEitherDecodeWithContext;
   readonly hasShape: typeof specialEitherHasShape;
   readonly is: typeof specialEitherIs;
@@ -734,6 +744,7 @@ export const SpecialEither: {
   encode: specialEitherEncode,
   encodeWithContext: specialEitherEncodeWithContext,
   decode: specialEitherDecode,
+  fromString: specialEitherFromString,
   decodeWithContext: specialEitherDecodeWithContext,
   hasShape: specialEitherHasShape,
   is: specialEitherIs
@@ -809,14 +820,11 @@ function specialCarriedEncodeFields(value: SpecialCarried, _ctx: __mf_EncodeCont
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = specialCarriedDecodeWithContext(data, ctx);
+        const resultOrRef = specialCarriedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -861,6 +869,10 @@ export function specialCarriedDecode(input: unknown, opts?: __mf_DecodeOptions):
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCarriedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialCarriedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCarried | __mf_PendingRef;
@@ -1008,6 +1020,7 @@ export const SpecialCarried: {
   readonly encodeWithContext: typeof specialCarriedEncodeWithContext;
   readonly encodePartialWithContext: typeof specialCarriedEncodePartialWithContext;
   readonly decode: typeof specialCarriedDecode;
+  readonly fromString: typeof specialCarriedFromString;
   readonly decodeWithContext: typeof specialCarriedDecodeWithContext;
   readonly decodePartialWithContext: typeof specialCarriedDecodePartialWithContext;
   readonly validateField: typeof specialCarriedValidateField;
@@ -1019,6 +1032,7 @@ export const SpecialCarried: {
   encodeWithContext: specialCarriedEncodeWithContext,
   encodePartialWithContext: specialCarriedEncodePartialWithContext,
   decode: specialCarriedDecode,
+  fromString: specialCarriedFromString,
   decodeWithContext: specialCarriedDecodeWithContext,
   decodePartialWithContext: specialCarriedDecodePartialWithContext,
   validateField: specialCarriedValidateField,
@@ -1191,14 +1205,11 @@ function specialCollectionsEncodeFields(value: SpecialCollections, _ctx: __mf_En
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialCollectionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialCollections } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = specialCollectionsDecodeWithContext(data, ctx);
+        const resultOrRef = specialCollectionsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1243,6 +1254,10 @@ export function specialCollectionsDecode(input: unknown, opts?: __mf_DecodeOptio
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialCollectionsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialCollections } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialCollectionsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialCollections | __mf_PendingRef;
@@ -1453,6 +1468,7 @@ export const SpecialCollections: {
   readonly encodeWithContext: typeof specialCollectionsEncodeWithContext;
   readonly encodePartialWithContext: typeof specialCollectionsEncodePartialWithContext;
   readonly decode: typeof specialCollectionsDecode;
+  readonly fromString: typeof specialCollectionsFromString;
   readonly decodeWithContext: typeof specialCollectionsDecodeWithContext;
   readonly decodePartialWithContext: typeof specialCollectionsDecodePartialWithContext;
   readonly validateField: typeof specialCollectionsValidateField;
@@ -1469,6 +1485,7 @@ export const SpecialCollections: {
   encodeWithContext: specialCollectionsEncodeWithContext,
   encodePartialWithContext: specialCollectionsEncodePartialWithContext,
   decode: specialCollectionsDecode,
+  fromString: specialCollectionsFromString,
   decodeWithContext: specialCollectionsDecodeWithContext,
   decodePartialWithContext: specialCollectionsDecodePartialWithContext,
   validateField: specialCollectionsValidateField,
@@ -1659,14 +1676,11 @@ function specialHolesEncodeFields(value: SpecialHoles, _ctx: __mf_EncodeContext,
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialHoles } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = specialHolesDecodeWithContext(data, ctx);
+        const resultOrRef = specialHolesDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1711,6 +1725,10 @@ export function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialHolesFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SpecialHoles } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => specialHolesDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialHoles | __mf_PendingRef;
@@ -2017,6 +2035,7 @@ export const SpecialHoles: {
   readonly encodeWithContext: typeof specialHolesEncodeWithContext;
   readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
   readonly decode: typeof specialHolesDecode;
+  readonly fromString: typeof specialHolesFromString;
   readonly decodeWithContext: typeof specialHolesDecodeWithContext;
   readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
   readonly validateField: typeof specialHolesValidateField;
@@ -2032,6 +2051,7 @@ export const SpecialHoles: {
   encodeWithContext: specialHolesEncodeWithContext,
   encodePartialWithContext: specialHolesEncodePartialWithContext,
   decode: specialHolesDecode,
+  fromString: specialHolesFromString,
   decodeWithContext: specialHolesDecodeWithContext,
   decodePartialWithContext: specialHolesDecodePartialWithContext,
   validateField: specialHolesValidateField,
@@ -2069,8 +2089,19 @@ export declare function specialScalarsEncode(value: SpecialScalars, keepMetadata
 export declare function specialScalarsEncodeWithContext(value: SpecialScalars, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function specialScalarsEncodePartialWithContext(value: Partial<SpecialScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialScalars>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialScalars;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialScalarsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialScalars;
 } | {
@@ -2108,6 +2139,7 @@ export declare const SpecialScalars: {
 	readonly encodeWithContext: typeof specialScalarsEncodeWithContext;
 	readonly encodePartialWithContext: typeof specialScalarsEncodePartialWithContext;
 	readonly decode: typeof specialScalarsDecode;
+	readonly fromString: typeof specialScalarsFromString;
 	readonly decodeWithContext: typeof specialScalarsDecodeWithContext;
 	readonly decodePartialWithContext: typeof specialScalarsDecodePartialWithContext;
 	readonly validateField: typeof specialScalarsValidateField;
@@ -2121,7 +2153,7 @@ export type SpecialNumber = number;
 export declare function specialNumberEncode(value: SpecialNumber, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
 export declare function specialNumberEncodeWithContext(value: SpecialNumber, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialNumberDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialNumber;
@@ -2136,6 +2168,17 @@ export declare function specialNumberDecode(input: unknown, opts?: __mf_DecodeOp
 export declare function specialNumberDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): SpecialNumber;
 export declare function specialNumberHasShape(value: unknown): boolean;
 export declare function specialNumberIs(value: unknown): value is SpecialNumber;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialNumberFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialNumber;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const SpecialNumber: {
 	readonly encode: typeof specialNumberEncode;
 	readonly encodeWithContext: typeof specialNumberEncodeWithContext;
@@ -2143,6 +2186,7 @@ export declare const SpecialNumber: {
 	readonly decodeWithContext: typeof specialNumberDecodeWithContext;
 	readonly hasShape: typeof specialNumberHasShape;
 	readonly is: typeof specialNumberIs;
+	readonly fromString: typeof specialNumberFromString;
 };
 /** @derive(Encode, Decode) */
 export type SpecialEither = number | SpecialCarried;
@@ -2150,8 +2194,19 @@ export type SpecialEither = number | SpecialCarried;
 export declare function specialEitherEncode(value: SpecialEither, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialEitherDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialEither;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialEitherFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialEither;
 } | {
@@ -2169,6 +2224,7 @@ export declare const SpecialEither: {
 	readonly encode: typeof specialEitherEncode;
 	readonly encodeWithContext: typeof specialEitherEncodeWithContext;
 	readonly decode: typeof specialEitherDecode;
+	readonly fromString: typeof specialEitherFromString;
 	readonly decodeWithContext: typeof specialEitherDecodeWithContext;
 	readonly hasShape: typeof specialEitherHasShape;
 	readonly is: typeof specialEitherIs;
@@ -2186,8 +2242,19 @@ export declare function specialCarriedEncode(value: SpecialCarried, keepMetadata
 export declare function specialCarriedEncodeWithContext(value: SpecialCarried, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function specialCarriedEncodePartialWithContext(value: Partial<SpecialCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCarried>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCarried;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCarriedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialCarried;
 } | {
@@ -2218,6 +2285,7 @@ export declare const SpecialCarried: {
 	readonly encodeWithContext: typeof specialCarriedEncodeWithContext;
 	readonly encodePartialWithContext: typeof specialCarriedEncodePartialWithContext;
 	readonly decode: typeof specialCarriedDecode;
+	readonly fromString: typeof specialCarriedFromString;
 	readonly decodeWithContext: typeof specialCarriedDecodeWithContext;
 	readonly decodePartialWithContext: typeof specialCarriedDecodePartialWithContext;
 	readonly validateField: typeof specialCarriedValidateField;
@@ -2245,8 +2313,19 @@ export declare function specialCollectionsEncode(value: SpecialCollections, keep
 export declare function specialCollectionsEncodeWithContext(value: SpecialCollections, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function specialCollectionsEncodePartialWithContext(value: Partial<SpecialCollections>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialCollections>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialCollectionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialCollections;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialCollectionsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialCollections;
 } | {
@@ -2282,6 +2361,7 @@ export declare const SpecialCollections: {
 	readonly encodeWithContext: typeof specialCollectionsEncodeWithContext;
 	readonly encodePartialWithContext: typeof specialCollectionsEncodePartialWithContext;
 	readonly decode: typeof specialCollectionsDecode;
+	readonly fromString: typeof specialCollectionsFromString;
 	readonly decodeWithContext: typeof specialCollectionsDecodeWithContext;
 	readonly decodePartialWithContext: typeof specialCollectionsDecodePartialWithContext;
 	readonly validateField: typeof specialCollectionsValidateField;
@@ -2311,8 +2391,19 @@ export declare function specialHolesEncode(value: SpecialHoles, keepMetadata?: b
 export declare function specialHolesEncodeWithContext(value: SpecialHoles, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function specialHolesEncodePartialWithContext(value: Partial<SpecialHoles>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialHoles;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialHolesFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SpecialHoles;
 } | {
@@ -2347,6 +2438,7 @@ export declare const SpecialHoles: {
 	readonly encodeWithContext: typeof specialHolesEncodeWithContext;
 	readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
 	readonly decode: typeof specialHolesDecode;
+	readonly fromString: typeof specialHolesFromString;
 	readonly decodeWithContext: typeof specialHolesDecodeWithContext;
 	readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
 	readonly validateField: typeof specialHolesValidateField;
@@ -2361,48 +2453,48 @@ export declare const SpecialHoles: {
 
 ## Mapping
 
-original 0..456 -> expanded 1546..2002
-original 456..524 -> expanded 23384..23452
-original 524..609 -> expanded 26823..26908
-original 609..789 -> expanded 33750..33930
-original 789..1079 -> expanded 47248..47538
-original 1079..1532 -> expanded 70252..70705
-original 1532..1533 -> expanded 99708..99709
-generated 0..1546 <- imports
-generated 2002..2521 <- Debug
-generated 2521..2799 <- Clone
-generated 2799..3635 <- PartialEq
-generated 3635..4565 <- Hash
-generated 4565..6272 <- PartialOrd
-generated 6272..7861 <- Ord
-generated 7861..8063 <- Default
-generated 8063..11555 <- Encode
-generated 11555..21628 <- Decode
-generated 21628..23384 <- __convenience_const
-generated 23452..24216 <- Encode
-generated 24216..26236 <- Decode
-generated 26236..26823 <- __convenience_const
-generated 26908..28741 <- Encode
-generated 28741..33163 <- Decode
-generated 33163..33750 <- __convenience_const
-generated 33930..36964 <- Encode
-generated 36964..46124 <- Decode
-generated 46124..47248 <- __convenience_const
-generated 47538..48135 <- Debug
-generated 48135..48782 <- Clone
-generated 48782..50465 <- PartialEq
-generated 50465..52163 <- Hash
-generated 52163..52378 <- Default
-generated 52378..56190 <- Encode
-generated 56190..68568 <- Decode
-generated 68568..70252 <- __convenience_const
-generated 70705..71465 <- Debug
-generated 71465..71883 <- Clone
-generated 71883..73498 <- PartialEq
-generated 73498..75302 <- Hash
-generated 75302..79917 <- Encode
-generated 79917..98310 <- Decode
-generated 98310..99708 <- __convenience_const
+original 0..456 -> expanded 1548..2004
+original 456..524 -> expanded 23845..23913
+original 524..609 -> expanded 27819..27904
+original 609..789 -> expanded 35281..35461
+original 789..1079 -> expanded 49238..49528
+original 1079..1532 -> expanded 72721..73174
+original 1532..1533 -> expanded 102626..102627
+generated 0..1548 <- imports
+generated 2004..2523 <- Debug
+generated 2523..2801 <- Clone
+generated 2801..3637 <- PartialEq
+generated 3637..4567 <- Hash
+generated 4567..6274 <- PartialOrd
+generated 6274..7863 <- Ord
+generated 7863..8065 <- Default
+generated 8065..11557 <- Encode
+generated 11557..21993 <- Decode
+generated 21993..23845 <- __convenience_const
+generated 23913..24677 <- Encode
+generated 24677..27138 <- Decode
+generated 27138..27819 <- __convenience_const
+generated 27904..29737 <- Encode
+generated 29737..34600 <- Decode
+generated 34600..35281 <- __convenience_const
+generated 35461..38495 <- Encode
+generated 38495..48018 <- Decode
+generated 48018..49238 <- __convenience_const
+generated 49528..50125 <- Debug
+generated 50125..50772 <- Clone
+generated 50772..52455 <- PartialEq
+generated 52455..54153 <- Hash
+generated 54153..54368 <- Default
+generated 54368..58180 <- Encode
+generated 58180..70933 <- Decode
+generated 70933..72721 <- __convenience_const
+generated 73174..73934 <- Debug
+generated 73934..74352 <- Clone
+generated 74352..75967 <- PartialEq
+generated 75967..77771 <- Hash
+generated 77771..82386 <- Encode
+generated 82386..101136 <- Decode
+generated 101136..102626 <- __convenience_const
 
 ## Metadata
 

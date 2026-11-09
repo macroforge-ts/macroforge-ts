@@ -92,7 +92,7 @@ Deno.test('encode refuses a number or a date that JSON cannot write', () => {
     }
     assertThrows(() => mod.specialScalarsEncode(scalars({ at: new Date('never') })), RangeError);
 
-    const back = mod.specialScalarsDecode(
+    const back = mod.specialScalarsFromString(
         mod.specialScalarsEncode(scalars({ value: -0, big: 2n ** 80n }))
     );
     assert(back.success, JSON.stringify(back.errors));
@@ -137,10 +137,10 @@ Deno.test('decode refuses the numbers encode cannot write back', () => {
         const spelled = text.replace('"value":1', `"value":${literal}`);
         assert(spelled !== text);
         assertEquals(fieldsOf(mod.specialScalarsDecode(spelled)), ['_root'], literal);
-        assert(!mod.specialNumberDecode(literal).success, literal);
+        assert(!mod.specialNumberFromString(literal).success, literal);
         // A field carried as it is holds no such number either.
         const carried = `{"data":{"deep":[${literal}]},"amounts":{},"pair":[1,""],"mixed":""}`;
-        assertEquals(fieldsOf(mod.specialCarriedDecode(carried)), ['_root'], literal);
+        assertEquals(fieldsOf(mod.specialCarriedFromString(carried)), ['_root'], literal);
     }
 
     // Large numbers that fit, and text that only looks like one, are read as they are.
@@ -152,7 +152,7 @@ Deno.test('decode refuses the numbers encode cannot write back', () => {
             '123456789012345678901234567890'
         ]
     ) {
-        const result = mod.specialNumberDecode(literal);
+        const result = mod.specialNumberFromString(literal);
         assert(result.success, literal);
         assertStrictEquals(result.value, Number(literal));
     }
@@ -162,7 +162,7 @@ Deno.test('decode refuses the numbers encode cannot write back', () => {
         pair: [1, `e${'9'.repeat(300)}`],
         mixed: '1e999'
     };
-    const read = mod.specialCarriedDecode(mod.specialCarriedEncode(lookalike));
+    const read = mod.specialCarriedFromString(mod.specialCarriedEncode(lookalike));
     assert(read.success, JSON.stringify(read.errors));
     assertEquals(read.value, lookalike);
 });
@@ -192,7 +192,7 @@ Deno.test('a collection is equal and hashes alike whatever order it was filled i
     assertStrictEquals(blank.set.size, 0);
     assertStrictEquals(blank.nullable, null);
     assert(!('optional' in blank));
-    const back = mod.specialCollectionsDecode(
+    const back = mod.specialCollectionsFromString(
         mod.specialCollectionsEncode(filled([1, 2], [['a', [1]]]))
     );
     assert(back.success, JSON.stringify(back.errors));
@@ -226,7 +226,7 @@ Deno.test('an undefined held in a collection comes back as one', () => {
     for (const change of changes) {
         const value = holes(change);
         const label = mod.specialHolesToString(value);
-        const result = mod.specialHolesDecode(mod.specialHolesEncode(value));
+        const result = mod.specialHolesFromString(mod.specialHolesEncode(value));
         assert(result.success, `${label}: ${JSON.stringify(result.errors)}`);
         assert(mod.specialHolesEquals(value, result.value), label);
         assertStrictEquals(
@@ -237,7 +237,7 @@ Deno.test('an undefined held in a collection comes back as one', () => {
     }
 
     // An entry that holds `undefined` is still an entry.
-    const kept = mod.specialHolesDecode(
+    const kept = mod.specialHolesFromString(
         mod.specialHolesEncode(holes({ held: new Map([['a', undefined]]) }))
     );
     assert(kept.success && kept.value.held.has('a'));
@@ -245,7 +245,7 @@ Deno.test('an undefined held in a collection comes back as one', () => {
 
     // A `null` the type takes stays `null`, and takes the place of an
     // `undefined` beside it, which JSON cannot tell from it.
-    const either = mod.specialHolesDecode(
+    const either = mod.specialHolesFromString(
         mod.specialHolesEncode(holes({ either: [null, undefined, 2] }))
     );
     assert(either.success);

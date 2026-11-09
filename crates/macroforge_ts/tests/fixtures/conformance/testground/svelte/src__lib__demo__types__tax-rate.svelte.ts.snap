@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -169,14 +169,11 @@ function taxRateEncodeFields(value: TaxRate, _ctx: __mf_EncodeContext, result: R
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = taxRateDecodeWithContext(data, ctx);
+        const resultOrRef = taxRateDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -221,6 +218,10 @@ export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taxRateFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => taxRateDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef;
@@ -878,6 +879,7 @@ export const TaxRate: {
   readonly encodeWithContext: typeof taxRateEncodeWithContext;
   readonly encodePartialWithContext: typeof taxRateEncodePartialWithContext;
   readonly decode: typeof taxRateDecode;
+  readonly fromString: typeof taxRateFromString;
   readonly decodeWithContext: typeof taxRateDecodeWithContext;
   readonly decodePartialWithContext: typeof taxRateDecodePartialWithContext;
   readonly validateField: typeof taxRateValidateField;
@@ -892,6 +894,7 @@ export const TaxRate: {
   encodeWithContext: taxRateEncodeWithContext,
   encodePartialWithContext: taxRateEncodePartialWithContext,
   decode: taxRateDecode,
+  fromString: taxRateFromString,
   decodeWithContext: taxRateDecodeWithContext,
   decodePartialWithContext: taxRateDecodePartialWithContext,
   validateField: taxRateValidateField,
@@ -926,8 +929,19 @@ export declare function taxRateEncode(value: TaxRate, keepMetadata?: boolean): s
 export declare function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function taxRateEncodePartialWithContext(value: Partial<TaxRate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof TaxRate>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TaxRate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taxRateFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: TaxRate;
 } | {
@@ -1020,6 +1034,7 @@ export declare const TaxRate: {
 	readonly encodeWithContext: typeof taxRateEncodeWithContext;
 	readonly encodePartialWithContext: typeof taxRateEncodePartialWithContext;
 	readonly decode: typeof taxRateDecode;
+	readonly fromString: typeof taxRateFromString;
 	readonly decodeWithContext: typeof taxRateDecodeWithContext;
 	readonly decodePartialWithContext: typeof taxRateDecodePartialWithContext;
 	readonly validateField: typeof taxRateValidateField;
@@ -1036,32 +1051,32 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 914..972
-original 107..139 -> expanded 972..1004
-original 167..188 -> expanded 1004..1025
-original 229..234 -> expanded 1025..1030
-original 275..298 -> expanded 1030..1053
-original 345..350 -> expanded 1053..1058
-original 391..419 -> expanded 1058..1086
-original 469..491 -> expanded 1086..1108
-original 532..537 -> expanded 1108..1113
-original 578..601 -> expanded 1113..1136
-original 644..649 -> expanded 1136..1141
-original 690..715 -> expanded 1141..1166
-original 757..762 -> expanded 1166..1171
-original 803..827 -> expanded 1171..1195
-original 872..900 -> expanded 1195..1223
-original 952..957 -> expanded 1223..1228
-original 998..1028 -> expanded 1228..1258
-original 1056..1061 -> expanded 1258..1263
-original 1080..1128 -> expanded 1263..1311
-original 1128..1129 -> expanded 38599..38600
-generated 0..914 <- imports
-generated 1311..1592 <- Default
-generated 1592..5949 <- Encode
-generated 5949..23896 <- Decode
-generated 23896..37360 <- Gigaform
-generated 37360..38599 <- __convenience_const
+original 0..58 -> expanded 916..974
+original 107..139 -> expanded 974..1006
+original 167..188 -> expanded 1006..1027
+original 229..234 -> expanded 1027..1032
+original 275..298 -> expanded 1032..1055
+original 345..350 -> expanded 1055..1060
+original 391..419 -> expanded 1060..1088
+original 469..491 -> expanded 1088..1110
+original 532..537 -> expanded 1110..1115
+original 578..601 -> expanded 1115..1138
+original 644..649 -> expanded 1138..1143
+original 690..715 -> expanded 1143..1168
+original 757..762 -> expanded 1168..1173
+original 803..827 -> expanded 1173..1197
+original 872..900 -> expanded 1197..1225
+original 952..957 -> expanded 1225..1230
+original 998..1028 -> expanded 1230..1260
+original 1056..1061 -> expanded 1260..1265
+original 1080..1128 -> expanded 1265..1313
+original 1128..1129 -> expanded 39025..39026
+generated 0..916 <- imports
+generated 1313..1594 <- Default
+generated 1594..5951 <- Encode
+generated 5951..24240 <- Decode
+generated 24240..37704 <- Gigaform
+generated 37704..39025 <- __convenience_const
 
 ## Metadata
 

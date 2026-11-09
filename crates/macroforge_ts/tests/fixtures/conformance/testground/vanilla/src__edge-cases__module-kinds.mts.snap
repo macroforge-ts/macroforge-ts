@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * A type an ECMAScript module declares, derived on in place and held by a
@@ -116,14 +116,11 @@ function kindedPointEncodeFields(value: KindedPoint, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function kindedPointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KindedPoint } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = kindedPointDecodeWithContext(data, ctx);
+        const resultOrRef = kindedPointDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -168,6 +165,10 @@ export function kindedPointDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function kindedPointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: KindedPoint } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => kindedPointDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function kindedPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KindedPoint | __mf_PendingRef;
@@ -272,6 +273,7 @@ export const KindedPoint: {
   readonly encodeWithContext: typeof kindedPointEncodeWithContext;
   readonly encodePartialWithContext: typeof kindedPointEncodePartialWithContext;
   readonly decode: typeof kindedPointDecode;
+  readonly fromString: typeof kindedPointFromString;
   readonly decodeWithContext: typeof kindedPointDecodeWithContext;
   readonly decodePartialWithContext: typeof kindedPointDecodePartialWithContext;
   readonly validateField: typeof kindedPointValidateField;
@@ -288,6 +290,7 @@ export const KindedPoint: {
   encodeWithContext: kindedPointEncodeWithContext,
   encodePartialWithContext: kindedPointEncodePartialWithContext,
   decode: kindedPointDecode,
+  fromString: kindedPointFromString,
   decodeWithContext: kindedPointDecodeWithContext,
   decodePartialWithContext: kindedPointDecodePartialWithContext,
   validateField: kindedPointValidateField,
@@ -318,8 +321,19 @@ export declare function kindedPointEncode(value: KindedPoint, keepMetadata?: boo
 export declare function kindedPointEncodeWithContext(value: KindedPoint, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function kindedPointEncodePartialWithContext(value: Partial<KindedPoint>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KindedPoint>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function kindedPointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KindedPoint;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function kindedPointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: KindedPoint;
 } | {
@@ -355,6 +369,7 @@ export declare const KindedPoint: {
 	readonly encodeWithContext: typeof kindedPointEncodeWithContext;
 	readonly encodePartialWithContext: typeof kindedPointEncodePartialWithContext;
 	readonly decode: typeof kindedPointDecode;
+	readonly fromString: typeof kindedPointFromString;
 	readonly decodeWithContext: typeof kindedPointDecodeWithContext;
 	readonly decodePartialWithContext: typeof kindedPointDecodePartialWithContext;
 	readonly validateField: typeof kindedPointValidateField;
@@ -369,17 +384,17 @@ export declare const KindedPoint: {
 
 ## Mapping
 
-original 0..289 -> expanded 869..1158
-original 289..290 -> expanded 12797..12798
-generated 0..869 <- imports
-generated 1158..1458 <- Debug
-generated 1458..1615 <- Clone
-generated 1615..1949 <- PartialEq
-generated 1949..2436 <- Hash
-generated 2436..2544 <- Default
-generated 2544..5045 <- Encode
-generated 5045..11330 <- Decode
-generated 11330..12797 <- __convenience_const
+original 0..289 -> expanded 871..1160
+original 289..290 -> expanded 13243..13244
+generated 0..871 <- imports
+generated 1160..1460 <- Debug
+generated 1460..1617 <- Clone
+generated 1617..1951 <- PartialEq
+generated 1951..2438 <- Hash
+generated 2438..2546 <- Default
+generated 2546..5047 <- Encode
+generated 5047..11686 <- Decode
+generated 11686..13243 <- __convenience_const
 
 ## Metadata
 

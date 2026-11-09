@@ -37,7 +37,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -79,14 +79,11 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = circleDecodeWithContext(data, ctx);
+        const resultOrRef = circleDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -131,6 +128,10 @@ export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function circleFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => circleDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Circle | __mf_PendingRef;
@@ -213,6 +214,7 @@ const Circle: {
   readonly encodeWithContext: typeof circleEncodeWithContext;
   readonly encodePartialWithContext: typeof circleEncodePartialWithContext;
   readonly decode: typeof circleDecode;
+  readonly fromString: typeof circleFromString;
   readonly decodeWithContext: typeof circleDecodeWithContext;
   readonly decodePartialWithContext: typeof circleDecodePartialWithContext;
   readonly validateField: typeof circleValidateField;
@@ -224,6 +226,7 @@ const Circle: {
   encodeWithContext: circleEncodeWithContext,
   encodePartialWithContext: circleEncodePartialWithContext,
   decode: circleDecode,
+  fromString: circleFromString,
   decodeWithContext: circleDecodeWithContext,
   decodePartialWithContext: circleDecodePartialWithContext,
   validateField: circleValidateField,
@@ -272,14 +275,11 @@ function squareEncodeFields(value: Square, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function squareDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Square } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = squareDecodeWithContext(data, ctx);
+        const resultOrRef = squareDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -324,6 +324,10 @@ export function squareDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function squareFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Square } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => squareDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Square | __mf_PendingRef;
@@ -406,6 +410,7 @@ const Square: {
   readonly encodeWithContext: typeof squareEncodeWithContext;
   readonly encodePartialWithContext: typeof squareEncodePartialWithContext;
   readonly decode: typeof squareDecode;
+  readonly fromString: typeof squareFromString;
   readonly decodeWithContext: typeof squareDecodeWithContext;
   readonly decodePartialWithContext: typeof squareDecodePartialWithContext;
   readonly validateField: typeof squareValidateField;
@@ -417,6 +422,7 @@ const Square: {
   encodeWithContext: squareEncodeWithContext,
   encodePartialWithContext: squareEncodePartialWithContext,
   decode: squareDecode,
+  fromString: squareFromString,
   decodeWithContext: squareDecodeWithContext,
   decodePartialWithContext: squareDecodePartialWithContext,
   validateField: squareValidateField,
@@ -452,8 +458,19 @@ export declare function circleEncode(value: Circle, keepMetadata?: boolean): str
 export declare function circleEncodeWithContext(value: Circle, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Circle>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function circleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Circle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function circleFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Circle;
 } | {
@@ -488,8 +505,19 @@ export declare function squareEncode(value: Square, keepMetadata?: boolean): str
 export declare function squareEncodeWithContext(value: Square, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function squareEncodePartialWithContext(value: Partial<Square>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Square>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function squareDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Square;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function squareFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Square;
 } | {
@@ -546,18 +574,18 @@ Error [566..609]: @derive(Decode): `Circle | (null | true)[]` holds `Circle`, wh
 
 ## Mapping
 
-original 30..71 -> expanded 685..726
-original 71..73 -> expanded 9263..9265
-original 103..142 -> expanded 9265..9304
-original 142..144 -> expanded 17799..17801
-original 174..611 -> expanded 17801..18238
-generated 0..685 <- imports
-generated 726..2833 <- Encode
-generated 2833..8314 <- Decode
-generated 8314..9263 <- __convenience_const
-generated 9304..11403 <- Encode
-generated 11403..16850 <- Decode
-generated 16850..17799 <- __convenience_const
+original 30..71 -> expanded 687..728
+original 71..73 -> expanded 9684..9686
+original 103..142 -> expanded 9686..9725
+original 142..144 -> expanded 18639..18641
+original 174..611 -> expanded 18641..19078
+generated 0..687 <- imports
+generated 728..2835 <- Encode
+generated 2835..8655 <- Decode
+generated 8655..9684 <- __convenience_const
+generated 9725..11824 <- Encode
+generated 11824..17610 <- Decode
+generated 17610..18639 <- __convenience_const
 
 ## Metadata
 

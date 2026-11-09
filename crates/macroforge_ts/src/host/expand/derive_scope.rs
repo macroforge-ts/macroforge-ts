@@ -145,6 +145,7 @@ const GENERATED_SUFFIXES: &[(&str, &[&str])] = &[
         "Decode",
         &[
             "Decode",
+            "FromString",
             "DecodeWithContext",
             "DecodePartialWithContext",
             "ValidateField",

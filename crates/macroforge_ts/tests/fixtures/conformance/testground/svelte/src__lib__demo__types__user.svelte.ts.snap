@@ -16,7 +16,7 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -219,14 +219,11 @@ function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<s
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userDecodeWithContext(data, ctx);
+        const resultOrRef = userDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -271,6 +268,10 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
@@ -1353,6 +1354,7 @@ export const User: {
   readonly encodeWithContext: typeof userEncodeWithContext;
   readonly encodePartialWithContext: typeof userEncodePartialWithContext;
   readonly decode: typeof userDecode;
+  readonly fromString: typeof userFromString;
   readonly decodeWithContext: typeof userDecodeWithContext;
   readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
@@ -1367,6 +1369,7 @@ export const User: {
   encodeWithContext: userEncodeWithContext,
   encodePartialWithContext: userEncodePartialWithContext,
   decode: userDecode,
+  fromString: userFromString,
   decodeWithContext: userDecodeWithContext,
   decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
@@ -1410,8 +1413,19 @@ export declare function userEncode(value: User, keepMetadata?: boolean): string;
 export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: User;
 } | {
@@ -1520,6 +1534,7 @@ export declare const User: {
 	readonly encodeWithContext: typeof userEncodeWithContext;
 	readonly encodePartialWithContext: typeof userEncodePartialWithContext;
 	readonly decode: typeof userDecode;
+	readonly fromString: typeof userFromString;
 	readonly decodeWithContext: typeof userDecodeWithContext;
 	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
@@ -1536,18 +1551,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 1413..1738
-original 374..453 -> expanded 1738..1817
-original 494..522 -> expanded 1817..1845
-original 563..690 -> expanded 1845..1972
-original 722..1102 -> expanded 1972..2352
-original 1102..1103 -> expanded 60361..60362
-generated 0..1413 <- imports
-generated 2352..3148 <- Default
-generated 3148..9512 <- Encode
-generated 9512..28863 <- Decode
-generated 28863..59203 <- Gigaform
-generated 59203..60361 <- __convenience_const
+original 0..325 -> expanded 1415..1740
+original 374..453 -> expanded 1740..1819
+original 494..522 -> expanded 1819..1847
+original 563..690 -> expanded 1847..1974
+original 722..1102 -> expanded 1974..2354
+original 1102..1103 -> expanded 60772..60773
+generated 0..1415 <- imports
+generated 2354..3150 <- Default
+generated 3150..9514 <- Encode
+generated 9514..29198 <- Decode
+generated 29198..59538 <- Gigaform
+generated 59538..60772 <- __convenience_const
 
 ## Metadata
 

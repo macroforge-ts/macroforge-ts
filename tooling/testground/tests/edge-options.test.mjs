@@ -172,7 +172,7 @@ Deno.test('renameAll spells every key its way, and rename wins over it', () => {
         'is-active': true,
         items: [item('i', 1)]
     });
-    assertEquals(decoded(mod.optionKebabDecode(mod.optionKebabEncode(kebab))), kebab);
+    assertEquals(decoded(mod.optionKebabFromString(mod.optionKebabEncode(kebab))), kebab);
     assertEquals(errorFields(mod.optionKebabDecode({ 'first-name': 'A', items: [] })), [
         'is-active'
     ]);
@@ -183,7 +183,7 @@ Deno.test('renameAll spells every key its way, and rename wins over it', () => {
 
     const camel = { first_name: 'A', home_town: 'B' };
     assertEquals(JSON.parse(mod.optionCamelEncode(camel)), { firstName: 'A', homeTown: 'B' });
-    assertEquals(decoded(mod.optionCamelDecode(mod.optionCamelEncode(camel))), camel);
+    assertEquals(decoded(mod.optionCamelFromString(mod.optionCamelEncode(camel))), camel);
 });
 
 const flattened = () => ({
@@ -244,7 +244,7 @@ Deno.test('denyUnknownFields rejects a key no field reads, and takes the metadat
     const encoded = JSON.parse(mod.optionStrictEncode(strict));
     assertEquals(encoded, { first_name: 'A', item: item('i', 1), nested: item('n', 2) });
     assertEquals(decoded(mod.optionStrictDecode(encoded)), strict);
-    assertEquals(decoded(mod.optionStrictDecode(mod.optionStrictEncode(strict, true))), strict);
+    assertEquals(decoded(mod.optionStrictFromString(mod.optionStrictEncode(strict, true))), strict);
 
     assertEquals(errorFields(mod.optionStrictDecode({ ...encoded, bogus: 1 })), ['bogus']);
     assertEquals(errorFields(mod.optionStrictDecode({ ...encoded, firstName: 'A' })), [
@@ -269,7 +269,7 @@ Deno.test("a tag names the field a value's type is written under", () => {
 
     const loop = { name: 'loop', child: null };
     loop.child = loop;
-    const back = decoded(mod.optionTaggedDecode(mod.optionTaggedEncode(loop, true)));
+    const back = decoded(mod.optionTaggedFromString(mod.optionTaggedEncode(loop, true)));
     assertStrictEquals(back.child, back);
 });
 

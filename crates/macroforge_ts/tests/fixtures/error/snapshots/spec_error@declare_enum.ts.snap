@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 export declare enum Elsewhere {
@@ -53,10 +53,14 @@ export function elsewhereEncodeWithContext(value: Elsewhere): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function elsewhereDecode(input: unknown): Elsewhere {
+    return elsewhereDecodeWithContext(input);
+}
 
-    return elsewhereDecodeWithContext(__mf_textOrValue(input, elsewhereIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function elsewhereFromString(text: string): Elsewhere {
+    return elsewhereDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -86,6 +90,7 @@ export namespace Elsewhere {
   export const encode: typeof elsewhereEncode = elsewhereEncode;
   export const encodeWithContext: typeof elsewhereEncodeWithContext = elsewhereEncodeWithContext;
   export const decode: typeof elsewhereDecode = elsewhereDecode;
+  export const fromString: typeof elsewhereFromString = elsewhereFromString;
   export const decodeWithContext: typeof elsewhereDecodeWithContext = elsewhereDecodeWithContext;
   export const is: typeof elsewhereIs = elsewhereIs;
 }
@@ -119,8 +124,10 @@ export declare function elsewhereToString(value: Elsewhere): string;
 export declare function elsewhereEncode(value: Elsewhere): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function elsewhereEncodeWithContext(value: Elsewhere, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function elsewhereDecode(input: unknown): Elsewhere;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function elsewhereFromString(text: string): Elsewhere;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function elsewhereDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Elsewhere;
 export declare function elsewhereIs(value: unknown): value is Elsewhere;
@@ -129,6 +136,7 @@ export declare namespace Elsewhere {
 	const encode: typeof elsewhereEncode;
 	const encodeWithContext: typeof elsewhereEncodeWithContext;
 	const decode: typeof elsewhereDecode;
+	const fromString: typeof elsewhereFromString;
 	const decodeWithContext: typeof elsewhereDecodeWithContext;
 	const is: typeof elsewhereIs;
 }
@@ -148,17 +156,17 @@ Error [5..35]: 'Elsewhere' is a `declare enum`: it describes an enum this module
 
 ## Mapping
 
-original 37..96 -> expanded 260..319
-original 96..98 -> expanded 2547..2549
-original 119..145 -> expanded 2549..2575
-original 145..146 -> expanded 2852..2853
-generated 0..260 <- imports
-generated 319..615 <- Debug
-generated 615..1043 <- Encode
-generated 1043..2065 <- Decode
-generated 2065..2547 <- __convenience_const
-generated 2575..2771 <- Debug
-generated 2771..2852 <- __convenience_const
+original 37..96 -> expanded 258..317
+original 96..98 -> expanded 2944..2946
+original 119..145 -> expanded 2946..2972
+original 145..146 -> expanded 3249..3250
+generated 0..258 <- imports
+generated 317..613 <- Debug
+generated 613..1041 <- Encode
+generated 1041..2385 <- Decode
+generated 2385..2944 <- __convenience_const
+generated 2972..3168 <- Debug
+generated 3168..3249 <- __convenience_const
 
 ## Metadata
 

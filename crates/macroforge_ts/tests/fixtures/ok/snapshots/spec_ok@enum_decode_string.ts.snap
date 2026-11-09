@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 
 enum Role {
     Admin = 'admin',
@@ -26,10 +26,14 @@ enum Role {
     Guest = 'guest'
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function roleDecode(input: unknown): Role {
+    return roleDecodeWithContext(input);
+}
 
-    return roleDecodeWithContext(__mf_textOrValue(input, roleIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function roleFromString(text: string): Role {
+    return roleDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -62,6 +66,7 @@ export function roleIs(value: unknown): value is Role {
 
 namespace Role {
   export const decode: typeof roleDecode = roleDecode;
+  export const fromString: typeof roleFromString = roleFromString;
   export const decodeWithContext: typeof roleDecodeWithContext = roleDecodeWithContext;
   export const is: typeof roleIs = roleIs;
 }
@@ -73,13 +78,16 @@ declare enum Role {
 	User = "user",
 	Guest = "guest"
 }
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function roleDecode(input: unknown): Role;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function roleFromString(text: string): Role;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
 export declare function roleIs(value: unknown): value is Role;
 declare namespace Role {
 	const decode: typeof roleDecode;
+	const fromString: typeof roleFromString;
 	const decodeWithContext: typeof roleDecodeWithContext;
 	const is: typeof roleIs;
 }
@@ -91,11 +99,11 @@ export {};
 
 ## Mapping
 
-original 22..96 -> expanded 144..218
-original 96..97 -> expanded 1502..1503
-generated 0..144 <- imports
-generated 218..1296 <- Decode
-generated 1296..1502 <- __convenience_const
+original 22..96 -> expanded 142..216
+original 96..97 -> expanded 1879..1880
+generated 0..142 <- imports
+generated 216..1606 <- Decode
+generated 1606..1879 <- __convenience_const
 
 ## Metadata
 

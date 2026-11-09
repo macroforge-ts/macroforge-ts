@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Point {
@@ -25,14 +25,11 @@ interface Point {
     y: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = pointDecodeWithContext(data, ctx);
+        const resultOrRef = pointDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -77,6 +74,10 @@ export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => pointDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
@@ -173,6 +174,7 @@ export function pointIs(obj: unknown): obj is Point {
 
 const Point: {
   readonly decode: typeof pointDecode;
+  readonly fromString: typeof pointFromString;
   readonly decodeWithContext: typeof pointDecodeWithContext;
   readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
   readonly validateField: typeof pointValidateField;
@@ -181,6 +183,7 @@ const Point: {
   readonly is: typeof pointIs;
 } = {
   decode: pointDecode,
+  fromString: pointFromString,
   decodeWithContext: pointDecodeWithContext,
   decodePartialWithContext: pointDecodePartialWithContext,
   validateField: pointValidateField,
@@ -195,8 +198,19 @@ interface Point {
 	x: number;
 	y: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Point;
 } | {
@@ -230,11 +244,11 @@ export {};
 
 ## Mapping
 
-original 22..72 -> expanded 439..489
-original 72..73 -> expanded 7196..7197
-generated 0..439 <- imports
-generated 489..6570 <- Decode
-generated 6570..7196 <- __convenience_const
+original 22..72 -> expanded 441..491
+original 72..73 -> expanded 7612..7613
+generated 0..441 <- imports
+generated 491..6908 <- Decode
+generated 6908..7612 <- __convenience_const
 
 ## Metadata
 

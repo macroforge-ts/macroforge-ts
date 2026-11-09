@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export enum Stage {
@@ -43,10 +43,14 @@ export function stageEncodeWithContext(value: Stage): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function stageDecode(input: unknown): Stage {
+    return stageDecodeWithContext(input);
+}
 
-    return stageDecodeWithContext(__mf_textOrValue(input, stageIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function stageFromString(text: string): Stage {
+    return stageDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -81,6 +85,7 @@ export namespace Stage {
   export const encode: typeof stageEncode = stageEncode;
   export const encodeWithContext: typeof stageEncodeWithContext = stageEncodeWithContext;
   export const decode: typeof stageDecode = stageDecode;
+  export const fromString: typeof stageFromString = stageFromString;
   export const decodeWithContext: typeof stageDecodeWithContext = stageDecodeWithContext;
   export const is: typeof stageIs = stageIs;
 }
@@ -125,14 +130,11 @@ function jobEncodeFields(value: Job, ctx: __mf_EncodeContext, result: Record<str
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = jobDecodeWithContext(data, ctx);
+        const resultOrRef = jobDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -177,6 +179,10 @@ export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function jobFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => jobDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef;
@@ -273,6 +279,7 @@ export const Job: {
   readonly encodeWithContext: typeof jobEncodeWithContext;
   readonly encodePartialWithContext: typeof jobEncodePartialWithContext;
   readonly decode: typeof jobDecode;
+  readonly fromString: typeof jobFromString;
   readonly decodeWithContext: typeof jobDecodeWithContext;
   readonly decodePartialWithContext: typeof jobDecodePartialWithContext;
   readonly validateField: typeof jobValidateField;
@@ -284,6 +291,7 @@ export const Job: {
   encodeWithContext: jobEncodeWithContext,
   encodePartialWithContext: jobEncodePartialWithContext,
   decode: jobDecode,
+  fromString: jobFromString,
   decodeWithContext: jobDecodeWithContext,
   decodePartialWithContext: jobDecodePartialWithContext,
   validateField: jobValidateField,
@@ -303,8 +311,10 @@ export declare enum Stage {
 export declare function stageEncode(value: Stage): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function stageDecode(input: unknown): Stage;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function stageFromString(text: string): Stage;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
 export declare function stageIs(value: unknown): value is Stage;
@@ -312,6 +322,7 @@ export declare namespace Stage {
 	const encode: typeof stageEncode;
 	const encodeWithContext: typeof stageEncodeWithContext;
 	const decode: typeof stageDecode;
+	const fromString: typeof stageFromString;
 	const decodeWithContext: typeof stageDecodeWithContext;
 	const is: typeof stageIs;
 }
@@ -324,8 +335,19 @@ export declare function jobEncode(value: Job, keepMetadata?: boolean): string;
 export declare function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function jobEncodePartialWithContext(value: Partial<Job>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Job>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function jobDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Job;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function jobFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Job;
 } | {
@@ -356,6 +378,7 @@ export declare const Job: {
 	readonly encodeWithContext: typeof jobEncodeWithContext;
 	readonly encodePartialWithContext: typeof jobEncodePartialWithContext;
 	readonly decode: typeof jobDecode;
+	readonly fromString: typeof jobFromString;
 	readonly decodeWithContext: typeof jobDecodeWithContext;
 	readonly decodePartialWithContext: typeof jobDecodePartialWithContext;
 	readonly validateField: typeof jobValidateField;
@@ -371,16 +394,16 @@ export declare const Job: {
 ## Mapping
 
 original 30..106 -> expanded 718..794
-original 106..108 -> expanded 2690..2692
-original 138..181 -> expanded 2692..2735
-original 181..182 -> expanded 11512..11513
+original 106..108 -> expanded 3073..3075
+original 138..181 -> expanded 3075..3118
+original 181..182 -> expanded 12299..12300
 generated 0..718 <- imports
 generated 794..1198 <- Encode
-generated 1198..2323 <- Decode
-generated 2323..2690 <- __convenience_const
-generated 2735..4821 <- Encode
-generated 4821..10619 <- Decode
-generated 10619..11512 <- __convenience_const
+generated 1198..2637 <- Decode
+generated 2637..3073 <- __convenience_const
+generated 3118..5204 <- Encode
+generated 5204..11332 <- Decode
+generated 11332..12299 <- __convenience_const
 
 ## Metadata
 

@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 enum Status {
@@ -60,10 +60,14 @@ export function statusEncodeWithContext(value: Status): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function statusDecode(input: unknown): Status {
+    return statusDecodeWithContext(input);
+}
 
-    return statusDecodeWithContext(__mf_textOrValue(input, statusIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function statusFromString(text: string): Status {
+    return statusDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -96,6 +100,7 @@ namespace Status {
   export const encode: typeof statusEncode = statusEncode;
   export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
   export const decode: typeof statusDecode = statusDecode;
+  export const fromString: typeof statusFromString = statusFromString;
   export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
   export const is: typeof statusIs = statusIs;
 }
@@ -114,8 +119,10 @@ export declare function statusHashCode(value: Status): number;
 export declare function statusEncode(value: Status): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function statusDecode(input: unknown): Status;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function statusFromString(text: string): Status;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
 export declare function statusIs(value: unknown): value is Status;
@@ -127,6 +134,7 @@ declare namespace Status {
 	const encode: typeof statusEncode;
 	const encodeWithContext: typeof statusEncodeWithContext;
 	const decode: typeof statusDecode;
+	const fromString: typeof statusFromString;
 	const decodeWithContext: typeof statusDecodeWithContext;
 	const is: typeof statusIs;
 }
@@ -138,16 +146,16 @@ export {};
 
 ## Mapping
 
-original 61..126 -> expanded 260..325
-original 126..127 -> expanded 2951..2952
-generated 0..260 <- imports
-generated 325..616 <- Debug
-generated 616..690 <- Clone
-generated 690..775 <- PartialEq
-generated 775..930 <- Hash
-generated 930..1340 <- Encode
-generated 1340..2335 <- Decode
-generated 2335..2951 <- __convenience_const
+original 61..126 -> expanded 258..323
+original 126..127 -> expanded 3336..3337
+generated 0..258 <- imports
+generated 323..614 <- Debug
+generated 614..688 <- Clone
+generated 688..773 <- PartialEq
+generated 773..928 <- Hash
+generated 928..1338 <- Encode
+generated 1338..2649 <- Decode
+generated 2649..3336 <- __convenience_const
 
 ## Metadata
 

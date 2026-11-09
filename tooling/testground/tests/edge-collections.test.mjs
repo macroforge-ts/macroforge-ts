@@ -58,7 +58,7 @@ Deno.test('collections nested in collections encode to plain JSON', () => {
 });
 
 Deno.test('collections nested in collections decode to the collections their types name', () => {
-    const value = decoded(mod.collectionNestedDecode(mod.collectionNestedEncode(nested())));
+    const value = decoded(mod.collectionNestedFromString(mod.collectionNestedEncode(nested())));
     assertEquals(value, nested());
     assert(value.dateGrid[0][0] instanceof Date);
     assert(value.datesByName.get('d')[1] instanceof Date);
@@ -160,7 +160,7 @@ const unions = () => ({
 });
 
 Deno.test('collections of unions round-trip', () => {
-    const value = decoded(mod.collectionUnionsDecode(mod.collectionUnionsEncode(unions())));
+    const value = decoded(mod.collectionUnionsFromString(mod.collectionUnionsEncode(unions())));
     assertEquals(value, unions());
 });
 
@@ -234,7 +234,7 @@ Deno.test('a tuple is held to its length when it has no element or none that is 
     const shortened = { ...lengths(), laterRest: ['head'] };
     assertEquals(JSON.parse(mod.collectionLengthsEncode(shortened)).laterRest, ['head']);
     assertEquals(
-        decoded(mod.collectionLengthsDecode(mod.collectionLengthsEncode(shortened))),
+        decoded(mod.collectionLengthsFromString(mod.collectionLengthsEncode(shortened))),
         shortened
     );
     const skipped = { ...lengths(), laterRest: ['head', undefined, at(NEW_YEAR)] };
@@ -244,7 +244,7 @@ Deno.test('a tuple is held to its length when it has no element or none that is 
         NEW_YEAR
     ]);
     assertEquals(
-        decoded(mod.collectionLengthsDecode(mod.collectionLengthsEncode(skipped))),
+        decoded(mod.collectionLengthsFromString(mod.collectionLengthsEncode(skipped))),
         skipped
     );
 

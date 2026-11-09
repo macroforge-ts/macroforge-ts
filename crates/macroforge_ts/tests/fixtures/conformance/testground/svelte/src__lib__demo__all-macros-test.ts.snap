@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte testground.
@@ -144,14 +144,11 @@ function svelteAllMacrosTestEncodeFields(value: SvelteAllMacrosTest, _ctx: __mf_
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = svelteAllMacrosTestDecodeWithContext(data, ctx);
+        const resultOrRef = svelteAllMacrosTestDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -196,6 +193,10 @@ export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOpti
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function svelteAllMacrosTestFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => svelteAllMacrosTestDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SvelteAllMacrosTest | __mf_PendingRef;
@@ -392,8 +393,19 @@ export declare function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, ke
 export declare function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SvelteAllMacrosTest;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function svelteAllMacrosTestFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: SvelteAllMacrosTest;
 } | {
@@ -431,18 +443,18 @@ export declare const svelteTestInstance: unknown;
 
 ## Mapping
 
-original 0..60 -> expanded 869..929
-original 121..165 -> expanded 929..973
-original 200..261 -> expanded 973..1034
-original 290..353 -> expanded 1034..1097
-original 353..886 -> expanded 15980..16513
-generated 0..869 <- imports
-generated 1097..1590 <- Debug
-generated 1590..1883 <- Clone
-generated 1883..2403 <- PartialEq
-generated 2403..5976 <- Encode
-generated 5976..15086 <- Decode
-generated 15086..15980 <- Hash
+original 0..60 -> expanded 871..931
+original 121..165 -> expanded 931..975
+original 200..261 -> expanded 975..1036
+original 290..353 -> expanded 1036..1099
+original 353..886 -> expanded 16360..16893
+generated 0..871 <- imports
+generated 1099..1592 <- Debug
+generated 1592..1885 <- Clone
+generated 1885..2405 <- PartialEq
+generated 2405..5978 <- Encode
+generated 5978..15466 <- Decode
+generated 15466..16360 <- Hash
 
 ## Metadata
 

@@ -274,7 +274,7 @@ Deno.test('a class takes no member from its input but its fields', () => {
 
 Deno.test('unknown keys are denied when asked, the keys of the encoding excepted', () => {
     assert(mod.hostileStrictDecode({ name: 'n' }).success);
-    assert(mod.hostileStrictDecode(mod.hostileStrictEncode({ name: 'n' }, true)).success);
+    assert(mod.hostileStrictFromString(mod.hostileStrictEncode({ name: 'n' }, true)).success);
     assert(!mod.hostileStrictDecode({ name: 'n', extra: 1 }).success);
     assert(!mod.hostileStrictDecode(JSON.parse('{"name": "n", "__proto__": 1}')).success);
     assert(!mod.hostileStrictDecode(JSON.parse('{"name": "n", "constructor": 1}')).success);

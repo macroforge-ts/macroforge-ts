@@ -8,8 +8,8 @@ use super::members::Union;
 use crate::builtin::derive::common::function_prefix;
 use crate::builtin::return_types::decode_return_type;
 
-/// `decode`, `decodeWithContext`, `hasShape` and `is` for a union of
-/// literals: no JSON parsing, no context and no references.
+/// `decode`, `fromString`, `decodeWithContext`, `hasShape` and `is` for a
+/// union of literals: no context and no references.
 pub(super) fn literal_union(u: &Union) -> TsStream {
     let Union {
         literals,
@@ -32,23 +32,17 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
     let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
     let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(type_name));
     let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
-    let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
-        "textOrValue"
-    ))
-    .into();
     let return_type = decode_return_type(full_type_name);
     let return_type_ident = ts_ident!(return_type.as_str());
 
     let mut result = ts_template! {
-        /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error */
+        /** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error */
         export function @{fn_decode_ident}(input: unknown): @{return_type_ident} {
-            // A string may be a member itself or the JSON text of one.
-            const data = @{text_or_value}(input, @{&fn_has_shape_expr});
-            switch (data) {
+            switch (input) {
                 {#for lit in literals}
                 case @{lit}:
                 {/for}
-                    return { success: true, value: data as @{full_type_ident} };
+                    return { success: true, value: input as @{full_type_ident} };
                 default:
                     return { success: false, errors: [{ field: "_root", message: "Invalid value for @{type_name}: expected one of " + [@{literals.join(", ")}].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
             }
@@ -88,5 +82,16 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     result.add_aliased_import("PendingRef", crate::package::ENDEC);
-    result
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode", function_prefix(type_name));
+    result.merge(super::super::super::from_string::from_string_function(
+        &super::super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: "",
+            passed_coders: "",
+            return_type: &return_type,
+            takes_options: false,
+        },
+    ))
 }

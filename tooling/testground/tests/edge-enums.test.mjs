@@ -74,11 +74,12 @@ Deno.test('a counted enum codes and orders by its numbers', () => {
     assert(mod.enumCountedToString(EnumCounted.Second).includes('Second'));
     assertThrows(() => mod.enumCountedDecode(3));
     assertThrows(() => mod.enumCountedDecode('First'));
-    // The text `encode` writes for a member reads back as it; held in a
-    // value, the same text is no member.
-    assertStrictEquals(mod.enumCountedDecode('1'), EnumCounted.Second);
+    // The text `encode` writes for a member reads back as it through
+    // `fromString`; held in a value, the same text is no member.
+    assertStrictEquals(mod.enumCountedFromString('1'), EnumCounted.Second);
+    assertThrows(() => mod.enumCountedDecode('1'));
     assertStrictEquals(
-        mod.enumCountedDecode(mod.enumCountedEncode(EnumCounted.Third)),
+        mod.enumCountedFromString(mod.enumCountedEncode(EnumCounted.Third)),
         EnumCounted.Third
     );
     assertThrows(() => mod.enumCountedDecodeWithContext('1'));
@@ -109,9 +110,10 @@ Deno.test('an enum of numbers and strings codes each as it is and orders them al
     assertStrictEquals(mod.enumMixedDecode('text'), EnumMixed.Text);
     assertStrictEquals(mod.enumMixedDecode(5), EnumMixed.Five);
     for (const value of values) {
-        assertStrictEquals(mod.enumMixedDecode(mod.enumMixedEncode(value)), value);
+        assertStrictEquals(mod.enumMixedFromString(mod.enumMixedEncode(value)), value);
     }
-    assertStrictEquals(mod.enumMixedDecode('5'), EnumMixed.Five);
+    assertStrictEquals(mod.enumMixedFromString('5'), EnumMixed.Five);
+    assertThrows(() => mod.enumMixedDecode('5'));
     assertThrows(() => mod.enumMixedDecodeWithContext('5'));
     assertThrows(() => mod.enumMixedDecode('6'));
     assertStrictEquals(mod.enumMixedDefaultValue(), EnumMixed.Zero);
@@ -173,7 +175,8 @@ Deno.test('a const enum is derived through its functions alone', () => {
     assertAscending('enumConstant', ['high', 'low']);
     assertStrictEquals(mod.enumConstantToString('low'), 'EnumConstant.Low');
     assertStrictEquals(mod.enumConstantDefaultValue(), 'low');
-    assertStrictEquals(mod.enumConstantDecode('"high"'), 'high');
+    assertStrictEquals(mod.enumConstantFromString('"high"'), 'high');
+    assertThrows(() => mod.enumConstantDecode('"high"'));
     assertThrows(() => mod.enumConstantDecode('Low'));
     assert(!mod.enumConstantIs('Low'));
 });
@@ -218,7 +221,7 @@ Deno.test('enums round-trip in fields, collections, map keys and tuples', () => 
 
     const { optional: _optional, ...rest } = holder();
     const sparse = decoded(
-        mod.enumHolderDecode(mod.enumHolderEncode({ ...rest, maybe: null, later: undefined }))
+        mod.enumHolderFromString(mod.enumHolderEncode({ ...rest, maybe: null, later: undefined }))
     );
     assertStrictEquals(sparse.maybe, null);
     assertStrictEquals(sparse.later, undefined);

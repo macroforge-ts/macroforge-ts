@@ -15,7 +15,7 @@ true
 import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -107,14 +107,11 @@ function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeC
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
+        const resultOrRef = overviewSettingsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -159,6 +156,10 @@ export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function overviewSettingsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => overviewSettingsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OverviewSettings | __mf_PendingRef;
@@ -585,6 +586,7 @@ export const OverviewSettings: {
   readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
   readonly encodePartialWithContext: typeof overviewSettingsEncodePartialWithContext;
   readonly decode: typeof overviewSettingsDecode;
+  readonly fromString: typeof overviewSettingsFromString;
   readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
   readonly decodePartialWithContext: typeof overviewSettingsDecodePartialWithContext;
   readonly validateField: typeof overviewSettingsValidateField;
@@ -599,6 +601,7 @@ export const OverviewSettings: {
   encodeWithContext: overviewSettingsEncodeWithContext,
   encodePartialWithContext: overviewSettingsEncodePartialWithContext,
   decode: overviewSettingsDecode,
+  fromString: overviewSettingsFromString,
   decodeWithContext: overviewSettingsDecodeWithContext,
   decodePartialWithContext: overviewSettingsDecodePartialWithContext,
   validateField: overviewSettingsValidateField,
@@ -628,8 +631,19 @@ export declare function overviewSettingsEncode(value: OverviewSettings, keepMeta
 export declare function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OverviewSettings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function overviewSettingsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: OverviewSettings;
 } | {
@@ -702,6 +716,7 @@ export declare const OverviewSettings: {
 	readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
 	readonly encodePartialWithContext: typeof overviewSettingsEncodePartialWithContext;
 	readonly decode: typeof overviewSettingsDecode;
+	readonly fromString: typeof overviewSettingsFromString;
 	readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
 	readonly decodePartialWithContext: typeof overviewSettingsDecodePartialWithContext;
 	readonly validateField: typeof overviewSettingsValidateField;
@@ -718,17 +733,17 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 1208..1447
-original 288..329 -> expanded 1447..1488
-original 354..385 -> expanded 1488..1519
-original 409..504 -> expanded 1519..1614
-original 504..505 -> expanded 26971..26972
-generated 0..1208 <- imports
-generated 1614..1808 <- Default
-generated 1808..5077 <- Encode
-generated 5077..15131 <- Decode
-generated 15131..25489 <- Gigaform
-generated 25489..26971 <- __convenience_const
+original 0..239 -> expanded 1210..1449
+original 288..329 -> expanded 1449..1490
+original 354..385 -> expanded 1490..1521
+original 409..504 -> expanded 1521..1616
+original 504..505 -> expanded 27442..27443
+generated 0..1210 <- imports
+generated 1616..1810 <- Default
+generated 1810..5079 <- Encode
+generated 5079..15502 <- Decode
+generated 15502..25860 <- Gigaform
+generated 25860..27442 <- __convenience_const
 
 ## Metadata
 

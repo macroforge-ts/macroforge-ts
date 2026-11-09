@@ -16,21 +16,18 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
  export interface User {
     name: string;
     age: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userDecodeWithContext(data, ctx);
+        const resultOrRef = userDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -75,6 +72,10 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
@@ -171,6 +172,7 @@ export function userIs(obj: unknown): obj is User {
 
 export const User: {
   readonly decode: typeof userDecode;
+  readonly fromString: typeof userFromString;
   readonly decodeWithContext: typeof userDecodeWithContext;
   readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
@@ -179,6 +181,7 @@ export const User: {
   readonly is: typeof userIs;
 } = {
   decode: userDecode,
+  fromString: userFromString,
   decodeWithContext: userDecodeWithContext,
   decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
@@ -193,8 +196,19 @@ export interface User {
 	name: string;
 	age: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: User;
 } | {
@@ -222,6 +236,7 @@ export declare function userHasShape(obj: unknown): boolean;
 export declare function userIs(obj: unknown): obj is User;
 export declare const User: {
 	readonly decode: typeof userDecode;
+	readonly fromString: typeof userFromString;
 	readonly decodeWithContext: typeof userDecodeWithContext;
 	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
@@ -236,11 +251,11 @@ export declare const User: {
 
 ## Mapping
 
-original 22..83 -> expanded 439..500
-original 83..84 -> expanded 7208..7209
-generated 0..439 <- imports
-generated 500..6590 <- Decode
-generated 6590..7208 <- __convenience_const
+original 22..83 -> expanded 441..502
+original 83..84 -> expanded 7619..7620
+generated 0..441 <- imports
+generated 502..6925 <- Decode
+generated 6925..7619 <- __convenience_const
 
 ## Metadata
 

@@ -40,7 +40,9 @@ Deno.test('a default holds text its template literal type takes', () => {
         choice: 'a'
     });
     assertEquals(
-        decoded(mod.exoticScalarsDecode(mod.exoticScalarsEncode(mod.exoticScalarsDefaultValue()))),
+        decoded(
+            mod.exoticScalarsFromString(mod.exoticScalarsEncode(mod.exoticScalarsDefaultValue()))
+        ),
         mod.exoticScalarsDefaultValue()
     );
 });
@@ -85,7 +87,7 @@ Deno.test('a union of literals of several kinds is compared and hashed by its va
 
 Deno.test('an alias of a template literal type is checked like a field of it', () => {
     assertStrictEquals(mod.exoticCodeEncode('code-12'), '"code-12"');
-    assertStrictEquals(decoded(mod.exoticCodeDecode('"code-12"')), 'code-12');
+    assertStrictEquals(decoded(mod.exoticCodeFromString('"code-12"')), 'code-12');
     assertStrictEquals(decoded(mod.exoticCodeDecode('code-12')), 'code-12');
     assert(mod.exoticCodeIs('code--3'));
     for (
@@ -103,14 +105,14 @@ Deno.test('types with nothing in them are derived all the same', () => {
     assertStrictEquals(mod.exoticNoneEquals([], []), true);
     assertStrictEquals(typeof mod.exoticNoneHashCode([]), 'number');
     assertStrictEquals(mod.exoticNoneEncode([]), '[]');
-    assertEquals(decoded(mod.exoticNoneDecode('[]')), []);
+    assertEquals(decoded(mod.exoticNoneFromString('[]')), []);
     assert(!mod.exoticNoneDecode([1]).success);
     assert(!mod.exoticNoneDecode({}).success);
 
     assertStrictEquals(mod.exoticEmptyToString({}), 'ExoticEmpty {}');
     assertStrictEquals(mod.exoticEmptyEquals({}, {}), true);
     assertEquals(mod.exoticEmptyDefaultValue(), {});
-    assertEquals(decoded(mod.exoticEmptyDecode(mod.exoticEmptyEncode({}))), {});
+    assertEquals(decoded(mod.exoticEmptyFromString(mod.exoticEmptyEncode({}))), {});
     assert(!mod.exoticEmptyDecode(5).success);
 
     const blank = mod.ExoticBlank.defaultValue();
@@ -118,7 +120,8 @@ Deno.test('types with nothing in them are derived all the same', () => {
     assertStrictEquals(mod.ExoticBlank.toString(blank), 'ExoticBlank {}');
     assert(mod.ExoticBlank.equals(blank, mod.ExoticBlank.clone(blank)));
     assert(
-        decoded(mod.ExoticBlank.decode(mod.ExoticBlank.encode(blank))) instanceof mod.ExoticBlank
+        decoded(mod.ExoticBlank.fromString(mod.ExoticBlank.encode(blank))) instanceof
+            mod.ExoticBlank
     );
 });
 
@@ -139,7 +142,10 @@ Deno.test('the methods an interface declares are members a clone keeps', () => {
 Deno.test('a union alias tells its template literal members by their text', () => {
     for (const value of ['a-1', 'b-anything', 'b-', 'plain', 5]) {
         assertStrictEquals(decoded(mod.exoticLabelsDecode(value)), value);
-        assertStrictEquals(decoded(mod.exoticLabelsDecode(mod.exoticLabelsEncode(value))), value);
+        assertStrictEquals(
+            decoded(mod.exoticLabelsFromString(mod.exoticLabelsEncode(value))),
+            value
+        );
         assert(mod.exoticLabelsIs(value));
         assert(mod.exoticLabelsEquals(value, mod.exoticLabelsClone(value)));
         assertStrictEquals(typeof mod.exoticLabelsHashCode(value), 'number');
@@ -195,7 +201,7 @@ Deno.test('a record is checked by the keys its key type takes', () => {
         patterned: { 'k-1': true },
         open: { anything: 1 }
     };
-    assertEquals(decoded(mod.exoticKeyedDecode(mod.exoticKeyedEncode(keyed))), keyed);
+    assertEquals(decoded(mod.exoticKeyedFromString(mod.exoticKeyedEncode(keyed))), keyed);
 
     const fieldsOf = (change) => errorFields(mod.exoticKeyedDecode({ ...keyed, ...change }));
     assertEquals(fieldsOf({ finite: { a: 1 } }), ['finite.b']);

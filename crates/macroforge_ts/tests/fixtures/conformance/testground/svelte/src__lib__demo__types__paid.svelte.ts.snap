@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -89,14 +89,11 @@ function paidEncodeFields(value: Paid, _ctx: __mf_EncodeContext, result: Record<
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function paidDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Paid } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = paidDecodeWithContext(data, ctx);
+        const resultOrRef = paidDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -141,6 +138,10 @@ export function paidDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function paidFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Paid } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => paidDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Paid | __mf_PendingRef;
@@ -410,6 +411,7 @@ export const Paid: {
   readonly encodeWithContext: typeof paidEncodeWithContext;
   readonly encodePartialWithContext: typeof paidEncodePartialWithContext;
   readonly decode: typeof paidDecode;
+  readonly fromString: typeof paidFromString;
   readonly decodeWithContext: typeof paidDecodeWithContext;
   readonly decodePartialWithContext: typeof paidDecodePartialWithContext;
   readonly validateField: typeof paidValidateField;
@@ -424,6 +426,7 @@ export const Paid: {
   encodeWithContext: paidEncodeWithContext,
   encodePartialWithContext: paidEncodePartialWithContext,
   decode: paidDecode,
+  fromString: paidFromString,
   decodeWithContext: paidDecodeWithContext,
   decodePartialWithContext: paidDecodePartialWithContext,
   validateField: paidValidateField,
@@ -449,8 +452,19 @@ export declare function paidEncode(value: Paid, keepMetadata?: boolean): string;
 export declare function paidEncodeWithContext(value: Paid, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function paidEncodePartialWithContext(value: Partial<Paid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Paid>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function paidDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Paid;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function paidFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Paid;
 } | {
@@ -520,6 +534,7 @@ export declare const Paid: {
 	readonly encodeWithContext: typeof paidEncodeWithContext;
 	readonly encodePartialWithContext: typeof paidEncodePartialWithContext;
 	readonly decode: typeof paidDecode;
+	readonly fromString: typeof paidFromString;
 	readonly decodeWithContext: typeof paidDecodeWithContext;
 	readonly decodePartialWithContext: typeof paidDecodePartialWithContext;
 	readonly validateField: typeof paidValidateField;
@@ -536,15 +551,15 @@ export declare const Paid: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..223 -> expanded 902..1018
-original 223..224 -> expanded 17687..17688
-generated 0..844 <- imports
-generated 1018..1159 <- Default
-generated 1159..3863 <- Encode
-generated 3863..10763 <- Decode
-generated 10763..16529 <- Gigaform
-generated 16529..17687 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..223 -> expanded 904..1020
+original 223..224 -> expanded 18098..18099
+generated 0..846 <- imports
+generated 1020..1161 <- Default
+generated 1161..3865 <- Encode
+generated 3865..11098 <- Decode
+generated 11098..16864 <- Gigaform
+generated 16864..18098 <- __convenience_const
 
 ## Metadata
 

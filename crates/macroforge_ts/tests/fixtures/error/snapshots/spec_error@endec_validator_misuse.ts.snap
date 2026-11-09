@@ -50,7 +50,7 @@ true
 
 ## Output
 
-import { decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Misused {
@@ -90,14 +90,11 @@ export interface Address {
     street: string;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = addressDecodeWithContext(data, ctx);
+        const resultOrRef = addressDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -142,6 +139,10 @@ export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function addressFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => addressDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
@@ -221,6 +222,7 @@ export function addressIs(obj: unknown): obj is Address {
 
 export const Address: {
   readonly decode: typeof addressDecode;
+  readonly fromString: typeof addressFromString;
   readonly decodeWithContext: typeof addressDecodeWithContext;
   readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
   readonly validateField: typeof addressValidateField;
@@ -229,6 +231,7 @@ export const Address: {
   readonly is: typeof addressIs;
 } = {
   decode: addressDecode,
+  fromString: addressFromString,
   decodeWithContext: addressDecodeWithContext,
   decodePartialWithContext: addressDecodePartialWithContext,
   validateField: addressValidateField,
@@ -258,8 +261,19 @@ export type Meters = number;
 export interface Address {
 	street: string;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function addressDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Address;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function addressFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Address;
 } | {
@@ -287,6 +301,7 @@ export declare function addressHasShape(obj: unknown): boolean;
 export declare function addressIs(obj: unknown): obj is Address;
 export declare const Address: {
 	readonly decode: typeof addressDecode;
+	readonly fromString: typeof addressFromString;
 	readonly decodeWithContext: typeof addressDecodeWithContext;
 	readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
 	readonly validateField: typeof addressValidateField;
@@ -310,26 +325,26 @@ Error [754..775]: @derive(Decode): type 'Meters': validator `Email` checks text,
 
 ## Mapping
 
-original 22..54 -> expanded 577..609
-original 74..98 -> expanded 609..633
-original 121..144 -> expanded 633..656
-original 167..194 -> expanded 656..683
-original 214..235 -> expanded 683..704
-original 258..282 -> expanded 704..728
-original 309..350 -> expanded 728..769
-original 370..396 -> expanded 769..795
-original 425..451 -> expanded 795..821
-original 478..509 -> expanded 821..852
-original 532..557 -> expanded 852..877
-original 580..610 -> expanded 877..907
-original 633..658 -> expanded 907..932
-original 678..702 -> expanded 932..956
-original 745..776 -> expanded 956..987
-original 798..847 -> expanded 987..1036
-original 847..848 -> expanded 7169..7170
-generated 0..577 <- imports
-generated 1036..6506 <- Decode
-generated 6506..7169 <- __convenience_const
+original 22..54 -> expanded 579..611
+original 74..98 -> expanded 611..635
+original 121..144 -> expanded 635..658
+original 167..194 -> expanded 658..685
+original 214..235 -> expanded 685..706
+original 258..282 -> expanded 706..730
+original 309..350 -> expanded 730..771
+original 370..396 -> expanded 771..797
+original 425..451 -> expanded 797..823
+original 478..509 -> expanded 823..854
+original 532..557 -> expanded 854..879
+original 580..610 -> expanded 879..909
+original 633..658 -> expanded 909..934
+original 678..702 -> expanded 934..958
+original 745..776 -> expanded 958..989
+original 798..847 -> expanded 989..1038
+original 847..848 -> expanded 7595..7596
+generated 0..579 <- imports
+generated 1038..6850 <- Decode
+generated 6850..7595 <- __convenience_const
 
 ## Metadata
 

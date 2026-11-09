@@ -185,18 +185,20 @@ Deno.test('union members order consistently with their equality', () => {
 
 Deno.test('tuple and plain aliases round-trip through their element types', () => {
     const ledger = (entries) => new mod.Ledger({ entries: new Map(entries) });
-    const pair = mod.ledgerPairDecode(mod.ledgerPairEncode([ledger([['rent', 900]]), ledger([])]));
+    const pair = mod.ledgerPairFromString(
+        mod.ledgerPairEncode([ledger([['rent', 900]]), ledger([])])
+    );
     assert(pair.success, JSON.stringify(pair.errors));
     assert(pair.value[0] instanceof mod.Ledger);
     assertEquals(pair.value[0].entries.get('rent'), 900);
     assertEquals(pair.value.length, 2);
 
-    const main = mod.mainLedgerDecode(mod.mainLedgerEncode(ledger([['food', 200]])));
+    const main = mod.mainLedgerFromString(mod.mainLedgerEncode(ledger([['food', 200]])));
     assert(main.success, JSON.stringify(main.errors));
     assert(main.value instanceof mod.Ledger);
     assertEquals(main.value.entries.get('food'), 200);
 
-    const totals = mod.totalsDecode(mod.totalsEncode(new Map([['a', 1]])));
+    const totals = mod.totalsFromString(mod.totalsEncode(new Map([['a', 1]])));
     assert(totals.success, JSON.stringify(totals.errors));
     assert(totals.value instanceof Map);
     assertEquals(totals.value.get('a'), 1);
@@ -210,7 +212,7 @@ Deno.test('constrained generic types derive with their constraints', () => {
     const labeled = { label: 'gold', weight: 2 };
     assert(mod.Labeled.equals(labeled, { ...labeled }));
     assertEquals(mod.Labeled.clone(labeled), labeled);
-    const decoded = mod.labeledDecode(mod.labeledEncode(labeled));
+    const decoded = mod.labeledFromString(mod.labeledEncode(labeled));
     assert(decoded.success, JSON.stringify(decoded.errors));
     assertEquals(decoded.value, labeled);
     assertEquals(mod.crateDefaultValue().items, []);
@@ -220,7 +222,7 @@ Deno.test('a type with a required constrained parameter derives every trait', ()
     const keyed = { key: 'a', rank: 1 };
     assert(mod.Keyed.equals(keyed, { ...keyed }));
     assertStrictEquals(mod.Keyed.compare(keyed, { key: 'a', rank: 2 }), -1);
-    const decoded = mod.keyedDecode(mod.keyedEncode(keyed));
+    const decoded = mod.keyedFromString(mod.keyedEncode(keyed));
     assert(decoded.success, JSON.stringify(decoded.errors));
     assertEquals(decoded.value, keyed);
     const slot = new mod.Slot({ held: { id: 1 }, index: 2 });
@@ -229,13 +231,13 @@ Deno.test('a type with a required constrained parameter derives every trait', ()
 });
 
 Deno.test('constrained generic aliases encode and decode', () => {
-    const counted = mod.countedDecode(mod.countedEncode([{ id: 1 }, 2]));
+    const counted = mod.countedFromString(mod.countedEncode([{ id: 1 }, 2]));
     assert(counted.success, JSON.stringify(counted.errors));
     assertEquals(counted.value, [{ id: 1 }, 2]);
-    const code = mod.codeDecode(mod.codeEncode('a'));
+    const code = mod.codeFromString(mod.codeEncode('a'));
     assert(code.success, JSON.stringify(code.errors));
     assertStrictEquals(code.value, 'a');
-    const boxed = mod.boxedDecode(mod.boxedEncode([{ id: 1 }]));
+    const boxed = mod.boxedFromString(mod.boxedEncode([{ id: 1 }]));
     assert(boxed.success, JSON.stringify(boxed.errors));
     assertEquals(boxed.value, [{ id: 1 }]);
 });

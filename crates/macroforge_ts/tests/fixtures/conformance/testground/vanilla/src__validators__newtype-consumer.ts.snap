@@ -13,7 +13,7 @@ true
 ## Output
 
 import { metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
@@ -76,14 +76,11 @@ function tripEncodeFields(value: Trip, ctx: __mf_EncodeContext, result: Record<s
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Trip } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = tripDecodeWithContext(data, ctx);
+        const resultOrRef = tripDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -128,6 +125,10 @@ export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tripFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Trip } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => tripDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Trip | __mf_PendingRef;
@@ -256,6 +257,7 @@ export const Trip: {
   readonly encodeWithContext: typeof tripEncodeWithContext;
   readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
   readonly decode: typeof tripDecode;
+  readonly fromString: typeof tripFromString;
   readonly decodeWithContext: typeof tripDecodeWithContext;
   readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
   readonly validateField: typeof tripValidateField;
@@ -267,6 +269,7 @@ export const Trip: {
   encodeWithContext: tripEncodeWithContext,
   encodePartialWithContext: tripEncodePartialWithContext,
   decode: tripDecode,
+  fromString: tripFromString,
   decodeWithContext: tripDecodeWithContext,
   decodePartialWithContext: tripDecodePartialWithContext,
   validateField: tripValidateField,
@@ -303,8 +306,19 @@ export declare function tripEncode(value: Trip, keepMetadata?: boolean): string;
 export declare function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function tripDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Trip;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tripFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Trip;
 } | {
@@ -335,6 +349,7 @@ export declare const Trip: {
 	readonly encodeWithContext: typeof tripEncodeWithContext;
 	readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
 	readonly decode: typeof tripDecode;
+	readonly fromString: typeof tripFromString;
 	readonly decodeWithContext: typeof tripDecodeWithContext;
 	readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
 	readonly validateField: typeof tripValidateField;
@@ -351,12 +366,12 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 815..1139
-original 324..674 -> expanded 11953..12303
-generated 0..815 <- imports
-generated 1139..3640 <- Encode
-generated 3640..11039 <- Decode
-generated 11039..11953 <- __convenience_const
+original 0..324 -> expanded 817..1141
+original 324..674 -> expanded 12364..12714
+generated 0..817 <- imports
+generated 1141..3642 <- Encode
+generated 3642..11374 <- Decode
+generated 11374..12364 <- __convenience_const
 
 ## Metadata
 

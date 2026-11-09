@@ -38,7 +38,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Renamed {
@@ -108,14 +108,11 @@ function innerEncodeFields(value: Inner, _ctx: __mf_EncodeContext, result: Recor
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = innerDecodeWithContext(data, ctx);
+        const resultOrRef = innerDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -160,6 +157,10 @@ export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function innerFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => innerDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
@@ -259,6 +260,7 @@ const Inner: {
   readonly encodeWithContext: typeof innerEncodeWithContext;
   readonly encodePartialWithContext: typeof innerEncodePartialWithContext;
   readonly decode: typeof innerDecode;
+  readonly fromString: typeof innerFromString;
   readonly decodeWithContext: typeof innerDecodeWithContext;
   readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
   readonly validateField: typeof innerValidateField;
@@ -270,6 +272,7 @@ const Inner: {
   encodeWithContext: innerEncodeWithContext,
   encodePartialWithContext: innerEncodePartialWithContext,
   decode: innerDecode,
+  fromString: innerFromString,
   decodeWithContext: innerDecodeWithContext,
   decodePartialWithContext: innerDecodePartialWithContext,
   validateField: innerValidateField,
@@ -297,8 +300,19 @@ export declare function innerEncode(value: Inner, keepMetadata?: boolean): strin
 export declare function innerEncodeWithContext(value: Inner, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Inner>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function innerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Inner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function innerFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Inner;
 } | {
@@ -337,17 +351,17 @@ Error [451..464]: @derive(Decode): fields 'id' and 'inner' are both read from th
 
 ## Mapping
 
-original 30..55 -> expanded 685..710
-original 88..129 -> expanded 710..751
-original 159..269 -> expanded 751..861
-original 299..353 -> expanded 861..915
-original 353..355 -> expanded 10337..10339
-original 385..423 -> expanded 10339..10377
-original 445..466 -> expanded 10377..10398
-generated 0..685 <- imports
-generated 915..3342 <- Encode
-generated 3342..9409 <- Decode
-generated 9409..10337 <- __convenience_const
+original 30..55 -> expanded 687..712
+original 88..129 -> expanded 712..753
+original 159..269 -> expanded 753..863
+original 299..353 -> expanded 863..917
+original 353..355 -> expanded 10753..10755
+original 385..423 -> expanded 10755..10793
+original 445..466 -> expanded 10793..10814
+generated 0..687 <- imports
+generated 917..3344 <- Encode
+generated 3344..9747 <- Decode
+generated 9747..10753 <- __convenience_const
 
 ## Metadata
 

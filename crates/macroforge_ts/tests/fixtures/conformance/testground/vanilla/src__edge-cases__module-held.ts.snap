@@ -14,7 +14,7 @@ true
 
 import { kindedPointDecodeWithContext, kindedPointEncodeWithContext, kindedPointDefaultValue, kindedPointHashCode, kindedPointEquals, kindedPointClone, kindedPointToString } from "./module-kinds.mjs";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * A type holding one an ECMAScript module declares: its derives call the
@@ -119,14 +119,11 @@ function kindedHolderEncodeFields(value: KindedHolder, ctx: __mf_EncodeContext, 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function kindedHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KindedHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = kindedHolderDecodeWithContext(data, ctx);
+        const resultOrRef = kindedHolderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -171,6 +168,10 @@ export function kindedHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function kindedHolderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: KindedHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => kindedHolderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function kindedHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KindedHolder | __mf_PendingRef;
@@ -289,6 +290,7 @@ export const KindedHolder: {
   readonly encodeWithContext: typeof kindedHolderEncodeWithContext;
   readonly encodePartialWithContext: typeof kindedHolderEncodePartialWithContext;
   readonly decode: typeof kindedHolderDecode;
+  readonly fromString: typeof kindedHolderFromString;
   readonly decodeWithContext: typeof kindedHolderDecodeWithContext;
   readonly decodePartialWithContext: typeof kindedHolderDecodePartialWithContext;
   readonly validateField: typeof kindedHolderValidateField;
@@ -305,6 +307,7 @@ export const KindedHolder: {
   encodeWithContext: kindedHolderEncodeWithContext,
   encodePartialWithContext: kindedHolderEncodePartialWithContext,
   decode: kindedHolderDecode,
+  fromString: kindedHolderFromString,
   decodeWithContext: kindedHolderDecodeWithContext,
   decodePartialWithContext: kindedHolderDecodePartialWithContext,
   validateField: kindedHolderValidateField,
@@ -336,8 +339,19 @@ export declare function kindedHolderEncode(value: KindedHolder, keepMetadata?: b
 export declare function kindedHolderEncodeWithContext(value: KindedHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function kindedHolderEncodePartialWithContext(value: Partial<KindedHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KindedHolder>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function kindedHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KindedHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function kindedHolderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: KindedHolder;
 } | {
@@ -373,6 +387,7 @@ export declare const KindedHolder: {
 	readonly encodeWithContext: typeof kindedHolderEncodeWithContext;
 	readonly encodePartialWithContext: typeof kindedHolderEncodePartialWithContext;
 	readonly decode: typeof kindedHolderDecode;
+	readonly fromString: typeof kindedHolderFromString;
 	readonly decodeWithContext: typeof kindedHolderDecodeWithContext;
 	readonly decodePartialWithContext: typeof kindedHolderDecodePartialWithContext;
 	readonly validateField: typeof kindedHolderValidateField;
@@ -387,17 +402,17 @@ export declare const KindedHolder: {
 
 ## Mapping
 
-original 0..359 -> expanded 1070..1429
-original 359..360 -> expanded 13798..13799
-generated 0..1070 <- imports
-generated 1429..1761 <- Debug
-generated 1761..1956 <- Clone
-generated 1956..2265 <- PartialEq
-generated 2265..2617 <- Hash
-generated 2617..2760 <- Default
-generated 2760..5342 <- Encode
-generated 5342..12300 <- Decode
-generated 12300..13798 <- __convenience_const
+original 0..359 -> expanded 1072..1431
+original 359..360 -> expanded 14249..14250
+generated 0..1072 <- imports
+generated 1431..1763 <- Debug
+generated 1763..1958 <- Clone
+generated 1958..2267 <- PartialEq
+generated 2267..2619 <- Hash
+generated 2619..2762 <- Default
+generated 2762..5344 <- Encode
+generated 5344..12659 <- Decode
+generated 12659..14249 <- __convenience_const
 
 ## Metadata
 

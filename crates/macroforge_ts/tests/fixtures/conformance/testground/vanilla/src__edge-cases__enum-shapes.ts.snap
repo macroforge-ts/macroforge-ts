@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -86,10 +86,14 @@ export function enumCountedEncodeWithContext(value: EnumCounted): string | numbe
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumCountedDecode(input: unknown): EnumCounted {
+    return enumCountedDecodeWithContext(input);
+}
 
-    return enumCountedDecodeWithContext(__mf_textOrValue(input, enumCountedIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumCountedFromString(text: string): EnumCounted {
+    return enumCountedDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -131,6 +135,7 @@ export namespace EnumCounted {
   export const encode: typeof enumCountedEncode = enumCountedEncode;
   export const encodeWithContext: typeof enumCountedEncodeWithContext = enumCountedEncodeWithContext;
   export const decode: typeof enumCountedDecode = enumCountedDecode;
+  export const fromString: typeof enumCountedFromString = enumCountedFromString;
   export const decodeWithContext: typeof enumCountedDecodeWithContext = enumCountedDecodeWithContext;
   export const is: typeof enumCountedIs = enumCountedIs;
 }
@@ -203,10 +208,14 @@ export function enumSignedEncodeWithContext(value: EnumSigned): string | number 
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumSignedDecode(input: unknown): EnumSigned {
+    return enumSignedDecodeWithContext(input);
+}
 
-    return enumSignedDecodeWithContext(__mf_textOrValue(input, enumSignedIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumSignedFromString(text: string): EnumSigned {
+    return enumSignedDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -254,6 +263,7 @@ export namespace EnumSigned {
   export const encode: typeof enumSignedEncode = enumSignedEncode;
   export const encodeWithContext: typeof enumSignedEncodeWithContext = enumSignedEncodeWithContext;
   export const decode: typeof enumSignedDecode = enumSignedDecode;
+  export const fromString: typeof enumSignedFromString = enumSignedFromString;
   export const decodeWithContext: typeof enumSignedDecodeWithContext = enumSignedDecodeWithContext;
   export const is: typeof enumSignedIs = enumSignedIs;
 }
@@ -326,10 +336,14 @@ export function enumFlagsEncodeWithContext(value: EnumFlags): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumFlagsDecode(input: unknown): EnumFlags {
+    return enumFlagsDecodeWithContext(input);
+}
 
-    return enumFlagsDecodeWithContext(__mf_textOrValue(input, enumFlagsIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumFlagsFromString(text: string): EnumFlags {
+    return enumFlagsDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -377,6 +391,7 @@ export namespace EnumFlags {
   export const encode: typeof enumFlagsEncode = enumFlagsEncode;
   export const encodeWithContext: typeof enumFlagsEncodeWithContext = enumFlagsEncodeWithContext;
   export const decode: typeof enumFlagsDecode = enumFlagsDecode;
+  export const fromString: typeof enumFlagsFromString = enumFlagsFromString;
   export const decodeWithContext: typeof enumFlagsDecodeWithContext = enumFlagsDecodeWithContext;
   export const is: typeof enumFlagsIs = enumFlagsIs;
 }
@@ -457,10 +472,14 @@ export function enumMixedEncodeWithContext(value: EnumMixed): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumMixedDecode(input: unknown): EnumMixed {
+    return enumMixedDecodeWithContext(input);
+}
 
-    return enumMixedDecodeWithContext(__mf_textOrValue(input, enumMixedIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumMixedFromString(text: string): EnumMixed {
+    return enumMixedDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -508,6 +527,7 @@ export namespace EnumMixed {
   export const encode: typeof enumMixedEncode = enumMixedEncode;
   export const encodeWithContext: typeof enumMixedEncodeWithContext = enumMixedEncodeWithContext;
   export const decode: typeof enumMixedDecode = enumMixedDecode;
+  export const fromString: typeof enumMixedFromString = enumMixedFromString;
   export const decodeWithContext: typeof enumMixedDecodeWithContext = enumMixedDecodeWithContext;
   export const is: typeof enumMixedIs = enumMixedIs;
 }
@@ -576,10 +596,14 @@ export function enumRepeatedEncodeWithContext(value: EnumRepeated): string | num
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumRepeatedDecode(input: unknown): EnumRepeated {
+    return enumRepeatedDecodeWithContext(input);
+}
 
-    return enumRepeatedDecodeWithContext(__mf_textOrValue(input, enumRepeatedIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumRepeatedFromString(text: string): EnumRepeated {
+    return enumRepeatedDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -621,6 +645,7 @@ export namespace EnumRepeated {
   export const encode: typeof enumRepeatedEncode = enumRepeatedEncode;
   export const encodeWithContext: typeof enumRepeatedEncodeWithContext = enumRepeatedEncodeWithContext;
   export const decode: typeof enumRepeatedDecode = enumRepeatedDecode;
+  export const fromString: typeof enumRepeatedFromString = enumRepeatedFromString;
   export const decodeWithContext: typeof enumRepeatedDecodeWithContext = enumRepeatedDecodeWithContext;
   export const is: typeof enumRepeatedIs = enumRepeatedIs;
 }
@@ -681,10 +706,14 @@ export function enumLoneEncodeWithContext(value: EnumLone): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumLoneDecode(input: unknown): EnumLone {
+    return enumLoneDecodeWithContext(input);
+}
 
-    return enumLoneDecodeWithContext(__mf_textOrValue(input, enumLoneIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumLoneFromString(text: string): EnumLone {
+    return enumLoneDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -714,6 +743,7 @@ export namespace EnumLone {
   export const encode: typeof enumLoneEncode = enumLoneEncode;
   export const encodeWithContext: typeof enumLoneEncodeWithContext = enumLoneEncodeWithContext;
   export const decode: typeof enumLoneDecode = enumLoneDecode;
+  export const fromString: typeof enumLoneFromString = enumLoneFromString;
   export const decodeWithContext: typeof enumLoneDecodeWithContext = enumLoneDecodeWithContext;
   export const is: typeof enumLoneIs = enumLoneIs;
 }
@@ -786,10 +816,14 @@ export function enumTextEncodeWithContext(value: EnumText): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumTextDecode(input: unknown): EnumText {
+    return enumTextDecodeWithContext(input);
+}
 
-    return enumTextDecodeWithContext(__mf_textOrValue(input, enumTextIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumTextFromString(text: string): EnumText {
+    return enumTextDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -837,6 +871,7 @@ export namespace EnumText {
   export const encode: typeof enumTextEncode = enumTextEncode;
   export const encodeWithContext: typeof enumTextEncodeWithContext = enumTextEncodeWithContext;
   export const decode: typeof enumTextDecode = enumTextDecode;
+  export const fromString: typeof enumTextFromString = enumTextFromString;
   export const decodeWithContext: typeof enumTextDecodeWithContext = enumTextDecodeWithContext;
   export const is: typeof enumTextIs = enumTextIs;
 }
@@ -901,10 +936,14 @@ export function enumConstantEncodeWithContext(value: EnumConstant): string | num
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumConstantDecode(input: unknown): EnumConstant {
+    return enumConstantDecodeWithContext(input);
+}
 
-    return enumConstantDecodeWithContext(__mf_textOrValue(input, enumConstantIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumConstantFromString(text: string): EnumConstant {
+    return enumConstantDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -989,10 +1028,14 @@ export function enumCrossedEncodeWithContext(value: EnumCrossed): string | numbe
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumCrossedDecode(input: unknown): EnumCrossed {
+    return enumCrossedDecodeWithContext(input);
+}
 
-    return enumCrossedDecodeWithContext(__mf_textOrValue(input, enumCrossedIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function enumCrossedFromString(text: string): EnumCrossed {
+    return enumCrossedDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -1028,6 +1071,7 @@ export namespace EnumCrossed {
   export const encode: typeof enumCrossedEncode = enumCrossedEncode;
   export const encodeWithContext: typeof enumCrossedEncodeWithContext = enumCrossedEncodeWithContext;
   export const decode: typeof enumCrossedDecode = enumCrossedDecode;
+  export const fromString: typeof enumCrossedFromString = enumCrossedFromString;
   export const decodeWithContext: typeof enumCrossedDecodeWithContext = enumCrossedDecodeWithContext;
   export const is: typeof enumCrossedIs = enumCrossedIs;
 }
@@ -1283,14 +1327,11 @@ function enumHolderEncodeFields(value: EnumHolder, ctx: __mf_EncodeContext, resu
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function enumHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EnumHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = enumHolderDecodeWithContext(data, ctx);
+        const resultOrRef = enumHolderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1335,6 +1376,10 @@ export function enumHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function enumHolderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EnumHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => enumHolderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EnumHolder | __mf_PendingRef;
@@ -1758,6 +1803,7 @@ export const EnumHolder: {
   readonly encodeWithContext: typeof enumHolderEncodeWithContext;
   readonly encodePartialWithContext: typeof enumHolderEncodePartialWithContext;
   readonly decode: typeof enumHolderDecode;
+  readonly fromString: typeof enumHolderFromString;
   readonly decodeWithContext: typeof enumHolderDecodeWithContext;
   readonly decodePartialWithContext: typeof enumHolderDecodePartialWithContext;
   readonly validateField: typeof enumHolderValidateField;
@@ -1774,6 +1820,7 @@ export const EnumHolder: {
   encodeWithContext: enumHolderEncodeWithContext,
   encodePartialWithContext: enumHolderEncodePartialWithContext,
   decode: enumHolderDecode,
+  fromString: enumHolderFromString,
   decodeWithContext: enumHolderDecodeWithContext,
   decodePartialWithContext: enumHolderDecodePartialWithContext,
   validateField: enumHolderValidateField,
@@ -1888,8 +1935,10 @@ export declare function enumCountedDefaultValue(): EnumCounted;
 export declare function enumCountedEncode(value: EnumCounted): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumCountedEncodeWithContext(value: EnumCounted, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumCountedDecode(input: unknown): EnumCounted;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumCountedFromString(text: string): EnumCounted;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumCountedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCounted;
 export declare function enumCountedIs(value: unknown): value is EnumCounted;
@@ -1904,6 +1953,7 @@ export declare namespace EnumCounted {
 	const encode: typeof enumCountedEncode;
 	const encodeWithContext: typeof enumCountedEncodeWithContext;
 	const decode: typeof enumCountedDecode;
+	const fromString: typeof enumCountedFromString;
 	const decodeWithContext: typeof enumCountedDecodeWithContext;
 	const is: typeof enumCountedIs;
 }
@@ -1926,8 +1976,10 @@ export declare function enumSignedDefaultValue(): EnumSigned;
 export declare function enumSignedEncode(value: EnumSigned): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumSignedEncodeWithContext(value: EnumSigned, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumSignedDecode(input: unknown): EnumSigned;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumSignedFromString(text: string): EnumSigned;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumSignedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumSigned;
 export declare function enumSignedIs(value: unknown): value is EnumSigned;
@@ -1942,6 +1994,7 @@ export declare namespace EnumSigned {
 	const encode: typeof enumSignedEncode;
 	const encodeWithContext: typeof enumSignedEncodeWithContext;
 	const decode: typeof enumSignedDecode;
+	const fromString: typeof enumSignedFromString;
 	const decodeWithContext: typeof enumSignedDecodeWithContext;
 	const is: typeof enumSignedIs;
 }
@@ -1964,8 +2017,10 @@ export declare function enumFlagsDefaultValue(): EnumFlags;
 export declare function enumFlagsEncode(value: EnumFlags): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumFlagsEncodeWithContext(value: EnumFlags, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumFlagsDecode(input: unknown): EnumFlags;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumFlagsFromString(text: string): EnumFlags;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumFlagsDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumFlags;
 export declare function enumFlagsIs(value: unknown): value is EnumFlags;
@@ -1980,6 +2035,7 @@ export declare namespace EnumFlags {
 	const encode: typeof enumFlagsEncode;
 	const encodeWithContext: typeof enumFlagsEncodeWithContext;
 	const decode: typeof enumFlagsDecode;
+	const fromString: typeof enumFlagsFromString;
 	const decodeWithContext: typeof enumFlagsDecodeWithContext;
 	const is: typeof enumFlagsIs;
 }
@@ -2002,8 +2058,10 @@ export declare function enumMixedDefaultValue(): EnumMixed;
 export declare function enumMixedEncode(value: EnumMixed): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumMixedEncodeWithContext(value: EnumMixed, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumMixedDecode(input: unknown): EnumMixed;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumMixedFromString(text: string): EnumMixed;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumMixedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumMixed;
 export declare function enumMixedIs(value: unknown): value is EnumMixed;
@@ -2018,6 +2076,7 @@ export declare namespace EnumMixed {
 	const encode: typeof enumMixedEncode;
 	const encodeWithContext: typeof enumMixedEncodeWithContext;
 	const decode: typeof enumMixedDecode;
+	const fromString: typeof enumMixedFromString;
 	const decodeWithContext: typeof enumMixedDecodeWithContext;
 	const is: typeof enumMixedIs;
 }
@@ -2039,8 +2098,10 @@ export declare function enumRepeatedDefaultValue(): EnumRepeated;
 export declare function enumRepeatedEncode(value: EnumRepeated): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumRepeatedEncodeWithContext(value: EnumRepeated, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumRepeatedDecode(input: unknown): EnumRepeated;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumRepeatedFromString(text: string): EnumRepeated;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumRepeatedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumRepeated;
 export declare function enumRepeatedIs(value: unknown): value is EnumRepeated;
@@ -2055,6 +2116,7 @@ export declare namespace EnumRepeated {
 	const encode: typeof enumRepeatedEncode;
 	const encodeWithContext: typeof enumRepeatedEncodeWithContext;
 	const decode: typeof enumRepeatedDecode;
+	const fromString: typeof enumRepeatedFromString;
 	const decodeWithContext: typeof enumRepeatedDecodeWithContext;
 	const is: typeof enumRepeatedIs;
 }
@@ -2074,8 +2136,10 @@ export declare function enumLoneDefaultValue(): EnumLone;
 export declare function enumLoneEncode(value: EnumLone): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumLoneEncodeWithContext(value: EnumLone, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumLoneDecode(input: unknown): EnumLone;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumLoneFromString(text: string): EnumLone;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumLoneDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumLone;
 export declare function enumLoneIs(value: unknown): value is EnumLone;
@@ -2090,6 +2154,7 @@ export declare namespace EnumLone {
 	const encode: typeof enumLoneEncode;
 	const encodeWithContext: typeof enumLoneEncodeWithContext;
 	const decode: typeof enumLoneDecode;
+	const fromString: typeof enumLoneFromString;
 	const decodeWithContext: typeof enumLoneDecodeWithContext;
 	const is: typeof enumLoneIs;
 }
@@ -2112,8 +2177,10 @@ export declare function enumTextDefaultValue(): EnumText;
 export declare function enumTextEncode(value: EnumText): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumTextEncodeWithContext(value: EnumText, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumTextDecode(input: unknown): EnumText;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumTextFromString(text: string): EnumText;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumTextDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumText;
 export declare function enumTextIs(value: unknown): value is EnumText;
@@ -2128,6 +2195,7 @@ export declare namespace EnumText {
 	const encode: typeof enumTextEncode;
 	const encodeWithContext: typeof enumTextEncodeWithContext;
 	const decode: typeof enumTextDecode;
+	const fromString: typeof enumTextFromString;
 	const decodeWithContext: typeof enumTextDecodeWithContext;
 	const is: typeof enumTextIs;
 }
@@ -2148,8 +2216,10 @@ export declare function enumConstantDefaultValue(): EnumConstant;
 export declare function enumConstantEncode(value: EnumConstant): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumConstantEncodeWithContext(value: EnumConstant, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumConstantDecode(input: unknown): EnumConstant;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumConstantFromString(text: string): EnumConstant;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumConstantDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumConstant;
 export declare function enumConstantIs(value: unknown): value is EnumConstant;
@@ -2170,8 +2240,10 @@ export declare function enumCrossedDefaultValue(): EnumCrossed;
 export declare function enumCrossedEncode(value: EnumCrossed): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function enumCrossedEncodeWithContext(value: EnumCrossed, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function enumCrossedDecode(input: unknown): EnumCrossed;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function enumCrossedFromString(text: string): EnumCrossed;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function enumCrossedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCrossed;
 export declare function enumCrossedIs(value: unknown): value is EnumCrossed;
@@ -2186,6 +2258,7 @@ export declare namespace EnumCrossed {
 	const encode: typeof enumCrossedEncode;
 	const encodeWithContext: typeof enumCrossedEncodeWithContext;
 	const decode: typeof enumCrossedDecode;
+	const fromString: typeof enumCrossedFromString;
 	const decodeWithContext: typeof enumCrossedDecodeWithContext;
 	const is: typeof enumCrossedIs;
 }
@@ -2216,8 +2289,19 @@ export declare function enumHolderEncode(value: EnumHolder, keepMetadata?: boole
 export declare function enumHolderEncodeWithContext(value: EnumHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function enumHolderEncodePartialWithContext(value: Partial<EnumHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EnumHolder>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function enumHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EnumHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function enumHolderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EnumHolder;
 } | {
@@ -2253,6 +2337,7 @@ export declare const EnumHolder: {
 	readonly encodeWithContext: typeof enumHolderEncodeWithContext;
 	readonly encodePartialWithContext: typeof enumHolderEncodePartialWithContext;
 	readonly decode: typeof enumHolderDecode;
+	readonly fromString: typeof enumHolderFromString;
 	readonly decodeWithContext: typeof enumHolderDecodeWithContext;
 	readonly decodePartialWithContext: typeof enumHolderDecodePartialWithContext;
 	readonly validateField: typeof enumHolderValidateField;
@@ -2286,17 +2371,17 @@ export declare const EnumOrdered: {
 ## Mapping
 
 original 0..434 -> expanded 1299..1733
-original 434..635 -> expanded 5673..5874
-original 635..850 -> expanded 9958..10173
-original 850..1056 -> expanded 14159..14365
-original 1056..1236 -> expanded 18744..18924
-original 1236..1392 -> expanded 22904..23060
-original 1392..1631 -> expanded 26273..26512
-original 1631..1814 -> expanded 30414..30597
-original 1814..1980 -> expanded 33313..33479
-original 1980..2468 -> expanded 37091..37579
-original 2468..2631 -> expanded 73784..73947
-original 2631..2632 -> expanded 76351..76352
+original 434..635 -> expanded 6080..6281
+original 635..850 -> expanded 10768..10983
+original 850..1056 -> expanded 15368..15574
+original 1056..1236 -> expanded 20352..20532
+original 1236..1392 -> expanded 24923..25079
+original 1392..1631 -> expanded 28687..28926
+original 1631..1814 -> expanded 33223..33406
+original 1814..1980 -> expanded 36450..36616
+original 1980..2468 -> expanded 40635..41123
+original 2468..2631 -> expanded 77767..77930
+original 2631..2632 -> expanded 80334..80335
 generated 0..1299 <- imports
 generated 1733..2136 <- Debug
 generated 2136..2225 <- Clone
@@ -2306,101 +2391,101 @@ generated 2533..2748 <- PartialOrd
 generated 2748..2949 <- Ord
 generated 2949..3039 <- Default
 generated 3039..3479 <- Encode
-generated 3479..4703 <- Decode
-generated 4703..5673 <- __convenience_const
-generated 5874..6345 <- Debug
-generated 6345..6431 <- Clone
-generated 6431..6528 <- PartialEq
-generated 6528..6734 <- Hash
-generated 6734..6946 <- PartialOrd
-generated 6946..7144 <- Ord
-generated 7144..7231 <- Default
-generated 7231..7665 <- Encode
-generated 7665..9013 <- Decode
-generated 9013..9958 <- __convenience_const
-generated 10173..10627 <- Debug
-generated 10627..10710 <- Clone
-generated 10710..10804 <- PartialEq
-generated 10804..11008 <- Hash
-generated 11008..11217 <- PartialOrd
-generated 11217..11412 <- Ord
-generated 11412..11495 <- Default
-generated 11495..11923 <- Encode
-generated 11923..13239 <- Decode
-generated 13239..14159 <- __convenience_const
-generated 14365..14821 <- Debug
-generated 14821..14904 <- Clone
-generated 14904..14998 <- PartialEq
-generated 14998..15316 <- Hash
-generated 15316..15662 <- PartialOrd
-generated 15662..15994 <- Ord
-generated 15994..16077 <- Default
-generated 16077..16505 <- Encode
-generated 16505..17824 <- Decode
-generated 17824..18744 <- __convenience_const
-generated 18924..19322 <- Debug
-generated 19322..19414 <- Clone
-generated 19414..19517 <- PartialEq
-generated 19517..19727 <- Hash
-generated 19727..19945 <- PartialOrd
-generated 19945..20149 <- Ord
-generated 20149..20240 <- Default
-generated 20240..20686 <- Encode
-generated 20686..21909 <- Decode
-generated 21909..22904 <- __convenience_const
-generated 23060..23278 <- Debug
-generated 23278..23358 <- Clone
-generated 23358..23449 <- PartialEq
-generated 23449..23608 <- Hash
-generated 23608..23814 <- PartialOrd
-generated 23814..24006 <- Ord
-generated 24006..24086 <- Default
-generated 24086..24508 <- Encode
-generated 24508..25378 <- Decode
-generated 25378..26273 <- __convenience_const
-generated 26512..26971 <- Debug
-generated 26971..27051 <- Clone
-generated 27051..27142 <- PartialEq
-generated 27142..27301 <- Hash
-generated 27301..27507 <- PartialOrd
-generated 27507..27699 <- Ord
-generated 27699..27780 <- Default
-generated 27780..28202 <- Encode
-generated 28202..29519 <- Decode
-generated 29519..30414 <- __convenience_const
-generated 30597..30916 <- Debug
-generated 30916..31008 <- Clone
-generated 31008..31111 <- PartialEq
-generated 31111..31278 <- Hash
-generated 31278..31496 <- PartialOrd
-generated 31496..31700 <- Ord
-generated 31700..31791 <- Default
-generated 31791..32237 <- Encode
-generated 32237..33313 <- Decode
-generated 33479..33781 <- Debug
-generated 33781..33870 <- Clone
-generated 33870..33970 <- PartialEq
-generated 33970..34135 <- Hash
-generated 34135..34350 <- PartialOrd
-generated 34350..34551 <- Ord
-generated 34551..34637 <- Default
-generated 34637..35077 <- Encode
-generated 35077..36121 <- Decode
-generated 36121..37091 <- __convenience_const
-generated 37579..38781 <- Debug
-generated 38781..39772 <- Clone
-generated 39772..41766 <- PartialEq
-generated 41766..43402 <- Hash
-generated 43402..43882 <- Default
-generated 43882..49698 <- Encode
-generated 49698..72348 <- Decode
-generated 72348..73784 <- __convenience_const
-generated 73947..74348 <- Debug
-generated 74348..74593 <- Clone
-generated 74593..74967 <- PartialEq
-generated 74967..75453 <- PartialOrd
-generated 75453..75904 <- Ord
-generated 75904..76351 <- __convenience_const
+generated 3479..5029 <- Decode
+generated 5029..6080 <- __convenience_const
+generated 6281..6752 <- Debug
+generated 6752..6838 <- Clone
+generated 6838..6935 <- PartialEq
+generated 6935..7141 <- Hash
+generated 7141..7353 <- PartialOrd
+generated 7353..7551 <- Ord
+generated 7551..7638 <- Default
+generated 7638..8072 <- Encode
+generated 8072..9744 <- Decode
+generated 9744..10768 <- __convenience_const
+generated 10983..11437 <- Debug
+generated 11437..11520 <- Clone
+generated 11520..11614 <- PartialEq
+generated 11614..11818 <- Hash
+generated 11818..12027 <- PartialOrd
+generated 12027..12222 <- Ord
+generated 12222..12305 <- Default
+generated 12305..12733 <- Encode
+generated 12733..14371 <- Decode
+generated 14371..15368 <- __convenience_const
+generated 15574..16030 <- Debug
+generated 16030..16113 <- Clone
+generated 16113..16207 <- PartialEq
+generated 16207..16525 <- Hash
+generated 16525..16871 <- PartialOrd
+generated 16871..17203 <- Ord
+generated 17203..17286 <- Default
+generated 17286..17714 <- Encode
+generated 17714..19355 <- Decode
+generated 19355..20352 <- __convenience_const
+generated 20532..20930 <- Debug
+generated 20930..21022 <- Clone
+generated 21022..21125 <- PartialEq
+generated 21125..21335 <- Hash
+generated 21335..21553 <- PartialOrd
+generated 21553..21757 <- Ord
+generated 21757..21848 <- Default
+generated 21848..22294 <- Encode
+generated 22294..23845 <- Decode
+generated 23845..24923 <- __convenience_const
+generated 25079..25297 <- Debug
+generated 25297..25377 <- Clone
+generated 25377..25468 <- PartialEq
+generated 25468..25627 <- Hash
+generated 25627..25833 <- PartialOrd
+generated 25833..26025 <- Ord
+generated 26025..26105 <- Default
+generated 26105..26527 <- Encode
+generated 26527..27717 <- Decode
+generated 27717..28687 <- __convenience_const
+generated 28926..29385 <- Debug
+generated 29385..29465 <- Clone
+generated 29465..29556 <- PartialEq
+generated 29556..29715 <- Hash
+generated 29715..29921 <- PartialOrd
+generated 29921..30113 <- Ord
+generated 30113..30194 <- Default
+generated 30194..30616 <- Encode
+generated 30616..32253 <- Decode
+generated 32253..33223 <- __convenience_const
+generated 33406..33725 <- Debug
+generated 33725..33817 <- Clone
+generated 33817..33920 <- PartialEq
+generated 33920..34087 <- Hash
+generated 34087..34305 <- PartialOrd
+generated 34305..34509 <- Ord
+generated 34509..34600 <- Default
+generated 34600..35046 <- Encode
+generated 35046..36450 <- Decode
+generated 36616..36918 <- Debug
+generated 36918..37007 <- Clone
+generated 37007..37107 <- PartialEq
+generated 37107..37272 <- Hash
+generated 37272..37487 <- PartialOrd
+generated 37487..37688 <- Ord
+generated 37688..37774 <- Default
+generated 37774..38214 <- Encode
+generated 38214..39584 <- Decode
+generated 39584..40635 <- __convenience_const
+generated 41123..42325 <- Debug
+generated 42325..43316 <- Clone
+generated 43316..45310 <- PartialEq
+generated 45310..46946 <- Hash
+generated 46946..47426 <- Default
+generated 47426..53242 <- Encode
+generated 53242..76243 <- Decode
+generated 76243..77767 <- __convenience_const
+generated 77930..78331 <- Debug
+generated 78331..78576 <- Clone
+generated 78576..78950 <- PartialEq
+generated 78950..79436 <- PartialOrd
+generated 79436..79887 <- Ord
+generated 79887..80334 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,6 @@ use crate::builtin::derive::common::{
     array_element_type, js_string, primitive_keyword_test, rendered, tuple_body, tuple_element,
     undefined_as_null, ungrouped,
 };
-use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
@@ -21,119 +20,6 @@ use crate::ts_syn::abi::ir::{
     NumberLiteral, is_primitive_keyword, number_literal, split_top_level_commas,
     split_top_level_intersection, split_top_level_union, typeof_primitive,
 };
-
-/// Determines whether a TypeScript type can accept a raw `string` value,
-/// using the type registry and foreign type configs to resolve types.
-/// `type_name` is resolved as the file at `caller_file_path` sees it.
-///
-/// When true, the generated `Decode` wrapper must NOT call `JSON.parse`
-/// on string inputs -- the string IS the value, not a JSON-encoded payload.
-pub(super) fn type_accepts_string(
-    type_name: &str,
-    registry: &TypeRegistry,
-    caller_file_path: &str,
-    file_imports: &[FileImportEntry],
-    foreign_types: &[ForeignTypeConfig],
-) -> bool {
-    accepts_string_visiting(
-        type_name,
-        registry,
-        caller_file_path,
-        file_imports,
-        foreign_types,
-        &mut Vec::new(),
-    )
-}
-
-/// `type_accepts_string` over the aliases already being followed, keyed by
-/// declaring file and name. An alias reached again is a cycle, which the
-/// expander reports at the derive; here it just stops the recursion.
-fn accepts_string_visiting(
-    type_name: &str,
-    registry: &TypeRegistry,
-    caller_file_path: &str,
-    file_imports: &[FileImportEntry],
-    foreign_types: &[ForeignTypeConfig],
-    visiting: &mut Vec<String>,
-) -> bool {
-    // A string is a `string`'s value, a `Date`'s as its ISO text, and a
-    // template literal type's.
-    if matches!(type_name, "string" | "Date") || type_name.trim_start().starts_with('`') {
-        return true;
-    }
-
-    // Check foreign types -- their hasShape expr tells us what values they accept.
-    // e.g. Utc has `hasShape: (v) => typeof v === "string"` -> accepts strings.
-    for ft in foreign_types {
-        if ft.get_type_name() == type_name
-            || ft.name == type_name
-            || ft.aliases.iter().any(|a| a.name == type_name)
-        {
-            if let Some(has_shape) = &ft.has_shape_expr
-                && has_shape.contains("typeof")
-                && has_shape.contains("\"string\"")
-            {
-                return true;
-            }
-            // No hasShape or it doesn't check for string -> not a string type
-            return false;
-        }
-    }
-
-    let Some(entry) = registry.resolve_in_file(type_name, caller_file_path, file_imports) else {
-        return false;
-    };
-    // Names inside the definition resolve from the file that declares it.
-    let declaring_file = entry.file_path.as_str();
-    let declaring_imports = entry.file_imports.as_slice();
-    let key = format!("{declaring_file}::{}", entry.name);
-    if visiting.contains(&key) {
-        return false;
-    }
-    visiting.push(key);
-
-    let accepts = match &entry.definition {
-        TypeDefinitionIR::TypeAlias(alias) => match &alias.body {
-            body if body.primitive_base().is_some() => body.primitive_base() == Some("string"),
-            // Union: check if any member is string, a string literal, or a foreign string type
-            TypeBody::Union(members) => members.iter().any(|member| match &member.kind {
-                TypeMemberKind::TypeRef(referenced) => accepts_string_visiting(
-                    referenced,
-                    registry,
-                    declaring_file,
-                    declaring_imports,
-                    foreign_types,
-                    visiting,
-                ),
-                TypeMemberKind::Literal(lit) => lit.starts_with(['"', '\'', '`']),
-                TypeMemberKind::Object { .. }
-                | TypeMemberKind::Intersection(_)
-                | TypeMemberKind::Brand(_) => false,
-            }),
-            // A template literal type holds text.
-            TypeBody::Other(written) => written.trim_start().starts_with('`'),
-            // Simple alias: recurse
-            TypeBody::Alias(target) => accepts_string_visiting(
-                target,
-                registry,
-                declaring_file,
-                declaring_imports,
-                foreign_types,
-                visiting,
-            ),
-            _ => false,
-        },
-        // Enums with string members accept strings
-        TypeDefinitionIR::Enum(enum_ir) => enum_ir
-            .variants
-            .iter()
-            .any(|variant| variant.value.is_string()),
-        // Classes and interfaces are always objects
-        TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => false,
-    };
-    visiting.pop();
-    accepts
-}
 
 /// Reads the validators declared on the primitive arm of a generic record-link
 /// alias (`Alias<T> = primitive | T`). The alias's primitive arm can carry

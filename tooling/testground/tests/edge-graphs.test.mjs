@@ -23,7 +23,7 @@ Deno.test('children that point back at their parent round-trip as one graph', ()
     left.children.push(leaf);
     root.children.push(left, { name: 'right', parent: root, children: [] });
 
-    const tree = decoded(mod.graphTreeDecode(mod.graphTreeEncode(root, true)));
+    const tree = decoded(mod.graphTreeFromString(mod.graphTreeEncode(root, true)));
     assertEquals(tree.children.map((child) => child.name), ['left', 'right']);
     assertStrictEquals(tree.children[0].parent, tree);
     assertStrictEquals(tree.children[1].parent, tree);
@@ -50,7 +50,7 @@ Deno.test('a class instance reached through an array, a set and a map is one ins
     ada.circle.add(bo);
     ada.byName.set('bo', bo);
 
-    const person = decoded(mod.GraphPerson.decode(mod.GraphPerson.encode(ada, true)));
+    const person = decoded(mod.GraphPerson.fromString(mod.GraphPerson.encode(ada, true)));
     const friend = person.best;
     assert(person instanceof mod.GraphPerson);
     assert(friend instanceof mod.GraphPerson);
@@ -87,7 +87,7 @@ Deno.test('a value held in several fields and collections decodes to one value',
         true
     );
 
-    const shared = decoded(mod.graphSharedDecode(encoded));
+    const shared = decoded(mod.graphSharedFromString(encoded));
     assertEquals(shared.first, item);
     assertStrictEquals(shared.again, shared.first);
     assertStrictEquals(shared.maybe, shared.first);
@@ -131,7 +131,7 @@ Deno.test('decoding freezes every value of the graph when asked to', () => {
         },
         true
     );
-    const result = mod.graphSharedDecode(encoded, { freeze: true });
+    const result = mod.graphSharedFromString(encoded, { freeze: true });
     const shared = decoded(result);
     assert(Object.isFrozen(shared));
     assert(Object.isFrozen(shared.first));
@@ -144,7 +144,7 @@ Deno.test('decoding freezes every value of the graph when asked to', () => {
 Deno.test('a value that holds itself round-trips', () => {
     const loop = { name: 'loop', self: null, view: null, rest: null, patch: null };
     loop.self = loop;
-    const back = decoded(mod.graphLoopDecode(mod.graphLoopEncode(loop, true)));
+    const back = decoded(mod.graphLoopFromString(mod.graphLoopEncode(loop, true)));
     assertStrictEquals(back.self, back);
     assertStrictEquals(back.name, 'loop');
 });
@@ -172,7 +172,7 @@ Deno.test('a Pick or Omit that reaches a whole value in a cycle refers back to i
     // The rest keeps `self`, which closes the cycle on the whole value.
     loop.rest = { self: loop, view: null, rest: null, patch: null };
 
-    const back = decoded(mod.graphLoopDecode(mod.graphLoopEncode(loop, true)));
+    const back = decoded(mod.graphLoopFromString(mod.graphLoopEncode(loop, true)));
     assertEquals(back.view, { name: 'view', view: null });
     assertStrictEquals(back.rest.self, back);
     assertEquals(Object.keys(back.rest).sort(), ['patch', 'rest', 'self', 'view']);
@@ -182,13 +182,13 @@ Deno.test('a value held whole and as a Partial is encoded at both places', () =>
     const item = { id: 'shared', score: 1 };
 
     const wholeFirst = mod.graphPatchedEncode({ whole: item, patch: item, patches: [item] }, true);
-    const first = decoded(mod.graphPatchedDecode(wholeFirst));
+    const first = decoded(mod.graphPatchedFromString(wholeFirst));
     assertEquals(first.whole, item);
     assertEquals(first.patch, item);
     assertEquals(first.patches, [item]);
 
     const partialFirst = mod.graphPatchedFirstEncode({ patch: item, whole: item }, true);
-    const second = decoded(mod.graphPatchedFirstDecode(partialFirst));
+    const second = decoded(mod.graphPatchedFirstFromString(partialFirst));
     assertEquals(second.patch, item);
     assertEquals(second.whole, item);
 });
@@ -377,7 +377,7 @@ Deno.test('without its metadata a value held twice is written out at each place'
     assertEquals(JSON.parse(text).list, [item, other, item]);
 
     // Nothing says the copies were one value, so they decode as equal ones.
-    const shared = decoded(mod.graphSharedDecode(text));
+    const shared = decoded(mod.graphSharedFromString(text));
     assertEquals(shared, source);
     assert(shared.again !== shared.first);
 

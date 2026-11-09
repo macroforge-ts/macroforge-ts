@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Object graphs rather than trees: a value held twice, a child pointing back
@@ -183,14 +183,11 @@ function graphTreeEncodeFields(value: GraphTree, ctx: __mf_EncodeContext, result
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphTree } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = graphTreeDecodeWithContext(data, ctx);
+        const resultOrRef = graphTreeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -235,6 +232,10 @@ export function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphTreeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphTree } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphTreeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphTree | __mf_PendingRef;
@@ -384,6 +385,7 @@ export const GraphTree: {
   readonly encodeWithContext: typeof graphTreeEncodeWithContext;
   readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
   readonly decode: typeof graphTreeDecode;
+  readonly fromString: typeof graphTreeFromString;
   readonly decodeWithContext: typeof graphTreeDecodeWithContext;
   readonly decodePartialWithContext: typeof graphTreeDecodePartialWithContext;
   readonly validateField: typeof graphTreeValidateField;
@@ -401,6 +403,7 @@ export const GraphTree: {
   encodeWithContext: graphTreeEncodeWithContext,
   encodePartialWithContext: graphTreeEncodePartialWithContext,
   decode: graphTreeDecode,
+  fromString: graphTreeFromString,
   decodeWithContext: graphTreeDecodeWithContext,
   decodePartialWithContext: graphTreeDecodePartialWithContext,
   validateField: graphTreeValidateField,
@@ -550,14 +553,11 @@ constructor(props: { name: string; best: GraphPerson | null; friends: GraphPerso
     this.byName = props.byName;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GraphPerson.decodeWithContext(data, ctx);
+        const resultOrRef = GraphPerson.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -602,6 +602,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GraphPerson.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -834,9 +839,14 @@ export function graphPersonEncodePartialWithContext(value: Partial<GraphPerson>,
     return GraphPerson.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function graphPersonDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GraphPerson.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function graphPersonFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GraphPerson.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -961,14 +971,11 @@ function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphShared } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = graphSharedDecodeWithContext(data, ctx);
+        const resultOrRef = graphSharedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1013,6 +1020,10 @@ export function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphSharedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphShared } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphSharedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphShared | __mf_PendingRef;
@@ -1299,6 +1310,7 @@ export const GraphShared: {
   readonly encodeWithContext: typeof graphSharedEncodeWithContext;
   readonly encodePartialWithContext: typeof graphSharedEncodePartialWithContext;
   readonly decode: typeof graphSharedDecode;
+  readonly fromString: typeof graphSharedFromString;
   readonly decodeWithContext: typeof graphSharedDecodeWithContext;
   readonly decodePartialWithContext: typeof graphSharedDecodePartialWithContext;
   readonly validateField: typeof graphSharedValidateField;
@@ -1310,6 +1322,7 @@ export const GraphShared: {
   encodeWithContext: graphSharedEncodeWithContext,
   encodePartialWithContext: graphSharedEncodePartialWithContext,
   decode: graphSharedDecode,
+  fromString: graphSharedFromString,
   decodeWithContext: graphSharedDecodeWithContext,
   decodePartialWithContext: graphSharedDecodePartialWithContext,
   validateField: graphSharedValidateField,
@@ -1396,14 +1409,11 @@ function graphLoopEncodeFields(value: GraphLoop, ctx: __mf_EncodeContext, result
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphLoop } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = graphLoopDecodeWithContext(data, ctx);
+        const resultOrRef = graphLoopDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1448,6 +1458,10 @@ export function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphLoopFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphLoop } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphLoopDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphLoop | __mf_PendingRef;
@@ -1655,6 +1669,7 @@ export const GraphLoop: {
   readonly encodeWithContext: typeof graphLoopEncodeWithContext;
   readonly encodePartialWithContext: typeof graphLoopEncodePartialWithContext;
   readonly decode: typeof graphLoopDecode;
+  readonly fromString: typeof graphLoopFromString;
   readonly decodeWithContext: typeof graphLoopDecodeWithContext;
   readonly decodePartialWithContext: typeof graphLoopDecodePartialWithContext;
   readonly validateField: typeof graphLoopValidateField;
@@ -1666,6 +1681,7 @@ export const GraphLoop: {
   encodeWithContext: graphLoopEncodeWithContext,
   encodePartialWithContext: graphLoopEncodePartialWithContext,
   decode: graphLoopDecode,
+  fromString: graphLoopFromString,
   decodeWithContext: graphLoopDecodeWithContext,
   decodePartialWithContext: graphLoopDecodePartialWithContext,
   validateField: graphLoopValidateField,
@@ -1736,14 +1752,11 @@ function graphPatchedEncodeFields(value: GraphPatched, ctx: __mf_EncodeContext, 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatched } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = graphPatchedDecodeWithContext(data, ctx);
+        const resultOrRef = graphPatchedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1788,6 +1801,10 @@ export function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPatched } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphPatchedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatched | __mf_PendingRef;
@@ -1941,6 +1958,7 @@ export const GraphPatched: {
   readonly encodeWithContext: typeof graphPatchedEncodeWithContext;
   readonly encodePartialWithContext: typeof graphPatchedEncodePartialWithContext;
   readonly decode: typeof graphPatchedDecode;
+  readonly fromString: typeof graphPatchedFromString;
   readonly decodeWithContext: typeof graphPatchedDecodeWithContext;
   readonly decodePartialWithContext: typeof graphPatchedDecodePartialWithContext;
   readonly validateField: typeof graphPatchedValidateField;
@@ -1952,6 +1970,7 @@ export const GraphPatched: {
   encodeWithContext: graphPatchedEncodeWithContext,
   encodePartialWithContext: graphPatchedEncodePartialWithContext,
   decode: graphPatchedDecode,
+  fromString: graphPatchedFromString,
   decodeWithContext: graphPatchedDecodeWithContext,
   decodePartialWithContext: graphPatchedDecodePartialWithContext,
   validateField: graphPatchedValidateField,
@@ -2014,14 +2033,11 @@ function graphPatchedFirstEncodeFields(value: GraphPatchedFirst, ctx: __mf_Encod
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatchedFirst } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = graphPatchedFirstDecodeWithContext(data, ctx);
+        const resultOrRef = graphPatchedFirstDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2066,6 +2082,10 @@ export function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOption
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function graphPatchedFirstFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GraphPatchedFirst } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => graphPatchedFirstDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GraphPatchedFirst | __mf_PendingRef;
@@ -2193,6 +2213,7 @@ export const GraphPatchedFirst: {
   readonly encodeWithContext: typeof graphPatchedFirstEncodeWithContext;
   readonly encodePartialWithContext: typeof graphPatchedFirstEncodePartialWithContext;
   readonly decode: typeof graphPatchedFirstDecode;
+  readonly fromString: typeof graphPatchedFirstFromString;
   readonly decodeWithContext: typeof graphPatchedFirstDecodeWithContext;
   readonly decodePartialWithContext: typeof graphPatchedFirstDecodePartialWithContext;
   readonly validateField: typeof graphPatchedFirstValidateField;
@@ -2204,6 +2225,7 @@ export const GraphPatchedFirst: {
   encodeWithContext: graphPatchedFirstEncodeWithContext,
   encodePartialWithContext: graphPatchedFirstEncodePartialWithContext,
   decode: graphPatchedFirstDecode,
+  fromString: graphPatchedFirstFromString,
   decodeWithContext: graphPatchedFirstDecodeWithContext,
   decodePartialWithContext: graphPatchedFirstDecodePartialWithContext,
   validateField: graphPatchedFirstValidateField,
@@ -2238,8 +2260,19 @@ export declare function graphTreeEncode(value: GraphTree, keepMetadata?: boolean
 export declare function graphTreeEncodeWithContext(value: GraphTree, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphTreeEncodePartialWithContext(value: Partial<GraphTree>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphTree>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphTree;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphTreeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphTree;
 } | {
@@ -2276,6 +2309,7 @@ export declare const GraphTree: {
 	readonly encodeWithContext: typeof graphTreeEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
 	readonly decode: typeof graphTreeDecode;
+	readonly fromString: typeof graphTreeFromString;
 	readonly decodeWithContext: typeof graphTreeDecodeWithContext;
 	readonly decodePartialWithContext: typeof graphTreeDecodePartialWithContext;
 	readonly validateField: typeof graphTreeValidateField;
@@ -2308,8 +2342,19 @@ export declare class GraphPerson {
 		circle: Set<GraphPerson>;
 		byName: Map<string, GraphPerson>;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GraphPerson;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GraphPerson;
 	} | {
@@ -2344,8 +2389,19 @@ export declare function graphPersonEncode(value: GraphPerson, keepMetadata?: boo
 export declare function graphPersonEncodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphPersonEncodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPerson>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function graphPersonDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPerson;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function graphPersonFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphPerson;
 } | {
@@ -2380,8 +2436,19 @@ export declare function graphSharedEncode(value: GraphShared, keepMetadata?: boo
 export declare function graphSharedEncodeWithContext(value: GraphShared, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphSharedEncodePartialWithContext(value: Partial<GraphShared>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphShared>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphShared;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphSharedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphShared;
 } | {
@@ -2412,6 +2479,7 @@ export declare const GraphShared: {
 	readonly encodeWithContext: typeof graphSharedEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphSharedEncodePartialWithContext;
 	readonly decode: typeof graphSharedDecode;
+	readonly fromString: typeof graphSharedFromString;
 	readonly decodeWithContext: typeof graphSharedDecodeWithContext;
 	readonly decodePartialWithContext: typeof graphSharedDecodePartialWithContext;
 	readonly validateField: typeof graphSharedValidateField;
@@ -2433,8 +2501,19 @@ export declare function graphLoopEncode(value: GraphLoop, keepMetadata?: boolean
 export declare function graphLoopEncodeWithContext(value: GraphLoop, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphLoopEncodePartialWithContext(value: Partial<GraphLoop>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphLoop>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphLoop;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphLoopFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphLoop;
 } | {
@@ -2465,6 +2544,7 @@ export declare const GraphLoop: {
 	readonly encodeWithContext: typeof graphLoopEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphLoopEncodePartialWithContext;
 	readonly decode: typeof graphLoopDecode;
+	readonly fromString: typeof graphLoopFromString;
 	readonly decodeWithContext: typeof graphLoopDecodeWithContext;
 	readonly decodePartialWithContext: typeof graphLoopDecodePartialWithContext;
 	readonly validateField: typeof graphLoopValidateField;
@@ -2484,8 +2564,19 @@ export declare function graphPatchedEncode(value: GraphPatched, keepMetadata?: b
 export declare function graphPatchedEncodeWithContext(value: GraphPatched, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphPatchedEncodePartialWithContext(value: Partial<GraphPatched>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatched>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatched;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphPatched;
 } | {
@@ -2516,6 +2607,7 @@ export declare const GraphPatched: {
 	readonly encodeWithContext: typeof graphPatchedEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphPatchedEncodePartialWithContext;
 	readonly decode: typeof graphPatchedDecode;
+	readonly fromString: typeof graphPatchedFromString;
 	readonly decodeWithContext: typeof graphPatchedDecodeWithContext;
 	readonly decodePartialWithContext: typeof graphPatchedDecodePartialWithContext;
 	readonly validateField: typeof graphPatchedValidateField;
@@ -2534,8 +2626,19 @@ export declare function graphPatchedFirstEncode(value: GraphPatchedFirst, keepMe
 export declare function graphPatchedFirstEncodeWithContext(value: GraphPatchedFirst, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function graphPatchedFirstEncodePartialWithContext(value: Partial<GraphPatchedFirst>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GraphPatchedFirst>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GraphPatchedFirst;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function graphPatchedFirstFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GraphPatchedFirst;
 } | {
@@ -2566,6 +2669,7 @@ export declare const GraphPatchedFirst: {
 	readonly encodeWithContext: typeof graphPatchedFirstEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphPatchedFirstEncodePartialWithContext;
 	readonly decode: typeof graphPatchedFirstDecode;
+	readonly fromString: typeof graphPatchedFirstFromString;
 	readonly decodeWithContext: typeof graphPatchedFirstDecodeWithContext;
 	readonly decodePartialWithContext: typeof graphPatchedFirstDecodePartialWithContext;
 	readonly validateField: typeof graphPatchedFirstValidateField;
@@ -2580,49 +2684,49 @@ export declare const GraphPatchedFirst: {
 
 ## Mapping
 
-original 0..435 -> expanded 1306..1741
-original 435..711 -> expanded 18914..19190
-original 711..712 -> expanded 37228..37229
-original 712..998 -> expanded 40869..41155
-original 998..1238 -> expanded 62736..62976
-original 1238..1389 -> expanded 78844..78995
-original 1389..1511 -> expanded 92041..92163
-original 1511..1512 -> expanded 103757..103758
-generated 0..1306 <- imports
-generated 1741..2203 <- Debug
-generated 2203..2491 <- Clone
-generated 2491..3128 <- PartialEq
-generated 3128..3633 <- Hash
-generated 3633..4909 <- PartialOrd
-generated 4909..6055 <- Ord
-generated 6055..8920 <- Encode
-generated 8920..17427 <- Decode
-generated 17427..18914 <- __convenience_const
-generated 19190..19806 <- Debug
-generated 19806..20419 <- Clone
-generated 20419..21662 <- PartialEq
-generated 21662..22582 <- Hash
-generated 22582..25503 <- Encode
-generated 25503..25832 <- Encode
-generated 25832..37228 <- Decode
-generated 37229..37338 <- Debug
-generated 37338..37446 <- Clone
-generated 37446..37563 <- PartialEq
-generated 37563..37672 <- Hash
-generated 37672..39042 <- Encode
-generated 39042..40869 <- Decode
-generated 41155..45627 <- Encode
-generated 45627..61675 <- Decode
-generated 61675..62736 <- __convenience_const
-generated 62976..66466 <- Encode
-generated 66466..77825 <- Decode
-generated 77825..78844 <- __convenience_const
-generated 78995..81914 <- Encode
-generated 81914..90959 <- Decode
-generated 90959..92041 <- __convenience_const
-generated 92163..94856 <- Encode
-generated 94856..102570 <- Decode
-generated 102570..103757 <- __convenience_const
+original 0..435 -> expanded 1308..1743
+original 435..711 -> expanded 19350..19626
+original 711..712 -> expanded 38019..38020
+original 712..998 -> expanded 42071..42357
+original 998..1238 -> expanded 64382..64622
+original 1238..1389 -> expanded 80924..81075
+original 1389..1511 -> expanded 94570..94692
+original 1511..1512 -> expanded 106760..106761
+generated 0..1308 <- imports
+generated 1743..2205 <- Debug
+generated 2205..2493 <- Clone
+generated 2493..3130 <- PartialEq
+generated 3130..3635 <- Hash
+generated 3635..4911 <- PartialOrd
+generated 4911..6057 <- Ord
+generated 6057..8922 <- Encode
+generated 8922..17777 <- Decode
+generated 17777..19350 <- __convenience_const
+generated 19626..20242 <- Debug
+generated 20242..20855 <- Clone
+generated 20855..22098 <- PartialEq
+generated 22098..23018 <- Hash
+generated 23018..25939 <- Encode
+generated 25939..26268 <- Encode
+generated 26268..38019 <- Decode
+generated 38020..38129 <- Debug
+generated 38129..38237 <- Clone
+generated 38237..38354 <- PartialEq
+generated 38354..38463 <- Hash
+generated 38463..39833 <- Encode
+generated 39833..42071 <- Decode
+generated 42357..46829 <- Encode
+generated 46829..63231 <- Decode
+generated 63231..64382 <- __convenience_const
+generated 64622..68112 <- Encode
+generated 68112..79819 <- Decode
+generated 79819..80924 <- __convenience_const
+generated 81075..83994 <- Encode
+generated 83994..93396 <- Decode
+generated 93396..94570 <- __convenience_const
+generated 94692..97385 <- Encode
+generated 97385..105471 <- Decode
+generated 105471..106760 <- __convenience_const
 
 ## Metadata
 

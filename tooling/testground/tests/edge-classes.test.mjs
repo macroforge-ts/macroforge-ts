@@ -355,7 +355,7 @@ Deno.test('an interface is coded, cloned and compared with the fields of what it
         at: '2024-01-01T00:00:00.000Z',
         balance: 5
     });
-    const value = decoded(mod.classAccountDecode(mod.classAccountEncode(account)));
+    const value = decoded(mod.classAccountFromString(mod.classAccountEncode(account)));
     assertEquals(value, account);
     assert(value.at instanceof Date);
     assertEquals(Object.keys(value), ['id', 'kind', 'at', 'balance']);

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Field and alias shapes every derive has to generate type-correct code for:
@@ -146,14 +146,11 @@ function shapeItemEncodeFields(value: ShapeItem, _ctx: __mf_EncodeContext, resul
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeItem } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeItemDecodeWithContext(data, ctx);
+        const resultOrRef = shapeItemDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -198,6 +195,10 @@ export function shapeItemDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeItemFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeItemDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeItem | __mf_PendingRef;
@@ -304,6 +305,7 @@ export const ShapeItem: {
   readonly encodeWithContext: typeof shapeItemEncodeWithContext;
   readonly encodePartialWithContext: typeof shapeItemEncodePartialWithContext;
   readonly decode: typeof shapeItemDecode;
+  readonly fromString: typeof shapeItemFromString;
   readonly decodeWithContext: typeof shapeItemDecodeWithContext;
   readonly decodePartialWithContext: typeof shapeItemDecodePartialWithContext;
   readonly validateField: typeof shapeItemValidateField;
@@ -322,6 +324,7 @@ export const ShapeItem: {
   encodeWithContext: shapeItemEncodeWithContext,
   encodePartialWithContext: shapeItemEncodePartialWithContext,
   decode: shapeItemDecode,
+  fromString: shapeItemFromString,
   decodeWithContext: shapeItemDecodeWithContext,
   decodePartialWithContext: shapeItemDecodePartialWithContext,
   validateField: shapeItemValidateField,
@@ -390,10 +393,14 @@ export function shapeLevelEncodeWithContext(value: ShapeLevel): string | number 
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function shapeLevelDecode(input: unknown): ShapeLevel {
+    return shapeLevelDecodeWithContext(input);
+}
 
-    return shapeLevelDecodeWithContext(__mf_textOrValue(input, shapeLevelIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function shapeLevelFromString(text: string): ShapeLevel {
+    return shapeLevelDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -429,6 +436,7 @@ export namespace ShapeLevel {
   export const encode: typeof shapeLevelEncode = shapeLevelEncode;
   export const encodeWithContext: typeof shapeLevelEncodeWithContext = shapeLevelEncodeWithContext;
   export const decode: typeof shapeLevelDecode = shapeLevelDecode;
+  export const fromString: typeof shapeLevelFromString = shapeLevelFromString;
   export const decodeWithContext: typeof shapeLevelDecodeWithContext = shapeLevelDecodeWithContext;
   export const is: typeof shapeLevelIs = shapeLevelIs;
 }
@@ -493,10 +501,14 @@ export function shapeRankEncodeWithContext(value: ShapeRank): string | number {
     return value;
 }
 
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function shapeRankDecode(input: unknown): ShapeRank {
+    return shapeRankDecodeWithContext(input);
+}
 
-    return shapeRankDecodeWithContext(__mf_textOrValue(input, shapeRankIs));
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export function shapeRankFromString(text: string): ShapeRank {
+    return shapeRankDecodeWithContext(__mf_parsedText(text));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -532,6 +544,7 @@ export namespace ShapeRank {
   export const encode: typeof shapeRankEncode = shapeRankEncode;
   export const encodeWithContext: typeof shapeRankEncodeWithContext = shapeRankEncodeWithContext;
   export const decode: typeof shapeRankDecode = shapeRankDecode;
+  export const fromString: typeof shapeRankFromString = shapeRankFromString;
   export const decodeWithContext: typeof shapeRankDecodeWithContext = shapeRankDecodeWithContext;
   export const is: typeof shapeRankIs = shapeRankIs;
 }
@@ -780,14 +793,11 @@ function shapeFieldsEncodeFields(value: ShapeFields, ctx: __mf_EncodeContext, re
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeFields } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeFieldsDecodeWithContext(data, ctx);
+        const resultOrRef = shapeFieldsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -832,6 +842,10 @@ export function shapeFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeFieldsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeFields } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeFieldsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeFields | __mf_PendingRef;
@@ -1194,6 +1208,7 @@ export const ShapeFields: {
   readonly encodeWithContext: typeof shapeFieldsEncodeWithContext;
   readonly encodePartialWithContext: typeof shapeFieldsEncodePartialWithContext;
   readonly decode: typeof shapeFieldsDecode;
+  readonly fromString: typeof shapeFieldsFromString;
   readonly decodeWithContext: typeof shapeFieldsDecodeWithContext;
   readonly decodePartialWithContext: typeof shapeFieldsDecodePartialWithContext;
   readonly validateField: typeof shapeFieldsValidateField;
@@ -1210,6 +1225,7 @@ export const ShapeFields: {
   encodeWithContext: shapeFieldsEncodeWithContext,
   encodePartialWithContext: shapeFieldsEncodePartialWithContext,
   decode: shapeFieldsDecode,
+  fromString: shapeFieldsFromString,
   decodeWithContext: shapeFieldsDecodeWithContext,
   decodePartialWithContext: shapeFieldsDecodePartialWithContext,
   validateField: shapeFieldsValidateField,
@@ -1321,14 +1337,11 @@ constructor(props: { title: string; items: ShapeItem[] }) {
     this.items = props.items;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ShapeCard.decodeWithContext(data, ctx);
+        const resultOrRef = ShapeCard.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1373,6 +1386,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ShapeCard.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1528,9 +1546,14 @@ export function shapeCardEncodePartialWithContext(value: Partial<ShapeCard>, ctx
     return ShapeCard.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function shapeCardDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ShapeCard.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function shapeCardFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ShapeCard.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1601,13 +1624,11 @@ export function shapeMemberEncodeWithContext(value: ShapeMember, ctx: __mf_Encod
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeMemberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeMember } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeMemberDecodeWithContext(data, ctx);
+        const resultOrRef = shapeMemberDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1652,6 +1673,10 @@ export function shapeMemberDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeMemberFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeMember } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeMemberDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeMemberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMember | __mf_PendingRef {
@@ -1741,6 +1766,7 @@ export const ShapeMember: {
   readonly encode: typeof shapeMemberEncode;
   readonly encodeWithContext: typeof shapeMemberEncodeWithContext;
   readonly decode: typeof shapeMemberDecode;
+  readonly fromString: typeof shapeMemberFromString;
   readonly decodeWithContext: typeof shapeMemberDecodeWithContext;
   readonly hasShape: typeof shapeMemberHasShape;
   readonly is: typeof shapeMemberIs;
@@ -1752,6 +1778,7 @@ export const ShapeMember: {
   encode: shapeMemberEncode,
   encodeWithContext: shapeMemberEncodeWithContext,
   decode: shapeMemberDecode,
+  fromString: shapeMemberFromString,
   decodeWithContext: shapeMemberDecodeWithContext,
   hasShape: shapeMemberHasShape,
   is: shapeMemberIs
@@ -1803,13 +1830,11 @@ export function shapeMixedEncodeWithContext(value: ShapeMixed, ctx: __mf_EncodeC
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeMixedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeMixed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = __mf_textOrValue(input, shapeMixedHasShape);
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeMixedDecodeWithContext(data, ctx);
+        const resultOrRef = shapeMixedDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1854,6 +1879,10 @@ export function shapeMixedDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeMixedFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeMixed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeMixedDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMixed | __mf_PendingRef {
@@ -1941,6 +1970,7 @@ export const ShapeMixed: {
   readonly encode: typeof shapeMixedEncode;
   readonly encodeWithContext: typeof shapeMixedEncodeWithContext;
   readonly decode: typeof shapeMixedDecode;
+  readonly fromString: typeof shapeMixedFromString;
   readonly decodeWithContext: typeof shapeMixedDecodeWithContext;
   readonly hasShape: typeof shapeMixedHasShape;
   readonly is: typeof shapeMixedIs;
@@ -1952,6 +1982,7 @@ export const ShapeMixed: {
   encode: shapeMixedEncode,
   encodeWithContext: shapeMixedEncodeWithContext,
   decode: shapeMixedDecode,
+  fromString: shapeMixedFromString,
   decodeWithContext: shapeMixedDecodeWithContext,
   hasShape: shapeMixedHasShape,
   is: shapeMixedIs
@@ -2027,14 +2058,11 @@ function shapeEventEncodeFields(value: ShapeEvent, ctx: __mf_EncodeContext, resu
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeEventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeEvent } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeEventDecodeWithContext(data, ctx);
+        const resultOrRef = shapeEventDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2079,6 +2107,10 @@ export function shapeEventDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeEventFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeEvent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeEventDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeEvent | __mf_PendingRef;
@@ -2234,6 +2266,7 @@ export const ShapeEvent: {
   readonly encodeWithContext: typeof shapeEventEncodeWithContext;
   readonly encodePartialWithContext: typeof shapeEventEncodePartialWithContext;
   readonly decode: typeof shapeEventDecode;
+  readonly fromString: typeof shapeEventFromString;
   readonly decodeWithContext: typeof shapeEventDecodeWithContext;
   readonly decodePartialWithContext: typeof shapeEventDecodePartialWithContext;
   readonly validateField: typeof shapeEventValidateField;
@@ -2245,6 +2278,7 @@ export const ShapeEvent: {
   encodeWithContext: shapeEventEncodeWithContext,
   encodePartialWithContext: shapeEventEncodePartialWithContext,
   decode: shapeEventDecode,
+  fromString: shapeEventFromString,
   decodeWithContext: shapeEventDecodeWithContext,
   decodePartialWithContext: shapeEventDecodePartialWithContext,
   validateField: shapeEventValidateField,
@@ -2331,14 +2365,11 @@ function shapeDraftEncodeFields(value: ShapeDraft, ctx: __mf_EncodeContext, resu
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDraftDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeDraft } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = shapeDraftDecodeWithContext(data, ctx);
+        const resultOrRef = shapeDraftDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2383,6 +2414,10 @@ export function shapeDraftDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeDraftFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ShapeDraft } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => shapeDraftDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeDraft | __mf_PendingRef;
@@ -2585,6 +2620,7 @@ export const ShapeDraft: {
   readonly encodeWithContext: typeof shapeDraftEncodeWithContext;
   readonly encodePartialWithContext: typeof shapeDraftEncodePartialWithContext;
   readonly decode: typeof shapeDraftDecode;
+  readonly fromString: typeof shapeDraftFromString;
   readonly decodeWithContext: typeof shapeDraftDecodeWithContext;
   readonly decodePartialWithContext: typeof shapeDraftDecodePartialWithContext;
   readonly validateField: typeof shapeDraftValidateField;
@@ -2596,6 +2632,7 @@ export const ShapeDraft: {
   encodeWithContext: shapeDraftEncodeWithContext,
   encodePartialWithContext: shapeDraftEncodePartialWithContext,
   decode: shapeDraftDecode,
+  fromString: shapeDraftFromString,
   decodeWithContext: shapeDraftDecodeWithContext,
   decodePartialWithContext: shapeDraftDecodePartialWithContext,
   validateField: shapeDraftValidateField,
@@ -2630,8 +2667,19 @@ export declare function shapeItemEncode(value: ShapeItem, keepMetadata?: boolean
 export declare function shapeItemEncodeWithContext(value: ShapeItem, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function shapeItemEncodePartialWithContext(value: Partial<ShapeItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeItem>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeItem;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeItemFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeItem;
 } | {
@@ -2669,6 +2717,7 @@ export declare const ShapeItem: {
 	readonly encodeWithContext: typeof shapeItemEncodeWithContext;
 	readonly encodePartialWithContext: typeof shapeItemEncodePartialWithContext;
 	readonly decode: typeof shapeItemDecode;
+	readonly fromString: typeof shapeItemFromString;
 	readonly decodeWithContext: typeof shapeItemDecodeWithContext;
 	readonly decodePartialWithContext: typeof shapeItemDecodePartialWithContext;
 	readonly validateField: typeof shapeItemValidateField;
@@ -2693,8 +2742,10 @@ export declare function shapeLevelDefaultValue(): ShapeLevel;
 export declare function shapeLevelEncode(value: ShapeLevel): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function shapeLevelEncodeWithContext(value: ShapeLevel, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function shapeLevelDecode(input: unknown): ShapeLevel;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function shapeLevelFromString(text: string): ShapeLevel;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function shapeLevelDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeLevel;
 export declare function shapeLevelIs(value: unknown): value is ShapeLevel;
@@ -2709,6 +2760,7 @@ export declare namespace ShapeLevel {
 	const encode: typeof shapeLevelEncode;
 	const encodeWithContext: typeof shapeLevelEncodeWithContext;
 	const decode: typeof shapeLevelDecode;
+	const fromString: typeof shapeLevelFromString;
 	const decodeWithContext: typeof shapeLevelDecodeWithContext;
 	const is: typeof shapeLevelIs;
 }
@@ -2729,8 +2781,10 @@ export declare function shapeRankDefaultValue(): ShapeRank;
 export declare function shapeRankEncode(value: ShapeRank): string;
 /** Encodes with an existing context for nested/cyclic object graphs.  */
 export declare function shapeRankEncodeWithContext(value: ShapeRank, ctx: __mf_EncodeContext): string | number;
-/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+/** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export declare function shapeRankDecode(input: unknown): ShapeRank;
+/** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member  */
+export declare function shapeRankFromString(text: string): ShapeRank;
 /** Decodes with an existing context (for consistency with other types).  */
 export declare function shapeRankDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeRank;
 export declare function shapeRankIs(value: unknown): value is ShapeRank;
@@ -2745,6 +2799,7 @@ export declare namespace ShapeRank {
 	const encode: typeof shapeRankEncode;
 	const encodeWithContext: typeof shapeRankEncodeWithContext;
 	const decode: typeof shapeRankDecode;
+	const fromString: typeof shapeRankFromString;
 	const decodeWithContext: typeof shapeRankDecodeWithContext;
 	const is: typeof shapeRankIs;
 }
@@ -2774,8 +2829,19 @@ export declare function shapeFieldsEncode(value: ShapeFields, keepMetadata?: boo
 export declare function shapeFieldsEncodeWithContext(value: ShapeFields, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function shapeFieldsEncodePartialWithContext(value: Partial<ShapeFields>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeFields>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeFields;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeFieldsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeFields;
 } | {
@@ -2811,6 +2877,7 @@ export declare const ShapeFields: {
 	readonly encodeWithContext: typeof shapeFieldsEncodeWithContext;
 	readonly encodePartialWithContext: typeof shapeFieldsEncodePartialWithContext;
 	readonly decode: typeof shapeFieldsDecode;
+	readonly fromString: typeof shapeFieldsFromString;
 	readonly decodeWithContext: typeof shapeFieldsDecodeWithContext;
 	readonly decodePartialWithContext: typeof shapeFieldsDecodePartialWithContext;
 	readonly validateField: typeof shapeFieldsValidateField;
@@ -2838,8 +2905,19 @@ export declare class ShapeCard {
 		title: string;
 		items: ShapeItem[];
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ShapeCard;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ShapeCard;
 	} | {
@@ -2875,8 +2953,19 @@ export declare function shapeCardEncode(value: ShapeCard, keepMetadata?: boolean
 export declare function shapeCardEncodeWithContext(value: ShapeCard, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function shapeCardEncodePartialWithContext(value: Partial<ShapeCard>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeCard>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function shapeCardDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeCard;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function shapeCardFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeCard;
 } | {
@@ -2904,8 +2993,19 @@ export declare function shapeMemberHashCode(value: ShapeMember): number;
 export declare function shapeMemberEncode(value: ShapeMember, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function shapeMemberEncodeWithContext(value: ShapeMember, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeMemberDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeMember;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeMemberFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeMember;
 } | {
@@ -2927,6 +3027,7 @@ export declare const ShapeMember: {
 	readonly encode: typeof shapeMemberEncode;
 	readonly encodeWithContext: typeof shapeMemberEncodeWithContext;
 	readonly decode: typeof shapeMemberDecode;
+	readonly fromString: typeof shapeMemberFromString;
 	readonly decodeWithContext: typeof shapeMemberDecodeWithContext;
 	readonly hasShape: typeof shapeMemberHasShape;
 	readonly is: typeof shapeMemberIs;
@@ -2941,8 +3042,19 @@ export declare function shapeMixedHashCode(value: ShapeMixed): number;
 export declare function shapeMixedEncode(value: ShapeMixed, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function shapeMixedEncodeWithContext(value: ShapeMixed, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeMixedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeMixed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeMixedFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeMixed;
 } | {
@@ -2964,6 +3076,7 @@ export declare const ShapeMixed: {
 	readonly encode: typeof shapeMixedEncode;
 	readonly encodeWithContext: typeof shapeMixedEncodeWithContext;
 	readonly decode: typeof shapeMixedDecode;
+	readonly fromString: typeof shapeMixedFromString;
 	readonly decodeWithContext: typeof shapeMixedDecodeWithContext;
 	readonly hasShape: typeof shapeMixedHasShape;
 	readonly is: typeof shapeMixedIs;
@@ -2981,8 +3094,19 @@ export declare function shapeEventEncode(value: ShapeEvent, keepMetadata?: boole
 export declare function shapeEventEncodeWithContext(value: ShapeEvent, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function shapeEventEncodePartialWithContext(value: Partial<ShapeEvent>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeEvent>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeEventDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeEvent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeEventFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeEvent;
 } | {
@@ -3013,6 +3137,7 @@ export declare const ShapeEvent: {
 	readonly encodeWithContext: typeof shapeEventEncodeWithContext;
 	readonly encodePartialWithContext: typeof shapeEventEncodePartialWithContext;
 	readonly decode: typeof shapeEventDecode;
+	readonly fromString: typeof shapeEventFromString;
 	readonly decodeWithContext: typeof shapeEventDecodeWithContext;
 	readonly decodePartialWithContext: typeof shapeEventDecodePartialWithContext;
 	readonly validateField: typeof shapeEventValidateField;
@@ -3034,8 +3159,19 @@ export declare function shapeDraftEncode(value: ShapeDraft, keepMetadata?: boole
 export declare function shapeDraftEncodeWithContext(value: ShapeDraft, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function shapeDraftEncodePartialWithContext(value: Partial<ShapeDraft>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeDraft>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function shapeDraftDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeDraft;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeDraftFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ShapeDraft;
 } | {
@@ -3066,6 +3202,7 @@ export declare const ShapeDraft: {
 	readonly encodeWithContext: typeof shapeDraftEncodeWithContext;
 	readonly encodePartialWithContext: typeof shapeDraftEncodePartialWithContext;
 	readonly decode: typeof shapeDraftDecode;
+	readonly fromString: typeof shapeDraftFromString;
 	readonly decodeWithContext: typeof shapeDraftDecodeWithContext;
 	readonly decodePartialWithContext: typeof shapeDraftDecodePartialWithContext;
 	readonly validateField: typeof shapeDraftValidateField;
@@ -3081,16 +3218,16 @@ export declare const ShapeDraft: {
 ## Mapping
 
 original 0..445 -> expanded 1499..1944
-original 445..620 -> expanded 14624..14799
-original 620..784 -> expanded 18366..18530
-original 784..1318 -> expanded 22063..22597
-original 1318..1478 -> expanded 57706..57866
-original 1478..1479 -> expanded 68799..68800
-original 1479..1591 -> expanded 72455..72567
-original 1591..1715 -> expanded 80882..81006
-original 1715..1852 -> expanded 88630..88767
-original 1852..2088 -> expanded 101802..102038
-original 2088..2089 -> expanded 117735..117736
+original 445..620 -> expanded 15058..15233
+original 620..784 -> expanded 19203..19367
+original 784..1318 -> expanded 23299..23833
+original 1318..1478 -> expanded 59386..59546
+original 1478..1479 -> expanded 70830..70831
+original 1479..1591 -> expanded 74891..75003
+original 1591..1715 -> expanded 83843..83967
+original 1715..1852 -> expanded 92126..92263
+original 1852..2088 -> expanded 105737..105973
+original 2088..2089 -> expanded 122109..122110
 generated 0..1499 <- imports
 generated 1944..2248 <- Debug
 generated 2248..2407 <- Clone
@@ -3100,71 +3237,71 @@ generated 3182..3689 <- PartialOrd
 generated 3689..4180 <- Ord
 generated 4180..4290 <- Default
 generated 4290..6781 <- Encode
-generated 6781..13043 <- Decode
-generated 13043..14624 <- __convenience_const
-generated 14799..15104 <- Debug
-generated 15104..15190 <- Clone
-generated 15190..15287 <- PartialEq
-generated 15287..15450 <- Hash
-generated 15450..15662 <- PartialOrd
-generated 15662..15860 <- Ord
-generated 15860..15945 <- Default
-generated 15945..16379 <- Encode
-generated 16379..17421 <- Decode
-generated 17421..18366 <- __convenience_const
-generated 18530..18826 <- Debug
-generated 18826..18909 <- Clone
-generated 18909..19003 <- PartialEq
-generated 19003..19207 <- Hash
-generated 19207..19416 <- PartialOrd
-generated 19416..19611 <- Ord
-generated 19611..19693 <- Default
-generated 19693..20121 <- Encode
-generated 20121..21143 <- Decode
-generated 21143..22063 <- __convenience_const
-generated 22597..23752 <- Debug
-generated 23752..24498 <- Clone
-generated 24498..27133 <- PartialEq
-generated 27133..29250 <- Hash
-generated 29250..29689 <- Default
-generated 29689..35083 <- Encode
-generated 35083..56239 <- Decode
-generated 56239..57706 <- __convenience_const
-generated 57866..58228 <- Debug
-generated 58228..58442 <- Clone
-generated 58442..59013 <- PartialEq
-generated 59013..59439 <- Hash
-generated 59439..59667 <- Default
-generated 59667..61634 <- Encode
-generated 61634..61959 <- Encode
-generated 61959..68799 <- Decode
-generated 68800..68903 <- Debug
-generated 68903..69003 <- Clone
-generated 69003..69112 <- PartialEq
-generated 69112..69215 <- Hash
-generated 69215..69308 <- Default
-generated 69308..70658 <- Encode
-generated 70658..72455 <- Decode
-generated 72567..72699 <- Debug
-generated 72699..72810 <- Clone
-generated 72810..72960 <- PartialEq
-generated 72960..73068 <- Hash
-generated 73068..75229 <- Encode
-generated 75229..80013 <- Decode
-generated 80013..80882 <- __convenience_const
-generated 81006..81135 <- Debug
-generated 81135..81243 <- Clone
-generated 81243..81390 <- PartialEq
-generated 81390..81496 <- Hash
-generated 81496..83238 <- Encode
-generated 83238..87782 <- Decode
-generated 87782..88630 <- __convenience_const
-generated 88767..91759 <- Encode
-generated 91759..100762 <- Decode
-generated 100762..101802 <- __convenience_const
-generated 102038..105479 <- Encode
-generated 105479..116695 <- Decode
-generated 116695..117735 <- __convenience_const
+generated 6781..13391 <- Decode
+generated 13391..15058 <- __convenience_const
+generated 15233..15538 <- Debug
+generated 15538..15624 <- Clone
+generated 15624..15721 <- PartialEq
+generated 15721..15884 <- Hash
+generated 15884..16096 <- PartialOrd
+generated 16096..16294 <- Ord
+generated 16294..16379 <- Default
+generated 16379..16813 <- Encode
+generated 16813..18179 <- Decode
+generated 18179..19203 <- __convenience_const
+generated 19367..19663 <- Debug
+generated 19663..19746 <- Clone
+generated 19746..19840 <- PartialEq
+generated 19840..20044 <- Hash
+generated 20044..20253 <- PartialOrd
+generated 20253..20448 <- Ord
+generated 20448..20530 <- Default
+generated 20530..20958 <- Encode
+generated 20958..22302 <- Decode
+generated 22302..23299 <- __convenience_const
+generated 23833..24988 <- Debug
+generated 24988..25734 <- Clone
+generated 25734..28369 <- PartialEq
+generated 28369..30486 <- Hash
+generated 30486..30925 <- Default
+generated 30925..36319 <- Encode
+generated 36319..57829 <- Decode
+generated 57829..59386 <- __convenience_const
+generated 59546..59908 <- Debug
+generated 59908..60122 <- Clone
+generated 60122..60693 <- PartialEq
+generated 60693..61119 <- Hash
+generated 61119..61347 <- Default
+generated 61347..63314 <- Encode
+generated 63314..63639 <- Encode
+generated 63639..70830 <- Decode
+generated 70831..70934 <- Debug
+generated 70934..71034 <- Clone
+generated 71034..71143 <- PartialEq
+generated 71143..71246 <- Hash
+generated 71246..71339 <- Default
+generated 71339..72689 <- Encode
+generated 72689..74891 <- Decode
+generated 75003..75135 <- Debug
+generated 75135..75246 <- Clone
+generated 75246..75396 <- PartialEq
+generated 75396..75504 <- Hash
+generated 75504..77665 <- Encode
+generated 77665..82884 <- Decode
+generated 82884..83843 <- __convenience_const
+generated 83967..84096 <- Debug
+generated 84096..84204 <- Clone
+generated 84204..84351 <- PartialEq
+generated 84351..84457 <- Hash
+generated 84457..86199 <- Encode
+generated 86199..91190 <- Decode
+generated 91190..92126 <- __convenience_const
+generated 92263..95255 <- Encode
+generated 95255..104609 <- Decode
+generated 104609..105737 <- __convenience_const
+generated 105973..109414 <- Encode
+generated 109414..120981 <- Decode
+generated 120981..122109 <- __convenience_const
 
 ## Metadata
 

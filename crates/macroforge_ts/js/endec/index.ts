@@ -545,22 +545,29 @@ export function parsedText(text: string): unknown {
   });
 }
 
+/** What a type's `decode` returns: the value, or every error found. */
+export type Decoded<Value> =
+  | { success: true; value: Value }
+  | { success: false; errors: FieldError[] };
+
 /**
- * What a string handed to `decode` stands for, where the type itself takes
- * a string: the value its JSON text spells, when `takes` that value, and
- * otherwise the string itself. So the text `encode` writes always reads
- * back as what was encoded, and a bare string is still the value it is.
+ * Decodes the value JSON text spells, as a type's `fromString` does: `decode`
+ * takes a value and never reads a string as text. Text that is not JSON fails
+ * the way a value of the wrong kind does.
  */
-export function textOrValue(input: unknown, takes: (value: unknown) => boolean): unknown {
-  if (typeof input !== "string") return input;
-  let spelled: unknown;
+export function decodedText<Value>(
+  text: string,
+  decode: (value: unknown) => Decoded<Value>,
+): Decoded<Value> {
+  let value: unknown;
   try {
-    spelled = parsedText(input);
-  } catch {
-    // Not JSON text of a value, so the string is the value.
-    return input;
+    value = parsedText(text);
+  } catch (error) {
+    if (error instanceof DecodeError) return { success: false, errors: error.errors };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, errors: [{ field: "_root", message: `not JSON text: ${message}` }] };
   }
-  return takes(spelled) ? spelled : input;
+  return decode(value);
 }
 
 /**

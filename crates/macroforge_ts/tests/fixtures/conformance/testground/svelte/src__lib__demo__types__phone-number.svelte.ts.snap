@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -114,14 +114,11 @@ function phoneNumberEncodeFields(value: PhoneNumber, _ctx: __mf_EncodeContext, r
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = phoneNumberDecodeWithContext(data, ctx);
+        const resultOrRef = phoneNumberDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -166,6 +163,10 @@ export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function phoneNumberFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => phoneNumberDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef;
@@ -550,6 +551,7 @@ export const PhoneNumber: {
   readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
   readonly encodePartialWithContext: typeof phoneNumberEncodePartialWithContext;
   readonly decode: typeof phoneNumberDecode;
+  readonly fromString: typeof phoneNumberFromString;
   readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
   readonly decodePartialWithContext: typeof phoneNumberDecodePartialWithContext;
   readonly validateField: typeof phoneNumberValidateField;
@@ -564,6 +566,7 @@ export const PhoneNumber: {
   encodeWithContext: phoneNumberEncodeWithContext,
   encodePartialWithContext: phoneNumberEncodePartialWithContext,
   decode: phoneNumberDecode,
+  fromString: phoneNumberFromString,
   decodeWithContext: phoneNumberDecodeWithContext,
   decodePartialWithContext: phoneNumberDecodePartialWithContext,
   validateField: phoneNumberValidateField,
@@ -591,8 +594,19 @@ export declare function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boo
 export declare function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PhoneNumber;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function phoneNumberFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: PhoneNumber;
 } | {
@@ -668,6 +682,7 @@ export declare const PhoneNumber: {
 	readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
 	readonly encodePartialWithContext: typeof phoneNumberEncodePartialWithContext;
 	readonly decode: typeof phoneNumberDecode;
+	readonly fromString: typeof phoneNumberFromString;
 	readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
 	readonly decodePartialWithContext: typeof phoneNumberDecodePartialWithContext;
 	readonly validateField: typeof phoneNumberValidateField;
@@ -684,22 +699,22 @@ export declare const PhoneNumber: {
 
 ## Mapping
 
-original 0..58 -> expanded 844..902
-original 107..143 -> expanded 902..938
-original 186..210 -> expanded 938..962
-original 280..285 -> expanded 962..967
-original 326..354 -> expanded 967..995
-original 397..402 -> expanded 995..1000
-original 443..468 -> expanded 1000..1025
-original 515..542 -> expanded 1025..1052
-original 589..613 -> expanded 1052..1076
-original 613..614 -> expanded 24245..24246
-generated 0..844 <- imports
-generated 1076..1268 <- Default
-generated 1268..4517 <- Encode
-generated 4517..14777 <- Decode
-generated 14777..22898 <- Gigaform
-generated 22898..24245 <- __convenience_const
+original 0..58 -> expanded 846..904
+original 107..143 -> expanded 904..940
+original 186..210 -> expanded 940..964
+original 280..285 -> expanded 964..969
+original 326..354 -> expanded 969..997
+original 397..402 -> expanded 997..1002
+original 443..468 -> expanded 1002..1027
+original 515..542 -> expanded 1027..1054
+original 589..613 -> expanded 1054..1078
+original 613..614 -> expanded 24691..24692
+generated 0..846 <- imports
+generated 1078..1270 <- Default
+generated 1270..4519 <- Encode
+generated 4519..15133 <- Decode
+generated 15133..23254 <- Gigaform
+generated 23254..24691 <- __convenience_const
 
 ## Metadata
 

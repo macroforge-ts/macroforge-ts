@@ -124,7 +124,7 @@ pub(super) fn external_type_function_import_patches(
 
         // Built-in suffixes from core macros (Default, Encode, Decode, etc.)
         // These are always camelCase value references (function calls).
-        const SUFFIXES: [&str; 17] = [
+        const SUFFIXES: [&str; 18] = [
             "EncodeWithContext",
             "EncodePartialWithContext",
             "DecodeWithContext",
@@ -132,6 +132,7 @@ pub(super) fn external_type_function_import_patches(
             "DefaultValue",
             "Encode",
             "Decode",
+            "FromString",
             "ValidateField",
             "ValidateFields",
             "HasShape",

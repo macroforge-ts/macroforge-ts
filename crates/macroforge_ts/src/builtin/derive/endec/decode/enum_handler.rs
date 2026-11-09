@@ -16,9 +16,9 @@ pub(super) fn handle_enum(
     let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext", function_prefix(enum_name));
     let fn_decode_internal_expr: Expr = fn_decode_internal_ident.clone().into();
     let fn_is_ident = ts_ident!("{}Is", function_prefix(enum_name));
-    let fn_is_expr: Expr = fn_is_ident.clone().into();
-    let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
-        "textOrValue"
+    let fn_from_string_ident = ts_ident!("{}FromString", function_prefix(enum_name));
+    let parsed_text: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
+        "parsedText"
     ))
     .into();
     let variant_expressions: Vec<Expr> = enum_data
@@ -36,10 +36,14 @@ pub(super) fn handle_enum(
         })
         .collect::<Result<_, _>>()?;
     let mut result = ts_template! {
-        /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member */
+        /** Decodes a value to an enum member; JSON text decodes through `fromString`. @param input - The value to decode @returns The enum value @throws Error if the value is not a valid enum member */
         export function @{fn_decode_ident}(input: unknown): @{&enum_ident} {
-            // A string may be a member itself or the JSON text of one.
-            return @{fn_decode_internal_expr}(@{text_or_value}(input, @{&fn_is_expr}));
+            return @{fn_decode_internal_expr}(input);
+        }
+
+        /** Decodes JSON text, as `encode` writes it, to an enum member. @param text - The JSON text @returns The enum value @throws Error if the text is not JSON or spells no member */
+        export function @{fn_from_string_ident}(text: string): @{&enum_ident} {
+            return @{fn_decode_internal_expr}(@{parsed_text}(text));
         }
 
         /** Decodes with an existing context (for consistency with other types). */

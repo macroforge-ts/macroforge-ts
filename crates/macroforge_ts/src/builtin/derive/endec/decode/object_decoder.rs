@@ -33,6 +33,7 @@ pub(super) fn object_decode_functions(
     fields: &[DecodeField],
 ) -> TsStream {
     let mut result = decode_entry(names)
+        .merge(super::from_string::from_string_of(names))
         .merge(decode_with_context(names, container_opts, fields))
         .merge(field_validators(names, fields))
         .merge(shape_guards(names, fields));
@@ -43,12 +44,11 @@ pub(super) fn object_decode_functions(
     result
 }
 
-/// `{camelName}Decode`: parses JSON text, decodes through
-/// `{camelName}DecodeWithContext` and resolves forward references.
+/// `{camelName}Decode`: decodes a value through `{camelName}DecodeWithContext`
+/// and resolves forward references. Text goes through `{camelName}FromString`.
 fn decode_entry(names: &TypeNames) -> TsStream {
     let fn_decode_ident = names.generic_function("Decode");
     let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
-    let parsed_text: Expr = ts_ident!(endec_helper("parsedText")).into();
     let decode_options_ident = ts_ident!(DECODE_OPTIONS);
     let decode_context_expr: Expr = ts_ident!(DECODE_CONTEXT).into();
     let decode_error_expr: Expr = ts_ident!(DECODE_ERROR).into();
@@ -67,14 +67,11 @@ fn decode_entry(names: &TypeNames) -> TsStream {
     let coders = declared_param_coders(Direction::Decode, &names.params);
     let passed_coders = passed_param_coders(Direction::Decode, &names.params);
     ts_template! {
-        /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
-                // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? @{parsed_text}(input) : input;
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{fn_decode_internal_expr}(data, ctx@{passed_coders});
+                const resultOrRef = @{fn_decode_internal_expr}(input, ctx@{passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};

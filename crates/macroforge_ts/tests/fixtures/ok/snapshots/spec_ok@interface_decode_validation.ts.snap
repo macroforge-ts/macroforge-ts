@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface UserProfile {
@@ -37,14 +37,11 @@ interface UserProfile {
     age?: number;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = userProfileDecodeWithContext(data, ctx);
+        const resultOrRef = userProfileDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -89,6 +86,10 @@ export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userProfileFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => userProfileDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef;
@@ -246,6 +247,7 @@ export function userProfileIs(obj: unknown): obj is UserProfile {
 
 const UserProfile: {
   readonly decode: typeof userProfileDecode;
+  readonly fromString: typeof userProfileFromString;
   readonly decodeWithContext: typeof userProfileDecodeWithContext;
   readonly decodePartialWithContext: typeof userProfileDecodePartialWithContext;
   readonly validateField: typeof userProfileValidateField;
@@ -254,6 +256,7 @@ const UserProfile: {
   readonly is: typeof userProfileIs;
 } = {
   decode: userProfileDecode,
+  fromString: userProfileFromString,
   decodeWithContext: userProfileDecodeWithContext,
   decodePartialWithContext: userProfileDecodePartialWithContext,
   validateField: userProfileValidateField,
@@ -269,8 +272,19 @@ interface UserProfile {
 	username: string;
 	age?: number;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserProfile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userProfileFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: UserProfile;
 } | {
@@ -304,14 +318,14 @@ export {};
 
 ## Mapping
 
-original 22..51 -> expanded 439..468
-original 71..96 -> expanded 468..493
-original 138..166 -> expanded 493..521
-original 189..209 -> expanded 521..541
-original 209..210 -> expanded 11398..11399
-generated 0..439 <- imports
-generated 541..10682 <- Decode
-generated 10682..11398 <- __convenience_const
+original 22..51 -> expanded 441..470
+original 71..96 -> expanded 470..495
+original 138..166 -> expanded 495..523
+original 189..209 -> expanded 523..543
+original 209..210 -> expanded 11844..11845
+generated 0..441 <- imports
+generated 543..11038 <- Decode
+generated 11038..11844 <- __convenience_const
 
 ## Metadata
 

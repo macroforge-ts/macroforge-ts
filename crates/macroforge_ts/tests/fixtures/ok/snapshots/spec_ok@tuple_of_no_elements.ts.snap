@@ -23,7 +23,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeTuple as __mf_decodeTuple, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A tuple is held to its length, when it has no element and when none of them is checked. */
 
@@ -135,14 +135,11 @@ function holderEncodeFields(value: Holder, _ctx: __mf_EncodeContext, result: Rec
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function holderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = holderDecodeWithContext(data, ctx);
+        const resultOrRef = holderDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -187,6 +184,10 @@ export function holderDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function holderFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => holderDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
@@ -347,6 +348,7 @@ export const Holder: {
   readonly encodeWithContext: typeof holderEncodeWithContext;
   readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
   readonly decode: typeof holderDecode;
+  readonly fromString: typeof holderFromString;
   readonly decodeWithContext: typeof holderDecodeWithContext;
   readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
   readonly validateField: typeof holderValidateField;
@@ -363,6 +365,7 @@ export const Holder: {
   encodeWithContext: holderEncodeWithContext,
   encodePartialWithContext: holderEncodePartialWithContext,
   decode: holderDecode,
+  fromString: holderFromString,
   decodeWithContext: holderDecodeWithContext,
   decodePartialWithContext: holderDecodePartialWithContext,
   validateField: holderValidateField,
@@ -408,13 +411,11 @@ export function nothingEncodeWithContext(_value: Nothing): unknown {
     return [];
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function nothingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Nothing } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = nothingDecodeWithContext(data, ctx);
+        const result = nothingDecodeWithContext(input, ctx);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -485,6 +486,10 @@ export function nothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 export function nothingHasShape(value: unknown): boolean {
     return Array.isArray(value) && value.length >= 0 && value.length <= 0;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nothingFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Nothing } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => nothingDecode(value, opts));
+}
 
 export const Nothing: {
   readonly toString: typeof nothingToString;
@@ -498,6 +503,7 @@ export const Nothing: {
   readonly is: typeof nothingIs;
   readonly decodeWithContext: typeof nothingDecodeWithContext;
   readonly hasShape: typeof nothingHasShape;
+  readonly fromString: typeof nothingFromString;
 } = {
   toString: nothingToString,
   clone: nothingClone,
@@ -509,7 +515,8 @@ export const Nothing: {
   decode: nothingDecode,
   is: nothingIs,
   decodeWithContext: nothingDecodeWithContext,
-  hasShape: nothingHasShape
+  hasShape: nothingHasShape,
+  fromString: nothingFromString
 };
 
 ## DTS
@@ -531,8 +538,19 @@ export declare function holderEncode(value: Holder, keepMetadata?: boolean): str
 export declare function holderEncodeWithContext(value: Holder, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Holder>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function holderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Holder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function holderFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Holder;
 } | {
@@ -568,6 +586,7 @@ export declare const Holder: {
 	readonly encodeWithContext: typeof holderEncodeWithContext;
 	readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
 	readonly decode: typeof holderDecode;
+	readonly fromString: typeof holderFromString;
 	readonly decodeWithContext: typeof holderDecodeWithContext;
 	readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
 	readonly validateField: typeof holderValidateField;
@@ -585,7 +604,7 @@ export declare function nothingDefaultValue(): Nothing;
 export declare function nothingEncode(value: Nothing, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function nothingEncodeWithContext(value: Nothing, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function nothingDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Nothing;
@@ -600,6 +619,17 @@ export declare function nothingIs(value: unknown): value is Nothing;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function nothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Nothing;
 export declare function nothingHasShape(value: unknown): boolean;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nothingFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Nothing;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export declare const Nothing: {
 	readonly toString: typeof nothingToString;
 	readonly clone: typeof nothingClone;
@@ -612,6 +642,7 @@ export declare const Nothing: {
 	readonly is: typeof nothingIs;
 	readonly decodeWithContext: typeof nothingDecodeWithContext;
 	readonly hasShape: typeof nothingHasShape;
+	readonly fromString: typeof nothingFromString;
 };
 
 ## Diagnostics
@@ -620,28 +651,28 @@ export declare const Nothing: {
 
 ## Mapping
 
-original 0..95 -> expanded 1066..1161
-original 165..255 -> expanded 1161..1251
-original 255..257 -> expanded 15823..15825
-original 327..353 -> expanded 15825..15851
-original 353..354 -> expanded 20645..20646
-generated 0..1066 <- imports
-generated 1251..1641 <- Debug
-generated 1641..1879 <- Clone
-generated 1879..2251 <- PartialEq
-generated 2251..2600 <- Hash
-generated 2600..2748 <- Default
-generated 2748..5430 <- Encode
-generated 5430..14511 <- Decode
-generated 14511..15823 <- __convenience_const
-generated 15851..15971 <- Debug
-generated 15971..16046 <- Clone
-generated 16046..16133 <- PartialEq
-generated 16133..16230 <- Hash
-generated 16230..16316 <- Default
-generated 16316..17115 <- Encode
-generated 17115..19770 <- Decode
-generated 19770..20645 <- __convenience_const
+original 0..95 -> expanded 1068..1163
+original 165..255 -> expanded 1163..1253
+original 255..257 -> expanded 16244..16246
+original 327..353 -> expanded 16246..16272
+original 353..354 -> expanded 21571..21572
+generated 0..1068 <- imports
+generated 1253..1643 <- Debug
+generated 1643..1881 <- Clone
+generated 1881..2253 <- PartialEq
+generated 2253..2602 <- Hash
+generated 2602..2750 <- Default
+generated 2750..5432 <- Encode
+generated 5432..14852 <- Decode
+generated 14852..16244 <- __convenience_const
+generated 16272..16392 <- Debug
+generated 16392..16467 <- Clone
+generated 16467..16554 <- PartialEq
+generated 16554..16651 <- Hash
+generated 16651..16737 <- Default
+generated 16737..17536 <- Encode
+generated 17536..20614 <- Decode
+generated 20614..21571 <- __convenience_const
 
 ## Metadata
 

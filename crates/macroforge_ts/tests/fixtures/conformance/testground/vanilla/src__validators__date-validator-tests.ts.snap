@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Date validator test classes for comprehensive decoder validation testing.
@@ -29,14 +29,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = ValidDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = ValidDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -81,6 +78,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => ValidDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -185,9 +187,14 @@ static is(obj: unknown): obj is ValidDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return ValidDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function validDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ValidDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -221,14 +228,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -273,6 +277,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -377,9 +386,14 @@ static is(obj: unknown): obj is GreaterThanDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -413,14 +427,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -465,6 +476,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => GreaterThanOrEqualToDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -569,9 +585,14 @@ static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanOrEqualToDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanOrEqualToDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -605,14 +626,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -657,6 +675,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -761,9 +784,14 @@ static is(obj: unknown): obj is LessThanDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -797,14 +825,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -849,6 +874,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => LessThanOrEqualToDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -953,9 +983,14 @@ static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanOrEqualToDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanOrEqualToDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -989,14 +1024,11 @@ constructor(props: { date: Date }) {
     this.date = props.date;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = BetweenDateValidator.decodeWithContext(data, ctx);
+        const resultOrRef = BetweenDateValidator.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1041,6 +1073,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => BetweenDateValidator.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1145,9 +1182,14 @@ static is(obj: unknown): obj is BetweenDateValidator {
 }
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     return BetweenDateValidator.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function betweenDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return BetweenDateValidator.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -1182,8 +1224,19 @@ export declare class ValidDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ValidDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ValidDateValidator;
 	} | {
@@ -1208,8 +1261,19 @@ export declare class ValidDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is ValidDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ValidDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function validDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: ValidDateValidator;
 } | {
@@ -1234,8 +1298,19 @@ export declare class GreaterThanDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanDateValidator;
 	} | {
@@ -1260,8 +1335,19 @@ export declare class GreaterThanDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanDateValidator;
 } | {
@@ -1286,8 +1372,19 @@ export declare class GreaterThanOrEqualToDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanOrEqualToDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: GreaterThanOrEqualToDateValidator;
 	} | {
@@ -1312,8 +1409,19 @@ export declare class GreaterThanOrEqualToDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanOrEqualToDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: GreaterThanOrEqualToDateValidator;
 } | {
@@ -1338,8 +1446,19 @@ export declare class LessThanDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanDateValidator;
 	} | {
@@ -1364,8 +1483,19 @@ export declare class LessThanDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanDateValidator;
 } | {
@@ -1390,8 +1520,19 @@ export declare class LessThanOrEqualToDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanOrEqualToDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: LessThanOrEqualToDateValidator;
 	} | {
@@ -1416,8 +1557,19 @@ export declare class LessThanOrEqualToDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is LessThanOrEqualToDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanOrEqualToDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanOrEqualToDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: LessThanOrEqualToDateValidator;
 } | {
@@ -1442,8 +1594,19 @@ export declare class BetweenDateValidator {
 	constructor(props: {
 		date: Date;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: BetweenDateValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: BetweenDateValidator;
 	} | {
@@ -1468,8 +1631,19 @@ export declare class BetweenDateValidator {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is BetweenDateValidator;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: BetweenDateValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function betweenDateValidatorFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: BetweenDateValidator;
 } | {
@@ -1494,32 +1668,32 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 
 ## Mapping
 
-original 0..229 -> expanded 439..668
-original 229..230 -> expanded 7292..7293
-original 230..407 -> expanded 9225..9402
-original 407..408 -> expanded 16317..16318
-original 408..612 -> expanded 18340..18544
-original 612..613 -> expanded 25735..25736
-original 613..781 -> expanded 27893..28061
-original 781..782 -> expanded 34892..34893
-original 782..977 -> expanded 36870..37065
-original 977..978 -> expanded 44172..44173
-original 978..1157 -> expanded 46285..46464
-original 1157..1158 -> expanded 53477..53478
-original 1158..1159 -> expanded 55440..55441
-generated 0..439 <- imports
-generated 668..7292 <- Decode
-generated 7293..9225 <- Decode
-generated 9402..16317 <- Decode
-generated 16318..18340 <- Decode
-generated 18544..25735 <- Decode
-generated 25736..27893 <- Decode
-generated 28061..34892 <- Decode
-generated 34893..36870 <- Decode
-generated 37065..44172 <- Decode
-generated 44173..46285 <- Decode
-generated 46464..53477 <- Decode
-generated 53478..55440 <- Decode
+original 0..229 -> expanded 441..670
+original 229..230 -> expanded 7663..7664
+original 230..407 -> expanded 10028..10205
+original 407..408 -> expanded 17501..17502
+original 408..612 -> expanded 19974..20178
+original 612..613 -> expanded 27768..27769
+original 613..781 -> expanded 30403..30571
+original 781..782 -> expanded 37777..37778
+original 782..977 -> expanded 40196..40391
+original 977..978 -> expanded 47891..47892
+original 978..1157 -> expanded 50472..50651
+original 1157..1158 -> expanded 58037..58038
+original 1158..1159 -> expanded 60438..60439
+generated 0..441 <- imports
+generated 670..7663 <- Decode
+generated 7664..10028 <- Decode
+generated 10205..17501 <- Decode
+generated 17502..19974 <- Decode
+generated 20178..27768 <- Decode
+generated 27769..30403 <- Decode
+generated 30571..37777 <- Decode
+generated 37778..40196 <- Decode
+generated 40391..47891 <- Decode
+generated 47892..50472 <- Decode
+generated 50651..58037 <- Decode
+generated 58038..60438 <- Decode
 
 ## Metadata
 

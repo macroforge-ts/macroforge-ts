@@ -53,6 +53,7 @@ pub(super) fn handle_class(
 
     // Generate function names (always prefix style)
     let fn_decode_ident = class_names.generic_function("Decode");
+    let fn_from_string_ident = class_names.generic_function("FromString");
     let fn_decode_internal_ident = class_names.generic_function("DecodeWithContext");
     let fn_is_ident = class_names.generic_function("Is");
     // A value of a type parameter is checked by the guard handed in for it.
@@ -203,7 +204,7 @@ pub(super) fn handle_class(
 
     // A key is read only where the input itself has it.
     let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
-    let parsed_text: Expr = ts_ident!(endec_helper("parsedText")).into();
+    let decoded_text: Expr = ts_ident!(endec_helper("decodedText")).into();
     let props_param = ts_ident!(if constructed_fields.is_empty() {
         "_props"
     } else {
@@ -229,14 +230,11 @@ pub(super) fn handle_class(
             }
         {/if}
 
-        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        /** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
         static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
             try {
-                // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? @{parsed_text}(input) : input;
-
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(data, ctx@{&passed_coders});
+                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(input, ctx@{&passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -260,6 +258,11 @@ pub(super) fn handle_class(
                 const message = e instanceof Error ? e.message : String(e);
                 return @{error_generic_message_expr};
             }
+        }
+
+        /** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        static @{class_names.generic_method("fromString")}(text: string, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&decoded_text}(text, (value) => @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(value, opts@{&passed_coders}));
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
@@ -378,9 +381,14 @@ pub(super) fn handle_class(
 
     // Generate standalone functions that delegate to static methods
     let mut standalone = ts_template! {
-        /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        /** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
             return @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(input, opts@{&passed_coders});
+        }
+
+        /** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
+        export function @{fn_from_string_ident}(text: string, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("fromString{generic_args}"))}(text, opts@{&passed_coders});
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */

@@ -2,16 +2,13 @@
 
 use crate::ast::{Expr, Ident};
 use crate::ts_syn::config::ForeignHandler;
-use std::rc::Rc;
 
 use crate::builtin::derive::common::{js_string, rendered};
 use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
-use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
-use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, ts_ident};
 
 use super::super::AliasDecode;
@@ -82,10 +79,6 @@ pub(super) struct Union<'a> {
     pub(super) passed_coders: &'a str,
     pub(super) full_type_name: &'a str,
     pub(super) full_type_ident: Ident,
-    pub(super) type_registry: &'a TypeRegistry,
-    pub(super) caller_file_path: &'a str,
-    pub(super) file_imports: &'a [FileImportEntry],
-    pub(super) foreign_types_config: Rc<[ForeignTypeConfig]>,
     pub(super) tag_field: String,
     pub(super) content_field: String,
     pub(super) is_externally_tagged: bool,
@@ -94,7 +87,6 @@ pub(super) struct Union<'a> {
     pub(super) literals: Vec<String>,
     pub(super) primitive_types: Vec<String>,
     pub(super) primitive_arms: Vec<(String, Vec<ValidatorSpec>)>,
-    pub(super) encodable_types: Vec<EncodableTypeRef>,
     pub(super) has_primitives: bool,
     pub(super) has_encodables: bool,
     pub(super) has_dates: bool,
@@ -507,10 +499,6 @@ impl<'a> Union<'a> {
             passed_coders: &alias.passed_coders,
             full_type_name,
             full_type_ident: ts_ident!(full_type_name.as_str()),
-            type_registry: alias.type_registry,
-            caller_file_path: alias.caller_file_path,
-            file_imports: alias.file_imports,
-            foreign_types_config,
             tag_field: tag_field.to_string(),
             content_field,
             is_externally_tagged,
@@ -522,7 +510,6 @@ impl<'a> Union<'a> {
             param_decoder,
             regular_encodables: regular_encodables.into_iter().cloned().collect(),
             foreign_encodables: foreign_encodables.into_iter().cloned().collect(),
-            encodable_types,
             has_primitives,
             has_encodables,
             has_dates,

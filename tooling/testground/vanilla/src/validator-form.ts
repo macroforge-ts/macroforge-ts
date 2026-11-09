@@ -81,17 +81,17 @@ export type ValidationResult<T> =
 export function validateUserRegistration(
     data: unknown
 ): ValidationResult<UserRegistrationForm> {
-    const result = UserRegistrationForm.decode(JSON.stringify(data));
+    const result = UserRegistrationForm.decode(data);
     return result;
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = ProductForm.decode(JSON.stringify(data));
+    const result = ProductForm.decode(data);
     return result;
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = EventForm.decode(JSON.stringify(data));
+    const result = EventForm.decode(data);
     return result;
 }
 

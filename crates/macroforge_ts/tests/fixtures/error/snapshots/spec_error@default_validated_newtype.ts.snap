@@ -15,19 +15,17 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
 type Meters = number & { readonly [__mf_newtype_1]: true };
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const result = metersDecodeWithContext(data, ctx);
+        const result = metersDecodeWithContext(input, ctx);
         if (opts?.freeze) {
             ctx.freezeAll();
         }
@@ -81,17 +79,23 @@ export function metersHasShape(value: unknown): boolean {
 export function metersIs(value: unknown): value is Meters {
     return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metersFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => metersDecode(value, opts));
+}
 
 const Meters: {
   readonly decode: typeof metersDecode;
   readonly decodeWithContext: typeof metersDecodeWithContext;
   readonly hasShape: typeof metersHasShape;
   readonly is: typeof metersIs;
+  readonly fromString: typeof metersFromString;
 } = {
   decode: metersDecode,
   decodeWithContext: metersDecodeWithContext,
   hasShape: metersHasShape,
-  is: metersIs
+  is: metersIs,
+  fromString: metersFromString
 };
 
 ## DTS
@@ -100,7 +104,7 @@ declare const __mf_newtype_1: unique symbol;
 type Meters = number & {
 	readonly [__mf_newtype_1]: true;
 };
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Meters;
@@ -115,6 +119,17 @@ export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions):
 export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
 export declare function metersHasShape(value: unknown): boolean;
 export declare function metersIs(value: unknown): value is Meters;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metersFromString(text: string, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 export {};
 
 ## Diagnostics
@@ -123,14 +138,14 @@ Error [5..29]: @derive(Default) on 'Meters' requires @default(value): its valida
 
 ## Mapping
 
-original 55..70 -> expanded 270..285
-original 86..87 -> expanded 329..330
-original 87..88 -> expanded 2780..2781
-generated 0..225 <- imports
-generated 225..270 <- $Newtype
-generated 285..329 <- $Newtype
-generated 330..2463 <- Decode
-generated 2463..2780 <- __convenience_const
+original 55..70 -> expanded 272..287
+original 86..87 -> expanded 331..332
+original 87..88 -> expanded 3282..3283
+generated 0..227 <- imports
+generated 227..272 <- $Newtype
+generated 287..331 <- $Newtype
+generated 332..2885 <- Decode
+generated 2885..3282 <- __convenience_const
 
 ## Metadata
 

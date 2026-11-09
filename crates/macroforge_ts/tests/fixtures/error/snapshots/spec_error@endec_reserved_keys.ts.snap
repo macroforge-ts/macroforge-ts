@@ -42,7 +42,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, decodedText as __mf_decodedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Marked {
@@ -114,13 +114,11 @@ export function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taggingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagging } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = taggingDecodeWithContext(data, ctx);
+        const resultOrRef = taggingDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -166,6 +164,10 @@ export function taggingDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 });
     }
 }
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggingFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Tagging } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => taggingDecode(value, opts));
+}
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function taggingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tagging | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
@@ -206,6 +208,7 @@ const Tagging: {
   readonly encode: typeof taggingEncode;
   readonly encodeWithContext: typeof taggingEncodeWithContext;
   readonly decode: typeof taggingDecode;
+  readonly fromString: typeof taggingFromString;
   readonly decodeWithContext: typeof taggingDecodeWithContext;
   readonly hasShape: typeof taggingHasShape;
   readonly is: typeof taggingIs;
@@ -213,6 +216,7 @@ const Tagging: {
   encode: taggingEncode,
   encodeWithContext: taggingEncodeWithContext,
   decode: taggingDecode,
+  fromString: taggingFromString,
   decodeWithContext: taggingDecodeWithContext,
   hasShape: taggingHasShape,
   is: taggingIs
@@ -229,8 +233,19 @@ type Tagging = {
 export declare function taggingEncode(value: Tagging, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function taggingDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tagging;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggingFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Tagging;
 } | {
@@ -262,19 +277,19 @@ Error [481..494]: @derive(Decode): field 'held' is read from the key `__proto__`
 
 ## Mapping
 
-original 30..109 -> expanded 748..827
-original 139..159 -> expanded 827..847
-original 193..220 -> expanded 847..874
-original 250..323 -> expanded 874..947
-original 357..381 -> expanded 947..971
-original 411..437 -> expanded 971..997
-original 475..497 -> expanded 997..1019
-original 563..609 -> expanded 1019..1065
-original 609..610 -> expanded 6865..6866
-generated 0..748 <- imports
-generated 1065..3053 <- Encode
-generated 3053..6363 <- Decode
-generated 6363..6865 <- __convenience_const
+original 30..109 -> expanded 750..829
+original 139..159 -> expanded 829..849
+original 193..220 -> expanded 849..876
+original 250..323 -> expanded 876..949
+original 357..381 -> expanded 949..973
+original 411..437 -> expanded 973..999
+original 475..497 -> expanded 999..1021
+original 563..609 -> expanded 1021..1067
+original 609..610 -> expanded 7372..7373
+generated 0..750 <- imports
+generated 1067..3055 <- Encode
+generated 3055..6788 <- Decode
+generated 6788..7372 <- __convenience_const
 
 ## Metadata
 

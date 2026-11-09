@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Account {
@@ -33,14 +33,11 @@ interface Account {
     note: string | undefined;
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = accountDecodeWithContext(data, ctx);
+        const resultOrRef = accountDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -85,6 +82,10 @@ export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function accountFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => accountDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
@@ -245,6 +246,7 @@ export function accountIs(obj: unknown): obj is Account {
 
 const Account: {
   readonly decode: typeof accountDecode;
+  readonly fromString: typeof accountFromString;
   readonly decodeWithContext: typeof accountDecodeWithContext;
   readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
   readonly validateField: typeof accountValidateField;
@@ -253,6 +255,7 @@ const Account: {
   readonly is: typeof accountIs;
 } = {
   decode: accountDecode,
+  fromString: accountFromString,
   decodeWithContext: accountDecodeWithContext,
   decodePartialWithContext: accountDecodePartialWithContext,
   validateField: accountValidateField,
@@ -271,8 +274,19 @@ interface Account {
 	nickname?: string;
 	note: string | undefined;
 }
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Account;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function accountFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Account;
 } | {
@@ -306,11 +320,11 @@ export {};
 
 ## Mapping
 
-original 22..172 -> expanded 507..657
-original 172..173 -> expanded 10843..10844
-generated 0..507 <- imports
-generated 657..10187 <- Decode
-generated 10187..10843 <- __convenience_const
+original 22..172 -> expanded 509..659
+original 172..173 -> expanded 11269..11270
+generated 0..509 <- imports
+generated 659..10531 <- Decode
+generated 10531..11269 <- __convenience_const
 
 ## Metadata
 

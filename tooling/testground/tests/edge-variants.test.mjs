@@ -20,7 +20,7 @@ const rect = { size: [1, 2], label: 'r-x' };
 Deno.test('a union of objects, literals and template literal types tells each member apart', () => {
     for (const value of [circle, rect, 'none', 'id-5', 7, null]) {
         const text = mod.variantInternalEncode(value);
-        assertEquals(decoded(mod.variantInternalDecode(text)), value, text);
+        assertEquals(decoded(mod.variantInternalFromString(text)), value, text);
         assert(mod.variantInternalEquals(value, mod.variantInternalClone(value)), text);
         assertStrictEquals(mod.variantInternalPartialCompare(value, value), 0, text);
         assertStrictEquals(
@@ -49,7 +49,7 @@ Deno.test('each tagging mode round-trips its variants and refuses a wrong one', 
     for (const name of ['variantAdjacent', 'variantExternal', 'variantUntagged']) {
         for (const value of [circle, rect]) {
             const text = mod[`${name}Encode`](value);
-            assertEquals(decoded(mod[`${name}Decode`](text)), value, `${name} ${text}`);
+            assertEquals(decoded(mod[`${name}FromString`](text)), value, `${name} ${text}`);
         }
         assert(!mod[`${name}Decode`]({ radius: 'one' }).success, name);
         assert(!mod[`${name}Decode`](true).success, name);
@@ -66,7 +66,10 @@ Deno.test('each tagging mode round-trips its variants and refuses a wrong one', 
     assert(!mod.variantExternalDecode({ VariantRect: { size: [1] } }).success);
     assert(!mod.variantExternalDecode({ Nope: { radius: 1 } }).success);
     for (const value of ['text', 12]) {
-        assertEquals(decoded(mod.variantUntaggedDecode(mod.variantUntaggedEncode(value))), value);
+        assertEquals(
+            decoded(mod.variantUntaggedFromString(mod.variantUntaggedEncode(value))),
+            value
+        );
     }
     assert(!mod.variantUntaggedDecode(['a']).success);
     assert(!mod.variantUntaggedDecode(true).success);
@@ -83,7 +86,7 @@ Deno.test('a class three levels deep codes and checks every inherited field', ()
     child.shape = 'id-3';
     leaf.children.push(child);
     const text = mod.VariantLeaf.encode(leaf);
-    const back = decoded(mod.VariantLeaf.decode(text));
+    const back = decoded(mod.VariantLeaf.fromString(text));
     assert(back instanceof mod.VariantLeaf);
     assert(back.children[0] instanceof mod.VariantLeaf);
     assert(back.created instanceof Date && back.tags instanceof Set);

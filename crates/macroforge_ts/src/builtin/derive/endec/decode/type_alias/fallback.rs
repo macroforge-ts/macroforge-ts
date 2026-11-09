@@ -9,8 +9,6 @@ use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
 use crate::builtin::derive::common::function_prefix;
 
-use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
-use crate::builtin::derive::endec::get_foreign_types;
 use crate::builtin::derive::endec::type_arguments::{
     declared_param_guards, guarded_param_decoders,
 };
@@ -26,9 +24,6 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         generic_decl,
         generic_args,
         full_type_name,
-        type_registry,
-        caller_file_path,
-        file_imports,
         ..
     } = alias;
     // Fallback for other type alias forms (simple alias, tuple, etc.)
@@ -69,39 +64,12 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
     let error_from_ctx_expr =
         Expr::parse(&error_from_ctx).expect("decode ctx error wrapper should parse");
 
-    // Use the type registry and foreign types to determine if this type accepts strings.
-    let foreign_types_config = get_foreign_types();
-    let accepts_string = type_accepts_string(
-        type_name,
-        type_registry,
-        caller_file_path,
-        file_imports,
-        &foreign_types_config,
-    );
-    let data_init_expr = if accepts_string {
-        // A string may be the value itself or the JSON text of it.
-        let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
-            "textOrValue"
-        ))
-        .into();
-        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
-            @{text_or_value}(input, @{&fn_has_shape_expr})
-        }))
-    } else {
-        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
-        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
-            typeof input === "string" ? @{parsed_text}(input) : input
-        }))
-    };
-
     let mut result = ts_template! {
-        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        /** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&alias.coders}): @{return_type_ident} {
             try {
-                const data = @{data_init_expr};
-
                 const ctx = @{decode_context_expr}.create();
-                const result = @{fn_decode_internal_expr}(data, ctx@{&alias.passed_coders});
+                const result = @{fn_decode_internal_expr}(input, ctx@{&alias.passed_coders});
                 ctx.applyPatches();
                 if (opts?.freeze) {
                     ctx.freezeAll();
@@ -141,6 +109,18 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         }
     };
     result = result.merge(view);
+    let from_string_name = format!("{}FromString{}", function_prefix(type_name), generic_decl);
+    let decode_call = format!("{}Decode{}", function_prefix(type_name), generic_args);
+    result = result.merge(super::super::from_string::from_string_function(
+        &super::super::from_string::TextDecoder {
+            name: &from_string_name,
+            decode: &decode_call,
+            coders: &alias.coders,
+            passed_coders: &alias.passed_coders,
+            return_type: &return_type,
+            takes_options: true,
+        },
+    ));
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);

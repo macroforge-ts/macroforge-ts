@@ -14,7 +14,7 @@ true
 
 import { edgeLabeledDecodePartialWithContext, edgeNodeDecodePartialWithContext, edgeProfileDecodePartialWithContext, edgeStrictDecodePartialWithContext, edgeLabeledEncodePartialWithContext, edgeNodeEncodePartialWithContext, edgeProfileEncodePartialWithContext, edgeStrictEncodePartialWithContext, edgeCardDecodePartialWithContext, edgeItemDecodePartialWithContext, edgeCardEncodePartialWithContext, edgeItemEncodePartialWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * `Partial`, `Pick` and `Omit` of types from another module, wherever a
@@ -274,14 +274,11 @@ function edgePartialsEncodeFields(value: EdgePartials, ctx: __mf_EncodeContext, 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function edgePartialsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgePartials } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = edgePartialsDecodeWithContext(data, ctx);
+        const resultOrRef = edgePartialsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -326,6 +323,10 @@ export function edgePartialsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgePartialsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EdgePartials } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => edgePartialsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgePartials | __mf_PendingRef;
@@ -751,6 +752,7 @@ export const EdgePartials: {
   readonly encodeWithContext: typeof edgePartialsEncodeWithContext;
   readonly encodePartialWithContext: typeof edgePartialsEncodePartialWithContext;
   readonly decode: typeof edgePartialsDecode;
+  readonly fromString: typeof edgePartialsFromString;
   readonly decodeWithContext: typeof edgePartialsDecodeWithContext;
   readonly decodePartialWithContext: typeof edgePartialsDecodePartialWithContext;
   readonly validateField: typeof edgePartialsValidateField;
@@ -766,6 +768,7 @@ export const EdgePartials: {
   encodeWithContext: edgePartialsEncodeWithContext,
   encodePartialWithContext: edgePartialsEncodePartialWithContext,
   decode: edgePartialsDecode,
+  fromString: edgePartialsFromString,
   decodeWithContext: edgePartialsDecodeWithContext,
   decodePartialWithContext: edgePartialsDecodePartialWithContext,
   validateField: edgePartialsValidateField,
@@ -935,14 +938,11 @@ function edgeRenamedPartialsEncodeFields(value: EdgeRenamedPartials, ctx: __mf_E
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function edgeRenamedPartialsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeRenamedPartials } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = edgeRenamedPartialsDecodeWithContext(data, ctx);
+        const resultOrRef = edgeRenamedPartialsDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -987,6 +987,10 @@ export function edgeRenamedPartialsDecode(input: unknown, opts?: __mf_DecodeOpti
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgeRenamedPartialsFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EdgeRenamedPartials } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => edgeRenamedPartialsDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeRenamedPartials | __mf_PendingRef;
@@ -1268,6 +1272,7 @@ export const EdgeRenamedPartials: {
   readonly encodeWithContext: typeof edgeRenamedPartialsEncodeWithContext;
   readonly encodePartialWithContext: typeof edgeRenamedPartialsEncodePartialWithContext;
   readonly decode: typeof edgeRenamedPartialsDecode;
+  readonly fromString: typeof edgeRenamedPartialsFromString;
   readonly decodeWithContext: typeof edgeRenamedPartialsDecodeWithContext;
   readonly decodePartialWithContext: typeof edgeRenamedPartialsDecodePartialWithContext;
   readonly validateField: typeof edgeRenamedPartialsValidateField;
@@ -1283,6 +1288,7 @@ export const EdgeRenamedPartials: {
   encodeWithContext: edgeRenamedPartialsEncodeWithContext,
   encodePartialWithContext: edgeRenamedPartialsEncodePartialWithContext,
   decode: edgeRenamedPartialsDecode,
+  fromString: edgeRenamedPartialsFromString,
   decodeWithContext: edgeRenamedPartialsDecodeWithContext,
   decodePartialWithContext: edgeRenamedPartialsDecodePartialWithContext,
   validateField: edgeRenamedPartialsValidateField,
@@ -1406,14 +1412,11 @@ function edgeOptionalEncodeFields(value: EdgeOptional, _ctx: __mf_EncodeContext,
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = edgeOptionalDecodeWithContext(data, ctx);
+        const resultOrRef = edgeOptionalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1458,6 +1461,10 @@ export function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgeOptionalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EdgeOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => edgeOptionalDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeOptional | __mf_PendingRef;
@@ -1592,6 +1599,7 @@ export const EdgeOptional: {
   readonly encodeWithContext: typeof edgeOptionalEncodeWithContext;
   readonly encodePartialWithContext: typeof edgeOptionalEncodePartialWithContext;
   readonly decode: typeof edgeOptionalDecode;
+  readonly fromString: typeof edgeOptionalFromString;
   readonly decodeWithContext: typeof edgeOptionalDecodeWithContext;
   readonly decodePartialWithContext: typeof edgeOptionalDecodePartialWithContext;
   readonly validateField: typeof edgeOptionalValidateField;
@@ -1607,6 +1615,7 @@ export const EdgeOptional: {
   encodeWithContext: edgeOptionalEncodeWithContext,
   encodePartialWithContext: edgeOptionalEncodePartialWithContext,
   decode: edgeOptionalDecode,
+  fromString: edgeOptionalFromString,
   decodeWithContext: edgeOptionalDecodeWithContext,
   decodePartialWithContext: edgeOptionalDecodePartialWithContext,
   validateField: edgeOptionalValidateField,
@@ -1755,14 +1764,11 @@ function edgeRequiredEncodeFields(value: EdgeRequired, ctx: __mf_EncodeContext, 
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = edgeRequiredDecodeWithContext(data, ctx);
+        const resultOrRef = edgeRequiredDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1807,6 +1813,10 @@ export function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgeRequiredFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: EdgeRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => edgeRequiredDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeRequired | __mf_PendingRef;
@@ -2039,6 +2049,7 @@ export const EdgeRequired: {
   readonly encodeWithContext: typeof edgeRequiredEncodeWithContext;
   readonly encodePartialWithContext: typeof edgeRequiredEncodePartialWithContext;
   readonly decode: typeof edgeRequiredDecode;
+  readonly fromString: typeof edgeRequiredFromString;
   readonly decodeWithContext: typeof edgeRequiredDecodeWithContext;
   readonly decodePartialWithContext: typeof edgeRequiredDecodePartialWithContext;
   readonly validateField: typeof edgeRequiredValidateField;
@@ -2054,6 +2065,7 @@ export const EdgeRequired: {
   encodeWithContext: edgeRequiredEncodeWithContext,
   encodePartialWithContext: edgeRequiredEncodePartialWithContext,
   decode: edgeRequiredDecode,
+  fromString: edgeRequiredFromString,
   decodeWithContext: edgeRequiredDecodeWithContext,
   decodePartialWithContext: edgeRequiredDecodePartialWithContext,
   validateField: edgeRequiredValidateField,
@@ -2096,8 +2108,19 @@ export declare function edgePartialsEncode(value: EdgePartials, keepMetadata?: b
 export declare function edgePartialsEncodeWithContext(value: EdgePartials, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function edgePartialsEncodePartialWithContext(value: Partial<EdgePartials>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgePartials>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function edgePartialsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgePartials;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgePartialsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EdgePartials;
 } | {
@@ -2132,6 +2155,7 @@ export declare const EdgePartials: {
 	readonly encodeWithContext: typeof edgePartialsEncodeWithContext;
 	readonly encodePartialWithContext: typeof edgePartialsEncodePartialWithContext;
 	readonly decode: typeof edgePartialsDecode;
+	readonly fromString: typeof edgePartialsFromString;
 	readonly decodeWithContext: typeof edgePartialsDecodeWithContext;
 	readonly decodePartialWithContext: typeof edgePartialsDecodePartialWithContext;
 	readonly validateField: typeof edgePartialsValidateField;
@@ -2160,8 +2184,19 @@ export declare function edgeRenamedPartialsEncode(value: EdgeRenamedPartials, ke
 export declare function edgeRenamedPartialsEncodeWithContext(value: EdgeRenamedPartials, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function edgeRenamedPartialsEncodePartialWithContext(value: Partial<EdgeRenamedPartials>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeRenamedPartials>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function edgeRenamedPartialsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgeRenamedPartials;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgeRenamedPartialsFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EdgeRenamedPartials;
 } | {
@@ -2196,6 +2231,7 @@ export declare const EdgeRenamedPartials: {
 	readonly encodeWithContext: typeof edgeRenamedPartialsEncodeWithContext;
 	readonly encodePartialWithContext: typeof edgeRenamedPartialsEncodePartialWithContext;
 	readonly decode: typeof edgeRenamedPartialsDecode;
+	readonly fromString: typeof edgeRenamedPartialsFromString;
 	readonly decodeWithContext: typeof edgeRenamedPartialsDecodeWithContext;
 	readonly decodePartialWithContext: typeof edgeRenamedPartialsDecodePartialWithContext;
 	readonly validateField: typeof edgeRenamedPartialsValidateField;
@@ -2222,8 +2258,19 @@ export declare function edgeOptionalEncode(value: EdgeOptional, keepMetadata?: b
 export declare function edgeOptionalEncodeWithContext(value: EdgeOptional, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function edgeOptionalEncodePartialWithContext(value: Partial<EdgeOptional>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeOptional>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgeOptional;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgeOptionalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EdgeOptional;
 } | {
@@ -2258,6 +2305,7 @@ export declare const EdgeOptional: {
 	readonly encodeWithContext: typeof edgeOptionalEncodeWithContext;
 	readonly encodePartialWithContext: typeof edgeOptionalEncodePartialWithContext;
 	readonly decode: typeof edgeOptionalDecode;
+	readonly fromString: typeof edgeOptionalFromString;
 	readonly decodeWithContext: typeof edgeOptionalDecodeWithContext;
 	readonly decodePartialWithContext: typeof edgeOptionalDecodePartialWithContext;
 	readonly validateField: typeof edgeOptionalValidateField;
@@ -2284,8 +2332,19 @@ export declare function edgeRequiredEncode(value: EdgeRequired, keepMetadata?: b
 export declare function edgeRequiredEncodeWithContext(value: EdgeRequired, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function edgeRequiredEncodePartialWithContext(value: Partial<EdgeRequired>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeRequired>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgeRequired;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgeRequiredFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: EdgeRequired;
 } | {
@@ -2320,6 +2379,7 @@ export declare const EdgeRequired: {
 	readonly encodeWithContext: typeof edgeRequiredEncodeWithContext;
 	readonly encodePartialWithContext: typeof edgeRequiredEncodePartialWithContext;
 	readonly decode: typeof edgeRequiredDecode;
+	readonly fromString: typeof edgeRequiredFromString;
 	readonly decodeWithContext: typeof edgeRequiredDecodeWithContext;
 	readonly decodePartialWithContext: typeof edgeRequiredDecodePartialWithContext;
 	readonly validateField: typeof edgeRequiredValidateField;
@@ -2334,40 +2394,40 @@ export declare const EdgeRequired: {
 
 ## Mapping
 
-original 0..987 -> expanded 1647..2634
-original 987..1421 -> expanded 41147..41581
-original 1421..1664 -> expanded 66046..66289
-original 1664..1997 -> expanded 80263..80596
-original 1997..1998 -> expanded 101206..101207
-generated 0..1647 <- imports
-generated 2634..3740 <- Debug
-generated 3740..4846 <- Clone
-generated 4846..7397 <- PartialEq
-generated 7397..9038 <- Hash
-generated 9038..15292 <- Encode
-generated 15292..39749 <- Decode
-generated 39749..41147 <- __convenience_const
-generated 41581..42353 <- Debug
-generated 42353..42886 <- Clone
-generated 42886..43620 <- PartialEq
-generated 43620..44334 <- Hash
-generated 44334..48887 <- Encode
-generated 48887..64445 <- Decode
-generated 64445..66046 <- __convenience_const
-generated 66289..66694 <- Debug
-generated 66694..66991 <- Clone
-generated 66991..67434 <- PartialEq
-generated 67434..68252 <- Hash
-generated 68252..71234 <- Encode
-generated 71234..78865 <- Decode
-generated 78865..80263 <- __convenience_const
-generated 80596..81199 <- Debug
-generated 81199..81619 <- Clone
-generated 81619..82402 <- PartialEq
-generated 82402..83030 <- Hash
-generated 83030..86773 <- Encode
-generated 86773..99808 <- Decode
-generated 99808..101206 <- __convenience_const
+original 0..987 -> expanded 1649..2636
+original 987..1421 -> expanded 41598..42032
+original 1421..1664 -> expanded 66981..67224
+original 1664..1997 -> expanded 81647..81980
+original 1997..1998 -> expanded 103039..103040
+generated 0..1649 <- imports
+generated 2636..3742 <- Debug
+generated 3742..4848 <- Clone
+generated 4848..7399 <- PartialEq
+generated 7399..9040 <- Hash
+generated 9040..15294 <- Encode
+generated 15294..40108 <- Decode
+generated 40108..41598 <- __convenience_const
+generated 42032..42804 <- Debug
+generated 42804..43337 <- Clone
+generated 43337..44071 <- PartialEq
+generated 44071..44785 <- Hash
+generated 44785..49338 <- Encode
+generated 49338..65274 <- Decode
+generated 65274..66981 <- __convenience_const
+generated 67224..67629 <- Debug
+generated 67629..67926 <- Clone
+generated 67926..68369 <- PartialEq
+generated 68369..69187 <- Hash
+generated 69187..72169 <- Encode
+generated 72169..80157 <- Decode
+generated 80157..81647 <- __convenience_const
+generated 81980..82583 <- Debug
+generated 82583..83003 <- Clone
+generated 83003..83786 <- PartialEq
+generated 83786..84414 <- Hash
+generated 84414..88157 <- Encode
+generated 88157..101549 <- Decode
+generated 101549..103039 <- __convenience_const
 
 ## Metadata
 

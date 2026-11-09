@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
@@ -170,14 +170,11 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
     this.score = props.score;
 }
 
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
+        const resultOrRef = AllMacrosTestClass.decodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -222,6 +219,11 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 	}]
 });
     }
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static fromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => AllMacrosTestClass.decode(value, opts));
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -402,9 +404,14 @@ export function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMac
     return AllMacrosTestClass.encodePartialWithContext(value, ctx, fields);
 }
 
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     return AllMacrosTestClass.decode(input, opts);
+}
+
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function allMacrosTestClassFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return AllMacrosTestClass.fromString(text, opts);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
@@ -472,8 +479,19 @@ export declare class AllMacrosTestClass {
 		isActive: boolean;
 		score: number;
 	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	/** Decodes a value to an instance of this class; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: AllMacrosTestClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes JSON text, as `encode` writes it, to an instance of this class. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static fromString(text: string, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: AllMacrosTestClass;
 	} | {
@@ -508,8 +526,19 @@ export declare function allMacrosTestClassEncode(value: AllMacrosTestClass, keep
 export declare function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown>;
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+/** Decodes a value to an instance; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AllMacrosTestClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to an instance. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function allMacrosTestClassFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: AllMacrosTestClass;
 } | {
@@ -535,23 +564,23 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 869..1318
-original 449..450 -> expanded 16038..16039
-original 450..695 -> expanded 19952..20197
-generated 0..869 <- imports
-generated 1318..1825 <- Debug
-generated 1825..2141 <- Clone
-generated 2141..2759 <- PartialEq
-generated 2759..3722 <- Hash
-generated 3722..6644 <- Encode
-generated 6644..6987 <- Encode
-generated 6987..16038 <- Decode
-generated 16039..16169 <- Debug
-generated 16169..16305 <- Clone
-generated 16305..16450 <- PartialEq
-generated 16450..16580 <- Hash
-generated 16580..18020 <- Encode
-generated 18020..19952 <- Decode
+original 0..449 -> expanded 871..1320
+original 449..450 -> expanded 16409..16410
+original 450..695 -> expanded 20755..21000
+generated 0..871 <- imports
+generated 1320..1827 <- Debug
+generated 1827..2143 <- Clone
+generated 2143..2761 <- PartialEq
+generated 2761..3724 <- Hash
+generated 3724..6646 <- Encode
+generated 6646..6989 <- Encode
+generated 6989..16409 <- Decode
+generated 16410..16540 <- Debug
+generated 16540..16676 <- Clone
+generated 16676..16821 <- PartialEq
+generated 16821..16951 <- Hash
+generated 16951..18391 <- Encode
+generated 18391..20755 <- Decode
 
 ## Metadata
 

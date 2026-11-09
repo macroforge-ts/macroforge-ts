@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,13 +71,11 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = intervalDecodeWithContext(data, ctx);
+        const resultOrRef = intervalDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -122,6 +120,10 @@ export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function intervalFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => intervalDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Interval | __mf_PendingRef {
@@ -392,6 +394,7 @@ export const Interval: {
   readonly encode: typeof intervalEncode;
   readonly encodeWithContext: typeof intervalEncodeWithContext;
   readonly decode: typeof intervalDecode;
+  readonly fromString: typeof intervalFromString;
   readonly decodeWithContext: typeof intervalDecodeWithContext;
   readonly hasShape: typeof intervalHasShape;
   readonly is: typeof intervalIs;
@@ -402,6 +405,7 @@ export const Interval: {
   encode: intervalEncode,
   encodeWithContext: intervalEncodeWithContext,
   decode: intervalDecode,
+  fromString: intervalFromString,
   decodeWithContext: intervalDecodeWithContext,
   hasShape: intervalHasShape,
   is: intervalIs,
@@ -422,8 +426,19 @@ export declare function intervalDefaultValue(): Interval;
 export declare function intervalEncode(value: Interval, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Interval;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function intervalFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Interval;
 } | {
@@ -521,6 +536,7 @@ export declare const Interval: {
 	readonly encode: typeof intervalEncode;
 	readonly encodeWithContext: typeof intervalEncodeWithContext;
 	readonly decode: typeof intervalDecode;
+	readonly fromString: typeof intervalFromString;
 	readonly decodeWithContext: typeof intervalDecodeWithContext;
 	readonly hasShape: typeof intervalHasShape;
 	readonly is: typeof intervalIs;
@@ -534,15 +550,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1477..1844
-original 416..564 -> expanded 1844..1992
-original 564..565 -> expanded 19228..19229
-generated 0..1477 <- imports
-generated 1992..2092 <- Default
-generated 2092..5280 <- Encode
-generated 5280..11818 <- Decode
-generated 11818..18438 <- Gigaform
-generated 18438..19228 <- __convenience_const
+original 0..367 -> expanded 1479..1846
+original 416..564 -> expanded 1846..1994
+original 564..565 -> expanded 19740..19741
+generated 0..1479 <- imports
+generated 1994..2094 <- Default
+generated 2094..5282 <- Encode
+generated 5282..12246 <- Decode
+generated 12246..18866 <- Gigaform
+generated 18866..19740 <- __convenience_const
 
 ## Metadata
 

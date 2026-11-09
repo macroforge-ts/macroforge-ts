@@ -13,7 +13,7 @@ true
 ## Output
 
 import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -68,14 +68,11 @@ function customEncodeFields(value: Custom, ctx: __mf_EncodeContext, result: Reco
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = customDecodeWithContext(data, ctx);
+        const resultOrRef = customDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -120,6 +117,10 @@ export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function customFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => customDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef;
@@ -348,6 +349,7 @@ export const Custom: {
   readonly encodeWithContext: typeof customEncodeWithContext;
   readonly encodePartialWithContext: typeof customEncodePartialWithContext;
   readonly decode: typeof customDecode;
+  readonly fromString: typeof customFromString;
   readonly decodeWithContext: typeof customDecodeWithContext;
   readonly decodePartialWithContext: typeof customDecodePartialWithContext;
   readonly validateField: typeof customValidateField;
@@ -362,6 +364,7 @@ export const Custom: {
   encodeWithContext: customEncodeWithContext,
   encodePartialWithContext: customEncodePartialWithContext,
   decode: customDecode,
+  fromString: customFromString,
   decodeWithContext: customDecodeWithContext,
   decodePartialWithContext: customDecodePartialWithContext,
   validateField: customValidateField,
@@ -386,8 +389,19 @@ export declare function customEncode(value: Custom, keepMetadata?: boolean): str
 export declare function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function customDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Custom;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function customFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: Custom;
 } | {
@@ -451,6 +465,7 @@ export declare const Custom: {
 	readonly encodeWithContext: typeof customEncodeWithContext;
 	readonly encodePartialWithContext: typeof customEncodePartialWithContext;
 	readonly decode: typeof customDecode;
+	readonly fromString: typeof customFromString;
 	readonly decodeWithContext: typeof customDecodeWithContext;
 	readonly decodePartialWithContext: typeof customDecodePartialWithContext;
 	readonly validateField: typeof customValidateField;
@@ -467,15 +482,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 1002..1121
-original 168..231 -> expanded 1121..1184
-original 231..232 -> expanded 15658..15659
-generated 0..1002 <- imports
-generated 1184..1276 <- Default
-generated 1276..3452 <- Encode
-generated 3452..9612 <- Decode
-generated 9612..14446 <- Gigaform
-generated 14446..15658 <- __convenience_const
+original 0..119 -> expanded 1004..1123
+original 168..231 -> expanded 1123..1186
+original 231..232 -> expanded 16079..16080
+generated 0..1004 <- imports
+generated 1186..1278 <- Default
+generated 1278..3454 <- Encode
+generated 3454..9953 <- Decode
+generated 9953..14787 <- Gigaform
+generated 14787..16079 <- __convenience_const
 
 ## Metadata
 

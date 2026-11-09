@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedText as __mf_decodedText } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,15 +48,13 @@ export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeConte
     return __variant;
 }
 
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export function priorityDecode(input: unknown): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
-
-    const data = __mf_textOrValue(input, priorityHasShape);
-    switch (data) {
+    switch (input) {
         case 'Medium':
         case 'High':
         case 'Low':
-            return { success: true, value: data as Priority };
+            return { success: true, value: input as Priority };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Priority: expected one of " + ['Medium', 'High', 'Low'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -90,6 +88,10 @@ export function priorityHasShape(value: unknown): boolean {
 
 export function priorityIs(value: unknown): value is Priority {
     return priorityHasShape(value);
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export function priorityFromString(text: string): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => priorityDecode(value));
 }
 
 /** Per-variant error types  */
@@ -242,6 +244,7 @@ export const Priority: {
   readonly decodeWithContext: typeof priorityDecodeWithContext;
   readonly hasShape: typeof priorityHasShape;
   readonly is: typeof priorityIs;
+  readonly fromString: typeof priorityFromString;
   readonly createForm: typeof priorityCreateForm;
   readonly fromFormData: typeof priorityFromFormData;
 } = {
@@ -252,6 +255,7 @@ export const Priority: {
   decodeWithContext: priorityDecodeWithContext,
   hasShape: priorityHasShape,
   is: priorityIs,
+  fromString: priorityFromString,
   createForm: priorityCreateForm,
   fromFormData: priorityFromFormData
 };
@@ -265,7 +269,7 @@ export declare function priorityDefaultValue(): Priority;
 export declare function priorityEncode(value: Priority, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): unknown;
-/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+/** Decodes a value to a member of this literal union; JSON text decodes through `fromString`. @param input - The value to check @returns Result containing the validated value or error  */
 export declare function priorityDecode(input: unknown): {
 	success: true;
 	value: Priority;
@@ -280,6 +284,17 @@ export declare function priorityDecode(input: unknown): {
 export declare function priorityDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Priority | __mf_PendingRef;
 export declare function priorityHasShape(value: unknown): boolean;
 export declare function priorityIs(value: unknown): value is Priority;
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @returns Result containing the decoded value or validation errors  */
+export declare function priorityFromString(text: string): {
+	success: true;
+	value: Priority;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
 /** Per-variant error types  */
 export type PriorityMediumErrors = {
 	_errors: Option.Option<Array<string>>;
@@ -355,6 +370,7 @@ export declare const Priority: {
 	readonly decodeWithContext: typeof priorityDecodeWithContext;
 	readonly hasShape: typeof priorityHasShape;
 	readonly is: typeof priorityIs;
+	readonly fromString: typeof priorityFromString;
 	readonly createForm: typeof priorityCreateForm;
 	readonly fromFormData: typeof priorityFromFormData;
 };
@@ -367,13 +383,13 @@ export declare const Priority: {
 
 original 0..58 -> expanded 711..769
 original 107..173 -> expanded 769..835
-original 173..174 -> expanded 9516..9517
+original 173..174 -> expanded 9950..9951
 generated 0..711 <- imports
 generated 835..910 <- Default
 generated 910..2205 <- Encode
-generated 2205..3981 <- Decode
-generated 3981..8726 <- Gigaform
-generated 8726..9516 <- __convenience_const
+generated 2205..4331 <- Decode
+generated 4331..9076 <- Gigaform
+generated 9076..9950 <- __convenience_const
 
 ## Metadata
 

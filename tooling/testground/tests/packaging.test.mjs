@@ -133,7 +133,7 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
         firstName: 'Ada',
         lastName: 'Lovelace'
     });
-    const roundTrip = personName.personNameDecode(json);
+    const roundTrip = personName.personNameFromString(json);
     assert.equal(
         roundTrip.success,
         true,

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedMember as __mf_decodedMember, decodeChecked as __mf_decodeChecked, holds as __mf_holds } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedText as __mf_decodedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedMember as __mf_decodedMember, decodeChecked as __mf_decodeChecked, holds as __mf_holds } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types wider than the checker reads one body of: an interface of 300 fields
@@ -4060,14 +4060,11 @@ function wideRecordEncodeFields(value: WideRecord, _ctx: __mf_EncodeContext, res
     }
 }
 
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function wideRecordDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WideRecord } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = wideRecordDecodeWithContext(data, ctx);
+        const resultOrRef = wideRecordDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -4112,6 +4109,10 @@ export function wideRecordDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function wideRecordFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: WideRecord } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => wideRecordDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function wideRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): WideRecord | __mf_PendingRef;
@@ -8388,6 +8389,7 @@ export const WideRecord: {
   readonly encodeWithContext: typeof wideRecordEncodeWithContext;
   readonly encodePartialWithContext: typeof wideRecordEncodePartialWithContext;
   readonly decode: typeof wideRecordDecode;
+  readonly fromString: typeof wideRecordFromString;
   readonly decodeWithContext: typeof wideRecordDecodeWithContext;
   readonly decodePartialWithContext: typeof wideRecordDecodePartialWithContext;
   readonly validateField: typeof wideRecordValidateField;
@@ -8404,6 +8406,7 @@ export const WideRecord: {
   encodeWithContext: wideRecordEncodeWithContext,
   encodePartialWithContext: wideRecordEncodePartialWithContext,
   decode: wideRecordDecode,
+  fromString: wideRecordFromString,
   decodeWithContext: wideRecordDecodeWithContext,
   decodePartialWithContext: wideRecordDecodePartialWithContext,
   validateField: wideRecordValidateField,
@@ -10977,13 +10980,11 @@ export function wideEventEncodeWithContext(value: WideEvent, ctx: __mf_EncodeCon
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function wideEventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WideEvent } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = wideEventDecodeWithContext(data, ctx);
+        const resultOrRef = wideEventDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -11028,6 +11029,10 @@ export function wideEventDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function wideEventFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: WideEvent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => wideEventDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function wideEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): WideEvent | __mf_PendingRef {
@@ -11556,6 +11561,7 @@ export const WideEvent: {
   readonly encode: typeof wideEventEncode;
   readonly encodeWithContext: typeof wideEventEncodeWithContext;
   readonly decode: typeof wideEventDecode;
+  readonly fromString: typeof wideEventFromString;
   readonly decodeWithContext: typeof wideEventDecodeWithContext;
   readonly hasShape: typeof wideEventHasShape;
   readonly is: typeof wideEventIs;
@@ -11687,6 +11693,7 @@ export const WideEvent: {
   encode: wideEventEncode,
   encodeWithContext: wideEventEncodeWithContext,
   decode: wideEventDecode,
+  fromString: wideEventFromString,
   decodeWithContext: wideEventDecodeWithContext,
   hasShape: wideEventHasShape,
   is: wideEventIs,
@@ -14376,13 +14383,11 @@ export function wideShapeEncodeWithContext(value: WideShape, ctx: __mf_EncodeCon
     return __variant;
 }
 
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function wideShapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WideShape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? __mf_parsedText(input) : input;
-
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = wideShapeDecodeWithContext(data, ctx);
+        const resultOrRef = wideShapeDecodeWithContext(input, ctx);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -14427,6 +14432,10 @@ export function wideShapeDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 	}]
 });
     }
+}
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function wideShapeFromString(text: string, opts?: __mf_DecodeOptions): { success: true; value: WideShape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return __mf_decodedText(text, (value) => wideShapeDecode(value, opts));
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function wideShapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): WideShape | __mf_PendingRef {
@@ -14708,6 +14717,7 @@ export const WideShape: {
   readonly encode: typeof wideShapeEncode;
   readonly encodeWithContext: typeof wideShapeEncodeWithContext;
   readonly decode: typeof wideShapeDecode;
+  readonly fromString: typeof wideShapeFromString;
   readonly decodeWithContext: typeof wideShapeDecodeWithContext;
   readonly hasShape: typeof wideShapeHasShape;
   readonly is: typeof wideShapeIs;
@@ -14719,6 +14729,7 @@ export const WideShape: {
   encode: wideShapeEncode,
   encodeWithContext: wideShapeEncodeWithContext,
   decode: wideShapeDecode,
+  fromString: wideShapeFromString,
   decodeWithContext: wideShapeDecodeWithContext,
   hasShape: wideShapeHasShape,
   is: wideShapeIs
@@ -15045,8 +15056,19 @@ export declare function wideRecordEncode(value: WideRecord, keepMetadata?: boole
 export declare function wideRecordEncodeWithContext(value: WideRecord, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function wideRecordEncodePartialWithContext(value: Partial<WideRecord>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof WideRecord>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function wideRecordDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: WideRecord;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function wideRecordFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: WideRecord;
 } | {
@@ -15082,6 +15104,7 @@ export declare const WideRecord: {
 	readonly encodeWithContext: typeof wideRecordEncodeWithContext;
 	readonly encodePartialWithContext: typeof wideRecordEncodePartialWithContext;
 	readonly decode: typeof wideRecordDecode;
+	readonly fromString: typeof wideRecordFromString;
 	readonly decodeWithContext: typeof wideRecordDecodeWithContext;
 	readonly decodePartialWithContext: typeof wideRecordDecodePartialWithContext;
 	readonly validateField: typeof wideRecordValidateField;
@@ -15580,8 +15603,19 @@ export declare function wideEventHashCode(value: WideEvent): number;
 export declare function wideEventEncode(value: WideEvent, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function wideEventEncodeWithContext(value: WideEvent, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function wideEventDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: WideEvent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function wideEventFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: WideEvent;
 } | {
@@ -15963,6 +15997,7 @@ export declare const WideEvent: {
 	readonly encode: typeof wideEventEncode;
 	readonly encodeWithContext: typeof wideEventEncodeWithContext;
 	readonly decode: typeof wideEventDecode;
+	readonly fromString: typeof wideEventFromString;
 	readonly decodeWithContext: typeof wideEventDecodeWithContext;
 	readonly hasShape: typeof wideEventHasShape;
 	readonly is: typeof wideEventIs;
@@ -16577,8 +16612,19 @@ export declare function wideShapeHashCode(value: WideShape): number;
 export declare function wideShapeEncode(value: WideShape, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function wideShapeEncodeWithContext(value: WideShape, ctx: __mf_EncodeContext): unknown;
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+/** Decodes a value to this type; JSON text decodes through `fromString`. @param input - The value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function wideShapeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: WideShape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes JSON text, as `encode` writes it, to this type. @param text - The JSON text @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function wideShapeFromString(text: string, opts?: __mf_DecodeOptions): {
 	success: true;
 	value: WideShape;
 } | {
@@ -16600,6 +16646,7 @@ export declare const WideShape: {
 	readonly encode: typeof wideShapeEncode;
 	readonly encodeWithContext: typeof wideShapeEncodeWithContext;
 	readonly decode: typeof wideShapeDecode;
+	readonly fromString: typeof wideShapeFromString;
 	readonly decodeWithContext: typeof wideShapeDecodeWithContext;
 	readonly hasShape: typeof wideShapeHasShape;
 	readonly is: typeof wideShapeIs;
@@ -16611,33 +16658,33 @@ export declare const WideShape: {
 
 ## Mapping
 
-original 0..6475 -> expanded 1464..7939
-original 6475..12244 -> expanded 398866..404635
-original 12244..17982 -> expanded 540280..546018
-original 17982..17983 -> expanded 718070..718071
-generated 0..1464 <- imports
-generated 7939..22636 <- Debug
-generated 22636..31660 <- Clone
-generated 31660..60854 <- PartialEq
-generated 60854..101674 <- Hash
-generated 101674..106638 <- Default
-generated 106638..176062 <- Encode
-generated 176062..397430 <- Decode
-generated 397430..398866 <- __convenience_const
-generated 404635..404761 <- Debug
-generated 404761..404866 <- Clone
-generated 404866..405010 <- PartialEq
-generated 405010..405114 <- Hash
-generated 405114..488410 <- Encode
-generated 488410..531493 <- Decode
-generated 531493..540280 <- __convenience_const
-generated 546018..546144 <- Debug
-generated 546144..546249 <- Clone
-generated 546249..546393 <- PartialEq
-generated 546393..546497 <- Hash
-generated 546497..637357 <- Encode
-generated 637357..717243 <- Decode
-generated 717243..718070 <- __convenience_const
+original 0..6475 -> expanded 1466..7941
+original 6475..12244 -> expanded 399307..405076
+original 12244..17982 -> expanded 541236..546974
+original 17982..17983 -> expanded 719541..719542
+generated 0..1466 <- imports
+generated 7941..22638 <- Debug
+generated 22638..31662 <- Clone
+generated 31662..60856 <- PartialEq
+generated 60856..101676 <- Hash
+generated 101676..106640 <- Default
+generated 106640..176064 <- Encode
+generated 176064..397783 <- Decode
+generated 397783..399307 <- __convenience_const
+generated 405076..405202 <- Debug
+generated 405202..405307 <- Clone
+generated 405307..405451 <- PartialEq
+generated 405451..405555 <- Hash
+generated 405555..488851 <- Encode
+generated 488851..532363 <- Decode
+generated 532363..541236 <- __convenience_const
+generated 546974..547100 <- Debug
+generated 547100..547205 <- Clone
+generated 547205..547349 <- PartialEq
+generated 547349..547453 <- Hash
+generated 547453..638313 <- Encode
+generated 638313..718628 <- Decode
+generated 718628..719541 <- __convenience_const
 
 ## Metadata
 
