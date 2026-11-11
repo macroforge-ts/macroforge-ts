@@ -1,7 +1,7 @@
 # fix(release): publish every npm package before the job's ID token can expire
 
 - **Date:** 2026-11-11 13:30
-- **Commit:** pending
+- **Commit:** 6f6ae058
 - **Area:** `mf publish-local`, the GitLab `publish-packages` job
 
 ## Problem
