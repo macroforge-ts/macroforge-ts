@@ -34,6 +34,7 @@ macroforge_ts_syn = { version = "0.6.0", path = "crates/macroforge_ts_syn" }
 
 anyhow = "1.0.104"
 assert_cmd = "2.2.2"
+base64 = "0.23.1"
 boa_engine = "0.22.0"
 clap = { version = "4.6.7", features = ["derive", "env", "wrap_help"] }
 colored = "3.1.1"

@@ -96,8 +96,9 @@ publish-packages:
     environment: release
     image: ghcr.io/prefix-dev/pixi:0.81.0-noble
     tags: [saas-linux-small-amd64]
-    # An ID token expires with the job's timeout, or after 5 minutes when the
-    # job sets none, and npm exchanges it again for every package.
+    # An ID token should last the job's timeout, but GitLab can mint it first
+    # and give it 5 minutes. npm exchanges it for every package, so mf
+    # publishes every npm package before it waits on a registry.
     timeout: 1h
     before_script: []
     id_tokens:

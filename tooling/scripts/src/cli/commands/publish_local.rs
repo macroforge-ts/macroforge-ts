@@ -2,10 +2,10 @@
 //!
 //! Publishes all packages to their registries (npm, crates.io, JSR), from a
 //! local machine or, with `--non-interactive`, from CI. Crates publish first,
-//! then WASM and the npm packages are built and npm and JSR publish. Both
-//! phases run in dependency order (topological sort) and poll npm and
-//! crates.io so each package is available before its dependents publish (JSR
-//! publishes are not polled).
+//! each indexed on crates.io before its dependents publish. Then WASM and the
+//! npm packages are built, every npm package publishes, and every JSR package
+//! publishes once npm serves it and the packages before it. All of it runs in
+//! dependency order (topological sort).
 //!
 //! `--registry` narrows a run to some registries, and `--build-only` stops
 //! after the builds, so CI can build on one runner and publish from another.
@@ -19,13 +19,18 @@ use crate::core::repos::RepoType;
 use crate::core::shell::{self, Shell};
 use crate::utils::format;
 use anyhow::{Context, Result};
+use base64::Engine;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use colored::Colorize;
+use serde::Deserialize;
 use std::io::{self, Write};
 use std::path::Path;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 const POLL_INTERVAL: Duration = Duration::from_secs(30);
 const POLL_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+/// The least lifetime an npm ID token needs left for npm to exchange it.
+const ID_TOKEN_MARGIN_SECS: u64 = 15;
 
 /// How a registry authentication failure is handled.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -219,6 +224,7 @@ fn publish_npm(
             built.display()
         );
     }
+    ensure_npm_id_token_live(package)?;
     let built_arg = built.to_string_lossy().into_owned();
 
     let result = Shell::new("npm")
@@ -361,6 +367,50 @@ fn confirm(message: &str) -> Result<bool> {
 // ---------------------------------------------------------------------------
 // Auth checks
 // ---------------------------------------------------------------------------
+
+/// The claim of a CI ID token that says when it expires.
+#[derive(Deserialize)]
+struct IdTokenClaims {
+    exp: u64,
+}
+
+/// The seconds `id_token`, a JWT, has left at `now`, read from its `exp`
+/// claim; none once it has expired.
+fn id_token_lifetime_left(id_token: &str, now: u64) -> Result<u64> {
+    let payload = id_token
+        .split('.')
+        .nth(1)
+        .context("the ID token is not a JWT")?;
+    let decoded = URL_SAFE_NO_PAD
+        .decode(payload)
+        .context("the ID token's payload is not base64url")?;
+    let claims: IdTokenClaims =
+        serde_json::from_slice(&decoded).context("the ID token's payload has no exp claim")?;
+    Ok(claims.exp.saturating_sub(now))
+}
+
+/// Fails when GitLab's `NPM_ID_TOKEN` has too little lifetime left for npm to
+/// exchange it. npm swallows a failed exchange and publishes with no
+/// credentials, which reports only `ENEEDAUTH`, so the expiry is named here.
+fn ensure_npm_id_token_live(package: &str) -> Result<()> {
+    let id_token = match std::env::var("NPM_ID_TOKEN") {
+        Ok(id_token) => id_token,
+        Err(std::env::VarError::NotPresent) => return Ok(()),
+        Err(error) => return Err(error).context("reading NPM_ID_TOKEN"),
+    };
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .context("the system clock reads before 1970")?
+        .as_secs();
+    let left = id_token_lifetime_left(&id_token, now).context("reading NPM_ID_TOKEN's expiry")?;
+    if left < ID_TOKEN_MARGIN_SECS {
+        anyhow::bail!(
+            "NPM_ID_TOKEN has {left}s of its lifetime left, too little for npm to publish \
+             {package}; GitLab can mint it with five minutes, whatever the job's timeout"
+        );
+    }
+    Ok(())
+}
 
 /// Check if logged in to npm. If not, prompt user to log in.
 fn ensure_npm_auth(auth: Auth, npm_auth: NpmAuth) -> Result<()> {
@@ -511,8 +561,11 @@ fn build(root: &Path, builds: &Builds, dry_run: bool, report: &mut Report) -> Re
     Ok(())
 }
 
-/// Publishes every pending npm and JSR package in dependency order, each on
-/// npm before its dependents publish.
+/// Publishes every pending npm package, then every pending JSR package, both
+/// in dependency order. npm exchanges a GitLab ID token for each package, and
+/// the token can expire five minutes into the job, so the npm publishes run
+/// back to back. JSR resolves a package's npm imports of the others, so each
+/// JSR publish waits until npm serves its package and the ones before it.
 fn publish_packages(
     config: &Config,
     to_publish: &[Pending],
@@ -521,42 +574,59 @@ fn publish_packages(
     jsr_token: Option<&str>,
     report: &mut Report,
 ) -> Result<()> {
-    for pending in to_publish
+    let packages: Vec<&Pending> = to_publish
         .iter()
         .filter(|pending| pending.needs_npm || pending.needs_jsr)
-    {
-        let repo = &config.repos[pending.name];
-        let npm_name = repo.npm_name.as_deref().unwrap_or(pending.name);
-        report.step(&format!("Publishing {npm_name}"));
+        .collect();
+    let npm_name = |pending: &Pending<'_>| {
+        config.repos[pending.name]
+            .npm_name
+            .clone()
+            .unwrap_or_else(|| pending.name.to_owned())
+    };
 
-        if pending.needs_npm {
-            let label = format!("{}@{} (npm)", npm_name, pending.version);
-            if publish_npm(
-                &config.root,
-                pending.name,
-                npm_name,
-                &pending.version,
-                dry_run,
-                auth,
-            )? {
-                if !dry_run {
-                    wait_for_npm(npm_name, &pending.version)?;
-                }
-                report.published.push(label);
-            } else {
-                report.skipped.push(label);
-            }
+    // Each package this run put on npm, by its place in `packages`.
+    let mut published_to_npm = Vec::new();
+    for (position, pending) in packages.iter().enumerate() {
+        if !pending.needs_npm {
+            continue;
         }
+        let name = npm_name(pending);
+        report.step(&format!("Publishing {name} to npm"));
+        let label = format!("{}@{} (npm)", name, pending.version);
+        if publish_npm(
+            &config.root,
+            pending.name,
+            &name,
+            &pending.version,
+            dry_run,
+            auth,
+        )? {
+            published_to_npm.push((position, name, &pending.version));
+            report.published.push(label);
+        } else {
+            report.skipped.push(label);
+        }
+    }
 
-        if pending.needs_jsr {
-            let name = manifests::jsr_package_name(&repo.abs_path)?.with_context(|| {
-                format!("{} has no JSR name in deno.json", repo.abs_path.display())
-            })?;
-            if publish_jsr(&repo.abs_path, &name, &pending.version, dry_run, jsr_token)? {
-                report
-                    .published
-                    .push(format!("{}@{} (jsr)", name, pending.version));
-            }
+    let mut unserved = published_to_npm.into_iter().peekable();
+    for (position, pending) in packages.iter().enumerate() {
+        while let Some((_, name, version)) =
+            unserved.next_if(|(published, _, _)| *published <= position)
+        {
+            wait_for_npm(&name, version)?;
+        }
+        if !pending.needs_jsr {
+            continue;
+        }
+        let repo = &config.repos[pending.name];
+        let name = manifests::jsr_package_name(&repo.abs_path)?
+            .with_context(|| format!("{} has no JSR name in deno.json", repo.abs_path.display()))?;
+        report.step(&format!("Publishing {name} to JSR"));
+        if publish_jsr(&repo.abs_path, &name, &pending.version, dry_run, jsr_token)? {
+            report
+                .published
+                .push(format!("{}@{} (jsr)", name, pending.version));
         }
     }
     Ok(())
@@ -757,10 +827,10 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         .iter()
         .filter(|pending| pending.needs_crate)
         .count();
-    let package_count = to_publish
+    let package_count: usize = to_publish
         .iter()
-        .filter(|pending| pending.needs_npm || pending.needs_jsr)
-        .count();
+        .map(|pending| usize::from(pending.needs_npm) + usize::from(pending.needs_jsr))
+        .sum();
 
     // Check registry auth before doing anything
     if !args.dry_run {
@@ -811,4 +881,43 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
 
     print_summary(&report, args.dry_run);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::id_token_lifetime_left;
+    use base64::Engine;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+
+    fn jwt(payload: &str) -> String {
+        let header = URL_SAFE_NO_PAD.encode(r#"{"alg":"RS256","typ":"JWT"}"#);
+        format!("{header}.{}.signature", URL_SAFE_NO_PAD.encode(payload))
+    }
+
+    #[test]
+    fn a_live_token_reports_the_seconds_before_its_exp() {
+        let token = jwt(r#"{"iat":700,"exp":1000,"aud":"npm:registry.npmjs.org"}"#);
+        assert_eq!(id_token_lifetime_left(&token, 700).ok(), Some(300));
+    }
+
+    #[test]
+    fn an_expired_token_has_no_lifetime_left() {
+        let token = jwt(r#"{"exp":1000}"#);
+        assert_eq!(id_token_lifetime_left(&token, 1300).ok(), Some(0));
+    }
+
+    #[test]
+    fn a_value_that_is_not_a_jwt_is_refused() {
+        assert!(id_token_lifetime_left("not-a-jwt", 0).is_err());
+    }
+
+    #[test]
+    fn a_payload_that_is_not_base64url_is_refused() {
+        assert!(id_token_lifetime_left("header.@@@.signature", 0).is_err());
+    }
+
+    #[test]
+    fn a_payload_without_exp_is_refused() {
+        assert!(id_token_lifetime_left(&jwt(r#"{"iat":700}"#), 0).is_err());
+    }
 }
