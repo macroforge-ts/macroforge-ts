@@ -1,9 +1,10 @@
 use crate::builtin::derive::common::{
     Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
-    field_value_type, rendered, structural_helper, tuple_element,
+    field_value_type, foreign_handler, rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
+use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::types::HashField;
@@ -50,6 +51,8 @@ pub(crate) fn primitive_hash_expr(ts_type: &str, value: &str) -> String {
 /// - **Arrays**: Element hashes combined in order
 /// - **Map, Set**: Entry hashes summed, since equality ignores their order
 /// - **Types deriving `Hash`**: their `hashCode` function
+/// - **Configured foreign types**: their `hashCode` handler, which they have
+///   to configure
 /// - **Anything else** (unions, object literals, unresolved types):
 ///   `structuralHash` from `@macroforge/core/structural`
 ///
@@ -64,16 +67,17 @@ pub(crate) fn primitive_hash_expr(ts_type: &str, value: &str) -> String {
 ///     optional: false,
 /// };
 /// let registry = macroforge_ts::ts_syn::abi::ir::TypeRegistry::default();
-/// let code = generate_field_hash_for_interface(&field, "self", None, &registry);
+/// let code = generate_field_hash_for_interface(&field, "self", None, &registry)?;
 /// assert!(code.contains("self.name"));
 /// assert!(code.contains("reduce"));
+/// # Ok::<(), String>(())
 /// ```
 pub fn generate_field_hash_for_interface(
     field: &HashField,
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     generate_value_hash(
         &field_value_type(&field.ts_type, field.optional),
         &rendered(ts_template! { @{var}@{Member::of(&field.name)} }),
@@ -89,14 +93,17 @@ pub(crate) fn generate_value_hash(
     value: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     value_hash(ts_type, value, resolved, registry, 0)
 }
 
 /// Statements hashing the fixed-length tuple `value` element by element and
 /// returning the hash. An element takes a statement of its own: one
 /// expression over them all would nest as deep as the tuple is long.
-pub(crate) fn tuple_hash_statements(elements: &[String], registry: &TypeRegistry) -> String {
+pub(crate) fn tuple_hash_statements(
+    elements: &[String],
+    registry: &TypeRegistry,
+) -> Result<String, String> {
     let mut steps = vec![ts_template! { let hash = 1; }];
     for (index, source) in elements.iter().enumerate() {
         let element = generate_value_hash(
@@ -104,11 +111,11 @@ pub(crate) fn tuple_hash_statements(elements: &[String], registry: &TypeRegistry
             &rendered(ts_template! { value[@{index}] }),
             None,
             registry,
-        );
+        )?;
         steps.push(ts_template! { hash = (hash * 31 + (@{element})) | 0; });
     }
     steps.push(ts_template! { return hash; });
-    rendered(TsStream::merge_all(steps))
+    Ok(rendered(TsStream::merge_all(steps)))
 }
 
 fn value_hash(
@@ -117,50 +124,57 @@ fn value_hash(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
     depth: usize,
-) -> String {
+) -> Result<String, String> {
     let classified = classify_value_type(ts_type, resolved);
     let element = || resolved.and_then(collection_element_type);
     let item = ts_ident!("__item{}", depth);
     let hash = ts_ident!("__hash{}", depth);
-    let hashed = match classified.kind {
-        ValueType::Primitive(keyword) => primitive_hash_expr(keyword, value),
-        ValueType::Opaque => return "0".to_string(),
-        ValueType::Structural => return structural_hash(value),
-        ValueType::Named(_) => match derived_function(resolved, registry, "Hash", "HashCode") {
-            Some(function) => rendered(ts_template! { @{function}(@{value}) }),
-            None => return structural_hash(value),
-        },
-        ValueType::Array(element_type) => {
-            let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1);
+    let foreign = foreign_handler(classified.ts_type, ForeignHandler::HashCode).transpose()?;
+    let hashed = match (foreign, classified.kind) {
+        (Some(handler), _) => rendered(ts_template! { @{handler}(@{value}) }),
+        (None, ValueType::Primitive(keyword)) => primitive_hash_expr(keyword, value),
+        (None, ValueType::Opaque) => return Ok("0".to_string()),
+        (None, ValueType::Structural) => return Ok(structural_hash(value)),
+        (None, ValueType::Named(_)) => {
+            match derived_function(resolved, registry, "Hash", "HashCode") {
+                Some(function) => rendered(ts_template! { @{function}(@{value}) }),
+                None => return Ok(structural_hash(value)),
+            }
+        }
+        (None, ValueType::Array(element_type)) => {
+            let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1)?;
             rendered(ts_template! {
                 @{value}.reduce<number>((@{&hash}, @{&item}) => (@{&hash} * 31 + (@{inner})) | 0, 1)
             })
         }
-        ValueType::Map {
-            key,
-            value: value_type,
-        } => {
+        (
+            None,
+            ValueType::Map {
+                key,
+                value: value_type,
+            },
+        ) => {
             let key_var = ts_ident!("__key{}", depth);
-            let key_hash = value_hash(key, &key_var.sym, None, registry, depth + 1);
-            let inner = value_hash(value_type, &item.sym, element(), registry, depth + 1);
+            let key_hash = value_hash(key, &key_var.sym, None, registry, depth + 1)?;
+            let inner = value_hash(value_type, &item.sym, element(), registry, depth + 1)?;
             rendered(ts_template! {
                 Array.from(@{value}).reduce<number>((@{&hash}, [@{&key_var}, @{&item}]) =>
                     (@{&hash} + (((@{key_hash}) * 31 + (@{inner})) | 0)) | 0, 0)
             })
         }
-        ValueType::Set(element_type) => {
-            let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1);
+        (None, ValueType::Set(element_type)) => {
+            let inner = value_hash(element_type, &item.sym, element(), registry, depth + 1)?;
             rendered(ts_template! {
                 Array.from(@{value}).reduce<number>((@{&hash}, @{&item}) => (@{&hash} + (@{inner})) | 0, 0)
             })
         }
-        ValueType::Builtin(builtin) => builtin_hash(builtin, value),
+        (None, ValueType::Builtin(builtin)) => builtin_hash(builtin, value),
     };
-    if classified.nullable {
+    Ok(if classified.nullable {
         rendered(ts_template! { (@{value} == null ? 0 : @{hashed}) })
     } else {
         hashed
-    }
+    })
 }
 
 fn string_hash(text: &str) -> String {

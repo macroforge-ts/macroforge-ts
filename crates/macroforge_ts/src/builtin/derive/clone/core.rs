@@ -66,7 +66,8 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 class_fields.iter().map(CloneField::from),
                 resolved_fields,
                 type_registry,
-            );
+            )
+            .map_err(|message| refused(&input, message))?;
             let fields = parse_clone_expr(&literal, &input)?;
             let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
             let body = ts_template! {
@@ -102,7 +103,8 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 interface_fields.iter().map(CloneField::from),
                 resolved_fields,
                 type_registry,
-            );
+            )
+            .map_err(|message| refused(&input, message))?;
             let clone = parse_clone_expr(&literal, &input)?;
             let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
             Ok(ts_template! {
@@ -123,7 +125,8 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     effective_fields.iter().map(CloneField::from),
                     resolved_fields,
                     type_registry,
-                );
+                )
+                .map_err(|message| refused(&input, message))?;
                 let clone = parse_clone_expr(&literal, &input)?;
                 let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
                 Ok(ts_template! {
@@ -132,7 +135,8 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     }
                 })
             } else {
-                let clone_src = alias_clone_expr(type_alias.body(), type_registry);
+                let clone_src = alias_clone_expr(type_alias.body(), type_registry)
+                    .map_err(|message| refused(&input, message))?;
                 let clone = parse_clone_expr(&clone_src, &input)?;
                 let parameter = ts_ident!(parameter_name("value", &clone_src));
                 Ok(ts_template! {
@@ -179,39 +183,44 @@ fn object_clone_literal<'a>(
     fields: impl Iterator<Item = CloneField<'a>>,
     resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     let entries: Vec<String> = fields
         .map(|field| {
             let name = field.name;
             let resolved = resolved_fields.and_then(|fields| fields.get(name));
             let ts_type = field_value_type(field.ts_type, field.optional);
-            let clone = generate_clone_expr(name, &ts_type, "value", resolved, registry);
+            let clone = generate_clone_expr(name, &ts_type, "value", resolved, registry)?;
             let property = property_key(name);
-            if field.optional {
+            Ok(if field.optional {
                 let key = js_string(name);
                 rendered(ts_template! { ...(@{key} in value ? { @{property}: @{clone} } : {}) })
             } else {
                 rendered(ts_template! { @{property}: @{clone} })
-            }
+            })
         })
-        .collect();
+        .collect::<Result<_, String>>()?;
     let entries = entries.join(", ");
-    rendered(ts_template! { { @{entries} } })
+    Ok(rendered(ts_template! { { @{entries} } }))
 }
 
 /// A clone of `value`, a value of a non-object alias with `body`.
-fn alias_clone_expr(body: &TypeBody, registry: &TypeRegistry) -> String {
+fn alias_clone_expr(body: &TypeBody, registry: &TypeRegistry) -> Result<String, String> {
     // Primitives, branded or not, are immutable.
     if body.primitive_base().is_some() || is_primitive_union(body) {
-        return "value".to_string();
+        return Ok("value".to_string());
     }
     if let Some(elements) = body.as_tuple().filter(|elements| fixed_tuple(elements)) {
         return tuple_clone_expr(elements, registry);
     }
     match body.as_alias() {
         Some(ts_type) => generate_value_clone(ts_type, "value", None, registry),
-        None => structural_call("structuralClone", "value"),
+        None => Ok(structural_call("structuralClone", "value")),
     }
+}
+
+/// The error `@derive(Clone)` on `input` gives for what it cannot copy.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(input.decorator_span(), format!("@derive(Clone): {message}"))
 }
 
 fn parse_clone_expr(source: &str, input: &DeriveInput) -> Result<Expr, MacroforgeError> {

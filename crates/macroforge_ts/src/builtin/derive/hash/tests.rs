@@ -14,7 +14,8 @@ fn test_hash_macro_output() {
         .iter()
         .map(|f| {
             let expr_src =
-                generate_field_hash_for_interface(f, "value", None, &TypeRegistry::default());
+                generate_field_hash_for_interface(f, "value", None, &TypeRegistry::default())
+                    .expect("the generator handles this type");
             crate::ast::Expr::parse(&expr_src).expect("hash expr should parse")
         })
         .collect();
@@ -54,7 +55,8 @@ fn test_field_hash_number() {
         ts_type: "number".to_string(),
         optional: false,
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert!(result.contains("Number.isInteger"));
 }
 
@@ -65,7 +67,8 @@ fn test_field_hash_string() {
         ts_type: "string".to_string(),
         optional: false,
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert!(result.contains("split"));
     assert!(result.contains("charCodeAt"));
 }
@@ -77,7 +80,8 @@ fn test_field_hash_boolean() {
         ts_type: "boolean".to_string(),
         optional: false,
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert!(result.contains("1231")); // Java's Boolean.hashCode() constants
     assert!(result.contains("1237"));
 }
@@ -89,7 +93,8 @@ fn test_field_hash_date() {
         ts_type: "Date".to_string(),
         optional: false,
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert!(result.contains("getTime"));
 }
 
@@ -101,7 +106,8 @@ fn test_field_hash_object() {
         optional: false,
     };
     // Without a registry nothing says how `User` hashes.
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert_eq!(result, "__mf_structuralHash(value.user)");
 }
 
@@ -112,7 +118,8 @@ fn map_hash_ignores_insertion_order() {
         ts_type: "Map<string, number>".to_string(),
         optional: false,
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default())
+        .expect("the generator handles this type");
     // Entries are summed rather than folded in sequence.
     assert!(result.contains("(__hash0 + ("), "{result}");
     assert!(!result.contains("__hash0 * 31"), "{result}");
@@ -121,7 +128,8 @@ fn map_hash_ignores_insertion_order() {
 #[test]
 fn a_tuple_hashes_a_statement_an_element() {
     let elements = vec!["number".to_string(); 5000];
-    let body = super::hash_generation::tuple_hash_statements(&elements, &TypeRegistry::default());
+    let body = super::hash_generation::tuple_hash_statements(&elements, &TypeRegistry::default())
+        .expect("the generator handles this type");
     assert_eq!(body.matches("hash = (hash * 31 + ").count(), elements.len());
     let wrapped = format!("function hashed(value: number[]): number {{ {body} }}");
     assert!(

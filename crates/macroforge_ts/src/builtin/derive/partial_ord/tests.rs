@@ -15,6 +15,7 @@ fn compare(name: &str, ts_type: &str) -> String {
         None,
         &TypeRegistry::default(),
     )
+    .expect("the generator handles this type")
 }
 
 #[test]

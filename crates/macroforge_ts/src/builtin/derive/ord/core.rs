@@ -59,7 +59,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             "b",
                             resolved,
                             type_registry,
-                        );
+                        )
+                        .map_err(|message| refused(&input, message))?;
                         let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -148,7 +149,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             "b",
                             resolved,
                             type_registry,
-                        );
+                        )
+                        .map_err(|message| refused(&input, message))?;
                         let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -210,7 +212,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         .map(|f| {
                             let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src = generate_field_order(Ordering::Total, f, "a", "b", resolved, type_registry,
-                        );
+                        )
+                            .map_err(|message| refused(&input, message))?;
                             let expr = Expr::parse(&expr_src).map_err(|err| {
                                 MacroforgeError::new(
                                     input.decorator_span(),
@@ -253,7 +256,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 let fn_name_ident = type_names.generic_function("Compare");
                 let compare_body = tuple_compare_statements(elements, |ts_type, left, right| {
                     generate_value_order(Ordering::Total, ts_type, left, right, None, type_registry)
-                });
+                })
+                .map_err(|message| refused(&input, message))?;
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
                         if (a === b) return 0;
@@ -270,7 +274,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         "b",
                         None,
                         type_registry,
-                    ),
+                    )
+                    .map_err(|message| refused(&input, message))?,
                     None => structural_call("structuralCompare", "a, b"),
                 };
                 let order = Expr::parse(&order_src).map_err(|err| {
@@ -287,4 +292,9 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             }
         }
     }
+}
+
+/// The error `@derive(Ord)` on `input` gives for what it cannot order.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(input.decorator_span(), format!("@derive(Ord): {message}"))
 }

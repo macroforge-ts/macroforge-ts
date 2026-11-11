@@ -359,22 +359,12 @@ pub(super) fn parse_single_foreign_type(
                     _ => None,
                 },
             });
+            *ft.handler_expr_mut(handler) = Some(source_slice(source, span));
+            continue;
         }
         match key.as_str() {
             "from" => {
                 ft.from = extract_string_or_array(&prop.value);
-            }
-            "encode" => {
-                ft.encode_expr = Some(source_slice(source, prop.value.span()));
-            }
-            "decode" => {
-                ft.decode_expr = Some(source_slice(source, prop.value.span()));
-            }
-            "default" => {
-                ft.default_expr = Some(source_slice(source, prop.value.span()));
-            }
-            "hasShape" => {
-                ft.has_shape_expr = Some(source_slice(source, prop.value.span()));
             }
             "aliases" => {
                 ft.aliases = parse_aliases_array(&prop.value, source);
@@ -382,7 +372,12 @@ pub(super) fn parse_single_foreign_type(
             unknown => {
                 return Err(MacroError::InvalidConfig(format!(
                     "{location}: the foreign type `{name}` has an unknown key `{unknown}`; \
-                     expected `from`, `aliases`, `encode`, `decode`, `default` or `hasShape`"
+                     expected `from`, `aliases` or one of the handlers {}",
+                    ForeignHandler::ALL
+                        .iter()
+                        .map(|handler| format!("`{}`", handler.key()))
+                        .collect::<Vec<_>>()
+                        .join(", ")
                 )));
             }
         }

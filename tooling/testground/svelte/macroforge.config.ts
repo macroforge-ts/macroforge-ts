@@ -19,9 +19,11 @@ export default {
             // Form validation passes live values, so a DateTime must pass through as-is.
             decode: (raw: unknown) => DateTime.unsafeMake(raw as DateTime.DateTime.Input),
             default: () => DateTime.unsafeNow(),
-            // Encode tells a union's members apart on live values, decode on raw ones.
+            // Decode tells a union's members apart by it, on raw values and on the
+            // live ones form validation passes.
             hasShape: (value: unknown): value is DateTime.DateTime | string =>
-                DateTime.isDateTime(value) || isIsoString(value)
+                DateTime.isDateTime(value) || isIsoString(value),
+            is: (value: unknown): value is DateTime.DateTime => DateTime.isDateTime(value)
         },
         'Option.Option': {
             from: ['effect'],
@@ -30,7 +32,8 @@ export default {
             decode: (
                 raw: unknown
             ) => (Option.isOption(raw) ? raw : Option.fromNullable(raw)),
-            default: () => Option.none()
+            default: () => Option.none(),
+            is: (value: unknown): value is Option.Option<unknown> => Option.isOption(value)
         }
     }
 };

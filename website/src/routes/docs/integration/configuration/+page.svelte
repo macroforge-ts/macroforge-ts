@@ -142,8 +142,10 @@ export default {
       encode: (v) => DateTime.formatIso(v),
       decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
       default: () => DateTime.unsafeNow(),
-      // Optional shape check for union variant matching
-      hasShape: (v) => v instanceof Date || typeof v === "string"
+      // Raw input a union's decoder takes for this type
+      hasShape: (v) => DateTime.isDateTime(v) || typeof v === "string",
+      // A live value a union's encoder takes for this type
+      is: (v) => DateTime.isDateTime(v)
     }
   }
 };`} lang="typescript" filename="macroforge.config.ts" />
@@ -157,7 +159,9 @@ export default {
   <li><code>encode</code>: Function <code>(value) => unknown</code> for encoding.</li>
   <li><code>decode</code>: Function <code>(raw) => T</code> for decoding.</li>
   <li><code>default</code>: Function <code>() => T</code> for default value generation.</li>
-  <li><code>hasShape</code>: Optional function <code>(value) => boolean</code> used for shape-check predicate expression in union variant matching.</li>
+  <li><code>hasShape</code>: Function <code>(raw) => boolean</code>: whether raw input could be this type, so a union's decoder tells it from the other members.</li>
+  <li><code>is</code>: Function <code>(value) => value is T</code>: whether a value is this type, so a union's encoder tells it from the other members.</li>
+  <li><code>clone</code>, <code>toString</code>, <code>equals</code>, <code>hashCode</code>, <code>partialCompare</code>, <code>compare</code>: what <code>Clone</code>, <code>Debug</code>, <code>PartialEq</code>, <code>Hash</code>, <code>PartialOrd</code> and <code>Ord</code> call on a field of this type. A derive that needs one the type does not configure fails to expand. See <a href="/docs/endec/foreign-types">Foreign Types</a>.</li>
   <li><code>aliases</code>: Array of <code>&#123; name: string, from: string &#125;</code> objects for alternative type-package pairs.</li>
 </ul>
 

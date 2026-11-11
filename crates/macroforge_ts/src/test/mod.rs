@@ -98,8 +98,6 @@ fn make_foreign_type(
         decode_expr: decode_expr.map(|s| s.to_string()),
         default_expr: default_expr.map(|s| s.to_string()),
         has_shape_expr: has_shape_expr.map(|s| s.to_string()),
-        aliases: vec![],
-        builtin: false,
-        handler_sites: Vec::new(),
+        ..ForeignTypeConfig::default()
     }
 }

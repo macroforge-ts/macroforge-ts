@@ -89,14 +89,14 @@ pub fn tuple_element(source: &str) -> TupleElement<'_> {
 /// every fixed element order by length.
 pub fn tuple_compare_statements(
     elements: &[String],
-    compare: impl Fn(&str, &str, &str) -> String,
-) -> String {
+    compare: impl Fn(&str, &str, &str) -> Result<String, String>,
+) -> Result<String, String> {
     let mut steps = Vec::new();
     for (index, source) in elements.iter().enumerate() {
         let element = tuple_element(source);
         let (left, right) = (ts_ident!("left{}", index), ts_ident!("right{}", index));
         let cmp = ts_ident!("cmp{}", index);
-        let typed = compare(element.ts_type, &left.sym, &right.sym);
+        let typed = compare(element.ts_type, &left.sym, &right.sym)?;
         // An absent optional element orders before a present one.
         let comparison = if element.optional {
             rendered(ts_template! {
@@ -124,11 +124,11 @@ pub fn tuple_compare_statements(
             }
         });
         if element.rest {
-            return rendered(TsStream::merge_all(steps));
+            return Ok(rendered(TsStream::merge_all(steps)));
         }
     }
     steps.push(ts_template! { return a.length < b.length ? -1 : a.length > b.length ? 1 : 0; });
-    rendered(TsStream::merge_all(steps))
+    Ok(rendered(TsStream::merge_all(steps)))
 }
 
 /// Check if a TypeScript type is numeric

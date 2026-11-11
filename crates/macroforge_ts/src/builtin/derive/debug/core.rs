@@ -47,7 +47,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry);
+            let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry)
+                .map_err(|message| refused(&input, message))?;
             let body = if debug_fields.is_empty() {
                 ts_template! {
                     return "@{class_name} {}";
@@ -127,7 +128,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     }
                 })
             } else {
-                let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry);
+                let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry)
+                    .map_err(|message| refused(&input, message))?;
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
@@ -171,7 +173,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         }
                     })
                 } else {
-                    let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry);
+                    let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry)
+                        .map_err(|message| refused(&input, message))?;
 
                     Ok(ts_template! {
                         export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
@@ -186,7 +189,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             } else {
                 let fn_name_ident = type_names.generic_function("ToString");
                 let rendered_src = match type_alias.body().as_alias() {
-                    Some(ts_type) => debug_value_expr(ts_type, "value", None, type_registry),
+                    Some(ts_type) => debug_value_expr(ts_type, "value", None, type_registry)
+                        .map_err(|message| refused(&input, message))?,
                     None if type_alias.body().primitive_base().is_some()
                         || is_primitive_union(type_alias.body()) =>
                     {
@@ -208,4 +212,9 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             }
         }
     }
+}
+
+/// The error `@derive(Debug)` on `input` gives for what it cannot print.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(input.decorator_span(), format!("@derive(Debug): {message}"))
 }

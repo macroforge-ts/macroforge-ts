@@ -15,6 +15,7 @@ fn compare(name: &str, ts_type: &str) -> String {
         None,
         &TypeRegistry::default(),
     )
+    .expect("the generator handles this type")
 }
 
 #[test]
@@ -90,7 +91,8 @@ fn an_optional_field_orders_absent_values_structurally() {
         "b",
         None,
         &TypeRegistry::default(),
-    );
+    )
+    .expect("the generator handles this type");
     assert!(
         result.starts_with("(a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) :"),
         "{result}"

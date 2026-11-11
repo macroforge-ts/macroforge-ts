@@ -1,9 +1,10 @@
 use crate::builtin::derive::common::{
     Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
-    rendered, structural_helper, tuple_element,
+    foreign_handler, rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
+use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::ts_ident;
 
 /// Generate a clone expression for the field `field_name` of `var`,
@@ -14,6 +15,8 @@ use crate::ts_syn::ts_ident;
 ///   (a map's keys are shared, since lookups match them by identity)
 /// - **Date, RegExp, URL, typed arrays**: copied by value
 /// - **Types deriving `Clone`**: their `clone` function
+/// - **Configured foreign types**: their `clone` handler, which they have to
+///   configure
 /// - **Anything else** (unions, object literals, unresolved types):
 ///   `structuralClone` from `@macroforge/core/structural`
 pub(crate) fn generate_clone_expr(
@@ -22,7 +25,7 @@ pub(crate) fn generate_clone_expr(
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     let field = rendered(ts_template! { @{var}@{Member::of(field_name)} });
     generate_value_clone(ts_type, &field, resolved, registry)
 }
@@ -34,12 +37,15 @@ pub(crate) fn generate_value_clone(
     value: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     value_clone(ts_type, value, resolved, registry, 0)
 }
 
 /// An array literal cloning the fixed-length tuple `value` element by element.
-pub(crate) fn tuple_clone_expr(elements: &[String], registry: &TypeRegistry) -> String {
+pub(crate) fn tuple_clone_expr(
+    elements: &[String],
+    registry: &TypeRegistry,
+) -> Result<String, String> {
     let clones: Vec<String> = elements
         .iter()
         .enumerate()
@@ -51,9 +57,9 @@ pub(crate) fn tuple_clone_expr(elements: &[String], registry: &TypeRegistry) -> 
                 registry,
             )
         })
-        .collect();
+        .collect::<Result<_, _>>()?;
     let clones = clones.join(", ");
-    rendered(ts_template! { [@{clones}] })
+    Ok(rendered(ts_template! { [@{clones}] }))
 }
 
 fn value_clone(
@@ -62,19 +68,28 @@ fn value_clone(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
     depth: usize,
-) -> String {
+) -> Result<String, String> {
     let classified = classify_value_type(ts_type, resolved);
+    if let Some(handler) = foreign_handler(classified.ts_type, ForeignHandler::Clone) {
+        let handler = handler?;
+        let cloned = rendered(ts_template! { @{handler}(@{value}) });
+        return Ok(if classified.nullable {
+            rendered(ts_template! { (@{value} == null ? @{value} : @{cloned}) })
+        } else {
+            cloned
+        });
+    }
     let element = || resolved.and_then(collection_element_type);
     let item = ts_ident!("__item{}", depth);
     let cloned = match classified.kind {
-        ValueType::Primitive(_) | ValueType::Opaque => return value.to_string(),
-        ValueType::Structural => return structural_clone(value),
+        ValueType::Primitive(_) | ValueType::Opaque => return Ok(value.to_string()),
+        ValueType::Structural => return Ok(structural_clone(value)),
         ValueType::Named(_) => match derived_function(resolved, registry, "Clone", "Clone") {
             Some(function) => rendered(ts_template! { @{function}(@{value}) }),
-            None => return structural_clone(value),
+            None => return Ok(structural_clone(value)),
         },
         ValueType::Array(element_type) => {
-            let inner = value_clone(element_type, &item.sym, element(), registry, depth + 1);
+            let inner = value_clone(element_type, &item.sym, element(), registry, depth + 1)?;
             if inner == item.sym {
                 rendered(ts_template! { [...@{value}] })
             } else {
@@ -84,7 +99,7 @@ fn value_clone(
         ValueType::Map {
             value: value_type, ..
         } => {
-            let inner = value_clone(value_type, &item.sym, element(), registry, depth + 1);
+            let inner = value_clone(value_type, &item.sym, element(), registry, depth + 1)?;
             if inner == item.sym {
                 rendered(ts_template! { new Map(@{value}) })
             } else {
@@ -100,7 +115,7 @@ fn value_clone(
             }
         }
         ValueType::Set(element_type) => {
-            let inner = value_clone(element_type, &item.sym, element(), registry, depth + 1);
+            let inner = value_clone(element_type, &item.sym, element(), registry, depth + 1)?;
             if inner == item.sym {
                 rendered(ts_template! { new Set(@{value}) })
             } else {
@@ -118,14 +133,14 @@ fn value_clone(
             Builtin::ArrayBuffer => rendered(ts_template! { @{value}.slice(0) }),
             // Errors carry a stack and identity; equality compares their
             // message and class, which a shared reference keeps.
-            Builtin::Error => return value.to_string(),
+            Builtin::Error => return Ok(value.to_string()),
         },
     };
-    if classified.nullable {
+    Ok(if classified.nullable {
         rendered(ts_template! { (@{value} == null ? @{value} : @{cloned}) })
     } else {
         cloned
-    }
+    })
 }
 
 fn structural_clone(value: &str) -> String {

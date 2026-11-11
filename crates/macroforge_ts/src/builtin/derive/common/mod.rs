@@ -42,6 +42,7 @@
 
 mod args;
 mod field_options;
+mod foreign;
 mod ordering;
 mod property;
 mod registry_helpers;
@@ -59,6 +60,7 @@ pub use args::{
 };
 pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items};
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
+pub use foreign::foreign_handler;
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
 pub use property::{
     Member, is_identifier_name, local_name_part, mentions, parameter_name, property_key,

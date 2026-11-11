@@ -22,7 +22,10 @@ fn test_partial_eq_macro_output() {
 
     let comparison = eq_fields
         .iter()
-        .map(|f| generate_field_equality_for_interface(f, "a", "b", None, &TypeRegistry::default()))
+        .map(|f| {
+            generate_field_equality_for_interface(f, "a", "b", None, &TypeRegistry::default())
+                .expect("the generator handles this type")
+        })
         .collect::<Vec<_>>()
         .join(" && ");
     let comparison_expr = Expr::parse(&comparison).expect("comparison expr should parse");
@@ -55,7 +58,8 @@ fn test_field_equality_primitive() {
         optional: false,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     assert!(result.contains("a.id === b.id"));
 }
 
@@ -67,7 +71,8 @@ fn test_field_equality_object() {
         optional: false,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     assert_eq!(result, "__mf_structuralEquals(a.user, b.user)");
 }
 
@@ -79,7 +84,8 @@ fn test_field_equality_array() {
         optional: false,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     assert_eq!(
         result,
         "(a.items.length === b.items.length && a.items.every((__item0, __index0) => { \
@@ -97,7 +103,8 @@ fn test_field_equality_date() {
         optional: false,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     assert!(result.contains("getTime"));
 }
 
@@ -109,7 +116,8 @@ fn nested_arrays_bind_each_level_apart() {
         optional: false,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     // The inner level reads its own bindings, never the outer index.
     assert!(
         result.contains("const __other0 = b.grid[__index0];"),
@@ -134,7 +142,8 @@ fn optional_field_guards_absent_values() {
         optional: true,
     };
     let result =
-        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default())
+            .expect("the generator handles this type");
     assert_eq!(
         result,
         "(a.at == null || b.at == null ? a.at === b.at : (a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime())))"

@@ -55,7 +55,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let body = if has_fields {
                 let compare_body =
-                    partial_compare_steps(&ord_fields, resolved_fields, type_registry);
+                    partial_compare_steps(&ord_fields, resolved_fields, type_registry)
+                        .map_err(|message| refused(&input, message))?;
                 ts_template! {
                     if (a === b) return 0;
                     return @{structural_callee("comparedWithin")}(a, b, () => {
@@ -139,7 +140,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let result = if has_fields {
                 let compare_body =
-                    partial_compare_steps(&ord_fields, resolved_fields, type_registry);
+                    partial_compare_steps(&ord_fields, resolved_fields, type_registry)
+                        .map_err(|message| refused(&input, message))?;
 
                 ts_template! {
                     export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): @{return_type_ident} {
@@ -193,7 +195,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 let result = if has_fields {
                     let compare_body =
-                        partial_compare_steps(&ord_fields, resolved_fields, type_registry);
+                        partial_compare_steps(&ord_fields, resolved_fields, type_registry)
+                            .map_err(|message| refused(&input, message))?;
 
                     ts_template! {
                         export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
@@ -233,7 +236,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         None,
                         type_registry,
                     )
-                });
+                })
+                .map_err(|message| refused(&input, message))?;
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
                         if (a === b) return 0;
@@ -250,7 +254,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         "b",
                         None,
                         type_registry,
-                    ),
+                    )
+                    .map_err(|message| refused(&input, message))?,
                     None => {
                         let helper = structural_helper("structuralCompare");
                         rendered(ts_template! { @{helper}(a, b) })
@@ -278,21 +283,23 @@ fn partial_compare_steps(
     ord_fields: &[OrdField],
     resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
     registry: &TypeRegistry,
-) -> TsStream {
-    first_order(
+) -> Result<TsStream, String> {
+    Ok(first_order(
         ord_fields
             .iter()
             .map(|field| {
                 let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
-                Expr::Source(generate_field_order(
-                    Ordering::Partial,
-                    field,
-                    "a",
-                    "b",
-                    resolved,
-                    registry,
-                ))
+                generate_field_order(Ordering::Partial, field, "a", "b", resolved, registry)
+                    .map(Expr::Source)
             })
-            .collect(),
+            .collect::<Result<_, _>>()?,
+    ))
+}
+
+/// The error `@derive(PartialOrd)` on `input` gives for what it cannot order.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(
+        input.decorator_span(),
+        format!("@derive(PartialOrd): {message}"),
     )
 }

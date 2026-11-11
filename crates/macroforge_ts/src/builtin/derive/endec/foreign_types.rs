@@ -52,11 +52,15 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
         from: vec![],
         encode_expr: Some(ser.to_string()),
         decode_expr: Some(deser.to_string()),
-        default_expr: None,
-        has_shape_expr: None,
+        // `bigint` is a primitive; every other built-in is a class.
+        is_expr: Some(if name == "bigint" {
+            r#"(v: unknown): v is bigint => typeof v === "bigint""#.to_string()
+        } else {
+            format!("(v: unknown): v is {name} => v instanceof {name}")
+        }),
         aliases: vec![],
         builtin: true,
-        handler_sites: Vec::new(),
+        ..ForeignTypeConfig::default()
     };
 
     // Each decoder takes the encoding its encoder writes and refuses any

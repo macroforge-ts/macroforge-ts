@@ -103,6 +103,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
     let mut tagged_coders: Vec<TsStream> = Vec::new();
     let mut named_by_tag: Vec<TsStream> = Vec::new();
     let mut named_by_shape: Vec<TsStream> = Vec::new();
+    let mut foreign_coders: Vec<TsStream> = Vec::new();
     let mut external_coders: Vec<TsStream> = Vec::new();
     if let Some(members) = type_alias.body().unbranded().as_union() {
         for m in members {
@@ -124,11 +125,36 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     tagged_coders.push(coder(&member_type, &test, &tagged));
                 }
                 TypeMemberKind::TypeRef(t) => {
-                    if let TypeCategory::Encodable(name) = TypeCategory::from_ts_type(t)
+                    let foreign_types = get_foreign_types();
+                    let foreign = TypeCategory::match_foreign_type(t, &foreign_types).config;
+                    if let Some(config) = foreign
+                        && !is_type_param(t.trim())
+                    {
+                        // Told by its `is`: otherwise a value of it is taken
+                        // for whichever member comes after.
+                        let is = config.handler_callee(ForeignHandler::Is).ok_or_else(|| {
+                            refused(format!(
+                                "the foreign type '{}' configures no `is` handler, which tells its values from the union's other members",
+                                config.name
+                            ))
+                        })?;
+                        let is = Expr::parse(&is).map_err(|err| {
+                            refused(format!("a foreign `is` that does not parse: {err}"))
+                        })?;
+                        let encoded = match config.handler_callee(ForeignHandler::Encode) {
+                            Some(callee) => {
+                                let callee = Expr::parse(&callee).map_err(|err| {
+                                    refused(format!("a foreign encoder that does not parse: {err}"))
+                                })?;
+                                rendered(ts_template! { @{callee}(member) })
+                            }
+                            None => "member".to_string(),
+                        };
+                        foreign_coders.push(ts_template! {
+                            @{&member_coder}((member: @{&union_type}): member is @{t} => @{is}(member), (member) => @{encoded})
+                        });
+                    } else if let TypeCategory::Encodable(name) = TypeCategory::from_ts_type(t)
                         && !is_type_param(&name)
-                        && TypeCategory::match_foreign_type(t, &get_foreign_types())
-                            .config
-                            .is_none()
                     {
                         // An enum's values are written as they are.
                         if let Some(by_shape) = named_member_test(&name, &scope).map_err(refused)? {
@@ -202,6 +228,10 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         TypeCategory::from_ts_type(reference),
                         TypeCategory::Encodable(_)
                     )
+                    // Told by the `is` its coder above requires.
+                    || TypeCategory::match_foreign_type(reference, &get_foreign_types())
+                        .config
+                        .is_some()
             }
             TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => true,
             TypeMemberKind::Brand(_) => false,
@@ -217,6 +247,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         .into_iter()
         .chain(named_by_tag)
         .chain(named_by_shape)
+        .chain(foreign_coders)
         .chain(object_coders)
         .chain(external_coders)
         .chain(param_coder_of)

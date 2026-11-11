@@ -25,29 +25,45 @@ Now any field typed `DateTime.Utc` encodes through your handlers.
 
 ## Options
 
-| Key        | Purpose                                                                                        |
-| ---------- | ---------------------------------------------------------------------------------------------- |
-| `from`     | Module paths this type may be imported from                                                    |
-| `aliases`  | Additional `{ name, from }` pairs naming the same type                                         |
-| `encode`   | Value → JSON-safe representation                                                               |
-| `decode`   | Raw JSON → value                                                                               |
-| `default`  | Value used by `@derive(Default)` and by missing-field defaults                                 |
-| `hasShape` | Whether a value is this type, raw or decoded: tells it apart from the other members of a union |
+| Key       | Purpose                                                |
+| --------- | ------------------------------------------------------ |
+| `from`    | Module paths this type may be imported from            |
+| `aliases` | Additional `{ name, from }` pairs naming the same type |
+
+The rest are handlers, one for each function a built-in derive generates for a type of your own and
+calls on a field of it:
+
+| Handler          | Derive       | Signature                                                         |
+| ---------------- | ------------ | ----------------------------------------------------------------- |
+| `encode`         | `Encode`     | `(value: T) => unknown`, the JSON-safe form                       |
+| `decode`         | `Decode`     | `(raw: unknown) => T`, throwing on what it cannot read            |
+| `default`        | `Default`    | `() => T`                                                         |
+| `hasShape`       | `Decode`     | `(raw: unknown) => boolean`: whether raw input could be this type |
+| `is`             | `Encode`     | `(value: unknown) => value is T`: whether a value is this type    |
+| `clone`          | `Clone`      | `(value: T) => T`                                                 |
+| `toString`       | `Debug`      | `(value: T) => string`                                            |
+| `equals`         | `PartialEq`  | `(a: T, b: T) => boolean`                                         |
+| `hashCode`       | `Hash`       | `(value: T) => number`                                            |
+| `partialCompare` | `PartialOrd` | `(a: T, b: T) => number \| null`                                  |
+| `compare`        | `Ord`        | `(a: T, b: T) => number`                                          |
+
+A derive that needs a handler the type does not configure fails to expand, naming the handler. A
+field is never copied, compared, hashed or printed by its structure in place of the handler.
 
 ## In a union with your own types
 
-A field can hold a foreign type or one of your own, as `RecordId | Employee` does, often through a
-generic alias such as `type RecordLink<T> = /** @default */ RecordId | T` declared in another
-module. Decoding asks `hasShape` of the raw value and encoding asks it of the live one, so it must
-recognise both:
+A field can hold a foreign type or one of your own, as `RecordId | Author` does, often through a
+generic alias such as `type Ref<T> = /** @default */ RecordId | T` declared in another module.
+Decoding asks `hasShape` of the raw input, which may be the wire form; encoding asks `is` of the
+live value:
 
 ```typescript
-hasShape: ((v): v is RecordId | string => v instanceof RecordId || typeof v === 'string');
+hasShape: (v): v is RecordId | string => v instanceof RecordId || typeof v === "string",
+is: (v): v is RecordId => v instanceof RecordId
 ```
 
-Whatever `hasShape` accepts goes through the foreign handlers; everything else goes through your
-type's own encoder and decoder. Expansion fails when such a union needs a handler the config does
-not give.
+What they accept goes through the foreign handlers; everything else goes through your type's own
+encoder and decoder.
 
 ## Import-source validation
 

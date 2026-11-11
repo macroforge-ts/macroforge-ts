@@ -34,7 +34,8 @@ fn fields_equal(
     for field in fields {
         let resolved = resolved_fields.and_then(|resolved| resolved.get(&field.name));
         let source =
-            generate_field_equality_for_interface(field, "a", "b", resolved, type_registry);
+            generate_field_equality_for_interface(field, "a", "b", resolved, type_registry)
+                .map_err(|message| refused(input, message))?;
         comparisons.push(Expr::parse(&source).map_err(|err| {
             MacroforgeError::new(
                 input.decorator_span(),
@@ -189,7 +190,8 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
             } else {
                 let fn_name_ident = type_names.generic_function("Equals");
-                let body = alias_equality_statements(type_alias.body(), type_registry);
+                let body = alias_equality_statements(type_alias.body(), type_registry)
+                    .map_err(|message| refused(&input, message))?;
                 let left = ts_ident!(parameter_name("a", &body));
                 let right = ts_ident!(parameter_name("b", &body));
                 Ok(ts_template! {
@@ -204,12 +206,12 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 
 /// Statements returning whether `a` and `b`, values of a non-object alias
 /// with `body`, are equal.
-fn alias_equality_statements(body: &TypeBody, registry: &TypeRegistry) -> String {
+fn alias_equality_statements(body: &TypeBody, registry: &TypeRegistry) -> Result<String, String> {
     if let Some(elements) = body.as_tuple().filter(|elements| fixed_tuple(elements)) {
         return tuple_equality_statements(elements, registry);
     }
     let equality = match body.as_alias() {
-        Some(ts_type) => generate_value_equality(ts_type, "a", "b", None, registry),
+        Some(ts_type) => generate_value_equality(ts_type, "a", "b", None, registry)?,
         None if is_primitive_union(body) || body.primitive_base().is_some() => {
             "a === b".to_string()
         }
@@ -218,10 +220,18 @@ fn alias_equality_statements(body: &TypeBody, registry: &TypeRegistry) -> String
     // Identity settles it before anything is compared, where it is not all
     // there is to compare.
     if equality == "a === b" {
-        return rendered(ts_template! { return a === b; });
+        return Ok(rendered(ts_template! { return a === b; }));
     }
-    rendered(ts_template! {
+    Ok(rendered(ts_template! {
         if (a === b) return true;
         return @{equality};
-    })
+    }))
+}
+
+/// The error `@derive(PartialEq)` on `input` gives for what it cannot compare.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(
+        input.decorator_span(),
+        format!("@derive(PartialEq): {message}"),
+    )
 }

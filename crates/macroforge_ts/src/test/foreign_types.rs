@@ -616,3 +616,178 @@ type MaybeDate = DateTime.DateTime | string | number;
         );
     }
 }
+
+// ============================================================================
+// Foreign Types in Union Type Alias -- Encode
+// ============================================================================
+
+const LINK_SOURCE: &str = r#"
+import type { DateTime } from 'effect';
+
+/** @derive(Encode) */
+type Link<Linked> = DateTime.DateTime | Linked;
+"#;
+
+// A foreign member is told by its `is` and encoded by its handler, ahead of
+// the type parameter that takes whatever no other member is.
+#[test]
+fn test_derive_encode_generic_union_tells_a_foreign_member_by_its_is() {
+    let mut date_time = make_foreign_type(
+        "DateTime.DateTime",
+        vec!["effect"],
+        Some("(v) => DateTime.formatIso(v)"),
+        Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+        Some("() => DateTime.unsafeNow()"),
+        Some("(v) => typeof v === \"string\""),
+    );
+    date_time.is_expr =
+        Some("(v: unknown): v is DateTime.DateTime => DateTime.isDateTime(v)".to_string());
+    set_foreign_types(vec![date_time]);
+    let result = expand_test(LINK_SOURCE);
+    clear_foreign_types();
+
+    let errors: Vec<_> = result
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+        .collect();
+    assert!(errors.is_empty(), "no errors expected, got {errors:?}");
+    let code = &result.code;
+    let foreign = code
+        .find("__foreign__dateTimeDateTimeIs(member), (member) => __foreign__dateTimeDateTimeEncode(member))")
+        .unwrap_or_else(|| panic!("the foreign member needs a coder of its own:\n{code}"));
+    let param = code
+        .find("__encodeLinked !== undefined")
+        .unwrap_or_else(|| panic!("the type parameter keeps its coder:\n{code}"));
+    assert!(
+        foreign < param,
+        "the foreign member is tried before the type parameter:\n{code}"
+    );
+}
+
+#[test]
+fn test_derive_encode_union_refuses_a_foreign_member_without_is() {
+    set_foreign_types(vec![make_foreign_type(
+        "DateTime.DateTime",
+        vec!["effect"],
+        Some("(v) => DateTime.formatIso(v)"),
+        Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+        Some("() => DateTime.unsafeNow()"),
+        Some("(v) => typeof v === \"string\""),
+    )]);
+    let result = expand_test(LINK_SOURCE);
+    clear_foreign_types();
+
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error
+                && diagnostic.message.contains("configures no `is` handler")),
+        "a foreign member nothing can tell apart is an error, got {:?}",
+        result.diagnostics
+    );
+}
+
+// ============================================================================
+// Foreign Types in the value traits
+// ============================================================================
+
+const VALUE_TRAITS_SOURCE: &str = r#"
+import type { DateTime } from 'effect';
+
+/** @derive(Clone, PartialEq, Eq, Hash, Debug, PartialOrd, Ord) */
+interface Meeting {
+    at: DateTime.DateTime;
+    moved: DateTime.DateTime | null;
+}
+"#;
+
+fn date_time_with_every_handler() -> ForeignTypeConfig {
+    let mut date_time = make_foreign_type(
+        "DateTime.DateTime",
+        vec!["effect"],
+        Some("(v) => DateTime.formatIso(v)"),
+        Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+        Some("() => DateTime.unsafeNow()"),
+        Some("(v) => typeof v === \"string\""),
+    );
+    date_time.is_expr = Some("(v) => DateTime.isDateTime(v)".to_string());
+    date_time.clone_expr = Some("(v) => v".to_string());
+    date_time.to_string_expr = Some("(v) => DateTime.formatIso(v)".to_string());
+    date_time.equals_expr = Some("(a, b) => DateTime.Equivalence(a, b)".to_string());
+    date_time.hash_code_expr = Some("(v) => DateTime.toEpochMillis(v) | 0".to_string());
+    date_time.partial_compare_expr = Some("(a, b) => DateTime.Order(a, b)".to_string());
+    date_time.compare_expr = Some("(a, b) => DateTime.Order(a, b)".to_string());
+    date_time
+}
+
+// Each value trait runs the handler the foreign type configures for it, on a
+// field of the type and on a nullable one.
+#[test]
+fn test_value_traits_call_a_foreign_types_handlers() {
+    set_foreign_types(vec![date_time_with_every_handler()]);
+    let result = expand_test(VALUE_TRAITS_SOURCE);
+    clear_foreign_types();
+
+    let errors: Vec<_> = result
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+        .collect();
+    assert!(errors.is_empty(), "no errors expected, got {errors:?}");
+    let code = &result.code;
+    for call in [
+        "__foreign__dateTimeDateTimeClone(value.at)",
+        "__foreign__dateTimeDateTimeEquals(a.at, b.at)",
+        "__foreign__dateTimeDateTimeHashCode(value.at)",
+        "__foreign__dateTimeDateTimeToString(value.at)",
+        "__foreign__dateTimeDateTimePartialCompare(a.at, b.at)",
+        "__foreign__dateTimeDateTimeCompare(a.at, b.at)",
+        "__foreign__dateTimeDateTimeEquals(a.moved, b.moved)",
+    ] {
+        assert!(code.contains(call), "expected `{call}` in:\n{code}");
+    }
+    assert!(
+        !code.contains("__mf_structuralClone(value.at)"),
+        "a foreign field is not copied structurally:\n{code}"
+    );
+}
+
+// A value trait on a foreign field whose type configures no handler for it is
+// an error naming the handler, not a structural fallback.
+#[test]
+fn test_value_traits_refuse_a_foreign_type_without_their_handler() {
+    set_foreign_types(vec![make_foreign_type(
+        "DateTime.DateTime",
+        vec!["effect"],
+        Some("(v) => DateTime.formatIso(v)"),
+        Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+        Some("() => DateTime.unsafeNow()"),
+        Some("(v) => typeof v === \"string\""),
+    )]);
+    let result = expand_test(VALUE_TRAITS_SOURCE);
+    clear_foreign_types();
+
+    for (derive, handler) in [
+        ("Clone", "clone"),
+        ("PartialEq", "equals"),
+        ("Hash", "hashCode"),
+        ("Debug", "toString"),
+        ("PartialOrd", "partialCompare"),
+        ("Ord", "compare"),
+    ] {
+        let expected = format!(
+            "@derive({derive}): the foreign type 'DateTime.DateTime' configures no `{handler}` handler"
+        );
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error
+                    && diagnostic.message.contains(&expected)),
+            "expected `{expected}`, got {:?}",
+            result.diagnostics
+        );
+    }
+}

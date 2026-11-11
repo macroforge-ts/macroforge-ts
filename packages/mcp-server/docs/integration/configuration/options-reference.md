@@ -54,8 +54,10 @@ export default {
       encode: (v) => DateTime.formatIso(v),
       decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
       default: () => DateTime.unsafeNow(),
-      // Optional shape check for union variant matching
-      hasShape: (v) => v instanceof Date || typeof v === "string"
+      // Raw input a union's decoder takes for this type
+      hasShape: (v) => DateTime.isDateTime(v) || typeof v === "string",
+      // A live value a union's encoder takes for this type
+      is: (v) => DateTime.isDateTime(v)
     }
   }
 };
@@ -67,8 +69,13 @@ Each foreign type handler supports the following properties:
 - `encode`: Function `(value) => unknown` for encoding.
 - `decode`: Function `(raw) => T` for decoding.
 - `default`: Function `() => T` for default value generation.
-- `hasShape`: Optional function `(value) => boolean` used for shape-check predicate expression in
-  union variant matching.
+- `hasShape`: Function `(raw) => boolean`: whether raw input could be this type, so a union's
+  decoder tells it from the other members.
+- `is`: Function `(value) => value is T`: whether a value is this type, so a union's encoder tells
+  it from the other members.
+- `clone`, `toString`, `equals`, `hashCode`, `partialCompare`, `compare`: what `Clone`, `Debug`,
+  `PartialEq`, `Hash`, `PartialOrd` and `Ord` call on a field of this type. A derive that needs one
+  the type does not configure fails to expand. See [Foreign Types](/docs/endec/foreign-types).
 - `aliases`: Array of `{ name: string, from: string }` objects for alternative type-package pairs.
 
 ### vite

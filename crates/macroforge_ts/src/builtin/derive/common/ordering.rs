@@ -4,8 +4,10 @@
 
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
+use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::ts_ident;
 
+use super::foreign::foreign_handler;
 use super::property::Member;
 use super::registry_helpers::collection_element_type;
 use super::value_type::{
@@ -33,7 +35,7 @@ pub fn generate_field_order(
     other_var: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     generate_value_order(
         ordering,
         &field_value_type(&field.ts_type, field.optional),
@@ -67,6 +69,14 @@ impl Ordering {
             Self::Total => "Compare",
         }
     }
+
+    /// The handler a foreign type orders its values by under this derive.
+    fn handler(self) -> ForeignHandler {
+        match self {
+            Self::Partial => ForeignHandler::PartialCompare,
+            Self::Total => ForeignHandler::Compare,
+        }
+    }
 }
 
 /// Generates the comparison of two values of `ts_type`, given as the
@@ -78,6 +88,8 @@ impl Ordering {
 /// - **Date, URL, URLSearchParams**: by timestamp or text
 /// - **Arrays**: lexicographic, each element compared by its own type
 /// - **Types deriving the trait**: their `compare` or `partialCompare`
+/// - **Configured foreign types**: their `compare` or `partialCompare`
+///   handler, which they have to configure
 /// - **Anything else** (unions, object literals, maps, sets, unresolved
 ///   types): `structuralCompare` from `@macroforge/core/structural`
 pub fn generate_value_order(
@@ -87,7 +99,7 @@ pub fn generate_value_order(
     right: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
-) -> String {
+) -> Result<String, String> {
     value_order(ordering, ts_type, left, right, resolved, registry, 0)
 }
 
@@ -99,22 +111,24 @@ fn value_order(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
     depth: usize,
-) -> String {
+) -> Result<String, String> {
     let classified = classify_value_type(ts_type, resolved);
-    let compared = match classified.kind {
-        ValueType::Primitive("number") => number_order(ordering, left, right),
-        ValueType::Primitive("boolean") => {
+    let foreign = foreign_handler(classified.ts_type, ordering.handler()).transpose()?;
+    let compared = match (foreign, classified.kind) {
+        (Some(handler), _) => rendered(ts_template! { @{handler}(@{left}, @{right}) }),
+        (None, ValueType::Primitive("number")) => number_order(ordering, left, right),
+        (None, ValueType::Primitive("boolean")) => {
             rendered(ts_template! { (@{left} === @{right} ? 0 : @{left} ? 1 : -1) })
         }
         // Strings and bigints have no unordered pair.
-        ValueType::Primitive(_) => text_order(left, right),
-        ValueType::Named(_) => {
+        (None, ValueType::Primitive(_)) => text_order(left, right),
+        (None, ValueType::Named(_)) => {
             match derived_function(resolved, registry, ordering.derive(), ordering.suffix()) {
                 Some(function) => rendered(ts_template! { @{function}(@{left}, @{right}) }),
-                None => return structural_order(left, right),
+                None => return Ok(structural_order(left, right)),
             }
         }
-        ValueType::Array(element_type) => {
+        (None, ValueType::Array(element_type)) => {
             let (left_items, right_items) =
                 (ts_ident!("__left{}", depth), ts_ident!("__right{}", depth));
             let (item, other) = (ts_ident!("__item{}", depth), ts_ident!("__other{}", depth));
@@ -128,7 +142,7 @@ fn value_order(
                 resolved.and_then(collection_element_type),
                 registry,
                 depth + 1,
-            );
+            )?;
             // Elements are read into locals so an index the type checker
             // cannot prove in bounds narrows before it is used.
             let structural = structural_order(&item.sym, &other.sym);
@@ -150,28 +164,31 @@ fn value_order(
                 })()
             })
         }
-        ValueType::Builtin(Builtin::Date) => number_order(
+        (None, ValueType::Builtin(Builtin::Date)) => number_order(
             ordering,
             &rendered(ts_template! { @{left}.getTime() }),
             &rendered(ts_template! { @{right}.getTime() }),
         ),
-        ValueType::Builtin(Builtin::Url) => text_order(
+        (None, ValueType::Builtin(Builtin::Url)) => text_order(
             &rendered(ts_template! { @{left}.href }),
             &rendered(ts_template! { @{right}.href }),
         ),
-        ValueType::Builtin(Builtin::UrlSearchParams) => text_order(
+        (None, ValueType::Builtin(Builtin::UrlSearchParams)) => text_order(
             &rendered(ts_template! { @{left}.toString() }),
             &rendered(ts_template! { @{right}.toString() }),
         ),
-        ValueType::Builtin(
-            Builtin::RegExp | Builtin::TypedArray | Builtin::ArrayBuffer | Builtin::Error,
-        )
-        | ValueType::Opaque
-        | ValueType::Structural
-        | ValueType::Map { .. }
-        | ValueType::Set(_) => return structural_order(left, right),
+        (
+            None,
+            ValueType::Builtin(
+                Builtin::RegExp | Builtin::TypedArray | Builtin::ArrayBuffer | Builtin::Error,
+            )
+            | ValueType::Opaque
+            | ValueType::Structural
+            | ValueType::Map { .. }
+            | ValueType::Set(_),
+        ) => return Ok(structural_order(left, right)),
     };
-    if classified.nullable {
+    Ok(if classified.nullable {
         // An absent value orders as the structural order ranks it: before
         // every present one.
         let structural = structural_order(left, right);
@@ -180,7 +197,7 @@ fn value_order(
         )
     } else {
         compared
-    }
+    })
 }
 
 /// The order of two numbers. `NaN` is equal to itself, as `PartialEq` holds

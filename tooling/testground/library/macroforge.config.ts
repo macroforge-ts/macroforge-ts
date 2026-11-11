@@ -10,7 +10,8 @@ export default {
                     typeof raw === 'string' ? DateTime.make(raw) : Option.none(),
                     () => new Error(`Not a date-time: ${JSON.stringify(raw)}`)
                 ),
-            default: () => DateTime.unsafeNow()
+            default: () => DateTime.unsafeNow(),
+            is: (value: unknown): value is DateTime.DateTime => DateTime.isDateTime(value)
         }
     }
 };

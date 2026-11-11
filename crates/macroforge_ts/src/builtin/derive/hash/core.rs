@@ -63,7 +63,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 .map(|f| {
                     let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                     let expr_src =
-                        generate_field_hash_for_interface(f, "value", resolved, type_registry);
+                        generate_field_hash_for_interface(f, "value", resolved, type_registry)
+                            .map_err(|message| refused(&input, message))?;
                     let expr = Expr::parse(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
@@ -141,7 +142,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 .map(|f| {
                     let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                     let expr_src =
-                        generate_field_hash_for_interface(f, "value", resolved, type_registry);
+                        generate_field_hash_for_interface(f, "value", resolved, type_registry)
+                            .map_err(|message| refused(&input, message))?;
                     let expr = Expr::parse(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
@@ -200,7 +202,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     .map(|f| {
                         let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src =
-                            generate_field_hash_for_interface(f, "value", resolved, type_registry);
+                            generate_field_hash_for_interface(f, "value", resolved, type_registry)
+                                .map_err(|message| refused(&input, message))?;
                         let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -235,7 +238,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 .filter(|elements| fixed_tuple(elements))
             {
                 let fn_name_ident = type_names.generic_function("HashCode");
-                let hash_body = tuple_hash_statements(elements, type_registry);
+                let hash_body = tuple_hash_statements(elements, type_registry)
+                    .map_err(|message| refused(&input, message))?;
                 let parameter = ts_ident!(parameter_name("value", &hash_body));
                 Ok(ts_template! {
                     export function @{fn_name_ident}(@{parameter}: @{type_names.full_type_ident()}): number {
@@ -244,7 +248,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
             } else {
                 let fn_name_ident = type_names.generic_function("HashCode");
-                let hash_src = alias_hash_expr(type_alias.body(), type_registry);
+                let hash_src = alias_hash_expr(type_alias.body(), type_registry)
+                    .map_err(|message| refused(&input, message))?;
                 let hash_expr = Expr::parse(&hash_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
@@ -264,12 +269,17 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
 /// The hash of `value`, a value of an alias with `body` that is neither an
 /// object nor a fixed-length tuple.
-fn alias_hash_expr(body: &TypeBody, registry: &TypeRegistry) -> String {
+fn alias_hash_expr(body: &TypeBody, registry: &TypeRegistry) -> Result<String, String> {
     if let Some(base) = body.primitive_base() {
-        return primitive_hash_expr(base, "value");
+        return Ok(primitive_hash_expr(base, "value"));
     }
     match body.as_alias() {
         Some(ts_type) => generate_value_hash(ts_type, "value", None, registry),
-        None => structural_call("structuralHash", "value"),
+        None => Ok(structural_call("structuralHash", "value")),
     }
+}
+
+/// The error `@derive(Hash)` on `input` gives for what it cannot hash.
+fn refused(input: &DeriveInput, message: String) -> MacroforgeError {
+    MacroforgeError::new(input.decorator_span(), format!("@derive(Hash): {message}"))
 }

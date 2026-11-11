@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
+import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeIs, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodedText as __mf_decodedText, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
  * A generic alias over a foreign type, declared apart from the types that use
@@ -41,7 +41,11 @@ export function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean, __en
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     const __encoder = __mf_derivedEncoder(value);
-    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Stamped<T>): member is DateTime.DateTime => __foreign__dateTimeDateTimeIs(member), (member) => __foreign__dateTimeDateTimeEncode(member)),
+        (value: Stamped<T>): unknown => __encodeT !== undefined && value !== null && value !== undefined ? __encodeT(value as T, ctx) : __mf_notTheMember,
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -366,23 +370,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 831..1082
-original 290..354 -> expanded 1082..1146
-original 354..356 -> expanded 6771..6773
-original 447..467 -> expanded 6773..6793
-original 483..484 -> expanded 6837..6838
-original 484..485 -> expanded 10648..10649
-generated 0..786 <- imports
-generated 786..831 <- $Newtype
-generated 1146..1253 <- Default
-generated 1253..2624 <- Encode
-generated 2624..6090 <- Decode
-generated 6090..6771 <- __convenience_const
-generated 6793..6837 <- $Newtype
-generated 6838..6915 <- Default
-generated 6915..7607 <- Encode
-generated 7607..10018 <- Decode
-generated 10018..10648 <- __convenience_const
+original 0..251 -> expanded 932..1183
+original 290..354 -> expanded 1183..1247
+original 354..356 -> expanded 7230..7232
+original 447..467 -> expanded 7232..7252
+original 483..484 -> expanded 7296..7297
+original 484..485 -> expanded 11107..11108
+generated 0..887 <- imports
+generated 887..932 <- $Newtype
+generated 1247..1354 <- Default
+generated 1354..3083 <- Encode
+generated 3083..6549 <- Decode
+generated 6549..7230 <- __convenience_const
+generated 7252..7296 <- $Newtype
+generated 7297..7374 <- Default
+generated 7374..8066 <- Encode
+generated 8066..10477 <- Decode
+generated 10477..11107 <- __convenience_const
 
 ## Metadata
 

@@ -264,3 +264,45 @@ fn edited_config_is_reparsed_under_the_same_path() {
     );
     CONFIG_CACHE.remove(path);
 }
+
+/// Every function a built-in derive generates for a type can be configured
+/// for a foreign type, each under its handler's key.
+#[test]
+fn a_foreign_type_configures_every_handler() {
+    let content = r#"
+            export default {
+                foreignTypes: {
+                    Money: {
+                        from: ["money"],
+                        encode: (v) => v.toString(),
+                        decode: (raw) => Money.parse(raw),
+                        default: () => Money.zero(),
+                        hasShape: (v) => typeof v === "string",
+                        is: (v) => v instanceof Money,
+                        clone: (v) => v.copy(),
+                        toString: (v) => v.toString(),
+                        equals: (a, b) => a.equals(b),
+                        hashCode: (v) => v.hash(),
+                        partialCompare: (a, b) => a.compare(b),
+                        compare: (a, b) => a.compare(b)
+                    }
+                }
+            }
+        "#;
+
+    let config = parse(content, "macroforge.config.js").expect("the config parses");
+    let money = config.foreign_types.first().expect("one foreign type");
+    for handler in crate::ts_syn::config::ForeignHandler::ALL {
+        let mut configured = money.clone();
+        assert!(
+            configured.handler_expr_mut(handler).is_some(),
+            "`{}` is read from the config",
+            handler.key()
+        );
+    }
+    assert_eq!(money.is_expr.as_deref(), Some("(v) => v instanceof Money"));
+    assert_eq!(
+        money.compare_expr.as_deref(),
+        Some("(a, b) => a.compare(b)")
+    );
+}

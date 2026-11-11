@@ -61,11 +61,37 @@ pub enum ForeignHandler {
     Default,
     /// `hasShape`: whether a raw value could be this type.
     HasShape,
+    /// `is`: whether a value is one of this type.
+    Is,
+    /// `clone`: a copy of the value.
+    Clone,
+    /// `toString`: the value as `Debug` prints it.
+    ToString,
+    /// `equals`: whether two values are equal.
+    Equals,
+    /// `hashCode`: the value's hash.
+    HashCode,
+    /// `partialCompare`: the order of two values, or `null` when they have none.
+    PartialCompare,
+    /// `compare`: the order of two values.
+    Compare,
 }
 
 impl ForeignHandler {
     /// Every handler, in the order the config declares them.
-    pub const ALL: [Self; 4] = [Self::Encode, Self::Decode, Self::Default, Self::HasShape];
+    pub const ALL: [Self; 11] = [
+        Self::Encode,
+        Self::Decode,
+        Self::Default,
+        Self::HasShape,
+        Self::Is,
+        Self::Clone,
+        Self::ToString,
+        Self::Equals,
+        Self::HashCode,
+        Self::PartialCompare,
+        Self::Compare,
+    ];
 
     /// The config key a handler is declared under.
     pub fn key(self) -> &'static str {
@@ -74,6 +100,13 @@ impl ForeignHandler {
             Self::Decode => "decode",
             Self::Default => "default",
             Self::HasShape => "hasShape",
+            Self::Is => "is",
+            Self::Clone => "clone",
+            Self::ToString => "toString",
+            Self::Equals => "equals",
+            Self::HashCode => "hashCode",
+            Self::PartialCompare => "partialCompare",
+            Self::Compare => "compare",
         }
     }
 
@@ -88,6 +121,13 @@ impl ForeignHandler {
             Self::Decode => "Decode",
             Self::Default => "Default",
             Self::HasShape => "HasShape",
+            Self::Is => "Is",
+            Self::Clone => "Clone",
+            Self::ToString => "ToString",
+            Self::Equals => "Equals",
+            Self::HashCode => "HashCode",
+            Self::PartialCompare => "PartialCompare",
+            Self::Compare => "Compare",
         }
     }
 
@@ -210,6 +250,35 @@ pub struct ForeignTypeConfig {
     /// Example: `(v: unknown) => typeof v === "string"` for types decoded from strings.
     pub has_shape_expr: Option<String>,
 
+    /// Type guard `(value: unknown) => value is T`: whether a value is one of
+    /// this type, where `hasShape` also takes its wire forms.
+    #[serde(default)]
+    pub is_expr: Option<String>,
+
+    /// `(value: T) => T`, the copy `Clone` makes of a value.
+    #[serde(default)]
+    pub clone_expr: Option<String>,
+
+    /// `(value: T) => string`, the text `Debug` prints for a value.
+    #[serde(default)]
+    pub to_string_expr: Option<String>,
+
+    /// `(a: T, b: T) => boolean`, the equality `PartialEq` compares by.
+    #[serde(default)]
+    pub equals_expr: Option<String>,
+
+    /// `(value: T) => number`, the hash `Hash` takes of a value.
+    #[serde(default)]
+    pub hash_code_expr: Option<String>,
+
+    /// `(a: T, b: T) => number | null`, the order `PartialOrd` compares by.
+    #[serde(default)]
+    pub partial_compare_expr: Option<String>,
+
+    /// `(a: T, b: T) => number`, the order `Ord` compares by.
+    #[serde(default)]
+    pub compare_expr: Option<String>,
+
     /// Aliases for this foreign type, allowing different name-package pairs to use the same config.
     #[serde(default)]
     pub aliases: Vec<ForeignTypeAlias>,
@@ -240,6 +309,23 @@ impl ForeignTypeConfig {
         self.name.rsplit('.').next().unwrap_or(&self.name)
     }
 
+    /// Where the expression of `handler` is kept, for the config loader.
+    pub fn handler_expr_mut(&mut self, handler: ForeignHandler) -> &mut Option<String> {
+        match handler {
+            ForeignHandler::Encode => &mut self.encode_expr,
+            ForeignHandler::Decode => &mut self.decode_expr,
+            ForeignHandler::Default => &mut self.default_expr,
+            ForeignHandler::HasShape => &mut self.has_shape_expr,
+            ForeignHandler::Is => &mut self.is_expr,
+            ForeignHandler::Clone => &mut self.clone_expr,
+            ForeignHandler::ToString => &mut self.to_string_expr,
+            ForeignHandler::Equals => &mut self.equals_expr,
+            ForeignHandler::HashCode => &mut self.hash_code_expr,
+            ForeignHandler::PartialCompare => &mut self.partial_compare_expr,
+            ForeignHandler::Compare => &mut self.compare_expr,
+        }
+    }
+
     /// What generated code calls to run `handler`, or `None` when the type
     /// declares no such handler. A config's handler is called by its export
     /// from the expanded config, whose import from [`FOREIGN_HANDLERS_MODULE`]
@@ -251,6 +337,13 @@ impl ForeignTypeConfig {
             ForeignHandler::Decode => self.decode_expr.as_deref(),
             ForeignHandler::Default => self.default_expr.as_deref(),
             ForeignHandler::HasShape => self.has_shape_expr.as_deref(),
+            ForeignHandler::Is => self.is_expr.as_deref(),
+            ForeignHandler::Clone => self.clone_expr.as_deref(),
+            ForeignHandler::ToString => self.to_string_expr.as_deref(),
+            ForeignHandler::Equals => self.equals_expr.as_deref(),
+            ForeignHandler::HashCode => self.hash_code_expr.as_deref(),
+            ForeignHandler::PartialCompare => self.partial_compare_expr.as_deref(),
+            ForeignHandler::Compare => self.compare_expr.as_deref(),
         }?;
         if self.builtin {
             return Some(format!("({expression})"));
